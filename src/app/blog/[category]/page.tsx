@@ -3,6 +3,7 @@ type Props = {
     category: string;
   };
 };
+
 const Post = async ({ params }: Props) => {
   // const post = await getPostDetail(params.category, params.id);
   return (
