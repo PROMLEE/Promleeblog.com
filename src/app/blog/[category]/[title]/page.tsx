@@ -15,20 +15,11 @@ const Post = async ({ params }: Props) => {
   );
 
   return (
-    <div className="prose">
-      <h1>Post</h1>
-      <h2>Category: {params.category}</h2>
-      <h3>Title: {params.title}</h3>
-      <MDXRemote
-        source={markdownsource}
-        options={{
-          parseFrontmatter: true,
-          mdxOptions: {
-            remarkPlugins: [],
-            rehypePlugins: [],
-          },
-        }}
-      />
+    <div className="prose text-white">
+      <h1 className={"text-white"}>Post</h1>
+      <h2 className={"text-white"}>Category: {params.category}</h2>
+      <h3 className={"text-white"}>Title: {params.title}</h3>
+      <MDXRemote source={markdownsource} options={{ parseFrontmatter: true }} />
     </div>
   );
 };

@@ -11,15 +11,25 @@ async function getData() {
   return res.json();
 }
 
+function CategoryList() {
+  const fs = require("fs");
+  const path = `${process.cwd()}/src/posts`;
+  return fs.readdirSync(path);
+}
+
 export default async function Home() {
   const { result } = await getData();
   return (
     <div>
       Hello, Next js
+      {CategoryList().map((category: string, idx: any) => (
+        <div key={idx}>
+          <Link href={`/blog/${category}`}>{category}</Link>
+        </div>
+      ))}
       <br />
       {result.mockUser.user_email}
       <br />
-      <Link href={"/blog"}>To List</Link>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "../config/globals.css";
 import React from "react";
 import Link from "next/link";
 
@@ -18,9 +18,9 @@ export default function RootLayout({
 }>) {
   return (
     <html>
-      <body>
+      <body className={"bg-black text-white"}>
         <div className={"btn"}>
-          <Link href="/">Header</Link>
+          <Link href="/">PromleeBlog</Link>
         </div>
         {children}
       </body>
