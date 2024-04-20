@@ -1,5 +1,5 @@
 async function getData() {
-  const res = await fetch("http://localhost:3000/api", {
+  const res = await fetch(`${process.env.API_URL}/api`, {
     cache: "no-store",
   });
   if (!res.ok) {
@@ -11,7 +11,7 @@ async function getData() {
 }
 
 export default async function Home() {
-  const { message, result } = await getData();
+  const { result } = await getData();
   return (
     <div>
       Hello, Next js
