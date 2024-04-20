@@ -19,8 +19,13 @@ export default function RootLayout({
   return (
     <html>
       <body className={"bg-black text-white"}>
-        <div className={"btn"}>
-          <Link href="/">PromleeBlog</Link>
+        <div className={"topbar"}>
+          <Link href={"/"} className={"m-5 hover:text-amber-700"}>
+            PromleeBlog
+          </Link>
+          <Link href={"/blog"} className={"text-2xl hover:text-amber-700"}>
+            Categories
+          </Link>
         </div>
         {children}
       </body>
