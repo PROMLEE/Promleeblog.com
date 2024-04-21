@@ -8,8 +8,8 @@ export interface MDXMeta {
 export interface dbtable {
   id: number;
   title: string;
+  date: string;
   description: string;
-  created: string;
-  author: string;
-  profile: string;
+  thumbnail: string;
+  content: string;
 }
