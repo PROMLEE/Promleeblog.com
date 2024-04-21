@@ -8,7 +8,7 @@ const pool = createPool({
   port: process.env.SQL_PORT as unknown as number,
 });
 
-pool.getConnection((err, conn) => {
+pool.getConnection((err: any, conn: any) => {
   if (err) console.log("Error connecting to db...");
   else console.log("Connected to db...!");
   conn.release();
@@ -17,7 +17,7 @@ pool.getConnection((err, conn) => {
 const handleMySql = (query: string, arrParams: string) => {
   return new Promise((resolve, reject) => {
     try {
-      pool.query(query, arrParams, (err, data) => {
+      pool.query(query, arrParams, (err: any, data: any) => {
         if (err) {
           console.log("Error in executing the query");
           reject(err);

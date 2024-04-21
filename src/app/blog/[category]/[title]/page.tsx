@@ -1,5 +1,6 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { dbtable } from "@/config/types";
+import { CustomButton, AlertBox } from "@/components/mdx/Comps";
 
 type Props = {
   params: {
@@ -7,16 +8,14 @@ type Props = {
     title: string;
   };
 };
-const MyComponent = () => {
-  return (
-    <div>
-      <h1>hihihi</h1>
-      <button>Click me</button>
-      <p>Count: 1</p>
-    </div>
-  );
+
+const MyComponents = {
+  CustomButton,
+  AlertBox,
+  p: CustomButton,
+  h2: CustomButton,
 };
-const components = { MyComponent };
+
 const Post = async ({ params }: Props) => {
   const markdownsource: dbtable[] = await fetch(`${process.env.API_URL}/api`, {
     cache: "no-store",
@@ -33,18 +32,20 @@ const Post = async ({ params }: Props) => {
         <h3 className={"text-white"}>Title: {params.title}</h3>
         {/*<MDXRemote*/}
         {/*  source={markdownsource}*/}
-        {/*  components={components}*/}
+        {/*  components={{ CustomButton, AlertBox }}*/}
         {/*  options={{ parseFrontmatter: true }}*/}
         {/*/>*/}
         {markdownsource.map((data: dbtable, idx: any) => (
           <div key={idx}>
-            <h1>{data.title}</h1>
+            <h1 className={"text-pink-600 hover:text-amber-500"}>
+              {data.title}
+            </h1>
             <p>{data.description}</p>
             <p>{data.date.toString()}</p>
             <p>{data.thumbnail}</p>
             <MDXRemote
               source={data.content}
-              components={components}
+              components={MyComponents}
               options={{ parseFrontmatter: true }}
             />
             <br />
