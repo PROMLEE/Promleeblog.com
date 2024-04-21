@@ -1,4 +1,3 @@
-import { dbtable } from "@/config/types";
 import { createPool } from "mysql2";
 
 const pool = createPool({
