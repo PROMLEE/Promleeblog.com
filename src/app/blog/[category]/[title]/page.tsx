@@ -1,7 +1,6 @@
-import fs from "node:fs";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { dbtable } from "@/config/types";
-import { serialize } from "next-mdx-remote/serialize";
+
 type Props = {
   params: {
     category: string;
