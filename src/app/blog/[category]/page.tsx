@@ -16,7 +16,9 @@ const Category = async ({ params }: Props) => {
   // const post = await getPostDetail(params.category, params.id);
   return (
     <div>
-      <div className={"m-5 text-5xl"}>{params.category}</div>
+      <div className={"m-5 text-5xl"}>
+        {params.category.replace("%20", " ")}
+      </div>
       {TitleList(params.category).map((title: string, idx: any) => (
         <div key={idx}>
           <Link

@@ -16,7 +16,7 @@ export default async function Home() {
             href={`/blog/${category}`}
             className={"m-5 text-2xl hover:text-amber-700"}
           >
-            {category}
+            {category.replace("%20", " ")}
           </Link>
         </div>
       ))}
