@@ -1,7 +1,15 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
 import fs from "fs";
 import { components } from "@/components/mdx";
-
+import { dbtable } from "@/config/types";
+import matter from "gray-matter";
+export interface Post extends dbtable {
+  url: string;
+  slug: string;
+  categoryPath: string;
+  content: string;
+  categoryPublicName: string;
+}
 type Props = {
   params: {
     category: string;
@@ -9,17 +17,35 @@ type Props = {
   };
 };
 
+const getPostDetail = async (category: string, slug: string) => {
+  const filePath = `${process.cwd()}/src/posts/${category}/${slug}/content.mdx`;
+  const detail = await parsePost(filePath);
+  return detail;
+};
+const parsePostDetail = async (postPath: string) => {
+  const file = fs.readFileSync(postPath, "utf8");
+  const { data, content } = matter(file);
+  const grayMatter = data as dbtable;
+  return { ...grayMatter, content };
+};
+const parsePost = async (postPath: string): Promise<any> => {
+  const postDetail = await parsePostDetail(postPath);
+  return {
+    ...postDetail,
+  };
+};
 const Post = async ({ params }: Props) => {
   // const markdownsource: dbtable[] = await fetch(`${process.env.API_URL}/api`, {
   //   cache: "no-store",
   // }).then((res) => res.json());
-  const markdownsource = fs.readFileSync(
-    `${process.cwd()}/src/posts/${params.category}/${params.title}/content.mdx`,
-    // "utf8",
-  );
+  // const markdownsource = fs.readFileSync(
+  //   `${process.cwd()}/src/posts/${params.category}/${params.title}/content.mdx`,
+  //   // "utf8",
+  // );
+  const post = await getPostDetail(params.category, params.title);
   return (
     <>
-      <div className="prose text-white">
+      <div className="prose w-full">
         <h2 className={"text-white"}>
           Category: {params.category.replace("%20", " ")}
         </h2>
@@ -27,7 +53,7 @@ const Post = async ({ params }: Props) => {
           Title: {params.title.replace("%20", " ")}
         </h3>
         <MDXRemote
-          source={markdownsource}
+          source={post.content}
           components={components}
           options={{ parseFrontmatter: true }}
         />

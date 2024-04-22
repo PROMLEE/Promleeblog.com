@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html>
-      <body className={"bg-black text-white"}>
+      <body className={"bg-black text-white w-full"}>
         <div className={"topbar"}>
           <Link href={"/"} className={"m-5 hover:text-amber-700"}>
             PromleeBlog

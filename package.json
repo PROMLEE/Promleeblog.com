@@ -14,6 +14,7 @@
     "@mdx-js/react": "^3.0.1",
     "@mdxeditor/editor": "^2.20.7",
     "autoprefixer": "^10.4.19",
+    "gray-matter": "^4.0.3",
     "mysql2": "^3.9.7",
     "next": "14.2.2",
     "next-mdx-remote": "^4.4.1",

@@ -1,5 +1,5 @@
 import { h1tag, h2tag, h3tag, h4tag, h5tag } from "@/components/mdx/htags";
-import { oltag } from "@/components/mdx/litags";
+import { oltag, litag, Answer } from "@/components/mdx/litags";
 import { btag } from "@/components/mdx/font";
 
 export const components = {
@@ -9,6 +9,8 @@ export const components = {
   h4: h4tag,
   h5: h5tag,
   ol: oltag,
+  li: litag,
   strong: btag,
   b: btag,
+  Answer,
 };
