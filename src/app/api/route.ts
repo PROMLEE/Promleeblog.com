@@ -1,4 +1,4 @@
-// import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 // import handleMySql from "@/config/db";
 
 // export async function GET() {
@@ -8,5 +8,5 @@
 //   return NextResponse.json(db);
 // }
 export async function GET() {
-  return "hi";
+  return NextResponse.json({ message: "Hello World" });
 }
