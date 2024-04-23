@@ -45,18 +45,21 @@ const Post = async ({ params }: Props) => {
   const post = await getPostDetail(params.category, params.title);
   return (
     <>
-      <div className="prose w-full">
+      <div className="prose">
         <h2 className={"text-white"}>
           Category: {params.category.replace("%20", " ")}
         </h2>
         <h3 className={"text-white"}>
           Title: {params.title.replace("%20", " ")}
         </h3>
-        <MDXRemote
-          source={post.content}
-          components={components}
-          options={{ parseFrontmatter: true }}
-        />
+        <div className="">
+          <MDXRemote
+            source={post.content}
+            components={components}
+            options={{ parseFrontmatter: true }}
+          />
+        </div>
+
         {/*For MySQL... Maybe Later...*/}
         {/*{markdownsource.map((data: dbtable, idx: any) => (*/}
         {/*  <div key={idx}>*/}

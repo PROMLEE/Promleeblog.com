@@ -1,8 +1,8 @@
-# Chapter1
+# Chapter1 Computer Network Intro
 
 ## Review Questions
 
-### Section 1.1
+### Section 1.1 What is the Internet?
 
 
 1. What is the difference between a host and an end system? List several different types of end systems. Is a Web server an end system?<br/>
@@ -27,6 +27,7 @@
 		네트워크에서 사용자 간 획일화된 상호작용이 가능하다
 	</Answer>
 
+### Section 1.2 network edge - end systems, access network, links
 4. List four access technologies. Classify each one as home access, enterprise access, or wide-area wireless access.<br/>
 	네 가지 접근 기술을 나열하고 각각을 가정용 접근, 기업용 접근 또는 광역 무선 접근으로 분류하세요.
 	<Answer>
@@ -80,18 +81,23 @@
 		**5G**: 5G는 다음 세대 무선 통신 기술로, 더 높은 속도, 낮은 지연 시간 및 더 많은 연결을 제공합니다. 5G는 더 많은 데이터를 더 빠르게 전송할 수 있으며, 더 많은 기기를 동시에 연결할 수 있습니다.<br/><br/>
 		**Bluetooth**: Bluetooth는 근거리 무선 통신 기술로, 주로 휴대폰, 헤드셋, 스피커, 키보드, 마우스 등의 장치 간에 데이터를 전송하는 데 사용됩니다. Bluetooth는 저전력 무선 통신을 제공하며, 주로 개인 장치 간에 데이터를 전송하는 데 사용됩니다.<br/><br/>
 	</Answer>
-
+### Section 1.3 network core - packet switching, circuit switching, network structure
 11. Suppose there is exactly one packet switch between a sending host and a receiving host. The transmission rates between the sending host and the switch and between the switch and the receiving host are R1 and R2, respectively. Assuming that the switch uses store-and-forward packet switching, what is the total end-to-end delay to send a packet of length L? (Ignore queuing, propagation delay, and processing delay.)<br/>
 	송신 호스트와 수신 호스트 사이에 정확히 하나의 패킷 스위치가 있다고 가정합니다. 송신 호스트와 스위치 간, 스위치와 수신 호스트 간의 전송 속도는 각각 R1 및 R2입니다. 스위치가 저장 및 전달 패킷 스위칭을 사용한다고 가정할 때, 길이 L의 패킷을 보내는 데 필요한 총 종단 간 지연 시간은 얼마인가요? (대기, 전파 지연 및 처리 지연을 무시하세요.)
 	<Answer>
 		**End-to-end delay = (L/R1) + (L/R2)**
 	</Answer>
+
 12. What advantage does a circuit-switched network have over a packet-switched network? What advantages does TDM have over FDM in a circuit-switched network?<br/>
 	회선 교환 네트워크가 패킷 교환 네트워크에 비해 어떤 이점이 있나요? 회선 교환 네트워크에서 TDM이 FDM에 비해 어떤 이점이 있나요?
 	<Answer>
+		**회선 교환 네트워크**: 통신 회선을 설정하여 데이터를 교환하는 방식(전용선)<br/>
+		**패킷 교환 네트워크**: 데이터를 패킷 단위로 전송하는 방식(여러 경로 이용)
+
 		**회선 교환 네트워크의 장점**은 전송 중에 연결이 유지되므로 전송 중에 데이터가 손실되지 않는다는 것입니다. 이는 실시간 음성 통화 또는 비디오 스트리밍과 같은 실시간 응용 프로그램에 적합합니다. 반면 **패킷 교환 네트워크**는 데이터를 패킷 단위로 전송하며, 패킷이 도착하는 순서가 보장되지 않을 수 있습니다. 이는 데이터 전송 중에 패킷 손실이 발생할 수 있다는 것을 의미합니다.<br/><br/>
 		**회선 교환 네트워크**에서 **TDM**은 **FDM**에 비해 **더 많은 사용자를 지원**할 수 있습니다. TDM은 시간을 여러 사용자 사이에 분할하여 전송하므로 여러 사용자가 동시에 전송할 수 있습니다. 반면 FDM은 주파수를 여러 사용자 사이에 분할하여 전송하므로 동시에 전송할 수 있는 사용자 수가 제한됩니다.
 	</Answer>
+
 13. Suppose users share a 2 Mbps link. Also suppose each user transmits continuously at 1 Mbps when transmitting, but each user transmits only 20 percent of the time. (See the discussion of statistical multiplexing in Section 1.3.)<br/>
 	a. When circuit switching is used, how many users can be supported?<br/>
 	b. For the remainder of this problem, suppose packet switching is used. Why will there be essentially no queuing delay before the link if two or fewer users transmit at the same time? Why will there be a queuing delay if three users transmit at the same time?<br/>
@@ -122,7 +128,7 @@
 		**Google의 네트워크**는 **글로벌 규모의 네트워크**로, 전 세계 사용자에게 빠르고 안정적인 서비스를 제공하기 위해 구축되었습니다. Google의 네트워크는 데이터 센터, 콘텐츠 전송 네트워크(CDN), 광섬유 백본 네트워크 등 다양한 구성 요소로 구성되어 있습니다. Google의 네트워크는 사용자에게 빠른 데이터 전송 속도와 높은 가용성을 제공하며, 사용자 경험을 향상시키기 위해 구축되었습니다.<br/><br/>
 		콘텐츠 제공업체가 이러한 네트워크를 구축하는 동기는 **사용자 경험 향상**과 **서비스 제공**입니다. 콘텐츠 제공업체는 사용자에게 빠르고 안정적인 서비스를 제공하기 위해 자체 네트워크를 구축하고, 사용자에게 더 나은 서비스를 제공하기 위해 네트워크 성능을 최적화합니다.
 	</Answer>
-
+### Section 1.4 delay(latency), loss, and throughput in networks
 16. Consider sending a packet from a source host to a destination host over a fixed route. List the delay components in the end-to-end delay. Which of these delays are constant and which are variable?<br/>
 	고정 경로를 통해 소스 호스트에서 목적지 호스트로 패킷을 보내는 경우를 고려해보세요. 종단 간 지연의 지연 구성 요소를 나열하세요. 이 지연 중 어느 것이 일정하고 어느 것이 가변적인가요?
 	<Answer>
@@ -159,8 +165,8 @@ c. Repeat (a) and (b), but now with R2 reduced to 100 kbps.<br/>
 	c. (a) 및 (b)를 반복하되, 이제 R2를 100 kbps로 줄입니다.
 	<Answer>
 		a. **파일 전송의 처리량은 500 kbps입니다.** 파일 전송의 처리량은 **가장 낮은 링크의 전송 속도**와 같습니다.<br/><br/>
-		b. **파일을 호스트 B로 전송하는 데 걸리는 시간은 64초입니다.** 파일 전송 시간은 **파일 크기를 처리량으로 나눈 값**입니다. 따라서 4,000,000 바이트를 500 kbps로 나누면 64초가 걸립니다.<br/><br/>
-		c. **파일 전송의 처리량은 100 kbps입니다.** 파일 전송의 처리량은 **가장 낮은 링크의 전송 속도**와 같습니다. **파일을 호스트 B로 전송하는 데 걸리는 시간은 320초입니다.** 파일 전송 시간은 **파일 크기를 처리량으로 나눈 값**입니다. 따라서 4,000,000 바이트를 100 kbps로 나누면 320초가 걸립니다.
+		b. **파일을 호스트 B로 전송하는 데 걸리는 시간은 64초입니다.** 파일 전송 시간은 **파일 크기를 처리량으로 나눈 값**입니다. 따라서 4,000,000 바이트 => 32백만 비트를 500 kbps로 나누면 64초가 걸립니다.<br/><br/>
+		c. **파일 전송의 처리량은 100 kbps입니다.** 파일 전송의 처리량은 **가장 낮은 링크의 전송 속도**와 같습니다. **파일을 호스트 B로 전송하는 데 걸리는 시간은 320초입니다.** 파일 전송 시간은 **파일 크기를 처리량으로 나눈 값**입니다. 따라서 4,000,000 바이트 => 32백만 비트를 100 kbps로 나누면 320초가 걸립니다.
 	</Answer>
 
 
@@ -172,7 +178,10 @@ c. Repeat (a) and (b), but now with R2 reduced to 100 kbps.<br/>
 		**헤더 추가**: 각 패킷에는 목적지 주소, 출발지 주소, 시퀀스 번호 등의 헤더 정보가 추가됩니다.<br/>
 		**전송**: 각 패킷은 네트워크를 통해 전송됩니다.<br/><br/>
 		**라우터가 패킷을 전달할 링크를 결정하는 데 사용하는 정보**는 **패킷 헤더**입니다. 패킷 헤더에는 **목적지 주소**가 포함되어 있으며, 라우터는 이 정보를 사용하여 패킷을 올바른 링크로 전달합니다.<br/><br/>
-		**인터넷에서의 패킷 교환이 도시 간 운전과 유사한 이유**는 **패킷이 네트워크를 통해 전달되는 방식**입니다. 패킷 교환은 **패킷이 네트워크를 통해 전달되는 동안 여러 라우터를 거치며 목적지로 전달**됩니다. 이는 운전 중에 도시 간에 길을 물어보는 것과 유사합니다.
+		**인터넷에서의 패킷 교환이 도시 간 운전과 유사한 이유**는 **패킷이 네트워크를 통해 전달되는 방식**입니다. 패킷 교환은 **패킷이 네트워크를 통해 전달되는 동안 여러 라우터를 거치며 목적지로 전달**됩니다. 이는 운전 중에 도시 간에 길을 물어보는 것과 유사합니다.<br/><br/>
+		**경로 탐색**: 운전자가 목적지까지 가는 길을 모를 때, 길을 찾기 위해 중간 지점마다 길을 물어볼 수 있습니다. 마찬가지로, 패킷은 출발지에서 목적지까지 가는 동안 각 라우터에서 다음 목적지로 어떻게 가야 하는지 결정됩니다.<br/>
+		**유동적인 경로**: 도로 상황에 따라 운전 경로를 변경할 수 있듯이, 네트워크 상황(트래픽, 고장 등)에 따라 패킷의 경로가 동적으로 조정될 수 있습니다.<br/>
+		**중간 지점에서의 결정**: 운전 중에 다음 도시로 어떻게 갈지 결정하는 것처럼, 라우터는 패킷이 도착할 때마다 다음 링크로 전송할 방향을 결정합니다.<br/>
 	</Answer>
 
 21. Visit the Queuing and Loss interactive animation at the companion Web site. What is the maximum emission rate and the minimum transmission rate? With those rates, what is the traffic intensity? Run the interactive animation with these rates and determine how long it takes for packet loss to occur. Then repeat the experiment a second time and determine again how long it takes for packet loss to occur. Are the values different? Why or why not?<br/>
@@ -181,7 +190,7 @@ c. Repeat (a) and (b), but now with R2 reduced to 100 kbps.<br/>
 		**최대 발생률**은 0.5 패킷/초이고, **최소 전송률**은 0.2 패킷/초입니다. **트래픽 강도**는 최대 발생률을 최소 전송률로 나눈 값입니다. 따라서 0.5 / 0.2 = 2.5입니다.<br/><br/>
 		**패킷 손실이 발생하는 데 걸리는 시간**은 약 10초입니다. **두 번째 실험에서 패킷 손실이 발생하는 데 걸리는 시간**은 약 10초입니다. **값이 다른 이유**는 **트래픽 강도**가 **최대 발생률과 최소 전송률 사이의 차이**에 따라 달라질 수 있기 때문입니다.
 	</Answer>
-
+### Section 1.5 protocol layers, service models
 22. List five tasks that a layer can perform. Is it possible that one (or more) of these tasks could be performed by two (or more) layers?<br/>
 	계층이 수행할 수 있는 다섯 가지 작업을 나열하세요. 이러한 작업 중 하나(또는 그 이상)가 두 개 이상의 계층에서 수행될 수 있을까요?
 	<Answer>
@@ -227,7 +236,7 @@ c. Repeat (a) and (b), but now with R2 reduced to 100 kbps.<br/>
 		**링크 계층 스위치**는 **링크 계층**을 처리합니다. 링크 계층 스위치는 **링크 계층에서 프레임을 전달**합니다.<br/><br/>
 		**호스트**는 **응용 계층**, **전송 계층**, **네트워크 계층**, **링크 계층**을 처리합니다. 호스트는 **응용 계층에서 데이터를 생성하고, 전송 계층에서 세그먼트를 생성하고, 네트워크 계층에서 데이터그램을 생성하며, 링크 계층에서 프레임을 생성**합니다.
 	</Answer>
-
+### Section 1.6 Security
 26. What is self-replicating malware?<br/>
 	자체 복제 악성 코드는 무엇인가요?
 	<Answer>

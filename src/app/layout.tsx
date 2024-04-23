@@ -27,7 +27,7 @@ export default function RootLayout({
             Categories
           </Link>
         </div>
-        {children}
+        <div className={"content"}>{children}</div>
       </body>
     </html>
   );
