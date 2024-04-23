@@ -7,3 +7,6 @@
 
 //   return NextResponse.json(db);
 // }
+export async function GET() {
+  return "hi";
+}
