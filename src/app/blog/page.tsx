@@ -6,7 +6,7 @@ function CategoryList() {
   return fs.readdirSync(path);
 }
 
-export default async function Home() {
+const Blog = () => {
   return (
     <div>
       <h1 className={"text-4xl m-5"}>All Categories</h1>
@@ -16,10 +16,11 @@ export default async function Home() {
             href={`/blog/${category}`}
             className={"m-5 text-2xl hover:text-amber-700"}
           >
-            {category.replace("%20", " ")}
+            {category.replace("_", " ")}
           </Link>
         </div>
       ))}
     </div>
   );
-}
+};
+export default Blog;

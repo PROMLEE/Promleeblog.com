@@ -1,8 +1,9 @@
-import { MDXRemote } from "next-mdx-remote/rsc";
 import fs from "fs";
-import { components } from "@/components/mdx";
-import { dbtable } from "@/config/types";
 import matter from "gray-matter";
+import { dbtable } from "@/config/types";
+import { components } from "@/components/mdx";
+import { MDXRemote } from "next-mdx-remote/rsc";
+
 export interface Post extends dbtable {
   url: string;
   slug: string;
@@ -10,15 +11,20 @@ export interface Post extends dbtable {
   content: string;
   categoryPublicName: string;
 }
+
+interface params {
+  category: string;
+  subject: string;
+  title: string;
+  content: string;
+}
+
 type Props = {
-  params: {
-    category: string;
-    title: string;
-  };
+  params: params;
 };
 
-const getPostDetail = async (category: string, slug: string) => {
-  const filePath = `${process.cwd()}/src/posts/${category}/${slug}/content.mdx`;
+const getPostDetail = async (params: params) => {
+  const filePath = `${process.cwd()}/src/posts/${params.category}/${params.subject}/${params.title}/${params.content}.mdx`;
   const detail = await parsePost(filePath);
   return detail;
 };
@@ -34,15 +40,17 @@ const parsePost = async (postPath: string): Promise<any> => {
     ...postDetail,
   };
 };
+
+// For MySQL... Maybe Later...
+// const getMarkdownsource = async () => {
+//   const markdownsource: dbtable[] = await fetch(`${process.env.API_URL}/api`, {
+//     cache: "no-store",
+//   }).then((res) => res.json());
+//   return markdownsource;
+// };
+
 const Post = async ({ params }: Props) => {
-  // const markdownsource: dbtable[] = await fetch(`${process.env.API_URL}/api`, {
-  //   cache: "no-store",
-  // }).then((res) => res.json());
-  // const markdownsource = fs.readFileSync(
-  //   `${process.cwd()}/src/posts/${params.category}/${params.title}/content.mdx`,
-  //   // "utf8",
-  // );
-  const post = await getPostDetail(params.category, params.title);
+  const post = await getPostDetail(params);
   return (
     <>
       <div className="prose">
