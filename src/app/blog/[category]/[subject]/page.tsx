@@ -19,7 +19,7 @@ const Subject = async ({ params }: Props) => {
   return (
     <div>
       <div className={"m-5 text-5xl text-white"}>
-        {params.subject.replace("_", " ")}
+        {params.subject.replaceAll("_", " ")}
       </div>
       {contentList(params).map((title: string, idx: any) => (
         <div key={idx}>
@@ -27,7 +27,7 @@ const Subject = async ({ params }: Props) => {
             href={`/blog/${params.category}/${params.subject}/${title}`}
             className={"m-5 text-2xl hover:text-amber-700"}
           >
-            {title.replace("_", " ").replace(".mdx", "")}
+            {title.replaceAll("_", " ").replaceAll(".mdx", "")}
           </Link>
         </div>
       ))}

@@ -16,7 +16,7 @@ const Blog = () => {
             href={`/blog/${category}`}
             className={"m-5 text-2xl hover:text-amber-700"}
           >
-            {category.replace("_", " ")}
+            {category.replaceAll("_", " ")}
           </Link>
         </div>
       ))}
