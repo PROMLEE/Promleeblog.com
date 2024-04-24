@@ -3,7 +3,11 @@ import matter from "gray-matter";
 import { dbtable } from "@/config/types";
 import { components } from "@/components/mdx";
 import { MDXRemote } from "next-mdx-remote/rsc";
-
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
+import rehypePrettyCode from "rehype-pretty-code";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
 export interface Post extends dbtable {
   url: string;
   slug: string;
@@ -64,7 +68,24 @@ const Post = async ({ params }: Props) => {
           <MDXRemote
             source={post.content}
             components={components}
-            options={{ parseFrontmatter: true }}
+            options={{
+              parseFrontmatter: true,
+              mdxOptions: {
+                remarkPlugins: [remarkGfm, remarkBreaks, remarkMath],
+                rehypePlugins: [
+                  [
+                    //@ts-ignore
+                    rehypePrettyCode,
+                    {
+                      highlightClassName: "hljs",
+                      highlightStyle: "atom-one-dark",
+                    },
+                  ],
+                  //@ts-ignore
+                  [rehypeKatex, { strict: false }],
+                ],
+              },
+            }}
           />
         </div>
 
