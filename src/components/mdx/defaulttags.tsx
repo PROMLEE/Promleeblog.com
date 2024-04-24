@@ -31,7 +31,7 @@ export const litag = ({ children }: any) => {
   return <li className={""}>{children}</li>;
 };
 export const btag = ({ children }: any) => {
-  return <b className={"font-bold"}>{children}</b>;
+  return <div className={"font-bold"}>{children}</div>;
 };
 
 export const ptag = ({ children }: any) => {
