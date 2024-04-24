@@ -6,26 +6,25 @@ type Props = {
   };
 };
 
-function TitleList(category: string) {
+function SubjectList(category: string) {
   const fs = require("fs");
   const path = `${process.cwd()}/src/posts/${category}`;
   return fs.readdirSync(path);
 }
 
 const Category = async ({ params }: Props) => {
-  // const post = await getPostDetail(params.category, params.id);
   return (
     <div>
       <div className={"m-5 text-5xl text-white"}>
-        {params.category.replace("%20", " ")}
+        {params.category.replace("_", " ")}
       </div>
-      {TitleList(params.category).map((title: string, idx: any) => (
+      {SubjectList(params.category).map((subject: string, idx: any) => (
         <div key={idx}>
           <Link
-            href={`/blog/${params.category}/${title}`}
+            href={`/blog/${params.category}/${subject}`}
             className={"m-5 text-2xl hover:text-amber-700"}
           >
-            {title}
+            {subject.replace("_", " ")}
           </Link>
         </div>
       ))}
