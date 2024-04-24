@@ -7,6 +7,7 @@ import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import remarkMath from "remark-math";
 export interface Post extends dbtable {
   url: string;
@@ -74,12 +75,9 @@ const Post = async ({ params }: Props) => {
                 remarkPlugins: [remarkGfm, remarkBreaks, remarkMath],
                 rehypePlugins: [
                   [
+                    // 이슈 존재 https://github.com/hashicorp/next-mdx-remote/issues/86
                     //@ts-ignore
                     rehypePrettyCode,
-                    {
-                      highlightClassName: "hljs",
-                      highlightStyle: "atom-one-dark",
-                    },
                   ],
                   //@ts-ignore
                   [rehypeKatex, { strict: false }],
