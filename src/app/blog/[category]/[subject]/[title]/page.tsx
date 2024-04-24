@@ -19,16 +19,16 @@ function contentList(params: params) {
 const Title = async ({ params }: Props) => {
   return (
     <div>
-      <div className={"m-5 text-5xl text-white"}>
-        {params.category.replace("_", " ")}
-      </div>
+      <div className={"category"}>{params.category.replaceAll("_", " ")}</div>
+      <div className={"subject"}>{params.subject.replaceAll("_", " ")}</div>
+      <h3 className={"title"}>{params.title.replaceAll("_", " ")}</h3>
       {contentList(params).map((content: string, idx: any) => (
         <div key={idx}>
           <Link
-            href={`/blog/${params.category}/${params.subject}/${params.title}/${content.replace(".mdx", "")}`}
-            className={"m-5 text-2xl hover:text-amber-700"}
+            href={`/blog/${params.category}/${params.subject}/${params.title}/${content.replaceAll(".mdx", "")}`}
+            className={"content hover:text-pink-500 hover:underline"}
           >
-            {content.replace("_", " ").replace(".mdx", "")}
+            {content.replaceAll("_", " ").replaceAll(".mdx", "")}
           </Link>
         </div>
       ))}

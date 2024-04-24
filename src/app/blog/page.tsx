@@ -9,14 +9,14 @@ function CategoryList() {
 const Blog = () => {
   return (
     <div>
-      <h1 className={"text-4xl m-5"}>All Categories</h1>
+      <h1 className={"text-5xl my-5"}>All Categories</h1>
       {CategoryList().map((category: string, idx: number) => (
         <div key={idx}>
           <Link
             href={`/blog/${category}`}
-            className={"m-5 text-2xl hover:text-amber-700"}
+            className={"category text-white hover:category hover:underline"}
           >
-            {category.replace("_", " ")}
+            {category.replaceAll("_", " ")}
           </Link>
         </div>
       ))}

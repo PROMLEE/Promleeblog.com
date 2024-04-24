@@ -18,16 +18,15 @@ function contentList(params: params) {
 const Subject = async ({ params }: Props) => {
   return (
     <div>
-      <div className={"m-5 text-5xl text-white"}>
-        {params.subject.replace("_", " ")}
-      </div>
+      <div className={"category"}>{params.category.replaceAll("_", " ")}</div>
+      <div className={"subject"}>{params.subject.replaceAll("_", " ")}</div>
       {contentList(params).map((title: string, idx: any) => (
         <div key={idx}>
           <Link
             href={`/blog/${params.category}/${params.subject}/${title}`}
-            className={"m-5 text-2xl hover:text-amber-700"}
+            className={"title text-white hover:title hover:underline"}
           >
-            {title.replace("_", " ").replace(".mdx", "")}
+            {title.replaceAll("_", " ").replaceAll(".mdx", "")}
           </Link>
         </div>
       ))}

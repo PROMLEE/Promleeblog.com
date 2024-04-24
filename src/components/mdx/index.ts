@@ -1,7 +1,18 @@
-import { h1tag, h2tag, h3tag, h4tag, h5tag } from "@/components/mdx/htags";
-import { oltag, litag, Answer } from "@/components/mdx/litags";
-import { btag, ptag } from "@/components/mdx/font";
-// import { imgtag } from "@/components/mdx/image";
+import {
+  h1tag,
+  h2tag,
+  h3tag,
+  h4tag,
+  h5tag,
+  oltag,
+  litag,
+  btag,
+  ptag,
+  spantag,
+  atag,
+  imgtag,
+} from "@/components/mdx/defaulttags";
+import { Answer, Math } from "@/components/mdx/customtags";
 
 export const components = {
   h1: h1tag,
@@ -9,11 +20,14 @@ export const components = {
   h3: h3tag,
   h4: h4tag,
   h5: h5tag,
-  ol: oltag,
-  li: litag,
+  // ol: oltag,
+  // li: litag,
   strong: btag,
   b: btag,
-  p: ptag,
+  // p: ptag,
+  // span: spantag,
+  // a: atag,
   // img: imgtag,
   Answer,
+  Math,
 };
