@@ -58,14 +58,17 @@ const Post = async ({ params }: Props) => {
   const post = await getPostDetail(params);
   return (
     <>
-      <div className="prose">
-        <h2 className={"text-white"}>
-          Category: {params.category.replace("%20", " ")}
-        </h2>
-        <h3 className={"text-white"}>
-          Title: {params.title.replace("%20", " ")}
-        </h3>
-        <div className="">
+      <div className="prose flex justify-center">
+        <div className="w-full md:w-2/3">
+          <div className={"category"}>
+            {params.category.replaceAll("_", " ")}
+          </div>
+          <div className={"subject"}>{params.subject.replaceAll("_", " ")}</div>
+          <div className={"title"}>{params.title.replaceAll("_", " ")}</div>
+          <div className={"content"}>{params.content.replaceAll("_", " ")}</div>
+          <hr
+            className={"my-4 mx-auto border-1 rounded  w-2/3 border-red-500"}
+          />
           <MDXRemote
             source={post.content}
             components={components}
