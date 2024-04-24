@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html>
+    <html className="scroll-smooth focus:scroll-auto">
       <body className={"bg-black text-white w-full"}>
         <div className={"topbar"}>
           <Link href={"/"} className={"m-5 hover:text-amber-700"}>
