@@ -20,15 +20,15 @@ const Title = async ({ params }: Props) => {
   return (
     <div>
       <div className={"m-5 text-5xl text-white"}>
-        {params.category.replace("_", " ")}
+        {params.category.replaceAll("_", " ")}
       </div>
       {contentList(params).map((content: string, idx: any) => (
         <div key={idx}>
           <Link
-            href={`/blog/${params.category}/${params.subject}/${params.title}/${content.replace(".mdx", "")}`}
+            href={`/blog/${params.category}/${params.subject}/${params.title}/${content.replaceAll(".mdx", "")}`}
             className={"m-5 text-2xl hover:text-amber-700"}
           >
-            {content.replace("_", " ").replace(".mdx", "")}
+            {content.replaceAll("_", " ").replaceAll(".mdx", "")}
           </Link>
         </div>
       ))}

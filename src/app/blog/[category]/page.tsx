@@ -16,7 +16,7 @@ const Category = async ({ params }: Props) => {
   return (
     <div>
       <div className={"m-5 text-5xl text-white"}>
-        {params.category.replace("_", " ")}
+        {params.category.replaceAll("_", " ")}
       </div>
       {SubjectList(params.category).map((subject: string, idx: any) => (
         <div key={idx}>
@@ -24,7 +24,7 @@ const Category = async ({ params }: Props) => {
             href={`/blog/${params.category}/${subject}`}
             className={"m-5 text-2xl hover:text-amber-700"}
           >
-            {subject.replace("_", " ")}
+            {subject.replaceAll("_", " ")}
           </Link>
         </div>
       ))}
