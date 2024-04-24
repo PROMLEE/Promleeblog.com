@@ -12,7 +12,7 @@ import {
   atag,
   imgtag,
 } from "@/components/mdx/defaulttags";
-import { Answer } from "@/components/mdx/litags";
+import { Answer, Math } from "@/components/mdx/customtags";
 
 export const components = {
   h1: h1tag,
@@ -22,11 +22,12 @@ export const components = {
   h5: h5tag,
   // ol: oltag,
   // li: litag,
-  // strong: btag,
-  // b: btag,
+  strong: btag,
+  b: btag,
   // p: ptag,
   // span: spantag,
   // a: atag,
   // img: imgtag,
   Answer,
+  Math,
 };
