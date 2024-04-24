@@ -103,6 +103,7 @@ g mod p: g를 p로 나눈 나머지\\
 ```
 
 ### 시프트 암호 (Shift Cipher)
+평문의 각 문자를 고정된 수만큼 이동시키는 암호화 방식
 ```math
 0 <= k <= 25\\
 Enc(K, x) = (x + K) mod \;26 \;\;\;(cf. K = 3: 시저 암호)\\
@@ -119,3 +120,29 @@ BQROC (1 16 17 14 2) → -9 mod 26 → (18 7 8 5 19) shift
 알려진 평문 공격: 예시의 (shift, BQROC)의 경우, K = B - s = (1 - 18) mod 26 = 9
 
 ### 아핀 암호 (Affine Cipher)
+선형 대수학과 모듈러 연산을 이용한 암호화 방식
+```math
+For K = (\alpha ,\beta ) where \alpha, \beta \in \mathbb{Z}_{26} and gcd(\alpha, 26) = 1\\
+Enc(K, x) = (\alpha x + \beta) mod \;26\\
+Dec(K, y) = \alpha^{-1} (y - \beta) mod \;26\\
+```
+#### 암호화
+![240424-213613](/posts/Chapter1_introduction/240424-213613.png)
+#### 복호화
+![240424-220105](/posts/Chapter1_introduction/240424-220105.png)
+
+공격 방식
+- 브루트 포스 공격: 26 * 12($\alpha$는 26의 약수가 아닌 수만 가능) = 312개의 키 후보
+- 알려진 평문 공격: 예시의 (hot, AXG)의 경우 -> 연립방정식
+	- $7\alpha + \beta = 0\,mod\,6$
+	- $14\alpha + \beta = 23\,mod\,6$
+
+### 치환 암호 (Substitution Cipher)
+평문의 각 문자를 다른 문자로 대체하는 암호화 방식
+```math
+Enc(K, x) = \pi(x)\\
+Dec(K, y) = \pi^{-1}(y)\\
+```
+공격 방식
+- 브루트 포스 공격: 26!개의 키 후보 (약 4 * 10^26)
+- 평문 선택 공격: n개의 평문-암호문 쌍을 이용하여 키를 찾는 방식
