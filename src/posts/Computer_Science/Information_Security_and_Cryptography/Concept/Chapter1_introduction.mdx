@@ -93,6 +93,8 @@ RSA, ElGamal, NTRU 등이 있음
 
 ### 일반적인 암호화 기법 (Classical Encryption)
 #### 표기법 정리 (Notation)
+<Math>
+
 ```math
 Z_m = {0, 1, ..., m - 1}\\
 g mod p: g를 p로 나눈 나머지\\
@@ -101,14 +103,18 @@ g mod p: g를 p로 나눈 나머지\\
 -7 mod 26 = 19 (-7 = 26 * (-1) + 19)\\
 평문 공간 = 암호문 공간 = 알파벳 문자들 = \mathbb{Z}_{26}
 ```
+</Math>
 
 #### 시프트 암호 (Shift Cipher)
 평문의 각 문자를 고정된 수만큼 이동시키는 암호화 방식
+<Math>
+
 ```math
 0 <= k <= 25\\
 Enc(K, x) = (x + K) mod \;26 \;\;\;(cf. K = 3: 시저 암호)\\
 Dec(K, y) = (y - K) mod \;26\\
 ```
+</Math>
 예시: K = 9
 암호화
 shift (18 7 8 5 19) → +9 mod 26 → (1 16 17 14 2) BQROC
@@ -121,11 +127,14 @@ BQROC (1 16 17 14 2) → -9 mod 26 → (18 7 8 5 19) shift
 
 #### 아핀 암호 (Affine Cipher)
 선형 대수학과 모듈러 연산을 이용한 암호화 방식
+<Math>
+
 ```math
 For K = (\alpha ,\beta ) where \alpha, \beta \in \mathbb{Z}_{26} and gcd(\alpha, 26) = 1\\
 Enc(K, x) = (\alpha x + \beta) mod \;26\\
 Dec(K, y) = \alpha^{-1} (y - \beta) mod \;26\\
 ```
+</Math>
 ##### 암호화
 ![240424-213613](/posts/Chapter1_introduction/240424-213613.png)
 ##### 복호화
@@ -139,16 +148,22 @@ Dec(K, y) = \alpha^{-1} (y - \beta) mod \;26\\
 
 #### 치환 암호 (Substitution Cipher)
 평문의 각 문자를 다른 문자로 대체하는 암호화 방식
+<Math>
+
 ```math
 Enc(K, x) = \pi(x)\\
 Dec(K, y) = \pi^{-1}(y)\\
 ```
+</Math>
 예시
+<Math>
+
 ```math
 \pi = \{A(0) \rightarrow 2, B(1) \rightarrow 7, C(2) \rightarrow 9, ..., Z(25) \rightarrow 19\}\\
 Enc(\pi, C) = \pi(C) = 9 = J 
 Dec(\pi, J) = \pi^{-1}(J) = C
 ```
+</Math>
 
 공격 방식
 - 브루트 포스 공격: 26!개의 키 후보 (약 4 * 10^26)
@@ -157,5 +172,83 @@ Dec(\pi, J) = \pi^{-1}(J) = C
 
 #### 비제네 암호 (Vigenère Cipher)
 - Monoalphabetic(단알파벳) -> Polyalphabetic(다알파벳)
+<Math>
+
 ```math
-K = K_1 K_2 ... K_n where K_i \in \mathbb{Z}_{26}\\
+K = K_1 K_2 ... K_n where K_m \in \mathbb{Z}_{26}\\
+Enc(K, x_1 x_2 ... x_m) = (x_1 + K_1) mod \;26, (x_2 + K_2) mod \;26, ..., (x_n + K_m) mod \;26\\
+Dec(K, y_1 y_2 ... y_m) = (y_1 - K_1) mod \;26, (y_2 - K_2) mod \;26, ..., (y_n - K_m) mod \;26\\
+```
+</Math>
+
+관련 공격
+- 브루트 포스 공격: $26^m$개의 키 후보
+- 암호문 단독 공격: 카시스키 테스트와 같은 통계적 분석
+- 알려진 평문 공격: 평문이 알려져 있으면 쉬움(m 이 알려져 있을 때)
+
+#### 순열 암호 (Permutation Cipher)
+<Math>
+
+```math
+키 K=\pi\;는 {1,...,m} 의 순열\\ 
+Enc(K, x_1 x_2 ... x_m) =( x_{\pi(1)} x_{\pi(2)} ... x_{\pi(m)})\\
+Dec(K, Y_1 Y_2 ... Y_m) =( Y_{\pi^{-1}(1)} Y_{\pi^{-1}(2)} ... Y_{\pi^{-1}(m)})\\
+```
+</Math>
+
+위의 암호화 알고리즘을 해석하면
+$$(x_1, ...,x_m)P=(Y_1, ... ,Y_m)$$
+$P$가 역행렬 일 경우 이것은 Hill 암호화 방식이 된다.
+
+관련 공격
+- 브루트 포스 공격: $m!$개의 키 후보
+- 알려진 평문/선택된 평문 공격: $m$개의 **독립적인 암호문**이 필요하여 $P^{-1}$을 얻을 수 있다.
+
+#### 선형 피드백 시프트 레지스터 (Linear Feedback Shift Register, LFSR)
+> 이전 상태의 선형 함수인 입력 비트를 가진 시프트 레지스터
+
+예시 1) $$x_{m+3}=x_{m+1}+x_m$$을 만족하는 시프트 레지스터(선형 관계)
+
+예시 2) 초기 값 $$x_1 = 0, x_2 = 1, x_3 = 0, x_4 = 0$$ 그리고 $$x_5 = 0$$을 주고 $$x_{m+5}=x_{m}+x_{m+2} mod 2$$의 선형 관계를 사용하여 생성된 시퀀스는 $0100010100110111100011$이다.
+
+#### LFSR 암호 (LFSR Cipher)
+<Math>
+
+```math
+선형 함수 f(z_1, z_2, ..., z_m) = \sum^l_{i=1}c_iz_i에 대해, 상수 c_i들과\;\\ 키 K=(k_1, ... , k_l)가 (\mathbb{Z}_2)^l에\; 속함\\
+Enc(K, x_1, x_2, ..., x_m) = (x_1, x_2, ..., x_m) + (k_1, k_2, ..., k_l)\\
+Dec(K, y_1, y_2, ..., y_m) = (y_1, y_2, ..., y_m) + (k_1, k_2, ..., k_l)\\
+k_j = f(k_{j-l}, k_{j-l+1}, ..., k_{j-1}) for l+1<=j<=m\\
+```
+</Math>
+
+공격 방식
+- 알려진 평문 공격
+	<Math>
+
+		```math
+		(x_1, x_2, ..., x_m), (y_1, y_2, ..., y_m)에서 k_1, ... ,k_l를 찾음\\
+		다음과 같이 행렬 구성:\\
+		\begin{bmatrix}
+		k_1 & k_2 & ... & k_l\\
+		k_2 & k_3 & ... & k_{l+1}\\
+		... & ... & ... & ...\\
+		k_{l} & k_{l+1} & ... & k_{2l-1}
+		\end{bmatrix}
+		\begin{bmatrix}
+		c_1\\
+		c_2\\
+		...\\
+		c_l
+		\end{bmatrix}
+		=
+		\begin{bmatrix}
+		k_{l+1}\\
+		k_{l+2}\\
+		...\\
+		k_{2l}
+			
+		\end{bmatrix}
+		```
+	</Math>
+	만약 행렬이 역행렬을 가지면, ($c_1, ... ,c_m$)를 찾을 수 있다.
