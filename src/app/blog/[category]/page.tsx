@@ -24,7 +24,7 @@ const Category = async ({ params }: Props) => {
             href={`/blog/${params.category}/${subject}`}
             className={"m-5 text-2xl hover:text-amber-700"}
           >
-            {subject}
+            {subject.replace("_", " ")}
           </Link>
         </div>
       ))}
