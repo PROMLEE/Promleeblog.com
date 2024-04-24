@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  * {
+    @apply text-white;
+  }
+}
+
 @layer components {
   .topbar {
     @apply font-bold text-3xl py-2 px-4 border-b-2;

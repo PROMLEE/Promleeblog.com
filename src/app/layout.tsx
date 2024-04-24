@@ -20,7 +20,12 @@ export default function RootLayout({
     <html className="scroll-smooth focus:scroll-auto">
       <body className={"bg-black text-white w-full"}>
         <div className={"topbar"}>
-          <Link href={"/"} className={"m-5 hover:text-amber-700"}>
+          <Link
+            href={"/"}
+            className={
+              "m-5 hover:text-white hover:bg-black bg-white text-black rounded-lg"
+            }
+          >
             PromleeBlog
           </Link>
           <Link href={"/blog"} className={"text-2xl hover:text-amber-700"}>
