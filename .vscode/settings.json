@@ -4,5 +4,13 @@
   "pasteImage.path": "${projectRoot}/public/posts/${currentFileNameWithoutExt}",
   "pasteImage.forceUnixStyleSeparator": true,
   "pasteImage.insertPattern": "![${imageFileNameWithoutExt}](${imageFilePath})",
-  "pasteImage.prefix": "/"
+  "pasteImage.prefix": "/",
+
+  "emojisense.languages": {
+    "markdown_latex_combined": true,
+    "markdown": true,
+    "plaintext": false,
+    "json": true,
+    "scminput": true // language used in the source control commit message box
+  }
 }
