@@ -14,11 +14,13 @@ function contentList(params: params) {
   const path = `${process.cwd()}/src/posts/${params.category}/${params.subject}`;
   return fs.readdirSync(path);
 }
-
+//TODO #2
 const Subject = async ({ params }: Props) => {
   return (
     <div>
-      <div className={"m-5 text-5xl text-white"}>{params.subject}</div>
+      <div className={"m-5 text-5xl text-white"}>
+        {params.subject.replace("_", " ")}
+      </div>
       {contentList(params).map((title: string, idx: any) => (
         <div key={idx}>
           <Link
