@@ -58,8 +58,8 @@ const Post = async ({ params }: Props) => {
   const post = await getPostDetail(params);
   return (
     <>
-      <div className="prose flex justify-center">
-        <div className="w-full md:w-2/3">
+      <div className="flex justify-center">
+        <div className="prose w-5/6 md:w-2/3">
           <div className={"category"}>
             {params.category.replaceAll("_", " ")}
           </div>
@@ -82,8 +82,13 @@ const Post = async ({ params }: Props) => {
                     //@ts-ignore
                     rehypePrettyCode,
                   ],
-                  //@ts-ignore
-                  [rehypeKatex, { strict: false }],
+                  [
+                    //@ts-ignore
+                    rehypeKatex,
+                    {
+                      colorIsTextColor: true,
+                    },
+                  ],
                 ],
               },
             }}
