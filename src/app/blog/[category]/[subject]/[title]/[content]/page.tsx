@@ -11,6 +11,7 @@ import "katex/dist/katex.min.css";
 import remarkMath from "remark-math";
 import rehypeSlug from "rehype-slug";
 import SidebarComp from "@/components/Sidebar";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
 
 export interface Post extends dbtable {
   url: string;
@@ -89,6 +90,22 @@ const Post = async ({ params }: Props) => {
                 },
               ],
               rehypeSlug,
+              [
+                rehypeAutolinkHeadings,
+                {
+                  behavior: "append",
+                  properties: {
+                    className: ["anchor"],
+                  },
+
+                  content: {
+                    type: "element",
+                    tagName: "span",
+                    properties: { className: ["icon", "icon-link"] },
+                    children: [{ type: "text", value: "🔗" }],
+                  },
+                },
+              ],
             ],
           },
         }}

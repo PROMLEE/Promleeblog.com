@@ -9,7 +9,7 @@ import {
   litag,
   btag,
   ptag,
-  spantag,
+  // spantag,
   blockquotetag,
   atag,
   imgtag,

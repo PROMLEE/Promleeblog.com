@@ -1,5 +1,6 @@
 import Image from "next/image";
 import "katex/dist/katex.min.css";
+import Link from "next/link";
 interface ImageProps {
   src: string;
   alt: string;
@@ -78,13 +79,11 @@ export const blockquotetag = ({ children }: any) => {
 };
 export const atag = ({ children, href }: any) => {
   return (
-    <a
-      className={" hover:text-blue-700"}
+    <Link
+      className={" hover:text-blue-700 text-white no-underline"}
       href={href}
-      target="_blank"
-      rel="noreferrer"
     >
       {children}
-    </a>
+    </Link>
   );
 };
