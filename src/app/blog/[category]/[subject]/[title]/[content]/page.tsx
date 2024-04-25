@@ -70,6 +70,7 @@ const Post = async ({ params }: Props) => {
       <SidebarComp content={post.content} />
       <MDXRemote
         source={post.content}
+        //@ts-ignore
         components={components}
         options={{
           parseFrontmatter: true,
