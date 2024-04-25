@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html className="scroll-smooth focus:scroll-auto">
-      <body className={"bg-black text-white w-full"}>
+      <body className={"bg-black text-white w-full flex flex-col items-center"}>
         <div className={"topbar"}>
           <Link
             href={"/"}
@@ -32,7 +32,7 @@ export default function RootLayout({
             Categories
           </Link>
         </div>
-        <div className={"content"}>{children}</div>
+        <div className={"w-5/6 md:w-2/3"}>{children}</div>
       </body>
     </html>
   );
