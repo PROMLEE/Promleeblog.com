@@ -24,21 +24,28 @@ export function h5tag({ children }: any) {
   return <div className="text-xl font-bold my-1">▫️{children}</div>;
 }
 export const oltag = ({ children }: any) => {
-  return <ol className={""}>{children}</ol>;
+  return <ol className={"my-0"}>{children}</ol>;
 };
-
+export const ultag = ({ children }: any) => {
+  return <ul className={"my-0"}>{children}</ul>;
+};
 export const litag = ({ children }: any) => {
-  return <li className={""}>{children}</li>;
+  return <li className={"my-0"}>{children}</li>;
 };
 export const btag = ({ children }: any) => {
-  return <div className={"font-bold"}>{children}</div>;
+  return <div className={"font-bold inline"}>{children}</div>;
 };
 
 export const ptag = ({ children }: any) => {
-  return <p className={""}>{children}</p>;
+  return <div className={""}>{children}</div>;
 };
 export const spantag = ({ children }: any) => {
   return <span className={""}>{children}</span>;
+};
+export const blockquotetag = ({ children }: any) => {
+  return (
+    <blockquote className={"my-2 bg-slate-800 ml-2"}>{children}</blockquote>
+  );
 };
 export const atag = ({ children, href }: any) => {
   return (
