@@ -30,8 +30,8 @@ export const components = {
   p: ptag,
   // span: spantag,
   blockquote: blockquotetag,
-  // a: atag,
-  // img: imgtag,
+  a: atag,
+  img: imgtag,
   Answer,
   Math,
 };

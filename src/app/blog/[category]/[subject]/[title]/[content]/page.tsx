@@ -9,6 +9,9 @@ import rehypePrettyCode from "rehype-pretty-code";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import remarkMath from "remark-math";
+import rehypeSlug from "rehype-slug";
+import SidebarComp from "@/components/Sidebar";
+
 export interface Post extends dbtable {
   url: string;
   slug: string;
@@ -63,6 +66,7 @@ const Post = async ({ params }: Props) => {
       <div className={"title"}>{params.title.replaceAll("_", " ")}</div>
       <div className={"content"}>{params.content.replaceAll("_", " ")}</div>
       <hr className={"my-4 mx-auto border-1 rounded  w-2/3 border-red-500"} />
+      <SidebarComp content={post.content} />
       <MDXRemote
         source={post.content}
         components={components}
@@ -81,8 +85,10 @@ const Post = async ({ params }: Props) => {
                 rehypeKatex,
                 {
                   colorIsTextColor: true,
+                  strict: false,
                 },
               ],
+              rehypeSlug,
             ],
           },
         }}
