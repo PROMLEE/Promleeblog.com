@@ -7,5 +7,9 @@ export function Answer({ children }: any) {
 }
 
 export function Math({ children }: any) {
-  return <div className="bg-gray-600 p-1 w-full rounded-2xl">{children}</div>;
+  return (
+    <div className="bg-gray-600 p-1 w-full rounded-2xl overflow-scroll">
+      {children}
+    </div>
+  );
 }
