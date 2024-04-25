@@ -24,4 +24,10 @@
   .content {
     @apply font-bold text-white;
   }
+  .sidebar {
+    @apply text-white no-underline block hover:bg-amber-800 mb-1;
+  }
+  .sidebar-md {
+    @apply right-5 top-[15%] w-[13%] h-[60%] overflow-scroll fixed;
+  }
 }
