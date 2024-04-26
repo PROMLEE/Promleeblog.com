@@ -13,9 +13,12 @@ export function imgtag({ src, alt }: ImageProps) {
 }
 export function h1tag({ id, children }: any) {
   return (
-    <div id={id} className="text-4xl font-bold mt-20 mb-5">
-      💡 {children}
-    </div>
+    <>
+      <hr className={"my-10 mx-auto border-1 rounded  w-full border-red-800"} />
+      <div id={id} className="text-4xl font-bold mt-10 mb-5">
+        💡 {children}
+      </div>
+    </>
   );
 }
 export function h2tag({ id, children }: any) {
@@ -63,7 +66,15 @@ export const litag = ({ children }: any) => {
   return <li className={"my-0"}>{children}</li>;
 };
 export const btag = ({ children }: any) => {
-  return <div className={"font-bold inline"}>{children}</div>;
+  return (
+    <div
+      className={
+        "font-bold inline decoration-wavy underline underline-offset-4 decoration-yellow-400"
+      }
+    >
+      {children}
+    </div>
+  );
 };
 
 export const ptag = ({ children }: any) => {
