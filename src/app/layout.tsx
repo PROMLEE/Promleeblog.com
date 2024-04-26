@@ -22,7 +22,9 @@ export default function RootLayout({
 }>) {
   return (
     <html className={`${noto.className} scroll-smooth focus:scroll-auto`}>
-      <body className={"bg-black text-white w-full flex flex-col items-center"}>
+      <body
+        className={"bg-black text-white w-full flex flex-col xl:items-center"}
+      >
         <div className={"topbar"}>
           <Link
             href={"/"}
@@ -37,7 +39,9 @@ export default function RootLayout({
           </Link>
         </div>
         <div
-          className={"bg-slate-950 w-5/6  md:w-1/2 px-10 pb-40 min-h-[800px]"}
+          className={
+            "bg-slate-950 w-full md:w-5/6 xl:w-3/5 px-10 pb-40 min-h-[800px]"
+          }
         >
           {children}
         </div>

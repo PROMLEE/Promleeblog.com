@@ -23,14 +23,14 @@ const parseToc = (content: string) => {
 const SidebarComp = (content: any) => {
   const toc = parseToc(content.content);
   return (
-    <div className="related md:sidebar-md ">
+    <div className="related md:sidebar-md xl:right-5">
       {toc.map((item, idx) => {
         if (item.indent === 1) {
           return (
             <Link
               key={idx}
               href={item.link}
-              className="sidebar text-lg font-bold text-blue-500 mt-3 py-1 border-t-2 border-slate-500 border-dotted"
+              className="sidebar text-lg font-bold text-slate-400 mt-3 py-1 border-t-2 border-slate-500 border-dotted"
             >
               💡 {item.text}
             </Link>

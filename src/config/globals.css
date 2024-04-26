@@ -51,9 +51,9 @@
     @apply font-bold text-white;
   }
   .sidebar {
-    @apply text-white no-underline block hover:bg-amber-800 mb-1 rounded-md;
+    @apply text-slate-500 no-underline block hover:bg-amber-800 mb-1 rounded-md;
   }
   .sidebar-md {
-    @apply right-10 top-[15%] w-[15%] h-[70%] overflow-scroll scroll-mb-2 fixed bg-gradient-to-r from-slate-900 rounded-xl border-slate-500 border-2 p-3;
+    @apply right-0 top-[15%] w-[16%] h-[70%] overflow-scroll scroll-mb-2 fixed bg-gradient-to-r from-slate-900 rounded-xl border-slate-500 border-2 p-3;
   }
 }
