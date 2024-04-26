@@ -7,7 +7,33 @@
     @apply text-white font-normal;
   }
 }
+.prose pre > code {
+  display: grid;
+}
+.prose pre span[data-line] {
+  @apply inline-block px-4 py-0.5 leading-snug;
+}
+/* Fenced Code block - line number style */
+.prose code[data-line-numbers] {
+  counter-reset: line;
+}
 
+.prose code[data-line-numbers] > span[data-line]::before {
+  counter-increment: line;
+  content: counter(line);
+
+  display: inline-block;
+  width: 0.75rem;
+  margin-right: 1.25rem;
+  text-align: right;
+  color: gray;
+}
+/* Fenced Code block - line hightlight */
+.prose code span[data-highlighted-line] {
+  @apply border-l-2 border-y-0 border-transparent bg-opacity-10 
+         border-blue-400 bg-indigo-400 dark:border-blue-500 dark:bg-slate-700
+         pl-[calc(0.5rem-2px)] md:pl-[calc(1rem-2px)];
+}
 @layer components {
   .topbar {
     @apply w-full font-bold text-3xl py-2 px-4 border-b-2;
@@ -25,9 +51,9 @@
     @apply font-bold text-white;
   }
   .sidebar {
-    @apply text-white no-underline block hover:bg-amber-800 mb-1;
+    @apply text-slate-500 no-underline block hover:bg-amber-800 mb-1 rounded-md;
   }
   .sidebar-md {
-    @apply right-5 top-[15%] w-[13%] h-[60%] overflow-scroll fixed;
+    @apply right-0 top-[15%] w-[16%] h-[70%] overflow-scroll scroll-mb-2 fixed bg-gradient-to-r from-slate-900 rounded-xl border-slate-500 border-2 p-3;
   }
 }
