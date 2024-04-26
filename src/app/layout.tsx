@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "../config/globals.css";
 import React from "react";
 import Link from "next/link";
+import { Gothic_A1 } from "next/font/google";
 
 export const metadata: Metadata = {
   title: "PromleeBlog by Nextjs",
@@ -10,20 +11,23 @@ export const metadata: Metadata = {
     icon: "/favicon.ico",
   },
 };
-
+const noto = Gothic_A1({
+  weight: ["100", "500", "900"],
+  subsets: ["latin"],
+});
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html className="scroll-smooth focus:scroll-auto">
+    <html className={`${noto.className} scroll-smooth focus:scroll-auto`}>
       <body className={"bg-black text-white w-full flex flex-col items-center"}>
         <div className={"topbar"}>
           <Link
             href={"/"}
             className={
-              "m-5 hover:text-white hover:bg-black bg-white text-black rounded-lg"
+              "m-5 hover:text-white hover:bg-black bg-white text-black rounded-lg p-1"
             }
           >
             PromleeBlog
@@ -32,7 +36,18 @@ export default function RootLayout({
             Categories
           </Link>
         </div>
-        <div className={"w-5/6 md:w-2/3"}>{children}</div>
+        <div
+          className={"bg-slate-950 w-5/6  md:w-1/2 px-10 pb-40 min-h-[800px]"}
+        >
+          {children}
+        </div>
+        <footer
+          className={
+            "bg-black w-full h-20 flex justify-center items-center border-t-2 border-slate-500"
+          }
+        >
+          <p className={"text-white"}>© 2024 Promlee</p>
+        </footer>
       </body>
     </html>
   );

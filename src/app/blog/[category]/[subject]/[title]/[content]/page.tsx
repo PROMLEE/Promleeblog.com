@@ -66,7 +66,6 @@ const Post = async ({ params }: Props) => {
       <div className={"subject"}>{params.subject.replaceAll("_", " ")}</div>
       <div className={"title"}>{params.title.replaceAll("_", " ")}</div>
       <div className={"content"}>{params.content.replaceAll("_", " ")}</div>
-      <hr className={"my-4 mx-auto border-1 rounded  w-2/3 border-red-500"} />
       <SidebarComp content={post.content} />
       <MDXRemote
         source={post.content}
