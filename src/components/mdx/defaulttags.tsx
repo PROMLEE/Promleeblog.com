@@ -62,8 +62,21 @@ export const oltag = ({ children }: any) => {
 export const ultag = ({ children }: any) => {
   return <ul className={"my-0"}>{children}</ul>;
 };
-export const litag = ({ children }: any) => {
-  return <li className={"my-0"}>{children}</li>;
+export const litag = ({ id, children }: any) => {
+  return (
+    <li id={id} className={"my-0"}>
+      {children}
+    </li>
+  );
+};
+export const thtag = ({ children }: any) => {
+  return <th className={"text-white p-1"}>{children}</th>;
+};
+export const tdtag = ({ children }: any) => {
+  return <th className={"text-center"}>{children}</th>;
+};
+export const codetag = ({ children }: any) => {
+  return <code className={"text-white"}>{children}</code>;
 };
 export const btag = ({ children }: any) => {
   return (
@@ -88,9 +101,10 @@ export const blockquotetag = ({ children }: any) => {
     <blockquote className={"my-2 bg-slate-800 ml-2"}>{children}</blockquote>
   );
 };
-export const atag = ({ children, href }: any) => {
+export const atag = ({ id, children, href }: any) => {
   return (
     <Link
+      id={id}
       className={" hover:text-blue-700 text-white no-underline"}
       href={href}
     >
