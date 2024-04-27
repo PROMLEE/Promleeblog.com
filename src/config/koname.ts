@@ -27,6 +27,23 @@ export const CategoryKo: CategoryKoinfo = {
       Network: {
         name: "네트워크(Network)",
         title: {
+          Practice: {
+            name: "실습(Practice)",
+            content: {
+              "1": {
+                name: "WireShark 다루기",
+                date: "",
+              },
+              "2": {
+                name: "TCP/UDP 소켓 프로그래밍하기",
+                date: "",
+              },
+              "3": {
+                name: "Multiple Client Server 프로그래밍하기",
+                date: "2024-04-27",
+              },
+            },
+          },
           Concept: {
             name: "개념정리",
             content: {

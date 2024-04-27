@@ -21,7 +21,7 @@ thumbnail: ./~.jpg
 출력: 각 입력 블록에 대한 암호화 블록
 키 재사용이 가능하며 일반적인 암호화 방식이다.
 대표적인 블록 암호: 치환 암호, 순열 암호, DES, AES, ARIA, SEED
-![240425-115230](/posts/Chapter2_Symmetric_Encryption/240425-115230.png)
+![240425-115230](/posts/240425-115230.png)
 
 보안성을 위해 주기적으로 키를 갱신하는 것이 좋다.
 
@@ -50,7 +50,7 @@ thumbnail: ./~.jpg
 - 라운드 함수 (Round Function)
 - 소프트웨어/하드웨어의 암호화/복호화 속도 (Encryption/Decryption Speed)
 - (보안) 분석의 용이성 (Ease of (Security) Analysis)
-![240425-124053](/posts/Chapter2_Symmetric_Encryption/240425-124053.png)
+![240425-124053](/posts/240425-124053.png)
 
 ## 계산적 안전성 (Computational Security)
 암호화 스킴은 생성된 암호문이 다음 기준 중 하나 혹은 두 가지를 충족할 때 계산적으로 안전하다고 할 수 있다.
@@ -64,7 +64,7 @@ thumbnail: ./~.jpg
 n 라운드를 거친 후 결합되어 암호문 블록을 생성한다
 모든 라운드는 동일한 구조를 가짐
 ### 파이스텔 암호 한 라운드의 구조 (Feistel Cipher Round Structure)
-![240425-125848](/posts/Chapter2_Symmetric_Encryption/240425-125848.png)
+![240425-125848](/posts/240425-125848.png)
 
 ## DES (Data Encryption Standard)
 평문: 64bit -> $2w$ = 64bits
@@ -218,7 +218,7 @@ $S_3 = S_1 - S_2Q_2 = -(X+1), T_3 = T_1 - T_2Q_2 = 1+(X+1)^2 = X^2$
 $\rightarrow P(X)(X+1) + (X^2) A(X) = 1$
 
 ### 역원 구하기
-![240425-144433](/posts/Chapter2_Symmetric_Encryption/240425-144433.png)
+![240425-144433](/posts/240425-144433.png)
 
 ## AED: 바이트 치환 (AES: Byte Substitution)
 S-Box: 8비트 입력을 8비트 출력으로 변환하는 비선형 치환
