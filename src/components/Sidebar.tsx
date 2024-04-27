@@ -30,14 +30,14 @@ const SidebarComp = (content: any) => {
             <Link
               key={idx}
               href={item.link}
-              className="sidebar text-lg font-bold text-slate-400 mt-3 py-1 border-t-2 border-slate-500 border-dotted"
+              className="sidebar text-sm font-bold mt-3 py-1 border-t-2 border-slate-500 border-dotted"
             >
               💡 {item.text}
             </Link>
           );
         } else if (item.indent === 2) {
           return (
-            <Link key={idx} href={item.link} className="sidebar text-sm ml-3">
+            <Link key={idx} href={item.link} className="sidebar text-xs ml-3">
               🚀 {item.text}
             </Link>
           );

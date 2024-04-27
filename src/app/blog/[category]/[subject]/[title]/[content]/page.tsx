@@ -62,7 +62,7 @@ const parsePost = async (postPath: string): Promise<any> => {
 const Post = async ({ params }: Props) => {
   const post = await getPostDetail(params);
   return (
-    <div className="prose">
+    <div className="prose dark:prose-invert">
       <Link className={"category"} href={`/blog/${params.category}`}>
         {CategoryKo[params.category].name}
       </Link>

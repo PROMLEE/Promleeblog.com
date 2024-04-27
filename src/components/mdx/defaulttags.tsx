@@ -25,7 +25,9 @@ export function h1tag({ id, children }: Props) {
   return (
     <>
       <hr
-        className={"my-10 mx-auto border-1 rounded  w-full border-slate-800"}
+        className={
+          "my-10 mx-auto border-1 rounded  w-full dark:border-slate-800"
+        }
       />
       <div id={id} className="text-3xl font-bold mt-10 mb-5">
         💡 {children}
@@ -82,19 +84,19 @@ export const litag = ({ id, children }: Props) => {
   );
 };
 export const thtag = ({ children }: Props) => {
-  return <th className={"text-white p-1"}>{children}</th>;
+  return <th className={"dark:text-white p-1"}>{children}</th>;
 };
 export const tdtag = ({ children }: Props) => {
   return <th className={"text-center"}>{children}</th>;
 };
 export const codetag = ({ children }: Props) => {
-  return <code className={"text-white "}>{children}</code>;
+  return <code className={"dark:text-white "}>{children}</code>;
 };
 export const btag = ({ children }: Props) => {
   return (
     <div
       className={
-        "inline decoration-wavy underline underline-offset-4 decoration-yellow-400 text-white"
+        "inline decoration-wavy underline underline-offset-4 dark:decoration-yellow-400 dark:text-white  decoration-yellow-800"
       }
     >
       {children}
@@ -110,14 +112,16 @@ export const spantag = ({ children }: Props) => {
 };
 export const blockquotetag = ({ children }: Props) => {
   return (
-    <blockquote className={"my-2 bg-slate-800 ml-2"}>{children}</blockquote>
+    <blockquote className={"my-2 dark:bg-slate-800 ml-2"}>
+      {children}
+    </blockquote>
   );
 };
 export const atag = ({ id, children, href }: Props) => {
   return (
     <Link
       id={id}
-      className={" hover:text-blue-700 text-white no-underline"}
+      className={" hover:text-blue-700 dark:text-white no-underline"}
       href={href}
     >
       {children}
