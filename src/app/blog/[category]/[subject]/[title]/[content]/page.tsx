@@ -12,7 +12,8 @@ import remarkMath from "remark-math";
 import rehypeSlug from "rehype-slug";
 import SidebarComp from "@/components/Sidebar";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
-
+import { CategoryKo } from "@/config/koname";
+import Link from "next/link";
 export interface Post extends dbtable {
   url: string;
   slug: string;
@@ -62,10 +63,36 @@ const Post = async ({ params }: Props) => {
   const post = await getPostDetail(params);
   return (
     <div className="prose">
-      <div className={"category"}>{params.category.replaceAll("_", " ")}</div>
-      <div className={"subject"}>{params.subject.replaceAll("_", " ")}</div>
-      <div className={"title"}>{params.title.replaceAll("_", " ")}</div>
-      <div className={"content"}>{params.content.replaceAll("_", " ")}</div>
+      <Link className={"category"} href={`/blog/${params.category}`}>
+        {CategoryKo[params.category].name}
+      </Link>
+      <Link
+        className={"subject"}
+        href={`/blog/${params.category}/${params.subject}`}
+      >
+        {CategoryKo[params.category].sub[params.subject].name}
+      </Link>
+      <Link
+        className={"title"}
+        href={`/blog/${params.category}/${params.subject}/${params.title}`}
+      >
+        {
+          CategoryKo[params.category].sub[params.subject].title[params.title]
+            .name
+        }
+      </Link>
+      <div className={"content"}>
+        {params.content}.{" "}
+        {
+          CategoryKo[params.category].sub[params.subject].title[params.title]
+            .content[params.content].name
+        }
+      </div>
+      <div className={"text-right mt-4 text-slate-500"}>
+        {"📅 " +
+          CategoryKo[params.category].sub[params.subject].title[params.title]
+            .content[params.content].date}
+      </div>
       <SidebarComp content={post.content} />
       <MDXRemote
         source={post.content}

@@ -40,7 +40,7 @@ export default function RootLayout({
         </div>
         <div
           className={
-            "bg-slate-950 w-full md:w-5/6 xl:w-3/5 px-10 pb-40 min-h-[800px]"
+            "bg-slate-950 w-full md:w-5/6 xl:w-3/5 px-10 pb-40 min-h-[800px] border-slate-800 border-2"
           }
         >
           {children}

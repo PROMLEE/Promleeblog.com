@@ -1,4 +1,4 @@
-export const CategoryKo = {
+export const CategoryKo: CategoryKoinfo = {
   Computer_Science: {
     name: "컴퓨터 공학(Computer Science)",
     sub: {
@@ -8,9 +8,18 @@ export const CategoryKo = {
           Concept: {
             name: "개념정리",
             content: {
-              "1": "Introduction(개요)",
-              "2": "Symmetric Encryption(대칭키 암호화)",
-              "3": "Asymmetric Encryption(비대칭키 암호화)",
+              "1": {
+                name: "암호화(Encryption)",
+                date: "2024-04-24",
+              },
+              "2": {
+                name: "대칭 암호화(Symmetric Encryption)",
+                date: "2024-04-24",
+              },
+              "3": {
+                name: "비대칭 암호화(Asymmetric Encryption)",
+                date: "2024-04-24",
+              },
             },
           },
         },
@@ -21,17 +30,35 @@ export const CategoryKo = {
           Concept: {
             name: "개념정리",
             content: {
-              // "1": "introduction(개요)",
-              // "2": "OSI 7 Layer(7계층)",
-              "3": "TCP/IP",
+              "1": {
+                name: "TCP/IP",
+                date: "",
+              },
+              "2": {
+                name: "TCP/IP",
+                date: "",
+              },
+              "3": {
+                name: "TCP/IP",
+                date: "",
+              },
             },
           },
           Questions: {
             name: "문제해결",
             content: {
-              "1": "OSI 7 Layer(7계층)",
-              "2": "TCP/IP",
-              "3": "IP Address(아이피 주소)",
+              "1": {
+                name: "TCP/IP",
+                date: "2024-04-22",
+              },
+              "2": {
+                name: "Network",
+                date: "2024-04-22",
+              },
+              "3": {
+                name: "Network",
+                date: "2024-04-22",
+              },
             },
           },
         },
@@ -52,7 +79,10 @@ export const CategoryKo = {
           Concept: {
             name: "개념정리",
             content: {
-              "1": "Set annotated(집합표기)",
+              "1": {
+                name: "Set Annotated(집합용어)",
+                date: "2024-04-23",
+              },
             },
           },
         },
@@ -62,21 +92,31 @@ export const CategoryKo = {
       // Statistics: "통계학(Statistics)",
     },
   },
-  Framework: {
-    name: "프레임워크(Framework)",
-    sub: {
-      Next_js: {
-        name: "Next.js",
-        title: {
-          Blog: "블로그 개발기",
-          Problem_solve: "문제해결",
-        },
-      },
-      // React: "리액트(React)",
-      // Vue: "뷰(Vue)",
-      // Spring: "스프링(Spring)",
-    },
-  },
+  // Framework: {
+  //   name: "프레임워크(Framework)",
+  //   sub: {
+  //     Next_js: {
+  //       name: "Next.js",
+  //       title: {
+  //         Blog: {
+  //           name: "블로그 개발기",
+  //           content: {
+  //             "1": "Next.js Blog",
+  //           },
+  //         },
+  //         Problem_solve: {
+  //           name: "문제해결",
+  //           content: {
+  //             "1": "Next.js Error",
+  //           },
+  //         },
+  //       },
+  //     },
+  //     // React: "리액트(React)",
+  //     // Vue: "뷰(Vue)",
+  //     // Spring: "스프링(Spring)",
+  //   },
+  // },
   Test: {
     name: "테스트(Test)",
     sub: {
@@ -86,7 +126,10 @@ export const CategoryKo = {
           Test: {
             name: "테스트(Test)",
             content: {
-              "1": "Test",
+              "1": {
+                name: "테스트(Test)",
+                date: "1999-10-02",
+              },
             },
           },
         },
@@ -94,3 +137,25 @@ export const CategoryKo = {
     },
   },
 };
+
+interface CategoryKoinfo {
+  [key: string]: {
+    name: string;
+    sub: {
+      [key: string]: {
+        name: string;
+        title: {
+          [key: string]: {
+            name: string;
+            content: {
+              [key: string]: {
+                name: string;
+                date: string;
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+}

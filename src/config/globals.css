@@ -4,7 +4,10 @@
 
 @layer base {
   * {
-    @apply text-white font-normal;
+    @apply text-slate-300 font-normal;
+  }
+  span {
+    @apply text-left font-mono leading-relaxed;
   }
 }
 .prose pre > code {
@@ -39,21 +42,21 @@
     @apply w-full font-bold text-3xl py-2 px-4 border-b-2;
   }
   .category {
-    @apply my-3 text-3xl font-bold text-blue-500;
+    @apply my-5 text-3xl font-bold text-blue-500 block no-underline hover:underline;
   }
   .subject {
-    @apply my-3 text-2xl font-bold text-yellow-500;
+    @apply my-2 text-2xl font-bold text-yellow-500 block no-underline hover:underline;
   }
   .title {
-    @apply my-2 text-xl font-bold text-green-500;
+    @apply my-1 text-xl font-bold text-green-500 block no-underline hover:underline;
   }
   .content {
-    @apply font-bold text-white;
+    @apply font-bold text-white block no-underline;
   }
   .sidebar {
     @apply text-slate-500 no-underline block hover:bg-amber-800 mb-1 rounded-md;
   }
   .sidebar-md {
-    @apply right-0 top-[15%] w-[16%] h-[70%] overflow-scroll scroll-mb-2 fixed bg-gradient-to-r from-slate-900 rounded-xl border-slate-500 border-2 p-3;
+    @apply right-0 top-[15%] w-[16%] h-[70%] overflow-scroll scroll-mb-2 fixed bg-gradient-to-r from-slate-900  rounded-xl p-3;
   }
 }
