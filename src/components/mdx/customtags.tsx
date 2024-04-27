@@ -8,7 +8,7 @@ export function Answer({ children }: any) {
 
 export function Math({ children }: any) {
   return (
-    <div className="bg-gray-600 p-1 w-full rounded-2xl overflow-scroll">
+    <div className="bg-gray-600 w-full rounded-2xl overflow-scroll px-10 border-slate-950 border-2">
       {children}
     </div>
   );

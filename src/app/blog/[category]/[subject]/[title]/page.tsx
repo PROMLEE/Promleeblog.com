@@ -1,5 +1,5 @@
 import Link from "next/link";
-
+import { CategoryKo } from "@/config/koname";
 interface params {
   category: string;
   subject: string;
@@ -19,18 +19,36 @@ function contentList(params: params) {
 const Title = async ({ params }: Props) => {
   return (
     <div>
-      <div className={"category"}>{params.category.replaceAll("_", " ")}</div>
-      <div className={"subject"}>{params.subject.replaceAll("_", " ")}</div>
-      <h3 className={"title"}>{params.title.replaceAll("_", " ")}</h3>
+      <Link className={"category"} href={`/blog/${params.category}`}>
+        {CategoryKo[params.category].name}
+      </Link>
+      <Link
+        className={"subject"}
+        href={`/blog/${params.category}/${params.subject}`}
+      >
+        {CategoryKo[params.category].sub[params.subject].name}
+      </Link>
+      <Link
+        className={"title"}
+        href={`/blog/${params.category}/${params.subject}/${params.category}`}
+      >
+        {
+          CategoryKo[params.category].sub[params.subject].title[params.title]
+            .name
+        }
+      </Link>
       {contentList(params).map((content: string, idx: any) => (
-        <div key={idx}>
-          <Link
-            href={`/blog/${params.category}/${params.subject}/${params.title}/${content.replaceAll(".mdx", "")}`}
-            className={"content hover:text-pink-500 hover:underline"}
-          >
-            {content.replaceAll("_", " ").replaceAll(".mdx", "")}
-          </Link>
-        </div>
+        <Link
+          key={idx}
+          href={`/blog/${params.category}/${params.subject}/${params.title}/${content.replaceAll(".mdx", "")}`}
+          className={"content hover:text-pink-500 hover:underline"}
+        >
+          {idx + 1}.{" "}
+          {
+            CategoryKo[params.category].sub[params.subject].title[params.title]
+              .content[content.replaceAll(".mdx", "")].name
+          }
+        </Link>
       ))}
     </div>
   );

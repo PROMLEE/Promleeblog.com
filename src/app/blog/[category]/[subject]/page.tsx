@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CategoryKo } from "@/config/koname";
 
 type Props = {
   params: params;
@@ -18,17 +19,23 @@ function contentList(params: params) {
 const Subject = async ({ params }: Props) => {
   return (
     <div>
-      <div className={"category"}>{params.category.replaceAll("_", " ")}</div>
-      <div className={"subject"}>{params.subject.replaceAll("_", " ")}</div>
+      <Link className={"category"} href={`/blog/${params.category}`}>
+        {CategoryKo[params.category].name}
+      </Link>
+      <Link
+        className={"subject"}
+        href={`/blog/${params.category}/${params.subject}`}
+      >
+        {CategoryKo[params.category].sub[params.subject].name}
+      </Link>{" "}
       {contentList(params).map((title: string, idx: any) => (
-        <div key={idx}>
-          <Link
-            href={`/blog/${params.category}/${params.subject}/${title}`}
-            className={"title text-white hover:title hover:underline"}
-          >
-            {title.replaceAll("_", " ").replaceAll(".mdx", "")}
-          </Link>
-        </div>
+        <Link
+          key={idx}
+          href={`/blog/${params.category}/${params.subject}/${title}`}
+          className={"title text-white hover:title hover:underline"}
+        >
+          {CategoryKo[params.category].sub[params.subject].title[title].name}
+        </Link>
       ))}
     </div>
   );
