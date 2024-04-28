@@ -64,51 +64,22 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
   }
-}
-
-@layer base {
   * {
-    @apply border-border;
+    @apply border-border dark:text-slate-300 text-slate-700;
   }
   body {
-    @apply bg-background text-foreground;
-  }
-}
-
-@layer base {
-  * {
-    @apply dark:text-slate-300 text-slate-700;
+    @apply bg-background w-full flex flex-col xl:items-center;
   }
   span {
     @apply text-left font-mono leading-relaxed;
   }
-}
-.prose pre > code {
-  display: grid;
-}
-.prose pre span[data-line] {
-  @apply inline-block px-4 py-0.5 leading-snug;
-}
-/* Fenced Code block - line number style */
-.prose code[data-line-numbers] {
-  counter-reset: line;
-}
-
-.prose code[data-line-numbers] > span[data-line]::before {
-  counter-increment: line;
-  content: counter(line);
-
-  display: inline-block;
-  width: 0.75rem;
-  margin-right: 1.25rem;
-  text-align: right;
-  color: gray;
-}
-/* Fenced Code block - line hightlight */
-.prose code span[data-highlighted-line] {
-  @apply border-l-2 border-y-0 border-transparent bg-opacity-10 
-        border-blue-400 bg-indigo-400 dark:border-blue-500 dark:bg-slate-700
-        pl-[calc(0.5rem-2px)] md:pl-[calc(1rem-2px)];
+  ul,
+  ol {
+    @apply marker:dark:text-white;
+  }
+  blockquote {
+    @apply dark:border-white bg-muted;
+  }
 }
 
 /* custom styles */
@@ -134,4 +105,39 @@
   .sidebar-md {
     @apply right-0 top-[15%] w-[16%] h-[70%] overflow-scroll scroll-mb-2 fixed bg-gradient-to-r dark:from-slate-900  rounded-xl p-3 shadow-lg;
   }
+}
+
+.prose pre > code {
+  display: grid;
+}
+.prose pre span[data-line] {
+  @apply inline-block px-4 py-0.5 leading-snug;
+}
+
+/* Fenced Code block - line number style */
+.prose code[data-line-numbers] {
+  counter-reset: line;
+}
+
+.prose code[data-line-numbers] > span[data-line]::before {
+  counter-increment: line;
+  content: counter(line);
+
+  display: inline-block;
+  width: 0.75rem;
+  margin-right: 1.25rem;
+  text-align: right;
+  color: gray;
+}
+.prose code[data-line-numbers-max-digits="2"] > span[data-line]::before {
+  width: 1.25rem;
+}
+.prose code[data-line-numbers-max-digits="3"] > span[data-line]::before {
+  width: 1.75rem;
+}
+/* Fenced Code block - line hightlight */
+.prose code span[data-highlighted-line] {
+  @apply border-l-2 border-y-0 border-transparent bg-opacity-10 
+        border-blue-400 bg-indigo-400 dark:border-blue-500 dark:bg-slate-700
+        pl-[calc(0.5rem-2px)] md:pl-[calc(1rem-2px)];
 }

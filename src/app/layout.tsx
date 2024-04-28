@@ -24,11 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html className={`${noto.className} scroll-smooth focus:scroll-auto`}>
-      <body
-        className={
-          "dark:bg-black bg-slate-300 w-full flex flex-col xl:items-center"
-        }
-      >
+      <body>
         <Theme>
           <div className={"topbar"}>
             <Link
