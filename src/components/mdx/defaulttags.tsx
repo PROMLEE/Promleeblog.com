@@ -71,7 +71,7 @@ export function h6tag({ id, children }: Props) {
   );
 }
 export const oltag = ({ children }: Props) => {
-  return <ol className={"mt-0 mb-4"}>{children}</ol>;
+  return <ol className={"mt-0 mb-4 dark:marker:text-white"}>{children}</ol>;
 };
 export const ultag = ({ children }: Props) => {
   return <ul className={"mt-0 mb-4"}>{children}</ul>;
@@ -84,10 +84,10 @@ export const litag = ({ id, children }: Props) => {
   );
 };
 export const thtag = ({ children }: Props) => {
-  return <th className={"dark:text-white p-1"}>{children}</th>;
+  return <th className={"dark:text-white p-1 "}>{children}</th>;
 };
 export const tdtag = ({ children }: Props) => {
-  return <th className={"text-center"}>{children}</th>;
+  return <th className={"text-center font-normal"}>{children}</th>;
 };
 export const codetag = ({ children }: Props) => {
   return <code className={"dark:text-white "}>{children}</code>;
@@ -110,20 +110,16 @@ export const ptag = ({ children }: Props) => {
 export const spantag = ({ children }: Props) => {
   return <span className={""}>{children}</span>;
 };
-export const blockquotetag = ({ children }: Props) => {
-  return (
-    <blockquote className={"my-2 dark:bg-slate-800 ml-2"}>
-      {children}
-    </blockquote>
-  );
-};
+// export const blockquotetag = ({ children }: Props) => {
+//   return (
+//     <blockquote className={"my-2 dark:bg-slate-600 ml-2"}>
+//       {children}
+//     </blockquote>
+//   );
+// };
 export const atag = ({ id, children, href }: Props) => {
   return (
-    <Link
-      id={id}
-      className={" hover:text-blue-700 dark:text-white no-underline"}
-      href={href}
-    >
+    <Link id={id} className={"hover:text-blue-700 no-underline"} href={href}>
       {children}
     </Link>
   );
