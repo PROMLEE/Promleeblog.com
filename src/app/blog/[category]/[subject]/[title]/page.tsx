@@ -43,7 +43,7 @@ const Title = async ({ params }: Props) => {
           href={`/blog/${params.category}/${params.subject}/${params.title}/${content.replaceAll(".mdx", "")}`}
           className={"content hover:text-pink-500 hover:underline"}
         >
-          {idx + 1}.{" "}
+          {content.replaceAll("mdx", "")}{" "}
           {
             CategoryKo[params.category].sub[params.subject].title[params.title]
               .content[content.replaceAll(".mdx", "")].name
