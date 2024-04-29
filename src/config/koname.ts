@@ -80,6 +80,28 @@ export const CategoryKo: CategoryKoinfo = {
           },
         },
       },
+      Wireless_Mobile_Communications: {
+        name: "무선 및 이동통신(Wireless & Mobile Communications)",
+        title: {
+          Concept: {
+            name: "개념정리",
+            content: {
+              // "01": {
+              //   name: "Cellular System",
+              //   date: "2024-04-24",
+              // },
+              "02": {
+                name: "Radio Propagation, Sampling (무선전파, 샘플링)",
+                date: "2024-04-24",
+              },
+              "03": {
+                name: "Source and Channel Coding (소스 및 채널 코딩)",
+                date: "2024-04-29",
+              },
+            },
+          },
+        },
+      },
       // Programming_Language: "프로그래밍 언어(Programming Language)",
       // Database: "데이터베이스(Database)",
       // Operating_System: "운영체제(Operating System)",
