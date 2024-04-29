@@ -8,15 +8,15 @@ export const CategoryKo: CategoryKoinfo = {
           Concept: {
             name: "개념정리",
             content: {
-              "1": {
+              "01": {
                 name: "암호화(Encryption)",
                 date: "2024-04-24",
               },
-              "2": {
+              "02": {
                 name: "대칭 암호화(Symmetric Encryption)",
                 date: "2024-04-24",
               },
-              "3": {
+              "03": {
                 name: "비대칭 암호화(Asymmetric Encryption)",
                 date: "2024-04-24",
               },
@@ -27,18 +27,35 @@ export const CategoryKo: CategoryKoinfo = {
       Network: {
         name: "네트워크(Network)",
         title: {
+          Practice: {
+            name: "실습(Practice)",
+            content: {
+              "01": {
+                name: "WireShark 다루기",
+                date: "",
+              },
+              "02": {
+                name: "TCP/UDP 소켓 프로그래밍하기",
+                date: "",
+              },
+              "03": {
+                name: "Multiple Client Server 프로그래밍하기",
+                date: "2024-04-27",
+              },
+            },
+          },
           Concept: {
             name: "개념정리",
             content: {
-              "1": {
+              "01": {
                 name: "TCP/IP",
                 date: "",
               },
-              "2": {
+              "02": {
                 name: "TCP/IP",
                 date: "",
               },
-              "3": {
+              "03": {
                 name: "TCP/IP",
                 date: "",
               },
@@ -47,15 +64,15 @@ export const CategoryKo: CategoryKoinfo = {
           Questions: {
             name: "문제해결",
             content: {
-              "1": {
+              "01": {
                 name: "TCP/IP",
                 date: "2024-04-22",
               },
-              "2": {
+              "02": {
                 name: "Network",
                 date: "2024-04-22",
               },
-              "3": {
+              "03": {
                 name: "Network",
                 date: "2024-04-22",
               },
@@ -79,9 +96,21 @@ export const CategoryKo: CategoryKoinfo = {
           Concept: {
             name: "개념정리",
             content: {
-              "1": {
+              "01": {
                 name: "Set Annotated(집합용어)",
                 date: "2024-04-23",
+              },
+              "08": {
+                name: "Function of Random Variable(확률변수의 함수)",
+                date: "2024-04-29",
+              },
+              "09": {
+                name: "Joint PMF(결합확률질량함수)",
+                date: "2024-04-29",
+              },
+              "10": {
+                name: "Conditional PMF(조건부확률질량함수)",
+                date: "2024-04-29",
               },
             },
           },
@@ -126,7 +155,7 @@ export const CategoryKo: CategoryKoinfo = {
           Test: {
             name: "테스트(Test)",
             content: {
-              "1": {
+              "01": {
                 name: "테스트(Test)",
                 date: "1999-10-02",
               },
