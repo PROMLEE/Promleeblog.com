@@ -1,142 +1,168 @@
-# SECTIONS 3.1-3.3
+# 3.5 연결 지향 전송: TCP (Connection-Oriented Transport: TCP)
+## TCP 개요
+- **연결 지향적**(Connection-Oriented)
+	- 악수(handshake, 제어 메시지 교환)은 데이터 교환 전 송수신자의 상태/매개변수를 초기화함
+	- 논리적인 종단 간 연결이며, 전화 회선처럼 실제 회로는 아님
+		- 네트워크 내부에 상태/연결 정보 없음
+- 일대일 통신
+	- 한 송신자, 한 수신자
+- 전이중 데이터
+	- 같은 연결에서 양방향 데이터 흐름
+- 흐름 제어
+	- 수신자가 송신자의 속도에 맞춰 데이터를 받을 수 있도록 함
+	- 송신자가 수신자를 압도하지 않음
+- 신뢰할 수 있는, 순서대로 정렬된 바이트 스트림
+	- 메시지 경계가 없다
+	- 메시지를 분할하여 **TCP 세그먼트**를 사용하여 전송
+		- MSS(Maximum Segment Size): 한 번에 전송할 수 있는 최대 데이터 크기
+- 파이프라인 방식
+	- TCP 혼잡 및 흐름 제어가 윈도우 크기 결정 = **min(flow control, congestion control)** -> dynaminc/adaptive
 
-1. Suppose the network layer provides the following service: The network layer in the source host accepts a segment of maximum size 1,200 bytes and a destination host address from the transport layer. The network layer then guarantees to deliver the segment to the transport layer at the destination host. Assume multiple network application processes can be running at the destination host.<br/>
-	a. Design the simplest possible transport-layer protocol to route application data to the desired process at the destination host. Assume the destination host's operating system assigns a 4-byte port number to each running application process.<br/>
-	b. Modify this protocol to include a “return address” for the destination process.<br/>
-	c. Does the transport layer need to perform any specific actions within the core of the computer network?<br/><br/>
-	네트워크 계층이 다음과 같은 서비스를 제공한다고 가정합니다: 소스 호스트의 네트워크 계층은 최대 크기가 1,200 바이트인 세그먼트와 목적지 호스트 주소를 전송 계층에서 받습니다. 네트워크 계층은 세그먼트를 목적지 호스트의 전송 계층에 전달하는 것을 보장합니다. 목적지 호스트에서 여러 네트워크 응용 프로그램 프로세스가 실행될 수 있다고 가정합니다.<br/>
-	a. 목적지 호스트의 원하는 프로세스로 응용 프로그램 데이터를 라우팅하기 위한 가장 간단한 전송 계층 프로토콜을 설계하십시오. 목적지 호스트의 운영 체제는 실행 중인 각 응용 프로그램 프로세스에 4바이트 포트 번호를 할당한다고 가정합니다.<br/>
-	b. 이 프로토콜을 수정하여 목적지 프로세스에 대한 "반환 주소"를 포함하십시오.<br/>
-	c. 전송 계층은 컴퓨터 네트워크의 핵심에서 특정 작업을 수행해야합니까?<br/>
-	<Answer>
-		a. 가능한 가장 간단한 전송 계층 프로토콜은 목적지 호스트의 운영 체제가 실행 중인 각 응용 프로그램 프로세스에 4바이트 포트 번호를 할당한다고 가정하면, 전송 계층은 목적지 호스트의 운영 체제에 4바이트 포트 번호를 전달하여 목적지 호스트의 운영 체제가 해당 프로세스로 데이터를 전달할 수 있도록 합니다.<br/>
-		b. 프로토콜을 수정하여 목적지 프로세스에 대한 "반환 주소"를 포함하면, 목적지 프로세스는 데이터를 보낸 프로세스에 응답할 수 있습니다.<br/>
-		c. 전송 계층은 컴퓨터 네트워크의 핵심에서 특정 작업을 수행할 필요가 없습니다. 전송 계층은 소스 호스트와 목적지 호스트 간의 데이터 전송을 담당하며, 네트워크 계층이 목적지 호스트의 운영 체제에 데이터를 전달하도록 합니다.
-	</Answer>
+## TCP 연결의 여러 종류 (Many Flavors of TCP)
+Taho->**(New)Reno**->Vegas->Westwood->Binary Increase Congestion control(BIC)->**Cubic**->**BBR**
+- new Reno: 거의 모든 OS에서 기본적으로 사용되는 전통적인 TCP
+- Cubic: 리눅스에서 기본적으로 사용되는 TCP
+- BBR: 구글에서 개발한 TCP, 가장 빠른 속도를 보임
 
-2. Consider a planet where everyone belongs to a family of six, with each family living in a unique-addressed house. Each person in a house has a unique name. Suppose the planet has a mail service that delivers letters to houses based on clearly written addresses on envelopes. Each family has a delegate who manages mail distribution.<br/>
-	a. Inspired by the solution to Problem R1, describe a protocol for delegates to deliver letters to specific family members.<br/>
-	b. Does the mail service need to open the envelope to provide its service?<br/><br/>
-	모든 사람이 6명의 가족 구성원으로 이루어진 가족에 속하며, 각 가족은 고유 주소를 가진 집에 거주합니다. 집에 있는 각 사람은 고유한 이름을 가지고 있습니다. 행성에는 편지를 집 주소에 따라 배달하는 우편 서비스가 있습니다. 각 가족에는 우편 배달을 관리하는 대리인이 있습니다.<br/>
-	a. 문제 R1의 해결책에서 영감을 받아 대리인이 특정 가족 구성원에게 편지를 전달하는 프로토콜을 설명하십시오.<br/>
-	b. 우편 서비스는 서비스를 제공하기 위해 봉투를 열어야합니까?<br/>
-	<Answer>
-		a. 가족 대리인이 특정 가족 구성원에게 편지를 전달하는 프로토콜은 가족 대리인이 편지를 받아 해당 가족 구성원에게 전달하는 것입니다. 가족 대리인은 편지를 받으면 편지를 받을 가족 구성원을 식별하고 편지를 전달합니다.<br/>
-		b. 우편 서비스는 서비스를 제공하기 위해 봉투를 열 필요가 없습니다. 우편 서비스는 봉투에 적힌 주소를 확인하고 해당 주소로 편지를 배달합니다.
-	</Answer>
+혼잡 제어 알고리즘(congestion control algorithm)의 가장 큰 차이점? -> **congestion window size**의 변화
 
-3. Consider a TCP connection between Host A and Host B, where TCP segments from Host A to Host B use source port x and destination port y. What are the source and destination port numbers for the segments traveling from Host B to Host A?<br/>
-	호스트 A와 호스트 B 사이의 TCP 연결을 고려해 보겠습니다. 호스트 A에서 호스트 B로부터의 TCP 세그먼트는 소스 포트 x와 대상 포트 y를 사용합니다. 호스트 B에서 호스트 A로 이동하는 세그먼트의 소스 및 대상 포트 번호는 무엇입니까?<br/>
-	<Answer>
-		호스트 B에서 호스트 A로 이동하는 세그먼트의 소스 포트 번호는 y이고 대상 포트 번호는 x입니다.
-	</Answer>
+## TCP 세그먼트 구조 (TCP Segment Structure)
+- 헤더: 20바이트
+	- souce port(16bit), destination port(16bit)
+	- sequence number(32bit): DATA의 순서 - 32bit
+	- acknowledgment number(32bit): ACK 번호 - 32bit
+	- SYN: 연결 설정 요청
+	- FIN: 연결 종료 요청
+	- ACK valid bit(1bit): ACK 번호가 유효한지
+	- receive window(16bit): 수신자가 받을 수 있는 데이터 크기 -> flow control
+	- checksum(16bit): 오류(biterror) 검출
+	- options(0~40byte): 옵션 정보
+- payload(데이터): 최대 65,535바이트
 
-4. Describe why an application developer might prefer to run an application over UDP rather than TCP.<br/>
-	응용 프로그램 개발자가 TCP 대신 UDP를 통해 응용 프로그램을 실행하는 것을 선호하는 이유를 설명하십시오.<br/>
-	<Answer>
-		응용 프로그램 개발자가 UDP 대신 TCP를 통해 응용 프로그램을 실행하는 이유는 다음과 같습니다:
-		- **데이터 전송 속도** - UDP는 데이터 전송 속도가 빠르기 때문에 실시간 데이터 전송이 필요한 응용 프로그램에서 UDP를 사용할 수 있습니다.
-		- **데이터 전송 보장** - UDP는 데이터 전송을 보장하지 않기 때문에 데이터 전송 보장이 필요하지 않은 응용 프로그램에서 UDP를 사용할 수 있습니다.
-		- **연결 설정** - UDP는 연결 설정 과정이 없기 때문에 연결 설정 과정이 필요 없는 응용 프로그램에서 UDP를 사용할 수 있습니다.
-	</Answer>
+## TCP 시퀀스 번호, ACK 번호 (TCP Sequence Number, ACK Number)
+예시: 500kb 메시지를 보낼 때, MSS=1000bytes
+500kb = 500,000bytes = 500개의 세그먼트
 
-5. Why is voice and video traffic often sent over TCP rather than UDP in today's Internet? (Note: The answer does not relate to TCP's congestion-control mechanism.)<br/>
-	오늘날의 인터넷에서 음성 및 비디오 트래픽이 UDP 대신 TCP를 통해 전송되는 이유는 무엇입니까? (참고: 답변은 TCP의 혼잡 제어 메커니즘과 관련이 없습니다.)<br/>
-	<Answer>
-		오늘날의 인터넷에서 음성 및 비디오 트래픽이 UDP 대신 TCP를 통해 전송되는 이유는 다음과 같습니다:
-		- **데이터 전송 보장** - 음성 및 비디오 트래픽은 데이터 전송 보장이 필요하기 때문에 TCP를 사용하여 데이터 전송을 보장할 수 있습니다.
-		- **데이터 손실 방지** - 음성 및 비디오 트래픽은 데이터 손실을 방지해야 하기 때문에 TCP를 사용하여 데이터 손실을 방지할 수 있습니다.
-	</Answer>
+시퀀스 번호: 각 세그먼트의 첫 번째 바이트의 **바이트 스트림 번호** - 0, 1000, 2000, 3000, 4000
+ACK 번호: 수신자가 **다음에 받을 세그먼트**의 시퀀스 번호 - 1000, 2000, 3000, 4000, 5000
+### 특징
+- 패킷은 시퀀스 번호와 ACK 번호를 모두 가지고 있다
+	- 데이터 패킷을 ACK 용으로 사용 가능
+	- 전이중 통신 가능 (full-duplex)
+- 실제로는 0부터 시작하지 않음
+	- 초기 시퀀스 번호는 랜덤하게 선택됨. 왜일까? -> 새로운 패킷을 보낼 때마다 시퀀스 번호가 0부터 시작하면, 이전에 보낸 패킷과 중복될 수 있기 때문
+- 시작 번호를 알 수 있는 방법
+	- 3-way handshake: 초기 시퀀스 번호를 알려줌
+- 수신자가 순서가 어긋난 패킷을 받았을 때
+	- TCP에서 명시하지 않음
 
-6. Is it possible for an application to achieve reliable data transfer even when running over UDP? If yes, how?<br/>
-	UDP를 통해 실행 중인 응용 프로그램이 신뢰할 수 있는 데이터 전송을 달성할 수 있는지 여부를 확인할 수 있습니까? 가능하다면, 어떻게 할 수 있습니까?<br/>
-	<Answer>
-		UDP를 통해 실행 중인 응용 프로그램이 신뢰할 수 있는 데이터 전송을 달성할 수 있습니다. 응용 프로그램은 **응용 계층에서 데이터 전송 보장 메커니즘**을 구현하여 데이터 전송을 보장할 수 있습니다. 예를 들어, 응용 프로그램은 데이터 전송 시 데이터를 확인하고 데이터 전송이 실패한 경우 데이터를 재전송할 수 있습니다.
-	</Answer>
+### 예시
+- 사용자가 'C'를 입력한다.
+- 호스트 A는 시퀀스 번호 42, 인정 번호 79, 데이터 'C'를 가진 패킷을 전송한다.
+- 호스트 B는 'C'의 수신을 인정하고 'C'를 에코(반사)로 돌려보낸다.
+- 호스트 B는 시퀀스 번호 79, 인정 번호 43, 데이터 'C'를 가진 패킷을 전송한다.
+	- 시퀀스 번호 79: A가 보낸 ACK
+	- 인정 번호 43: A가 보낸 Seq + 1
+- 호스트 A는 'C'의 수신을 인정하고 시퀀스 번호 43, 인정 번호 80을 가진 패킷을 전송한다.
+	- 시퀀스 번호 43: B가 보낸 ACK
+	- 인정 번호 80: B가 보낸 Seq + 1
 
-7. Suppose a process in Host C has a UDP socket with port number 6789. If Host A and Host B both send a UDP segment to Host C with destination port 6789:<br/>
-	- Will both segments be directed to the same socket at Host C?
-	- How will the process at Host C differentiate that these segments originated from different hosts?<br/><br/>
-	호스트 C의 프로세스가 포트 번호 6789를 가진 UDP 소켓을 가지고 있다고 가정합니다. 호스트 A와 호스트 B가 모두 목적지 포트 6789로 호스트 C에 UDP 세그먼트를 보낸다면:<br/>
-		- 두 세그먼트는 호스트 C의 동일한 소켓으로 전달됩니까?
-		- 호스트 C의 프로세스는 이러한 세그먼트가 서로 다른 호스트에서 시작되었음을 어떻게 구별합니까?
-	<Answer>
-		-{} 두 세그먼트는 호스트 C의 동일한 소켓으로 전달됩니다.<br/>
-		-{} 호스트 C의 프로세스는 이러한 세그먼트가 서로 다른 호스트에서 시작되었음을 **소스 IP 주소**를 통해 구별합니다.
-	</Answer>
+## TCP 왕복 시간, 타임아웃 (TCP Round-Trip Time, Timeout)
+TCP 는 패킷 손실을 회복하기 위해 타임아웃 후 재전송한다.
+- Timeout 값을 설정하는 법
+	- RTT보다 길게 설정
+		- RTT(Round-Trip Time): 패킷을 보내고 ACK를 받는 데 걸리는 시간
+		- RTT는 변할 수 있다
+	- 너무 짧으면: 성급한 타임아웃, 불필요한 재전송
+	- 너무 길면: 세그먼트 손실에 대한 반응이 느림
+	- 몇 개의 타이머가 필요한가
+- RTT를 추정하는 방법
+	- SampleRTT: 패킷(세그먼트)을 보내고 ACK를 받는 데 걸린 시간
+		- 재전송은 무시. 왜? -> RTT가 길어지면 재전송이 빈번해질 수 있음
+	- 변동성이 있으므로 여러 최근 측정치를 평균낸다.
+- 지수 가중 이동 평균(Exponential Weighted Moving Average)
+	> EstimatedRTT = (1-α) * EstimatedRTT + α * SampleRTT
+	- 과거 샘플의 영향이 지수적으로 빠르게 감소함
+		- $E'=(1-\alpha)\left\{(1-\alpha)E+\alpha S\right\} $
+		- $E''=(1-\alpha)\left\{(1-\alpha)\left\{(1-\alpha)E+\alpha S\right\}+\alpha S\right\}$
+		- ...
+		- $E_n=(1-\alpha)E_{n-1}+\alpha S$
+	- 일반적으로, α: 0.125
+- 타임아웃 간격(TimeOut Interval): **추정된 RTT(EstimatedRTT)**에 "안전 마진"이 추가됨
+	- 추정된 RTT의 변동이 크면 안전 마진도 커짐
+	- DevRTT: RTT의 변동성
+		> DevRTT = (1-β) * DevRTT + β * |SampleRTT - EstimatedRTT|
+		- 일반적으로, β: 0.25
+	- TCP의 타임아웃 간격(TimeoutInterval) = 추정된 RTT(EstimatedRTT) + 4 * DevRTT(safety margin)
 
-8. Suppose a Web server on Host C runs on port 80 and uses persistent connections. It is currently receiving requests from two different hosts, A and B.<br/>
-	- Are all requests processed through the same socket at Host C?
-	- If processed through different sockets, do both sockets use port 80? Discuss and explain.<br/><br/>
-	호스트 C의 웹 서버가 포트 80에서 실행되고 지속적인 연결을 사용합니다. 현재 호스트 A와 B에서 두 가지 다른 호스트로부터 요청을 받고 있습니다.<br/>
-	- 모든 요청은 호스트 C의 동일한 소켓을 통해 처리됩니까?
-	- 다른 소켓을 통해 처리되는 경우, 두 소켓 모두 포트 80을 사용합니까? 논의하고 설명하십시오.
-	<Answer>
-		-{} 모든 요청은 호스트 C의 동일한 소켓을 통해 처리됩니다.<br/>
-		-{} 모든 요청은 호스트 C의 동일한 소켓을 통해 처리되므로 두 소켓 모두 포트 80을 사용합니다.
-	</Answer>
+# 3.5(2) TCP: 신뢰할 수 있는 데이터 전송(Reliable Data Transfer)
+## 신뢰할 수 있는 데이터 전송(Reliable Data Transfer)
+- **IP가 불안정하다**
+	- 데이터가 손상, 분실, 순서변경, 삭제될 수 있다.
+- TCP는 IP의 불안정성을 보완한다
+	- 받은 바이트 스트림은 보낸 것과 정확히 일치함
+	- 사용법
+		- 파이프라인 세그먼트
+		- 시퀀스 번호, ACK 번호
+		- 타임아웃, 재전송
+	- 재전송은 다음에 의해 트리거됨
+		- 타임아웃
+		- 중복된 ack
+## TCP 송신자 이벤트(TCP Sender Events)
+1. 애플리케이션으로부터 데이터를 받음
+	- 시퀀스 번호를 할당하고, 데이터를 세그먼트로 나눔
+	- 타이머가 시작됨
+2. 타임아웃
+	- 타이머가 만료되면, 세그먼트를 재전송
+	- 타이머 재설정
+3. ACK 수신
+	- ACK가 이전에 인정받지 않은 세그먼트 인정
+		- ACKed로 업데이트
+	- ACK가 이전에 인정받은 세그먼트를 인정
+		- 중복 ACK
 
+## TCP: 재전송 시나리오(TCP: Retransmission Scenario)
+### 시나리오1
+- 호스트 A는 시퀀스 번호 92, 8 바이트의 데이터를 전송한다.
+- 타임아웃 후, 호스트 A는 시퀀스 번호 92, 8 바이트의 데이터를 재전송한다.
+- 호스트 B는 ACK 100을 보낸다.
+- 문제: 잃어버린 ACK 시나리오
 
-# SECTION 3.4: Reliable Data Transfer Protocols
+### 시나리오2
+- 호스트 A는 시퀀스 번호 92, 8 바이트의 데이터를 전송하고, 이어서 시퀀스 번호 100, 20 바이트의 데이터를 전송한다.
+- 호스트 B는 ACK 100과 ACK 120을 전송한다.
+- 호스트 A는 시퀀스 번호 92, 8 바이트의 데이터를 재전송한다.
+- 호스트 B는 ACK 120을 다시 전송한다.
+- 문제: 성급한 타임아웃 시나리오
 
-9. Why did we need to introduce sequence numbers in our rdt (reliable data transfer) protocols?<br/>
-	우리는 왜 rdt(신뢰할 수 있는 데이터 전송) 프로토콜에서 순서 번호를 도입해야 했습니까?
-	<Answer>
-		rdt 프로토콜에서 순서 번호를 도입해야 했던 이유는 다음과 같습니다:<br/>
-		-{} **데이터 순서 보장** - 순서 번호를 사용하여 데이터의 순서를 보장할 수 있습니다.<br/>
-		-{} **중복 데이터 방지** - 순서 번호를 사용하여 중복 데이터를 방지할 수 있습니다.
-	</Answer>
+### 시나리오3
+- Host A는 시퀀스 번호 92로 8바이트의 데이터를 전송한다.
+- 다음으로, 시퀀스 번호 100으로 20바이트의 데이터를 전송하지만, 이 데이터는 손실된다 (X로 표시).
+- Host B는 시퀀스 번호 100의 데이터를 수신하지 못했기 때문에 ACK 100을 전송하여 이를 Host A에 알린다.
+- 그 후, Host A는 시퀀스 번호 120으로 15바이트의 데이터를 전송하고, Host B는 ACK 120을 보낸다.
+- 문제: 누적 ACK을 시나리오
 
-10. Why did we need to introduce timers in our rdt protocols?<br/>
-	우리는 왜 rdt 프로토콜에서 타이머를 도입해야 했습니까?
-	<Answer>
-		rdt 프로토콜에서 타이머를 도입해야 했던 이유는 다음과 같습니다:<br/>
-		-{} **타임아웃 처리** - 타이머를 사용하여 데이터 전송이 실패한 경우 타임아웃을 설정하고 데이터를 재전송할 수 있습니다.<br/>
-		-{} **데이터 손실 처리** - 타이머를 사용하여 데이터 손실이 발생한 경우 데이터를 재전송할 수 있습니다.
-	</Answer>
+## TCP ACK 생성(TCP ACK Generation)
+- 수신자 이벤트: 순서대로 도착한 세그먼트가 예상 시퀀스 번호와 일치하며, 이전 모든 데이터는 이미 ACK이 완료된 상태다.
+	- TCP 수신 액션: 지연된 ACK. 다음 세그먼트를 500ms 동안 기다린다. 다음 세그먼트가 없다면 ACK을 보낸다.
+- 수신자 이벤트: 순서대로 도착한 세그먼트가 예상 시퀀스 번호와 일치하며, 다른 세그먼트에 대한 ACK이 대기 중이다.
+	- TCP 수신 액션: 즉시 단일 누적 ACK을 보내어 순서대로 도착한 두 세그먼트를 모두 ACK한다.
+- 수신자 이벤트: 예상보다 높은 시퀀스 번호를 가진 순서에 맞지 않는 세그먼트가 도착하며, 갭이 감지된다.
+	- TCP 수신 액션: 즉시 중복 ACK을 보내어 다음 예상 바이트의 시퀀스 번호를 나타낸다.
+- 수신자 이벤트: 갭을 부분적으로나 완전히 채우는 세그먼트가 도착한다.
+	- TCP 수신 액션: 갭의 낮은 쪽에서 시작하는 세그먼트가 도착하면 즉시 ACK을 보낸다.
 
-11. Suppose that the roundtrip delay between sender and receiver is constant and known to the sender. Is a timer still necessary in protocol rdt 3.0, assuming that packets can be lost? Explain.<br/>
-	송신자와 수신자 사이의 왕복 지연이 일정하고 송신자에게 알려져 있다고 가정합니다. 패킷이 손실될 수 있다고 가정할 때 프로토콜 rdt 3.0에서 타이머가 여전히 필요합니까? 설명하십시오.
-	<Answer>
-		송신자와 수신자 사이의 왕복 지연이 일정하고 송신자에게 알려져 있다고 가정할 때 프로토콜 rdt 3.0에서 타이머가 여전히 필요합니다. 패킷이 손실될 수 있기 때문에 타이머를 사용하여 데이터 전송이 실패한 경우 타임아웃을 설정하고 데이터를 재전송할 수 있습니다.
-	</Answer>
+## TCP 빠른 재전송(TCP Fast Retransmit)
+문제정의: 타임아웃 기간이 종종 상대적으로 김
+아이디어: 중복 ACK을 통해 잃어버린 세그먼트를 식별하고, 즉시 재전송
+	- 세그먼트가 손실되면, 중복 ACK이 많이 발생할 가능성이 있다.
 
-12. Visit the Go-Back-N interactive animation at the companion Web site.
-	a. Send five packets and pause before any reach the destination. Kill the first packet and resume. Describe what happens.
-	b. Let the first packet reach the destination but kill the first acknowledgment. Describe what happens.
-	c. Send six packets. What happens?<br/><br/>
-	웹 사이트의 Go-Back-N 대화형 애니메이션을 방문하십시오.<br/>
-	a. 다섯 개의 패킷을 보내고 목적지에 도달하기 전에 일시 중지하십시오. 첫 번째 패킷을 중단하고 다시 시작하십시오. 무슨 일이 일어납니까?<br/>
-	b. 첫 번째 패킷이 목적지에 도달하도록 하되 첫 번째 확인을 중단하십시오. 무슨 일이 일어납니까?<br/>
-	c. 여섯 개의 패킷을 보내십시오. 무슨 일이 일어납니까?
+TCP 빠른 재전송
+	- 중복 ACK이 3개 이상 수신되면, 잃어버린 세그먼트로 간주하고 즉시 재전송
+	- 가장 작은 시퀀스 번호를 가진 세그먼트를 재전송
+	- 타임아웃을 기다리지 않음
 
-
-13. Repeat R12 but now with the Selective Repeat interactive animation. How are Selective Repeat and Go-Back-N protocols different?<br/>
-	R12를 반복하되 이번에는 Selective Repeat 대화형 애니메이션을 사용하십시오. Selective Repeat와 Go-Back-N 프로토콜의 차이점은 무엇입니까?
-
-
-
-{/* # SECTION 3.5: TCP Transmission Protocols */}
-
-14. 
-	a. True or false? If Host B receives a large file over a TCP connection from Host A and has no data to send back, Host B will not send acknowledgments to Host A.
-	b. True or false? The size of the TCP rwnd never changes throughout the duration of the connection.
-	c. True or false? The number of unacknowledged bytes that Host A sends cannot exceed the size of the receive buffer on a TCP connection to Host B.
-	d. True or false? If the sequence number for a segment in a TCP connection is m, then the sequence number for the subsequent segment will necessarily be m + 1.
-	e. True or false? The TCP segment header includes a field for rwnd.
-	f. True or false? If the last SampleRTT in a TCP connection is equal to 1 sec, the current value of TimeoutInterval for the connection will necessarily be at least 1 sec.
-	g. True or false? If Host A sends a segment with sequence number 38 and 4 bytes of data over a TCP connection to Host B, the acknowledgment number in the same segment is necessarily 42.
-
-15. Suppose Host A sends two TCP segments back to back to Host B over a TCP connection. The first segment has sequence number 90; the second has sequence number 110.
-	a. How much data is in the first segment?
-	b. If the first segment is lost but the second arrives at B, what will be the acknowledgment number that Host B sends to Host A?
-
-16. In the Telnet example from Section 3.5, a few seconds after typing 'C', the user types 'R'. How many segments are sent, and what is in the sequence and acknowledgment fields of these segments?
-
-# SECTION 3.7: TCP Congestion Control
-
-17. Suppose two TCP connections are present over a bottleneck link of rate R bps, both aiming to send a large file starting at the same time. What transmission rate would TCP like to allocate to each of the connections?
-
-18. True or false? When the timer expires at the sender in TCP, the value of ssthresh is set to one half of its previous value.
-
-19. In the discussion of TCP splitting, it was claimed that the response time is approximately 4 x RTTFE + RTTBE + processing time. Justify this claim.
+예시)
+- Host A는 시퀀스 번호 92에서 8바이트의 데이터를 전송하고, 이어서 시퀀스 번호 100에서 20바이트의 데이터를 전송한다.
+- 시퀀스 번호 100의 데이터가 손실되었다는 표시(X)로 인해, Host B는 같은 시퀀스 번호에 대해 여러 번(3번) ACK 100을 반복해서 전송한다.
+- Host A는 이 3중 중복 ACK을 받고, 손실된 시퀀스 번호 100의 데이터 20바이트를 즉시 재전송한다.

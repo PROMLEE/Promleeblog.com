@@ -56,8 +56,8 @@ export const CategoryKo: CategoryKoinfo = {
                 date: "",
               },
               "03": {
-                name: "TCP/IP",
-                date: "",
+                name: "전송계층 (Transport Layer)",
+                date: "2024-04-30",
               },
             },
           },
