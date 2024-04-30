@@ -267,7 +267,63 @@ func main() {
 c언어에는 golang의 고루틴과 같은 기능이 없기 때문에 멀티클라이언트 서버를 구현하기 위해서는 **논블로킹 소켓 메소드** 방법을 사용해야 한다.
 논블로킹 소켓 메소드 방법은 `select(){:c}` 함수를 사용하여 동시에 여러 소켓을 기다리는 방법이다.
 
-위에서 실습한 golang의 서버, 클라이언트와도 연동이 가능해야 한다.
-리눅스 환경에서 Makefile 파일을 만들어 `make{:shell}` 명령어로 컴파일 및 실행할 수 있도록 한다.
+1. 위에서 실습한 golang의 서버, 클라이언트와도 연동이 가능해야 한다.
+2. 리눅스 환경에서 Makefile 파일을 만들어 `make{:shell}` 명령어로 컴파일 및 실행할 수 있도록 한다.
 
 추가 실습 이유: 네트워크 어플리케이션은 다양한 언어로 구현될 수 있으며, 서로 다른 언어로 구현된 어플리케이션 간의 통신이 가능해야 한다.
+
+<a href="/download/MultiTCPServer.c" className="text-yellow-500" download>MultiTCPServer.c ⬇️</a>
+```c showLineNumbers title="MultiTCPServer.c 핵심 코드" highlight={22}
+...
+int main()
+{
+  int listener = socket(AF_INET, SOCK_STREAM, 0); 	// 소켓 생성
+  struct sockaddr_in server_addr;
+  char buffer[BUFFER_SIZE];
+  char return_info[256];
+  set_non_blocking(listener);	// 소켓을 논블로킹 모드로 설정
+
+  server_addr.sin_family = AF_INET;
+  server_addr.sin_addr.s_addr = INADDR_ANY;
+  server_addr.sin_port = htons(PORT); 		//	서버 주소 설정
+  bind(listener, (struct sockaddr *)&server_addr, sizeof(server_addr));	
+  listen(listener, 5);	//	소켓을 서버로 설정
+  FD_ZERO(&master);  		//	파일 디스크립터 초기화
+  FD_SET(listener, &master);	//	파일 디스크립터 설정
+  fd_max = listener;  		//	파일 디스크립터 설정
+
+  while (1)
+  {
+    read_fds = master;
+    select(fd_max + 1, &read_fds, NULL, NULL, NULL) 	// select 함수를 사용하여 소켓을 기다림
+    for (int i = 0; i <= fd_max; i++)	// 소켓을 순회하며 데이터를 처리
+    {
+      if (FD_ISSET(i, &read_fds))	// 소켓에서 데이터를 받음
+      {
+        if (i == listener)
+        {
+          struct sockaddr_in client_addr;
+          socklen_t addrlen = sizeof(client_addr);
+          int new_sock = accept(listener, (struct sockaddr *)&client_addr, &addrlen);	// 클라이언트 연결을 받음
+          if (new_sock >= 0)
+          {
+            set_non_blocking(new_sock); 		// 소켓을 논블로킹 모드로 설정
+            FD_SET(new_sock, &master);  		// 파일 디스크립터 설정
+            if (new_sock > fd_max)
+              fd_max = new_sock;
+            char *client_ip = inet_ntoa(client_addr.sin_addr);	// 클라이언트 IP 주소를 가져옴
+            int client_port = ntohs(client_addr.sin_port);     		// 클라이언트 포트 번호를 가져옴
+          }
+        }
+        else
+        {
+          int nbytes = recv(i, buffer, BUFFER_SIZE - 1, 0);	// 클라이언트로부터 데이터를 받음
+          if (nbytes > 0)
+          {
+            buffer[nbytes] = '\0'; 		// 문자열 끝을 표시
+            struct sockaddr_in client_addr; 		// 클라이언트 정보를 가져옴
+            socklen_t client_len = sizeof(client_addr);	// 클라이언트 정보를 가져옴
+						// 클라이언트에서 받은 정보(buffer) 처리
+						...
+...
+```
