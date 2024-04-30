@@ -17,7 +17,7 @@ export const CategoryKo: CategoryKoinfo = {
                 date: "2024-04-24",
               },
               "03": {
-                name: "비대칭 암호화(Asymmetric Encryption)",
+                name: "공개 키 암호화 (Public Key Encryption)",
                 date: "2024-04-24",
               },
             },
