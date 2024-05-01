@@ -29,7 +29,7 @@ export function h1tag({ id, children }: Props) {
           "my-10 mx-auto border-1 rounded  w-full dark:border-slate-800"
         }
       />
-      <div id={id} className="text-3xl font-bold mt-10 mb-5">
+      <div id={id} className="text-3xl font-bold ml-[-15px] mt-15 mb-5">
         💡 {children}
       </div>
     </>
@@ -37,15 +37,15 @@ export function h1tag({ id, children }: Props) {
 }
 export function h2tag({ id, children }: Props) {
   return (
-    <div id={id} className="text-xl font-bold ml-3 mt-10 mb-3">
+    <div id={id} className="text-xl font-bold ml-[-10px] mt-10 mb-3">
       🚀 {children}
     </div>
   );
 }
 export function h3tag({ id, children }: Props) {
   return (
-    <div id={id} className="text-2xl font-bold mt-5 mb-2">
-      ▫️ {children}
+    <div id={id} className=" font-bold ml-[-5px] mt-5">
+      ✅ {children}
     </div>
   );
 }
@@ -71,7 +71,7 @@ export function h6tag({ id, children }: Props) {
   );
 }
 export const oltag = ({ children }: Props) => {
-  return <ol className={"mt-0 mb-4 dark:marker:text-white"}>{children}</ol>;
+  return <ol className={"mt-0 mb-4"}>{children}</ol>;
 };
 export const ultag = ({ children }: Props) => {
   return <ul className={"mt-0 mb-4"}>{children}</ul>;
@@ -89,9 +89,9 @@ export const thtag = ({ children }: Props) => {
 export const tdtag = ({ children }: Props) => {
   return <th className={"text-center font-normal"}>{children}</th>;
 };
-export const codetag = ({ children }: Props) => {
-  return <code className={"dark:text-white "}>{children}</code>;
-};
+// export const codetag = ({ children,  }: Props) => {
+//   return <code className={"dark:text-white "}>{children}</code>;
+// };
 export const btag = ({ children }: Props) => {
   return (
     <div
@@ -103,9 +103,11 @@ export const btag = ({ children }: Props) => {
     </div>
   );
 };
-
+export const brtag = () => {
+  return <div className="h-3" />;
+};
 export const ptag = ({ children }: Props) => {
-  return <div className={"leading-10"}>{children}</div>;
+  return <div className={"leading-7 "}>{children}</div>;
 };
 export const spantag = ({ children }: Props) => {
   return <span className={""}>{children}</span>;
@@ -118,9 +120,28 @@ export const spantag = ({ children }: Props) => {
 //   );
 // };
 export const atag = ({ id, children, href }: Props) => {
+  const isInternalLink = href && (href.startsWith("/") || href.startsWith("#"));
+
+  if (isInternalLink) {
+    return (
+      <Link
+        href={href}
+        id={id}
+        className={"hover:text-blue-700  text-yellow-500 no-underline"}
+      >
+        {children}
+      </Link>
+    );
+  }
+
   return (
-    <Link id={id} className={"hover:text-blue-700 no-underline"} href={href}>
-      {children}
-    </Link>
+    <a
+      id={id}
+      className={"hover:text-blue-700  text-yellow-500 no-underline"}
+      href={href}
+      target="_blank"
+    >
+      {children} ↗️
+    </a>
   );
 };

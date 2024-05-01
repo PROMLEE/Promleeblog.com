@@ -70,12 +70,24 @@
   body {
     @apply bg-background w-full flex flex-col xl:items-center;
   }
-  span {
-    @apply text-left font-mono leading-relaxed;
+  div > span > span > span {
+    @apply text-left font-mono leading-loose;
+  }
+  div > span > span > span > span {
+    @apply text-center my-1;
+  }
+  div > span > span > span > span > span {
+    @apply m-0;
   }
   ul,
   ol {
     @apply marker:dark:text-white;
+  }
+  ul > li > ul {
+    @apply dark:list-["৹__"];
+  }
+  ul > li > ul > li > ul {
+    @apply dark:list-["▪__"];
   }
   blockquote {
     @apply dark:border-white bg-muted;
@@ -129,15 +141,26 @@
   text-align: right;
   color: gray;
 }
-.prose code[data-line-numbers-max-digits="2"] > span[data-line]::before {
-  width: 1.25rem;
-}
-.prose code[data-line-numbers-max-digits="3"] > span[data-line]::before {
-  width: 1.75rem;
-}
 /* Fenced Code block - line hightlight */
 .prose code span[data-highlighted-line] {
   @apply border-l-2 border-y-0 border-transparent bg-opacity-10 
         border-blue-400 bg-indigo-400 dark:border-blue-500 dark:bg-slate-700
         pl-[calc(0.5rem-2px)] md:pl-[calc(1rem-2px)];
+}
+/* Fenced Code block - with title style*/
+.prose figcaption[data-rehype-pretty-code-title] {
+  @apply px-5 py-3 font-mono text-sm font-bold text-gray-800 bg-gray-200 border border-b-0 border-gray-200 rounded-t-lg dark:text-gray-200 dark:border-gray-700 dark:bg-gray-800;
+}
+.prose figcaption[data-rehype-pretty-code-title] + pre {
+  @apply mt-0 rounded-t-none;
+}
+/* Inline code block backtick display: none */
+.prose :not(pre) > code::before,
+.prose :not(pre) > code::after {
+  display: none;
+}
+
+/* inline code block style */
+.prose :not(pre) > code {
+  @apply dark:bg-gray-900 bg-white border border-gray-200 dark:border-gray-700 font-mono text-sm font-normal align-middle py-0.5 px-1 rounded;
 }
