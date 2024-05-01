@@ -84,13 +84,17 @@
     @apply marker:dark:text-white;
   }
   ul > li > ul {
-    @apply dark:list-["৹__"];
+    @apply dark:list-["৹__"] m-0;
+  }
+  ul > li > ul,
+  ol > li > ul {
+    @apply mb-4;
   }
   ul > li > ul > li > ul {
-    @apply dark:list-["▪__"];
+    @apply dark:list-["▪__"] m-0;
   }
   blockquote {
-    @apply dark:border-white bg-muted;
+    @apply dark:border-white bg-muted py-2;
   }
 }
 
@@ -145,7 +149,7 @@
 .prose code span[data-highlighted-line] {
   @apply border-l-2 border-y-0 border-transparent bg-opacity-10 
         border-blue-400 bg-indigo-400 dark:border-blue-500 dark:bg-slate-700
-        pl-[calc(0.5rem-2px)] md:pl-[calc(1rem-2px)];
+        pl-[calc(1rem-2px)];
 }
 /* Fenced Code block - with title style*/
 .prose figcaption[data-rehype-pretty-code-title] {
