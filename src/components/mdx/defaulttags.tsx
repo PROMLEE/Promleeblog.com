@@ -9,18 +9,34 @@ interface Props {
 }
 
 export function imgtag({ src, alt }: { src: string; alt: string }) {
-  return (
-    <div className="relative md:h-[600px] h-[800px] m-0">
-      <Image
-        src={src}
-        alt={alt}
-        className="m-0"
-        layout="fill"
-        objectFit="contain"
-      />
-    </div>
-  );
+  const isWithlong = alt && alt.endsWith("w");
+  if (isWithlong) {
+    return (
+      <div className="relative  h-[400px] m-0">
+        <Image
+          src={src}
+          alt={alt}
+          className="m-0"
+          layout="fill"
+          objectFit="contain"
+        />
+      </div>
+    );
+  } else {
+    return (
+      <div className="relative  h-[600px] m-0">
+        <Image
+          src={src}
+          alt={alt}
+          className="m-0"
+          layout="fill"
+          objectFit="contain"
+        />
+      </div>
+    );
+  }
 }
+
 export function h1tag({ id, children }: Props) {
   return (
     <>
@@ -29,7 +45,7 @@ export function h1tag({ id, children }: Props) {
           "my-10 mx-auto border-1 rounded  w-full dark:border-slate-800"
         }
       />
-      <div id={id} className="text-3xl font-bold ml-[-15px] mt-15 mb-5">
+      <div id={id} className="text-3xl font-bold ml-[-15px] mb-5">
         💡 {children}
       </div>
     </>
@@ -37,72 +53,85 @@ export function h1tag({ id, children }: Props) {
 }
 export function h2tag({ id, children }: Props) {
   return (
-    <div id={id} className="text-xl font-bold ml-[-10px] mt-10 mb-3">
+    <div id={id} className="text-2xl font-bold ml-[-10px] mb-3">
       🚀 {children}
     </div>
   );
 }
 export function h3tag({ id, children }: Props) {
   return (
-    <div id={id} className=" font-bold ml-[-5px] mt-5">
+    <div id={id} className="text-xl font-bold ml-[-10px] mb-1">
       ✅ {children}
     </div>
   );
 }
 export function h4tag({ id, children }: Props) {
   return (
-    <div id={id} className="text-1xl font-bold">
-      {children}
+    <div id={id} className="text-lg font-bold mb-1">
+      ▫️ {children}
     </div>
   );
 }
 export function h5tag({ id, children }: Props) {
   return (
-    <div id={id} className="text-xl font-bold">
+    <div id={id} className="font-bold">
       {children}
     </div>
   );
 }
 export function h6tag({ id, children }: Props) {
   return (
-    <div id={id} className="font-bold my-1">
+    <div id={id} className="font-bold">
       {children}
     </div>
   );
 }
 export const oltag = ({ children }: Props) => {
-  return <ol className={"mt-0 mb-4"}>{children}</ol>;
+  return <ol className="pb-2 pt-0 m-0">{children}</ol>;
 };
 export const ultag = ({ children }: Props) => {
-  return <ul className={"mt-0 mb-4"}>{children}</ul>;
+  return <ul className="pb-2 pt-0 m-0">{children}</ul>;
 };
 export const litag = ({ id, children }: Props) => {
   return (
-    <li id={id} className={"my-0"}>
+    <li id={id} className={"my-1"}>
       {children}
     </li>
   );
 };
 export const thtag = ({ children }: Props) => {
-  return <th className={"dark:text-white p-1 "}>{children}</th>;
+  return (
+    <th className={"dark:text-white p-1 bg-slate-800 border-slate-500 border"}>
+      {children}
+    </th>
+  );
 };
 export const tdtag = ({ children }: Props) => {
-  return <th className={"text-center font-normal"}>{children}</th>;
+  return (
+    <th className={"text-center font-normal border border-slate-700"}>
+      {children}
+    </th>
+  );
 };
 // export const codetag = ({ children,  }: Props) => {
 //   return <code className={"dark:text-white "}>{children}</code>;
 // };
 export const btag = ({ children }: Props) => {
+  return <div className="font-bold">{children}</div>;
+};
+
+export function emtag({ children }: Props) {
   return (
     <div
       className={
-        "inline decoration-wavy underline underline-offset-4 dark:decoration-yellow-400 dark:text-white  decoration-yellow-800"
+        "inline decoration-wavy underline underline-offset-4 dark:decoration-yellow-400 decoration-yellow-800"
       }
     >
       {children}
     </div>
   );
-};
+}
+
 export const brtag = () => {
   return <div className="h-3" />;
 };

@@ -12,13 +12,21 @@ import {
   thtag,
   tdtag,
   brtag,
+  emtag,
   // codetag,
   // spantag,
   // blockquotetag,
   atag,
   imgtag,
 } from "@/components/mdx/defaulttags";
-import { Answer, Math } from "@/components/mdx/customtags";
+import {
+  Answer,
+  Math,
+  Bbox,
+  Rbox,
+  Gbox,
+  Ybox,
+} from "@/components/mdx/customtags";
 
 export const components = {
   h1: h1tag,
@@ -40,6 +48,11 @@ export const components = {
   br: brtag,
   a: atag,
   img: imgtag,
+  em: emtag,
   Answer,
   Math,
+  Bbox,
+  Rbox,
+  Gbox,
+  Ybox,
 };
