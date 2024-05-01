@@ -91,11 +91,11 @@ export const CategoryKo: CategoryKoinfo = {
               //   date: "2024-04-24",
               // },
               "02": {
-                name: "Radio Propagation, Sampling (무선전파, 샘플링)",
+                name: "무선전파와 샘플링 (Wireless Propagation and Sampling)",
                 date: "2024-04-24",
               },
               "03": {
-                name: "Source and Channel Coding (소스 및 채널 코딩)",
+                name: "소스 및 채널 코딩 (Source and Channel Coding)",
                 date: "2024-04-29",
               },
             },
@@ -118,21 +118,17 @@ export const CategoryKo: CategoryKoinfo = {
           Concept: {
             name: "개념정리",
             content: {
-              "01": {
-                name: "Set Annotated(집합용어)",
-                date: "2024-04-23",
-              },
               "08": {
-                name: "Function of Random Variable(확률변수의 함수)",
-                date: "2024-04-29",
+                name: "확률 변수의 함수 (Function of Random Variable)",
+                date: "2024-05-01",
               },
               "09": {
-                name: "Joint PMF(결합확률질량함수)",
+                name: "결합 확률 질랑 함수 (Joint PMF)",
                 date: "2024-04-29",
               },
               "10": {
-                name: "Conditional PMF(조건부확률질량함수)",
-                date: "2024-04-29",
+                name: "조건부 확률 질량 함수 (Conditional PMF)",
+                date: "2024-05-01",
               },
             },
           },
