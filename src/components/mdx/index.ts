@@ -17,7 +17,14 @@ import {
   atag,
   imgtag,
 } from "@/components/mdx/defaulttags";
-import { Answer, Math } from "@/components/mdx/customtags";
+import {
+  Answer,
+  Math,
+  Bbox,
+  Rbox,
+  Gbox,
+  Ybox,
+} from "@/components/mdx/customtags";
 
 export const components = {
   h1: h1tag,
@@ -40,4 +47,8 @@ export const components = {
   img: imgtag,
   Answer,
   Math,
+  Bbox,
+  Rbox,
+  Gbox,
+  Ybox,
 };

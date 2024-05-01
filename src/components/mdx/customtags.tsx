@@ -13,3 +13,36 @@ export function Math({ children }: any) {
     </div>
   );
 }
+
+export function Bbox({ children }: any) {
+  return (
+    <div className="bg-blue-700 w-full rounded-md my-3 p-3 flex text-white items-center">
+      <div className="mx-3">👨‍💻</div>
+      {children}
+    </div>
+  );
+}
+export function Rbox({ children }: any) {
+  return (
+    <div className="bg-red-700 w-full rounded-md my-3 p-3 flex text-white items-center">
+      <div className="mx-3">🖐️</div>
+      {children}
+    </div>
+  );
+}
+export function Gbox({ children }: any) {
+  return (
+    <div className="bg-green-700 w-full rounded-md my-3 p-3 flex text-white items-center">
+      <div className="mx-3">👍</div>
+      {children}
+    </div>
+  );
+}
+export function Ybox({ children }: any) {
+  return (
+    <div className="bg-yellow-800 w-full rounded-md my-3 p-3 flex text-white items-center">
+      <div className="mx-3">👍</div>
+      {children}
+    </div>
+  );
+}
