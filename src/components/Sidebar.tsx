@@ -32,7 +32,7 @@ const SidebarComp = (content: any) => {
               href={item.link}
               className="sidebar text-sm font-bold mt-3 py-1 border-t-2 border-slate-500 border-dotted dark:text-white"
             >
-              💡 {item.text}
+              💡 {item.text.split("(")[0]}
             </Link>
           );
         } else if (item.indent === 2) {
@@ -42,7 +42,7 @@ const SidebarComp = (content: any) => {
               href={item.link}
               className="sidebar text-xs ml-8 dark:text-white indent-[-20px]"
             >
-              🚀 {item.text}
+              🚀 {item.text.split("(")[0]}
             </Link>
           );
         } else if (item.indent === 3) {
@@ -52,7 +52,7 @@ const SidebarComp = (content: any) => {
               href={item.link}
               className="sidebar text-xs ml-10 dark:text-slate-300 indent-[-20px]"
             >
-              ✅ {item.text}
+              ✅ {item.text.split("(")[0]}
             </Link>
           );
         }
