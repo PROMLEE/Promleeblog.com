@@ -1,3 +1,5 @@
+import { Certificate } from "crypto";
+
 export const CategoryKo: CategoryKoinfo = {
   Computer_Science: {
     name: "컴퓨터 공학(Computer Science)",
@@ -137,6 +139,41 @@ export const CategoryKo: CategoryKoinfo = {
       // Calculus: "미적분학(Calculus)",
       // Linear_Algebra: "선형대수학(Linear Algebra)",
       // Statistics: "통계학(Statistics)",
+    },
+  },
+  Certificate: {
+    name: "자격증(Certificate)",
+    sub: {
+      Engineer_Information_Processing: {
+        name: "정보처리기사",
+        title: {
+          Concept: {
+            name: "개념정리",
+            content: {
+              "01": {
+                name: "소프트웨어 설계",
+                date: "2024-05-03",
+              },
+              "02": {
+                name: "소프트웨어 개발",
+                date: "",
+              },
+              "03": {
+                name: "데이터베이스 구축",
+                date: "",
+              },
+              "04": {
+                name: "프로그래밍 언어 활용",
+                date: "",
+              },
+              "05": {
+                name: "정보시스템 구축 관리",
+                date: "",
+              },
+            },
+          },
+        },
+      },
     },
   },
   // Framework: {

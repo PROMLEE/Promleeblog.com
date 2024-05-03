@@ -117,14 +117,14 @@ export const tdtag = ({ children }: Props) => {
 //   return <code className={"dark:text-white "}>{children}</code>;
 // };
 export const btag = ({ children }: Props) => {
-  return <div className="font-bold">{children}</div>;
+  return <div className="font-bold inline text-white">{children}</div>;
 };
 
 export function emtag({ children }: Props) {
   return (
     <div
       className={
-        "inline decoration-wavy underline underline-offset-4 dark:decoration-yellow-400 decoration-yellow-800"
+        "inline decoration-wavy text-white underline underline-offset-4 dark:decoration-yellow-400 decoration-yellow-800"
       }
     >
       {children}
