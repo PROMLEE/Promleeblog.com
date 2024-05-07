@@ -156,7 +156,7 @@ export const CategoryKo: CategoryKoinfo = {
               },
               "02": {
                 name: "소프트웨어 개발",
-                date: "",
+                date: "2024-05-07",
               },
               "03": {
                 name: "데이터베이스 구축",

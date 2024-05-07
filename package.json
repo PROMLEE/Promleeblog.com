@@ -39,7 +39,8 @@
     "remark-math": "^6.0.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
-    "ws": "^8.14.2"
+    "ws": "^8.14.2",
+    "chokidar": "^3.5.3"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.12",
