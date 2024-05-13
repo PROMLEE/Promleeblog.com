@@ -46,3 +46,8 @@ export function Ybox({ children }: any) {
     </div>
   );
 }
+export function MathBox({ children }: any) {
+  return (
+    <div className="inline bg-slate-700 px-1 py-2 rounded-md">{children}</div>
+  );
+}
