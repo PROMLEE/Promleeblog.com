@@ -1,0 +1,50 @@
+## 개요
+Decision Tree & Random Forest : Entropy, Variance, Independence
+
+##  지도 기계 학습 (Supervised Machine Learning)
+### Setting
+- $x$ : data(observation) 
+- $y$ : label(class)
+
+$y = f(x)$
+
+### Goal
+$x$가 주어졌을 때, $y$를 예측하는 함수 $f$를 찾는 것
+$f^*$ : $f$의 근사함수 $\rightarrow$ $y = f^*(x)$
+
+### error
+$L = |y - f(x)|$  
+$L$: loss function
+ex) $y = f(x) \Longleftrightarrow L=0$, $f^* \Longleftrightarrow |y - f(x)| \rightarrow 0$
+
+### training data
+$D = \{(x_1, y_1), (x_2, y_2), \cdots, (x_n, y_n)\}$
+$f^* = \arg \min \sum_{i=1}^{n} |y_i - f(x_i)|$
+$f$ : porbability function $\rightarrow$ Naive Bayes
+$f$ : tree-like function $\rightarrow$ Decision Tree
+$f$ : neuron-like function $\rightarrow$ CNN
+
+### 요약
+x: 데이터, y:각 데이터에 해당하는 카테고리
+f를 정의하는 데 x에 따라 y가 정의됨
+카테고리를 정확하게 출력하는 f를 찾아야 함
+정답 y와 출력 f의 차이를 최소화하는 f를 찾아야 함
+y-f = 0이면 정답을 맞춘 것
+찾는 법은 training data D를 이용해서 찾음
+training data는 수 개의 x, y로 이루어짐
+f*는 training data D를 이용해서 찾음
+
+## Decision Tree
+Root node: 전체 데이터 집합
+Internal node: 데이터 집합을 분할하는 데 사용되는 *특징*
+Leaf node: 분할된 데이터 집합에 대한 *라벨(클래스)*
+
+결정 트리는 특성 공간을 축에 평행한 사각형으로 나눈다
+![240513-103225w](/posts/240513-103225.png)
+
+## 결정 트리 학습 (Decision Tree Learning)
+### 결정 트리 학습 알고리즘 (Decision Tree Learning Algorithm)
+1. 데이터 집합을 가장 잘 나눌 수 있는 특징을 선택
+	좋은 특징을 고르는 방법? - 데이터가 나눠진 후 불순도가 가장 낮은 특징을 선택(같은 클래스로 이루어진 데이터가 많이 모이는 특징)
+2. 선택된 특징의 값을 기준으로 데이터 집합을 나눈다
+	좋은 값을 판단하는 방법?
