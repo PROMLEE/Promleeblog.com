@@ -1,0 +1,140 @@
+# 소스 및 채널 코딩 (Source and Channel Coding)
+## 통신 시스템의 일반적 구조
+통신 시스템의 일반적인 구조와 그 순서는 다음과 같다.
+1. 소스: 정보 제공
+2. 변조기(Transmitter): 정보를 전송 신호로 변환
+	- _포매터(Formatter), 소스 인코더(Source Encoder), 채널 인코더(Channel Encoder), 변조기(Modulator), 멀티플렉서(Multiplexer)_ 존재
+3. 채널(Channel): 전송된 신호를 운반 -> 노이즈 존재 가능
+4. 수신기(Receiver): 받은 신호를 처리
+	- _디멀티플렉서(Demultiplexer), 변조기(Demodulator), 채널 디코더(Channel Decoder), 소스 디코더(Source Decoder), 디포매터(Deformatter)_ 존재
+5. 목적지(Destination): 정보를 받는 최종 단계
+
+## 소스 코딩과 채널 코딩 비교 (Source Coding vs Channel Coding)
+- 코딩 이론(Coding Theory): 코드의 특성과 특정 응용 프로그램에 대한 적합성을 연구
+	- 데이터 압축, 암호화, 오류 정정, 네트워크 코딩에 사용
+	- 일반적으로 중복성의 제거 또는 전송된 데이터의 오류 정정(탐지) 포함
+	- 두 가지 주요 측면
+		- 데이터 압축(Data Compression)
+		- 오류 정정(Error Correction)
+- 소스 인코딩: 소스에서 데이터를 압축하여 더 효율적으로 전송하는 방법(ZIP, JPEG)
+- 채널 인코딩: 추가 데이터 비트를 사용하여 전송 중에 발생하는 오류를 검출하거나 수정하는 방법(Parity Check, CRC, Hamming Code)
+	- 음악 CD: 레이드-솔로몬 코드(Raid-Solomon Code) 사용
+	- NASA: 터보 코드(Turbo Code), LDPC(Low-Density Parity-Check) 사용
+
+# 소스 코딩(Source Coding)
+## 개요 (Introduction)
+1. 소스 심볼은 이진수로 인코딩 되어야 한다.
+2. 평균 코드 길이는 최소화되어야 한다.
+3. 중복 제거 $\rightarrow$ 비트율 감소
+- 알파벳에 기반한 이산 무기억 소스: $S = \{s_0, s_1, \ldots, s_k\}$
+- $s_i$의 확률: $P(s_i)$
+- $s_i$의 코드 길이: $l_i$
+- 평균 코드 길이(심볼 당 평균 비트 수): $L = \sum_{k=0}^{K-1} p_k \cdot l_k$
+- $L$의 최소한 가능한 값: $L_{min}$
+- 소스의 코딩 효율성: $\eta=\frac{L_{min}}{L}$
+- 데이터 압축
+	1. 전송 전에 중복 정보 제거
+	2. 손실 없는 데이터 압축
+	3. 이산 무기억 소스(discrete memoryless source)의 출력을 나타내는 소스코드는 유일하게 복호화 가능
+
+## 데이터 압축을 위한 소스 코딩 체계(Source Coding Schemes for Data Compression)
+### 접두사 코딩(Prefix Coding)
+- 접두사 코드: 다른 코드의 접두어가 아닌 가변 길이 소스 코드
+- 접두사 코드의 특성
+	1. 접두사 코드는 유일하게 복호화 가능
+	2. 접두사 코드의 역은 항상 참이 아님 -> 모든 유일하게 복호화할 수 있는 코드가 접두사 코드인 것은 아님
+
+| 심볼 | 발생 확률 | 코드 I | 코드 II | 코드 III |
+| --- | --- | --- | --- | --- |
+| s0 | 0.5 | 0 | 0 | 0 |
+| s1 | 0.25 | 1 | 10 | 01 |
+| s2 | 0.125 | 00 | 110 | 011 |
+| s3 | 0.125 | 11 | 111 | 0111 |
+
+Code1: 접두사 코드 X
+Code2: 접두사 코드 O
+Code3: 유일하게 복호화 가능 but 접두사 코드 X
+ex) Code2 -> 0/10/111/0/111 -> unically decodable(유일하게 복호화 가능)
+
+- 임의의 심볼 $s_k$는 확률 $p_k=2^{-l_k}$로 발생
+	- 확률들의 총합: $1 = \sum_{k=0}^{K-1} p_k = \sum_{k=0}^{K-1} 2^{-l_k}$
+- 평균 코드 길이: $L = \sum_{k=0}^{K-1} p_k \cdot l_k = \sum_{k=0}^{K-1} 2^{-l_k} \cdot l_k$
+
+## **허프먼 코딩**(Huffman Coding)
+### 허프먼 코딩 알고리즘
+데이터 압축에 자주 사용되는 방법으로, 자주 등장하는 기호에는 짧은 부호를 할당하고 드물게 등장하는 기호에는 긴 부호를 할당하여 데이터를 압축한다.
+
+- 1단계: 기호 확률을 감소하는 순서로 배열 후 트리의 리프 노드로 간주
+- 2단계: 노드가 하나 이상 남을 때 까지 다음을 반복
+	- 가장 낮은 확률을 가진 두 노드를 선택 후 가장 낮은 노드에는 0, 높은 노드에는 1을 할당(반대도 가능, but 일관적이어야 함)
+	- 두 노드를 병합하여 하나의 노드 생성, 그 확률은 두 노드의 확률의 합
+- 3단계: 각 기호에 대해, 리프 노드에서 트리의 루트까지의 경로를 따라 이진 코드 생성
+	- 리프 노드의 비트는 부호어(codeword)의 마지막 비트가 된다.
+
+### 허프먼 코드의 특징
+- 접두사 코드
+- 각 기호의 부호어 길이는 전달하는 정보의 양과 대략 같다
+- 확률 분포가 알려지고 정확할 경우, 허프먼 코드는 매우 효과적임
+	- 분산은 부호어 길이의 변동성을 측정하는 것
+	$\sigma^2 = \sum_{k=0}^{K-1} p_k (l_k - \overline{L})^2$
+	- 오류를 피하고자 분산이 큰 허프먼 트리를 선택
+		분산이 높은 트리는 부호의 길이가 더 다양하므로 오류를 더 잘 처리할 수 있다.
+
+### 허프먼 트리 구성 예시
+![240429-155824](/posts/240429-155824.png)
+두 트리 모두 같은 평균 길이를 가지지만 분산은 다르다.
+
+# 채널 코딩 (Channel Coding)
+## 디지털 통신 시스템에서의 채널 코딩(Channel Coding in Digital Communication Systems)
+전송할 정보 $\rightarrow$ 소스 코딩 $\rightarrow$ _채널 코딩_ $\rightarrow$ 변조 $\rightarrow$ 송신기 $\rightarrow$ 채널 $\rightarrow$ 수신기 $\rightarrow$ 복조(Demodulation) $\rightarrow$ _채널 디코딩_ $\rightarrow$ 소스 디코딩 $\rightarrow$ 수신된 정보
+## 전방 오류 정정 (FEC, Forward Error Correction)
+전방 오류 정정(FEC): 수신기가 스스로 오류를 복구할 수 있도록 충분한 중복 데이터를 전송하는 것, 송신자의 재전송이 필요하지 않다.
+ARQ(Automatic Repeat reQuest): 수신기가 오류를 감지하면 송신기에 재전송을 요청하는 방법
+주요 범주: 블록 코드, 합동 코드, 선형 블록 코드, 사이클릭 코드, 컨볼루션 코드, 터보 코드, LDPC(Low-Density Parity-Check) 코드
+
+## **블록 코드** (Block Codes)
+블록 코드: 정보를 길이 $k$비트의 블록 단위로 처리하는 코드
+$r$ 패리티 비트 또는 검사 비트가 각 블록에 추가됨. 총 길이는 $n = k + r$
+코드율(Code rate) $R = \frac{k}{n}$
+**채널이 좋을 때는 코드율을 낮추고, 채널이 나쁠 때는 코드율을 높이는 것이 좋다.**
+디코더는 $n$비트의 수신 신호를 받아 $k$비트의 정보를 복구
+효율성, 신뢰성, 인코딩/디코딩 복잡성 간에 트레이드오프 존재
+
+### 블록 코드: 선형 블록 코드 (Linear Block Codes)
+선형 블록 코드: 블록 코드의 부분 집합이 벡터 공간을 형성하는 코드
+선형 블록 코드의 $C=mG$ G: 생성 행렬, m: 정보 단어, C: 부호어
+m은 인코딩되지 않은 메시지 벡터 $m = [m_1, m_2, \ldots, m_k]$
+부호어 C는 $C = (c_1, c_2, \ldots, c_n) , C = [I | P], C_p = mP$
+G는 k x n 행렬, I는 k x k 단위 행렬, P는 k x r 행렬
+여기서 $p_i = \text{Remainder of}\; [x^{n-k+i-1} g(x)]\; for \; i = 1, 2, ..., k $에 대해, 그리고 $I$는 단위 행렬이다.
+$g(x)$는 생성 다항식이다.
+
+패리티 검사 행렬 $H$는 $H = [P^T | I]$
+
+메시지 벡터(m) $\rightarrow$ 생성 행렬(G) $\rightarrow$ 부호어(C)
+부호어(C) $\rightarrow$ 패리티 검사 행렬($H^T$) $\rightarrow$ null 벡터(0)
+
+생성 행렬과 패리티 검사 행렬 연산
+- 패리티 검사 행렬 $ H $는 수신된 부호에서 오류를 감지하기 위해 $ c \ast H^T = 0 $ (영벡터)이라는 사실을 사용한다.
+- - $ x = c \oplus e$가 수신된 메시지일 때, 여기서 $ c$는 올바른 부호이고 $ e$는 오류이다.
+- 신드롬 $ S$는 $ S = x \ast H^T = (c \oplus e) \ast H^T = e \ast H^T$를 계산하여 구한다.
+- 만약 $ S$가 0이면 메시지는 정확하고, 그렇지 않으면 오류가 포함되어 있으며, 일반적으로 알려진 오류 패턴을 통해 올바른 메시지를 디코딩할 수 있다.
+![240429-164946](/posts/240429-164946.png)
+#### 예제 문제
+선형 블록 코드 인코더 G를 찾기.
+코드 생성 다항식: $g(x) = x^3 + x + 1$
+코드 길이: $n = 7$, 정보 비트: $k = 4$
+#### 해결
+생성 행렬 $G = [I|P] = \begin{bmatrix} 1 & 0 & 0 & 0 & p_1 \\ 0 & 1 & 0 & 0 & p_2 \\ 0 & 0 & 1 & 0 & p_3 \\ 0 & 0 & 0 & 1 & p_4 \end{bmatrix}$
+여기서 $p_i = \text{Remainder of}\; [x^{n-k+i-1} g(x)]\; for \; i = 1, 2, ..., k $에 대해, 그리고 $I$는 단위 행렬이다.
+<Math>
+
+```math
+-  p_1 = \text{나머지} \left[ \frac{x^3}{1+x+x^3} \right] = 1+x \rightarrow [110] \\
+-  p_2 = \text{나머지} \left[ \frac{x^4}{1+x+x^3} \right] = x+x^2 \rightarrow [011] \\
+-  p_3 = \text{나머지} \left[ \frac{x^5}{1+x+x^3} \right] = 1+x+x^2 \rightarrow [111] \\
+-  p_4 = \text{나머지} \left[ \frac{x^6}{1+x+x^3} \right] = 1+x^2 \rightarrow [101] \\
+\\
+G = \left[ \begin{array}{cccc|ccc} 1 & 0 & 0 & 0 & 1 & 1 & 0 \\ 0 & 1 & 0 & 0 & 0 & 1 & 1 \\ 0 & 0 & 1 & 0 & 1 & 1 & 1 \\ 0 & 0 & 0 & 1 & 1 & 0 & 1 \end{array} \right] 
+```
+</Math>

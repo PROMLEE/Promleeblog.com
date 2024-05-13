@@ -3,25 +3,168 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
   * {
-    @apply text-white font-normal;
+    @apply border-border dark:text-slate-300 text-slate-700;
+  }
+  body {
+    @apply bg-background w-full flex flex-col xl:items-center;
+  }
+  div > span > span > span {
+    @apply text-left font-mono leading-loose;
+  }
+  div > span > span > span > span {
+    @apply text-center my-1;
+  }
+  div > span > span > span > span > span {
+    @apply m-0;
+  }
+  ul,
+  ol {
+    @apply marker:dark:text-white;
+  }
+  ul > li > ul {
+    @apply dark:list-["৹__"] m-0;
+  }
+  ul > li > ul,
+  ol > li > ul {
+    @apply mb-4;
+  }
+  ul > li > ul > li > ul {
+    @apply dark:list-["▪__"] m-0;
+  }
+  blockquote {
+    @apply dark:border-white bg-muted py-2;
   }
 }
 
+/* custom styles */
 @layer components {
   .topbar {
-    @apply font-bold text-3xl py-2 px-4 border-b-2;
+    @apply w-full font-bold text-3xl py-2 px-4 border-b-2;
   }
   .category {
-    @apply my-3 text-3xl font-bold text-blue-500;
+    @apply my-5 text-3xl font-bold text-blue-500 block no-underline hover:underline;
   }
   .subject {
-    @apply my-3 text-2xl font-bold text-yellow-500;
+    @apply my-2 text-2xl font-bold text-yellow-500 block no-underline hover:underline;
   }
   .title {
-    @apply my-2 text-xl font-bold text-green-500;
+    @apply my-1 text-xl font-bold text-green-500 block no-underline hover:underline;
   }
   .content {
-    @apply font-bold text-white;
+    @apply font-bold dark:text-white block no-underline;
   }
+  .sidebar {
+    @apply no-underline block dark:hover:bg-amber-800 hover:bg-amber-200 mb-1 rounded-md;
+  }
+  .sidebar-md {
+    @apply right-0 top-[15%] w-[16%] h-[70%] overflow-scroll scroll-mb-2 fixed bg-gradient-to-r dark:from-slate-900  rounded-xl p-3 shadow-lg;
+  }
+}
+
+.prose pre > code {
+  display: grid;
+}
+.prose pre span[data-line] {
+  @apply inline-block px-4 py-0.5 leading-snug;
+}
+
+/* Fenced Code block - line number style */
+.prose code[data-line-numbers] {
+  counter-reset: line;
+}
+
+.prose code[data-line-numbers] > span[data-line]::before {
+  counter-increment: line;
+  content: counter(line);
+
+  display: inline-block;
+  width: 0.75rem;
+  margin-right: 1.25rem;
+  text-align: right;
+  color: gray;
+}
+/* Fenced Code block - line hightlight */
+.prose code span[data-highlighted-line] {
+  @apply border-l-2 border-y-0 border-transparent bg-opacity-10 
+        border-blue-400 bg-indigo-400 dark:border-blue-500 dark:bg-slate-700
+        pl-[calc(1rem-2px)];
+}
+/* Fenced Code block - with title style*/
+.prose figcaption[data-rehype-pretty-code-title] {
+  @apply px-5 py-3 font-mono text-sm font-bold text-gray-800 bg-gray-200 border border-b-0 border-gray-200 rounded-t-lg dark:text-gray-200 dark:border-gray-700 dark:bg-gray-800;
+}
+.prose figcaption[data-rehype-pretty-code-title] + pre {
+  @apply mt-0 rounded-t-none;
+}
+/* Inline code block backtick display: none */
+.prose :not(pre) > code::before,
+.prose :not(pre) > code::after {
+  display: none;
+}
+
+/* inline code block style */
+.prose :not(pre) > code {
+  @apply dark:bg-gray-900 bg-white border border-gray-200 dark:border-gray-700 font-mono text-sm font-normal align-middle py-0.5 px-1 rounded;
 }

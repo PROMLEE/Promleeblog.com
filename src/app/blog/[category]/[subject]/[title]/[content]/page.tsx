@@ -9,6 +9,11 @@ import rehypePrettyCode from "rehype-pretty-code";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import remarkMath from "remark-math";
+import rehypeSlug from "rehype-slug";
+import SidebarComp from "@/components/Sidebar";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import { CategoryKo } from "@/config/koname";
+import Link from "next/link";
 export interface Post extends dbtable {
   url: string;
   slug: string;
@@ -57,63 +62,99 @@ const parsePost = async (postPath: string): Promise<any> => {
 const Post = async ({ params }: Props) => {
   const post = await getPostDetail(params);
   return (
-    <>
-      <div className="flex justify-center">
-        <div className="prose w-5/6 md:w-2/3">
-          <div className={"category"}>
-            {params.category.replaceAll("_", " ")}
-          </div>
-          <div className={"subject"}>{params.subject.replaceAll("_", " ")}</div>
-          <div className={"title"}>{params.title.replaceAll("_", " ")}</div>
-          <div className={"content"}>{params.content.replaceAll("_", " ")}</div>
-          <hr
-            className={"my-4 mx-auto border-1 rounded  w-2/3 border-red-500"}
-          />
-          <MDXRemote
-            source={post.content}
-            components={components}
-            options={{
-              parseFrontmatter: true,
-              mdxOptions: {
-                remarkPlugins: [remarkGfm, remarkBreaks, remarkMath],
-                rehypePlugins: [
-                  [
-                    // 이슈 존재 https://github.com/hashicorp/next-mdx-remote/issues/86
-                    //@ts-ignore
-                    rehypePrettyCode,
-                  ],
-                  [
-                    //@ts-ignore
-                    rehypeKatex,
-                    {
-                      colorIsTextColor: true,
-                    },
-                  ],
-                ],
-              },
-            }}
-          />
-        </div>
-
-        {/*For MySQL... Maybe Later...*/}
-        {/*{markdownsource.map((data: dbtable, idx: any) => (*/}
-        {/*  <div key={idx}>*/}
-        {/*    <h1 className={"text-pink-600 hover:text-amber-500"}>*/}
-        {/*      {data.title}*/}
-        {/*    </h1>*/}
-        {/*    <p>{data.description}</p>*/}
-        {/*    <p>{data.date.toString()}</p>*/}
-        {/*    <p>{data.thumbnail}</p>*/}
-        {/*    <MDXRemote*/}
-        {/*      source={data.content}*/}
-        {/*      components={MyComponents}*/}
-        {/*      options={{ parseFrontmatter: true }}*/}
-        {/*    />*/}
-        {/*    <br />*/}
-        {/*  </div>*/}
-        {/*))}*/}
+    <div className="prose dark:prose-invert">
+      <Link className={"category"} href={`/blog/${params.category}`}>
+        {CategoryKo[params.category].name}
+      </Link>
+      <Link
+        className={"subject"}
+        href={`/blog/${params.category}/${params.subject}`}
+      >
+        {CategoryKo[params.category].sub[params.subject].name}
+      </Link>
+      <Link
+        className={"title"}
+        href={`/blog/${params.category}/${params.subject}/${params.title}`}
+      >
+        {
+          CategoryKo[params.category].sub[params.subject].title[params.title]
+            .name
+        }
+      </Link>
+      <div className={"content"}>
+        {params.content}.{" "}
+        {
+          CategoryKo[params.category].sub[params.subject].title[params.title]
+            .content[params.content].name
+        }
       </div>
-    </>
+      <div className={"text-right mt-4 text-slate-500"}>
+        {"📅 " +
+          CategoryKo[params.category].sub[params.subject].title[params.title]
+            .content[params.content].date}
+      </div>
+      <SidebarComp content={post.content} />
+      <MDXRemote
+        source={post.content}
+        //@ts-ignore
+        components={components}
+        options={{
+          parseFrontmatter: true,
+          mdxOptions: {
+            remarkPlugins: [remarkGfm, remarkBreaks, remarkMath],
+            rehypePlugins: [
+              [
+                // 이슈 존재 https://github.com/hashicorp/next-mdx-remote/issues/86
+                //@ts-ignore
+                rehypePrettyCode,
+              ],
+              [
+                //@ts-ignore
+                rehypeKatex,
+                {
+                  colorIsTextColor: true,
+                  strict: false,
+                },
+              ],
+              rehypeSlug,
+              [
+                rehypeAutolinkHeadings,
+                {
+                  behavior: "append",
+                  properties: {
+                    className: ["anchor"],
+                  },
+
+                  content: {
+                    type: "element",
+                    tagName: "span",
+                    properties: { className: ["icon", "icon-link"] },
+                    children: [{ type: "text", value: "🔗" }],
+                  },
+                },
+              ],
+            ],
+          },
+        }}
+      />
+      {/*For MySQL... Maybe Later...*/}
+      {/*{markdownsource.map((data: dbtable, idx: any) => (*/}
+      {/*  <div key={idx}>*/}
+      {/*    <h1 className={"text-pink-600 hover:text-amber-500"}>*/}
+      {/*      {data.title}*/}
+      {/*    </h1>*/}
+      {/*    <p>{data.description}</p>*/}
+      {/*    <p>{data.date.toString()}</p>*/}
+      {/*    <p>{data.thumbnail}</p>*/}
+      {/*    <MDXRemote*/}
+      {/*      source={data.content}*/}
+      {/*      components={MyComponents}*/}
+      {/*      options={{ parseFrontmatter: true }}*/}
+      {/*    />*/}
+      {/*    <br />*/}
+      {/*  </div>*/}
+      {/*))}*/}
+    </div>
   );
 };
 export default Post;

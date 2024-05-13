@@ -1,0 +1,406 @@
+---
+title: 대칭 키 암호화 (Symmetric Encryption)
+date: 2024-04-25
+tags: [암호학, 정보보안, 대칭키, 비공개키, 비밀키]
+desc: 대칭 키 알고리즘의 종류와 설명
+thumbnail: ./~.jpg
+---
+# 대칭 키 암호화(Symmetric-key cryptography)
+## 대칭키 암호화란
+> 암호화와 복호화에 같은 키를 사용하는 암호화 방식
+
+비밀 키라고도 불림
+고전 암호, 블록 암호(DES, AES, ARIA, SEED), 스트림 암호(RC4, ChaCha) 등이 있음
+장점: 비대칭 키에 비해 빠르다, 효율적이다
+단점: 키 공유 문제, 키의 대량 관리 필요
+
+## 블록 암호 (Block Cipher)
+> 고정된 크기의 블록 단위로 암호화하는 대칭키 암호화 방식
+
+입력: 한 번에 한 블록의 요소
+출력: 각 입력 블록에 대한 암호화 블록
+키 재사용이 가능하며 일반적인 암호화 방식이다.
+대표적인 블록 암호: 치환 암호, 순열 암호, DES, AES, ARIA, SEED
+![240425-115230](/posts/240425-115230.png)
+
+보안성을 위해 주기적으로 키를 갱신하는 것이 좋다.
+
+## 스트림 암호 (Stream Cipher)
+> 비트 단위로 암호화하는 대칭키 암호화 방식
+
+입력: 연속적인 비트 단위 요소
+출력: 각 입력 비트에 대한 암호화 비트
+장점
+- 블록 암호보다 빠름
+-	키를 단 한 번만 사용
+
+단점
+- 알려진 평문 공격에 취약하다. $ M \oplus C = M \oplus (M \oplus k) = k$
+
+대표적인 스트림 암호: RC4, ChaCha, LFSR
+
+# 블록 암호 (Block Cipher)
+## 블록 암호의 구조 (Design of Block Cipher)
+대칭 블록 암호는 여러 **라운드**로 구성되어 있으며, 이는 **키**에 의해 제어되는 **치환**과 **전치**로 구성된다.
+대칭 블록 암호에 대한 파라미터와 설계 특성
+- 블록 크기 (Block Size)
+- 키 크기 (Key Size)
+- 라운드 수 (Number of Rounds) -> **암호화의 핵심 요소**
+- 보조키 생성 알고리즘 (Subkey Schedule Algorithm)
+- 라운드 함수 (Round Function)
+- 소프트웨어/하드웨어의 암호화/복호화 속도 (Encryption/Decryption Speed)
+- (보안) 분석의 용이성 (Ease of (Security) Analysis)
+![240425-124053](/posts/240425-124053.png)
+
+## 계산적 안전성 (Computational Security)
+암호화 스킴은 생성된 암호문이 다음 기준 중 하나 혹은 두 가지를 충족할 때 계산적으로 안전하다고 할 수 있다.
+- 암호를 깨는 비용이 암호화된 정보의 가치를 초과할 때.
+- 암호를 깨는 데 필요한 시간이 정보의 유용한 수명을 초과할 때.
+
+# DES(Data Encryption Standard)
+## 파이스텔 암호 구조 (Feistel Cipher Structure)
+입력: 길이가 $2w$ 비트인 평문 블록과 키 $K$
+입력 평문을 두개의 $w$ 비트 블록으로 나눈다 -> $L_0, R_0$
+n 라운드를 거친 후 결합되어 암호문 블록을 생성한다
+모든 라운드는 동일한 구조를 가짐
+### 파이스텔 암호 한 라운드의 구조 (Feistel Cipher Round Structure)
+![240425-125848](/posts/240425-125848.png)
+
+## DES (Data Encryption Standard)
+평문: 64bit -> $2w$ = 64bits
+키: 56bit -> $K$ = 56bits
+라운드 수 = 16
+각 라운드마다 48bit의 서브키 생성
+
+## DES: 초기 치환 (Initial Permutation)
+64비트 평문을 입력받아 64비트 블록을 생성
+64개의 비트를 테이블에 의해 치환, 마지막에 역순 테이블로 치환
+예시) 테이블의 첫 번째 수가 58이면, 첫 번째 비트는 58번째 비트가 된다.
+DES 알고리즘의 첫 번째와 마지막 단계에 해당
+데이터에 더 많은 난독화 제공
+
+## DES: 치환 테이블 (Permutation Tables: E, P)
+표 E(확장 치환): 32비트 입력을 48비트 출력으로 변환
+- 첫 번째 출력 비트는 입력의 k번째 비트가 됨
+표 P: 32비트 입력을 32비트 출력으로 변환
+- 첫 번째 출력 비트는 입력의 k번째 비트가 됨
+
+확장 치환은 32비트 입력을 48비트 출력으로 변환하여 서브키와 XOR 연산을 수행하기 위해 사용
+치환 테이블은 S 박스의 결과를 다시 배열하여 복잡한 데이터 구조 생성
+
+## DES: S 박스 (S-Boxes)
+확장된 48비트 데이터는 XOR 연산을 거쳐 8개의 S-박스에 입력됨
+각 S-박스는 6비트 입력을 4비트 출력으로 변환: ${\{0, 1\}}^6 \rightarrow {\{0, 1\}}^4$
+$$a_1a_2a_3a_4a_5a_6 \rightarrow a_1a_6 : row, a_2a_3a_4a_5 : col$$
+S 박스의 행과 열은 0부터 시작, 결과에 해당하는 값을 다시 2진수로 바꾸면 4비트 출력이 나옴
+
+## DES: 키 스케줄링 (Key Schedule 1)
+순열 선택 (Permutation Choice 1, PC-1): 56비트 키 K는 $$C_0, D_0$$로 변환됨, 각각은 28비트
+후속 단계에서 서브키를 생성하기 위한 기초가 된다.
+DES가 사용하는 키 K는 64비트이지만 8개의 비트는 패리티 비트로 사용되어 56비트만 사용
+패리티 비트: 오류 감지 역할
+
+## DES: 키 스케줄링 (Key Schedule 2)
+$$C_{i-1}, D_{i-1}$$을 이용하여 $$C_i, D_i$$를 생성
+각 라운드 별 정해진 shift 값에 따라 $$C_i, D_i$$를 왼쪽으로 shift
+순열 선택 2 (Permutation Choice 2, PC-2)를 통해 이동 완료한 $$C_i, D_i$$를 재배열하여 48비트 서브키로 변환
+예를 들어, 서브키의 첫 번째 비트는 C와 D의 k번째(on table) 비트가 됨
+
+## DES: 보안 분석 (Security Analysis)
+모든 부분이 선형적이다. S-Box 제외
+암호화 키의 길이가 짧다. 56비트 -> 무차별 공격에 취약
+이제 사용하지 않는다. -> AES로 대체
+
+## 3중 DES (Triple DES)
+DES의 보안성을 높이기 위해 3번의 암호화를 수행
+$Enc(K=(K_1, K_2, K_3), M)=Enc(K = K_3, Dec(K = K_2, Enc(K = K_1, M)))$
+$Dec(K=(K_1, K_2, K_3), C)=Dec(K = K_1, Enc(K = K_2, Dec(K = K_3, C)))$
+
+## 3중 DES의 특징 (Properties of Triple DES)
+평문 크기 = 암호문 크기 : 64비트
+키 크기 = 3*DES 키 :168비트
+장점
+- DES의 무차별 대입 공격에 안전
+- 기본 암호화 알고리즘이 DES임
+단점
+- 64비트 블록 크기(168비트의 키 크기에 비해 작음)
+- 암호화 속도가 느림
+
+# AES (Advanced Encryption Standard)
+## AES란? (Advanced Encryption Standard)
+고급 암호화 표준
+블록 크기: 128비트
+키 크기: 128, 192, 256비트
+라운드 수: 10, 12, 14
+기본 구조: 치환-전치 네트워크(Substitution-Permutation Network)
+
+## AES의 사전 준비 (Preliminaries for AES)
+16진수 표기법을 사용하여 데이터 표현
+평문과 키는 4x4 행렬로 표현, 각 칸에 8비트를, 4비트씩 나누어 16진수로 표현 -> 행렬을 State라고 부름
+
+## AES의 단일 라운드 (AES Single Round)
+Substitution Bytes: 16바이트 State의 각 바이트를 S-Box에 대응하는 값으로 치환(전 라운드)
+Shift Rows: State의 각 행을 왼쪽으로 shift(전 라운드)
+Mix Columns: State의 각 열을 함수로 변환(1~9 라운드)
+Add Round Key: State에 라운드 키를 XOR 연산(전 라운드)
+
+## 필요한 수학적 지식: 유한필드 (Mathematical Background: Finite Field)
+> 필드 $\mathbb{F}$은 덧셈, 곱셈, 뺄셈, 그리고 0이 아닌 원소로의 나눗셈 연산을 가지는 집합.
+결합법칙, 교환법칙, 분배법칙이 성립해야 한다.
+$a, b, c \in \mathbb{F}$
+- 결합법칙: $(a+b)+c = a+(b+c)$, $(a \times b) \times c = a \times (b \times c)$
+- 교환법칙: $a+b = b+a$, $a \times b = b \times a$
+- 분배법칙: $a \times (b+c) = a \times b + a \times c$
+
+실수의 집합, 복소수의 집합은 필드이지만 정수의 집합은 필드가 아님
+$Z_p=\{0, 1, ..., p-1\}$은 $p$가 소수일 때 필드이다. $p$ 가 합성수이면 필드가 아님.
+$GF(p^n):p^n$개의 원소를 가진 필드 $Z_p[X]/(mod\;P(X))$에서 $P(X)$는 $p$를 계수로 가지는 $n$차 기약다항식
+-> p:소수, n:자연수
+
+## AES를 위한 유한필드: $GF(2^8)$ (Finite Field for AES: $GF(2^8)$)
+<Math>
+
+```math
+  (P(X) = X^8 + X^4 + X^3 + X + 1) 은 (Z_2[X])에서 기약이다.\\
+```
+```math
+  (GF(2^8)): 다음을 포함하는 집합\\
+	(b_7X^7 + b_6X^6 + b_5X^5 + b_4X^4 + b_3X^3 + b_2X^2 + b_1X^1 + b_0)\\
+	여기서 (b_i in {0, 1}) (0 leq i leq 7)\\
+```
+```math
+  (B(X) = b_7X^7 + b_6X^6 + b_5X^5 + b_4X^4 + b_3X^3 + b_2X^2 + b_1X^1 + b_0) 는 8비트 벡터 \\(b_7b_6b_5b_4b_3b_2b_1b_0)과 대응된다.\\
+```
+```math
+  덧셈: (A(X) + B(X)) mod (P(X)) 에 대해 (A(X), B(X) in GF(2^8))\\
+	(A(X) = X^7 + X^6 + X^3 + X + 1)\\
+	(B(X) = X^4 + X^3 + 1)\\
+	(A(X)+B(X) = (X^7 + X^6 + X^3 + X + 1) + (X^4 + X^3 + 1) = X^7 + X^6 + X^4 + X)\\
+	대응되는 벡터들 간의 비트단위 XOR\\
+		11001011 ⊕ 00110101 = 11111110\\
+```
+```math
+곱셈: A(X)*B(X) mod (P(X)) 에 대해 (A(X), B(X) in GF(2^8))\\
+	(A(X) = X^7 + X^6 + X^3 + X + 1)\\
+	(B(X) = X^4 + X^3 + 1)\\
+	(A(X)*B(X) = (X^7 + X^6 + X^3 + X + 1) * (X^4 + X^3 + 1) = X^11 + X^10 + X^8 + X^7 + X^6 + X^4 + X^3 + X^2 + 1)\\
+	모듈러 다항식 P(X)로 나눈 나머지\\
+		11001011 * 00110101 = 10001110\\
+```
+</Math>
+
+## 유클리드 알고리즘 1 (Euclidean Algorithm 1)
+$\mathbb{F}$가 필드일 때 $A(x),P(x) \in \mathbb{F}[x]$이고 $S(X), T(X) \in \mathbb{F}[x]$인 다항식이 존재할 때 
+$$P(X)S(X) + A(X)T(X) = gcd(P(X), A(X))$$이다.
+
+## 유클리드 알고리즘 2 (Euclidean Algorithm 2)
+$P(X)$의 차수가 $A(X)$의 차수보다 크거나 같다고 가정
+$P(X) = A(X)Q_0(X) + R_2(X)$ ( $P(X)=R_0(X), A(X)=R_1(X)$ )
+$R_1(X) = R_2(X)Q_1(X) + R_3(X)$
+$R_2(X) = R_3(X)Q_2(X) + R_4(X)$
+...
+$R_{n-2}(X) = R_{n-1}(X)Q_{n-2}(X)+R_n(X)$
+$\rightarrow R_n(X) = gcd(P(X), A(X))$
+
+## 확장된 유클리드 알고리즘 (Extended Euclidean Algorithm)
+$S₀(X) = 1, S₁(X) = 0$
+$T₀(X) = 0, T₁(X) = 1$
+$Sᵢ₊₁ = Sᵢ₋₁ - SᵢQᵢ, Tᵢ₊₁ = Tᵢ₋₁ - TᵢQᵢ$
+$그러면, P(X)Sᵢ(X) + A(X)Tᵢ(X) = Rᵢ(X).$
+
+### 예시
+$S_2 = S_0 - S_1Q_1 = 1, T_2 = T_0 - T_1Q_1 = -(X+1)$
+$\rightarrow P(X) - (X+1)\times A(X) = R_2(X)$
+$\rightarrow P(X) = (X+1)\times A(X) + R_2(X)$ 
+<br/>
+
+$S_3 = S_1 - S_2Q_2 = -(X+1), T_3 = T_1 - T_2Q_2 = 1+(X+1)^2 = X^2$
+$\rightarrow P(X)(X+1) + (X^2) A(X) = 1$
+
+### 역원 구하기
+![240425-144433](/posts/240425-144433.png)
+
+## AED: 바이트 치환 (AES: Byte Substitution)
+S-Box: 8비트 입력을 8비트 출력으로 변환하는 비선형 치환
+S(xy) = S-box에서 (x, y) 성분, 여기서 x, y는 16진수 자릿수
+역 S-Box: S-Box의 역함수
+
+## AES: S-Box 설계 원리 (AES: S-Box Design Principles)
+두 바이트 요소를 $Z_2[X] / (X^8 + X^4 + X^3 + X + 1)$에서의 요소로 간주한다.
+S-Box: $x = (x_7x_6x_5x_4x_3x_2x_1x_0)$이고, $x_i ∈ {0, 1} (0 ≤ i ≤ 7)$일 때,
+1. $y_7y_6y_5y_4y_3y_2y_1y_0$을 계산: $x_7x_6x_5x_4x_3x_2x_1x_0$의 역원 (예: 00000000 ←→ 00000000).
+2. 계산한다.
+3. 출력 $Z_7Z_6Z_5Z_4Z_3Z_2Z_1Z_0$
+
+## AES: 행 이동 변환 (AES: Shift Rows Transformation)
+첫번째 행: 그대로
+두번째 행: 왼쪽으로 1칸 shift
+세번째 행: 왼쪽으로 2칸 shift
+네번째 행: 왼쪽으로 3칸 shift
+
+행 이동 변환의 역: 오른쪽으로 shift
+
+## AES: 열 혼합 변환 (AES: Mix Columns Transformation)
+현재 상태에 가역행렬 M을 곱한다.
+$M(4\times 4)\times C(4\times 4) = D(4\times 4)$
+M의 다항식을 곱할 때 shift 연산의 덧셈으로 구하는 방법도 있음
+ex) $X \times F2(1111 0010) = 1 1110 0100 = 1110 0100 + 0001 1011(P(X))$
+열 섞기 변환의 역: M의 역을 곱한다.
+
+## AES: 라운드 키 추가 변환 (AES: Add Round Key Transformation)
+현재 상태의 128 비트와 라운드 키의 128 비트에 대해 비트 단위 XOR 수행
+라운드 키 추가 변환의 역: 라운드 결과 XOR 라운드 키 = 현재 상태
+
+각 라운드에 고유한 키를 현재 상태와 결합하여 데이터의 패턴을 더욱 무작위하게 만든다.
+AES의 각 라운드에서는 다른 라운드 키를 사용한다 -> 주 키로부터 파생된다.
+AES 암호화의 마지막 단계로, 블록의 데이터에 최종적인 변형을 가하는 역할을 한다.
+
+## AES: 키 확장 (AES: Key Expansion)
+키 K는 (W(0), W(1), W(2), W(3))
+<Math>
+
+```math
+\begin{pmatrix}
+	w_{0,0} & w_{0,1} & w_{0,2} & w_{0,3} \\
+	w_{1,0} & w_{1,1} & w_{1,2} & w_{1,3} \\
+	w_{2,0} & w_{2,1} & w_{2,2} & w_{2,3} \\
+	w_{3,0} & w_{3,1} & w_{3,2} & w_{3,3} \\
+\end{pmatrix}\\
+W(0)\;\;\;W(1)\;\;\;W(2)\;\;\;W(3)
+```
+</Math>
+<Math>
+
+```math
+W(i) = \begin{cases}
+W(i - 4) \oplus W(i - 1) & \text{if } i \text{ is not a multiple of 4} \\
+W(i - 4) \oplus T(W(i - 1)) & \text{if } i \text{ is a multiple of 4}\\
+\end{cases}\\
+\text{where $T$ is a Transformation performed as follows}
+```
+</Math>
+
+S-box를 이용한 변환 : $S(w_{1,i - 1})$
+$r(i) = X^{(i-4)/4}\;in\;GF(2^8)$
+$T(w(i - 1)) = (S(w_{1,i - 1}) \oplus r(i), S(w_{2,i - 1}), S(w_{3,i - 1}), S(w_{0,i - 1}))$
+
+## AES: 보안성 분석 (AES: Security Analysis)
+라운드 키 추가 변환만이 키를 사용함
+무차별 대입 공격에 강함 : AES-128의 키에는 $2^{128}$개의 가능한 값이 있음
+알려진 가장 효과적인 공격: 바이클릭 공격
+
+## 블록 암호 비교 (Comparison of Block Ciphers)
+DES: 64비트 블록, 56비트 키, 16라운드 - 피스텔 구조
+3DES: 64비트 블록, 168비트 키, 48라운드 - 피스텔 구조
+AES: 128비트 블록, 128, 192, 256비트 키, 10, 12, 14라운드 - 치환-전치 네트워크 구조
+
+# 스트림 암호 (Stream Cipher)
+## 스트림 암호란? (Stream Cipher)
+> 비트 단위로 암호화하는 대칭키 암호화 방식
+
+입력: 지속적으로 요소를 받아들임
+출력: 한 번에 하나의 요소 출력
+블록 암호보다 빠름
+키를 단 한 번만 사용
+알려진 평문 공격에 취약 : $M \oplus C = M \oplus (M \oplus k) = k$
+예시) LFSR, RC4, ChaCha
+
+## 난수 (Random Numbers)
+- 암호학에서의 광범위한 사용
+	- 공개 키 암호화에서의 개인 키
+	- 스트림 암호를 위한 키
+	- 임시 세션 키로 사용할 대칭 키
+- 요구사항
+	- 무작위성
+		- 균일 분포: 각 숫자의 발생 빈도가 동일해야 함
+		- 독립성: 어떤 값도 다른 값에서 추론될 수 없음
+	- 예측 불가능성
+		- 각 숫자는 다른 숫자와 통계적으로 독립적임
+		- 누구도 시퀀스의 이전 요소를 기반으로 향후 요소를 예측할 수 없어야 함
+
+## 난수 vs 의사 난수 (Random Numbers vs Pseudo-Random Numbers)
+- 진짜 난수 상성기 True random number generator(TRNG)
+	- 실현하는 데 비용이 많이 든다
+	- 비결정론적인 원천 사용
+	- 방사능, 가스 방출, 누출된 캐퍼시터 등과 같은 예측불가능한 자연 과정 측정
+	- 최근 프로세서들에 점점 제공된다
+- 의사 난수 Pseudorandom numbers
+	- 통계적 난수 테스트를 만족하는 순서열 생성
+	- 결정론적인 원천 사용 - 예측 가능성 높음
+
+## RC4 개요 (RC4 Overview)
+RC: Rivest Cipher
+가변 키 크기를 가지는 스트림 암호로 바이트 단위 연산으로 구성
+- 소프트웨어에서 빠를 것으로 예상
+
+무작위 순열 사용을 기반으로 함
+
+## RC4: S의 초기화 (RC4: Initialization of S)
+S: 256바이트 크기의 배열
+- 0부터 255까지의 숫자가 오름차순으로 한 번씩 나타남
+T: 임시 백터로 첫 keylen 원소들은 k에서 복사
+- keylen: 키의 길이
+- k: 키 - T를 채울 필요가 있을 때마다 반복됨
+T를 사용하여 S 순열
+```python
+j = 0
+for i=0 to 255 do
+	j = (j + S[i] + T[i]) mod 256;
+	Swap(S[i], S[j]);
+```
+## RC4: 스트림 생성 (RC4: Stream Generation)
+S[i] 의 모든 요소 순회
+```python
+i = 0
+j = 0
+while(true)
+	i = (i + 1) mod 256
+	j = (j + S[i]) mod 256
+	Swap(S[i], S[j])
+	t = (S[i] + S[j]) mod 256
+	k = S[t]
+```
+암호화: k값과 평문의 다음 바이트 XOR
+복호화: k값과 암호문의 다음 바이트 XOR
+
+## RC4: 보안성 분석 (RC4: Security Analysis)
+키 크기가 합리적이면(e.128 bit), RC4은 안전하다고 여겨짐
+WEB(Wired Equivalant Privacy) 프로토콜에 취약
+
+# 운용 모드 (Modes of Operation)
+## 운용 모드란? (Modes of Operation)
+> 블록 암호를 사용하여 메시지를 암호화하는 방법
+
+블록 암호의 한계: 평문의 고정된 길이
+운용 모드: 블록 암호를 사용하여 임의 길이의 메시지를 암호화
+- ECB(Electronic Codebook) 모드
+- CBC(Cipher Block Chaining) 모드
+- CFB(Cipher Feedback) 모드
+- OFB(Output Feedback) 모드
+- CTR(Counter) 모드
+
+## ECB 모드 (Electronic Codebook Mode)
+암호화: 시간에 따라 블록 단위로 암호화
+- 시간 n에서 $P_n$ 암호화 -> $C_n$
+복호화: 시간에 따라 블록 단위로 복호화
+- 시간 n에서 $C_n$ 복호화 -> $P_n$
+
+장점
+- 블록 동기화 필요 없음
+- 전송 오류가 해당 블록에만 영향을 미침
+- 병렬 처리 가능
+
+단점
+- 결정적 암호화
+- 치환 공격에 취약: 같은 평문 블록은 같은 암호문 블록으로 변환 가능
+
+## CBC 모드 (Cipher Block Chaining Mode)
+암호화: 이전 블록의 암호문과 키 K를 XOR 연산
+- $C_n = E_K(P_n \oplus C_{n-1})$
+복호화: 이전 블록의 암호문과 키 K를 XOR 연산
+- $P_n = D_K(C_n) \oplus C_{n-1}$
+
+초기화 벡터 필요
+
+## CFB 모드 (Cipher Feedback Mode)
+암호화: 초기화 벡터를 키 K와 XOR 사용하여 암호화하여
