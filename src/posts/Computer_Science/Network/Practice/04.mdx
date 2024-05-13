@@ -1,0 +1,40 @@
+# 개요
+1. 모든 client가 한 server에 연결하여 채팅 룸에서 대화를 할 수 있어야 한다.
+2. server은 TCP 소켓을 사용하여 Golang으로 구현
+## 세부사항
+1. server에 접속하는 client는 최대 8명으로 제한
+	- 9번째 client가 접속하려고 하면, `chatting room full. cannot connect`라는 메시지를 보내고 연결을 취소한다.
+2. 각 client가 서버에 접속하려고 하면, 닉네임을 입력받는다.
+	- 닉네임은 최대 32자까지 입력 가능하다.
+	- 닉네임은 영어여야 하며, 특수문자와 공백은 허용하지 않는다.
+	- 닉네임이 중복되면, `nickname already used by another user. cannot connect`라는 메시지를 보내고 연결을 취소한다.
+3. client가 서버에 접속시, 서버는 `welcome`이라는 메시지를 보낸다.
+	- 클라이언트는 `welcome` 메시지와 함께 닉네임, 서버 IP, port number을 출력한다.
+		- ex. `welcome <nickname> to CAU net-class chat room at <serverIP:serverPort>. There are <N> users in the room`
+	- 동시에, 서버도 메시지를 출력한다.
+		- ex. `<nickname> joined from <clientIP:clientPort>. There are <N> users in the room`
+4. client가 server에 접속하면, chat room에 즉시 입장한다.
+	- 모든 client는 다른 모든 client와 채팅할 수 있다.
+	- client가 채팅을 입력하고 Enter 을 누르면 다른 모든 client에게 메시지를 전송한다.
+		- 채팅 메시지는 공백을 포함할 수 있다.
+5. client가 Ctrl-C 를 누르면, 다른 모든 클라이언트는 `<nickname> left the room. There are <N> users now` 메시지를 출력한다.
+	- 종료한 client 본인에게는 `gg~` 메시지를 출력한다.
+6. 채팅 룸에는 커맨드가 있다.
+	- \\ls: 현재 채팅 룸에 있는 모든 client의 `<nickname, IP, port>` 리스트를 출력한다.
+	- \\secret \<nickname\> \<message\>: 해당 nickname을 가진 client에게만 message를 전송한다.
+		- 전송된 메시지 앞에는 `from <nickname>:`이라는 메시지를 붙인다.
+	- \\except \<nickname\> \<message\>: 해당 nickname을 가진 client를 제외한 모든 client에게 message를 전송한다.
+	- \\ping: 클라이언트와 서버 간의 RTT를 측정한다.
+	- \\quit: 채팅 룸을 나간다.
+	- 커맨드를 보낼 때, command part는 평문으로 전송되면 안된다. -> 1바이트로 인코딩하여 전송
+	- client가 올바르지 않은 커맨드를 입력하면, `invalid command`라는 메시지를 출력하며, 서버로 전송되면 안된다.
+	- server가 올바르지 않은 커맨드를 수신하면, `invalid command: <what client sent>`라는 메시지를 출력하며, 추가 동작을 하지 않는다. (일어나지 않아야 하는 상황이지만, 버전이 맞지 않을 때 발생 가능한 상황에 대한 예외처리)
+	- 추가적으로 사용자가 `I hate professor`라는 메시지를 입력하면 서버는 이를 탐지하고 그 client의 접속을 끊는다. 해당 사용자와 다른 client들이 알 수 있도록 메시지를 출력해야 함.
+
+## 고려사항
+1. client는 연결 시에만 닉네임을 서버에게 알려주면 될까? 아니면, 채팅을 할 때마다 닉네임을 함께 보내야 할까?
+2. 서버가 client를 구분하는 방식. 닉네임을 사용할까? 아니면, IP 주소&포트를 사용할까?
+3. client의 리스트를 저장하는 데 사용할 자료구조, 어떤 정보 저장? 20000개 이상의 클라이언트에도 대응 가능한가?
+4. 커맨드를 입력받는 방식. 이 과제에서는 binary로 인코딩하여 전송. 문자열 사용하는 방식과의 장단점?
+
+# 실습

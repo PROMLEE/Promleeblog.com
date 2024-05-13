@@ -44,6 +44,10 @@ export const CategoryKo: CategoryKoinfo = {
                 name: "Multiple Client Server 프로그래밍하기",
                 date: "2024-04-27",
               },
+              "04": {
+                name: "Client-Server 채팅 서버 구현하기",
+                date: "2024-05-11",
+              },
             },
           },
           Concept: {
