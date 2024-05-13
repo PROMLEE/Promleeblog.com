@@ -98,6 +98,10 @@ export const CategoryKo: CategoryKoinfo = {
                 name: "소스 및 채널 코딩 (Source and Channel Coding)",
                 date: "2024-04-29",
               },
+              "04": {
+                name: "멀티플렉싱 - MAC (Multiplexing - MAC)",
+                date: "2024-05-13",
+              },
             },
           },
         },
