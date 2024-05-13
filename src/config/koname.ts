@@ -1,5 +1,3 @@
-import { Certificate } from "crypto";
-
 export const CategoryKo: CategoryKoinfo = {
   Computer_Science: {
     name: "컴퓨터 공학(Computer Science)",
@@ -104,6 +102,36 @@ export const CategoryKo: CategoryKoinfo = {
           },
         },
       },
+      Interview: {
+        name: "면접(Interview)",
+        title: {
+          Interview: {
+            name: "면접(Interview)",
+            content: {
+              "01": {
+                name: "프론트엔드 (Frontend)",
+                date: "",
+              },
+              "02": {
+                name: "백엔드 (Backend)",
+                date: "",
+              },
+              "03": {
+                name: "데이터베이스 (Database)",
+                date: "",
+              },
+              "04": {
+                name: "네트워크 (Network)",
+                date: "",
+              },
+              "05": {
+                name: "보안 (Security)",
+                date: "",
+              },
+            },
+          },
+        },
+      },
       // Programming_Language: "프로그래밍 언어(Programming Language)",
       // Database: "데이터베이스(Database)",
       // Operating_System: "운영체제(Operating System)",
@@ -131,6 +159,10 @@ export const CategoryKo: CategoryKoinfo = {
               "10": {
                 name: "조건부 확률 질량 함수 (Conditional PMF)",
                 date: "2024-05-01",
+              },
+              "12": {
+                name: "결정 트리 & 랜덤 포레스트 (Decision Tree & Random Forest)",
+                date: "2024-05-13",
               },
             },
           },
