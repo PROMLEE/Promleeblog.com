@@ -63,6 +63,10 @@ export const CategoryKo: CategoryKoinfo = {
                 name: "전송계층 (Transport Layer)",
                 date: "2024-04-30",
               },
+              "04": {
+                name: "네트워크 계층 (Network Layer)",
+                date: "2024-05-21",
+              },
             },
           },
           Questions: {

@@ -34,16 +34,25 @@ export const Navbar = () => {
       {Object.keys(CategoryKo).map((key, index) => {
         const name = CategoryKo[key].name.split("(")[0];
         return (
-          <Menubar key={index}>
+          <Menubar key={index} className={"bg-slate-700  hover:bg-slate-200"}>
             <MenubarMenu>
-              <MenubarTrigger>{name}</MenubarTrigger>
+              <MenubarTrigger
+                className={
+                  "font-bold text-white hover:cursor-pointer hover:text-black"
+                }
+              >
+                {name}
+              </MenubarTrigger>
               <MenubarContent>
                 {Object.keys(CategoryKo[key].sub).map((subKey, index) => {
                   const subName =
                     CategoryKo[key].sub[subKey].name.split("(")[0];
                   return (
                     <MenubarSub key={index}>
-                      <MenubarSubTrigger key={index}>
+                      <MenubarSubTrigger
+                        key={index}
+                        className={" text-white hover:cursor-pointer "}
+                      >
                         {subName}
                       </MenubarSubTrigger>
                       <MenubarSubContent>
@@ -71,23 +80,6 @@ export const Navbar = () => {
           </Menubar>
         );
       })}
-
-      <Menubar>
-        <MenubarMenu>
-          <MenubarTrigger>Edit</MenubarTrigger>
-          <MenubarContent>
-            <MenubarSub>
-              <MenubarSubTrigger>Find</MenubarSubTrigger>
-              <MenubarSubContent>
-                <MenubarItem>Find and Replace</MenubarItem>
-                <MenubarItem>Find and Replace</MenubarItem>
-                <MenubarItem>Find and Replace</MenubarItem>
-                <MenubarItem>Find and Replace</MenubarItem>
-              </MenubarSubContent>
-            </MenubarSub>
-          </MenubarContent>
-        </MenubarMenu>
-      </Menubar>
     </div>
   );
 };
