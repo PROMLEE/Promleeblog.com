@@ -20,6 +20,10 @@ export const CategoryKo: CategoryKoinfo = {
                 name: "공개 키 암호화 (Public Key Encryption)",
                 date: "2024-04-24",
               },
+              "04": {
+                name: "디지털 서명 (Digital Signature)",
+                date: "2024-05-23",
+              },
             },
           },
         },
@@ -175,6 +179,10 @@ export const CategoryKo: CategoryKoinfo = {
               "12": {
                 name: "결정 트리 & 랜덤 포레스트 (Decision Tree & Random Forest)",
                 date: "2024-05-13",
+              },
+              "13": {
+                name: "연속 확률 변수 (Continuous Random Variable)",
+                date: "2024-05-22",
               },
             },
           },
