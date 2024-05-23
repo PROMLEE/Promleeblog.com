@@ -24,13 +24,6 @@ export const Navbar = () => {
       >
         PromleeBlog
       </Link>
-      <Link
-        href={"/blog"}
-        className={"text-2xl text-black hover:text-amber-700 dark:text-white"}
-      >
-        Categories
-      </Link>
-      <DarkmodeButton />
       {Object.keys(CategoryKo).map((key, index) => {
         const name = CategoryKo[key].name.split("(")[0];
         return (
@@ -80,6 +73,7 @@ export const Navbar = () => {
           </Menubar>
         );
       })}
+      <DarkmodeButton />
     </div>
   );
 };

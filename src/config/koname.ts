@@ -71,6 +71,10 @@ export const CategoryKo: CategoryKoinfo = {
                 name: "네트워크 계층 (Network Layer)",
                 date: "2024-05-21",
               },
+              "05": {
+                name: "네트워크 계층 - 제어 평면 (Network Layer - Control Plane)",
+                date: "2024-05-21",
+              },
             },
           },
           Questions: {
