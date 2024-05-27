@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import "../config/globals.css";
 import React from "react";
-import Link from "next/link";
 import { Gothic_A1 } from "next/font/google";
 import { Theme } from "@/components/Theme";
-import {DarkmodeButton} from "@/components/Darkmodebutton";
 import AutoRefresh from "./AutoRefresh";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -32,7 +30,7 @@ export default function RootLayout({
             <Navbar />
             <div
               className={
-                "dark:bg-slate-950 dark:border-slate-800 w-full md:w-5/6 xl:w-3/5 px-10 pb-40 min-h-[800px]  border-2"
+                "min-h-[800px] w-full border-2 px-10 pb-40 dark:border-slate-800 dark:bg-slate-950 md:w-5/6  xl:w-3/5"
               }
             >
               {children}

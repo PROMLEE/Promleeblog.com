@@ -19,7 +19,7 @@ export const Navbar = () => {
       <Link
         href={"/"}
         className={
-          "m-5 rounded-lg bg-white p-1 text-black hover:bg-black hover:text-white"
+          "bg-white p-1 text-2xl font-bold text-black hover:cursor-pointer hover:bg-black hover:text-white"
         }
       >
         PromleeBlog
@@ -27,7 +27,10 @@ export const Navbar = () => {
       {Object.keys(CategoryKo).map((key, index) => {
         const name = CategoryKo[key].name.split("(")[0];
         return (
-          <Menubar key={index} className={"bg-slate-700  hover:bg-slate-200"}>
+          <Menubar
+            key={index}
+            className={"rounded-none  bg-slate-700 hover:bg-slate-200"}
+          >
             <MenubarMenu>
               <MenubarTrigger
                 className={
@@ -73,7 +76,7 @@ export const Navbar = () => {
           </Menubar>
         );
       })}
-      <DarkmodeButton />
+      {/* <DarkmodeButton /> */}
     </div>
   );
 };

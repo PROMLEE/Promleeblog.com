@@ -1,2 +1,70 @@
-## 연속 확률 변수
-> 
+## 연속 확률 변수 (Continuous Random Variable)
+> 무한한 범위의 값을 가질 수 있는 확률 변수
+
+예시
+- 버스가 도착하는 시간
+- 주어진 시간 동안 파이프를 통해 흐르는 물의 양
+- 무작위로 선택 된 사람의 키
+
+성질
+- 특정 값 $X = x$에 대해 확률은 0이다. $P(X = x) = 0$
+
+## 확률 밀도 함수 (Probability Density Function, PDF)
+> 연속 확률 변수의 경우 특정 값의 확률이 0이기 떄문에 확률 질량 함수를 사용할 수 없다. 따라서 확률 밀도 함수를 사용한다.
+
+$f_X(x)$: 연속적이고 비음수인 함수로서, 이 함수를 $X$의 확률 밀도 함수(PDF) 라고 한다.
+
+#### 예시
+$X$가 두 값 $x_1$과 $x_2$ 사이에 존재할 확률은 $f_X(x)dx$로 나타낼 수 있다.
+- $P(x_1 < X < x_2) = \int_{x_1}^{x_2} f_X(x)dx$
+
+더 일반적으로, 실선 상의 어떤 부분 집합 $B$에 대하여
+- $P(X \in B) = \int_B f_X(x)dx$
+## 확률 법칙과 PDF
+- $f_X(x)$는 $P(X=a)$가 아님을 유의
+- 특정 값 $a$에 대해, $P(X=a) = \int_a^a f_X(x)dx = 0$이다.
+	- 예를 들어, $P(X \leq a) = P(X<a) + P(X=a) = P(X<a)$를 의미
+- 유효한 확률 법칙은 $P(\Omega) = 1$ 및 $P(A) > 0$을 만족해야 한다. - 이는 PDF와 유사
+	- 정규화를 위해: $\int_{-\infty}^{\infty} f_X(x)dx = 1 \rightarrow $ 곡선 아래의 총 면적은 1이다
+	- 정규화를 위해: $f_X$는 비음수이므로, 모든 $B$에 대하여 $P(x \in B) = \int_{x \in B} f_X(x)dx \geq 0$ 이다
+- 확률 변수 길이가 $\delta$인 작은 구간 $[x, x+\delta]$에 대한 확률은 $f_X(x)\delta$이다.
+	- $P(x \leq X \leq x+\delta) = \int_{x}^{x+\delta} f_X(x)dx \approx f_X(x)\delta$
+	- 이는 $f_X(x)$가 $x$에서의 밀도를 나타낸다.
+
+## PDF의 특성 (Properties of PDF)
+<Bbox> 
+
+$X$를 PDF $f_X$를 가진 연속 확률 변수라고 하자. 
+</Bbox>
+
+- $f_X(x) \geq 0$ for all $x$
+- $\int_{-\infty}^{\infty} f_X(x)dx = 1$
+- $\delta$가 매우 작으면, $P([x, x+\delta]) \approx f_X(x)\cdot\delta$
+- 임의의 실수 부분집합 $B$에 대하여, $P(X \in B) = \int_{x \in B} f_X(x)dx$
+
+### 예시
+```math
+f_X(x) = \begin{cases}
+1 & \text{if } 0 \le x \le 1 \\
+0 & \text{otherwise}
+\end{cases}
+```
+- $P(X > 0.5) = \int_{0.5}^{1} f_X(x)dx = \int_{0.5}^{1} 1dx = 0.5$
+- $P(X > 1.5) = \int_{1.5}^{1} f_X(x)dx = \int_{1.5}^{1} 1dx = 0$
+- $P(X = 0.7) = \int_{0.7}^{0.7} f_X(x)dx = 0$
+``` math
+f_X(x) = \begin{cases}
+c & \text{if } a \le x \le b \\
+0 & \text{otherwise}
+\end{cases}
+```
+- $c = \frac{1}{b-a}$
+
+## 연속 확률 변수의 기대값 (Expectation of Continuous Random Variable)
+
+이산 확률 변수의 경우 우리는 다음과 같은 식을 사용했다.
+- $E[X] = \sum_{x} x \cdot P_X(x)$
+
+$X$가 연속 확률 변수이고 $f_X(x)$가 $X$의 확률 밀도 함수라고 하자. $X$의 기대값은 다음과 같이 정의된다.
+
+- $E[X] = \int_{-\infty}^{\infty} x \cdot f_X(x)dx$
