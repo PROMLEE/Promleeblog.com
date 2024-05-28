@@ -1,0 +1,33 @@
+# 디지털 서명 정의 (Definition of Digital Signature)
+## 디지털 서명 개요 (Overview of Digital Signature)
+
+#### 정의
+디지털 서명 체계는 다음과 같은 세 가지 다항 시간 알고리즘으로 구성됨
+- KeyGen($\lambda$) $\rightarrow$ (pk, sk): 키 생성 알고리즘
+	- 보안 매개변수 $\lambda$를 입력으로 받아 공개키(pk)와 개인키(sk)를 생성
+- Sign(sk, m) $\rightarrow$ $\sigma$: 서명 알고리즘
+	- 개인키(sk)와 메시지(m)를 입력으로 받아 디지털 서명($\sigma$)을 생성
+- Verify(pk, m, $\sigma$) $\rightarrow$ {0, 1}: 검증 알고리즘
+	- 공개키(pk), 메시지(m), 디지털 서명($\sigma$)을 입력으로 받아 디지털 서명이 유효한지 검증
+	- 유효하면 1, 그렇지 않으면 0을 반환
+
+#### 검증
+**정당성**: 검증 알고리즘은 다음을 만족해야 함
+- 모든 보안 매개변수 $\lambda$와 모든 메시지 $m$에 대해
+- $\text{Verify}(pk, \text{Sign}(sk, M)) = 1$이어야 함
+- 여기서 $(pk, sk) \leftarrow \text{KeyGen}(\lambda)$
+
+## 디지털 서명의 보안 모델 (Security Model of Digital Signature)
+도전자 $C$와 공격자 $A$ 사이의 게임을 고려
+1. Setup: $C$는 KeyGen($\lambda$)을 실행하여 $(pk, sk)$를 생성, 공개 키 $pk$를 $A$에게 전달
+2. Signing Queries: $A$는 메시지 $M_i$에 대해 다항 횟수만큼 서명 쿼리를 요청
+	- 각 $M_i$에 대해 $C$는 $\text{Sign}(sk, M_i) → \sigma_i$를 실행하여 서명 $\sigma_i$를 생성, $A$에게 반환
+3. Output: $A$는 $(M, \sigma)$를 반환
+	- $M$은 $C$가 서명하지 않은 메시지이며, $A$가 서명을 요청한 메시지와 다름
+	- $A$가 $M$에 대한 유효한 서명 $\sigma$를 생성한 경우, $A$는 성공
+
+- $A$의 성공 확률은 다음과 같이 정의
+
+$$
+x//
+$$
