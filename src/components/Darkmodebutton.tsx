@@ -5,13 +5,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useTheme } from "next-themes";
 
-const DarkmodeButton = () => {
+export const DarkmodeButton = () => {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
 
@@ -40,4 +38,3 @@ const DarkmodeButton = () => {
   );
 };
 
-export default DarkmodeButton;

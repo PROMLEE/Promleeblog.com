@@ -10,14 +10,14 @@ function CategoryList() {
 const Blog = () => {
   return (
     <div>
-      <h1 className={"text-5xl my-5 text-purple-200 font-bold"}>
+      <h1 className={"my-5 text-5xl font-bold text-purple-200"}>
         All Categories
       </h1>
       {CategoryList().map((category: string, idx: number) => (
         <Link
           key={idx}
           href={`/blog/${category}`}
-          className={"category text-white hover:category hover:underline"}
+          className={"category text-white hover:underline"}
         >
           {category ? CategoryKo[category].name : null}
         </Link>

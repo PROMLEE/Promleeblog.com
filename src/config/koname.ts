@@ -20,6 +20,10 @@ export const CategoryKo: CategoryKoinfo = {
                 name: "공개 키 암호화 (Public Key Encryption)",
                 date: "2024-04-24",
               },
+              "04": {
+                name: "디지털 서명 (Digital Signature)",
+                date: "2024-05-23",
+              },
             },
           },
         },
@@ -42,6 +46,10 @@ export const CategoryKo: CategoryKoinfo = {
                 name: "Multiple Client Server 프로그래밍하기",
                 date: "2024-04-27",
               },
+              "04": {
+                name: "Client-Server 채팅 서버 구현하기",
+                date: "2024-05-11",
+              },
             },
           },
           Concept: {
@@ -58,6 +66,14 @@ export const CategoryKo: CategoryKoinfo = {
               "03": {
                 name: "전송계층 (Transport Layer)",
                 date: "2024-04-30",
+              },
+              "04": {
+                name: "네트워크 계층 (Network Layer)",
+                date: "2024-05-21",
+              },
+              "05": {
+                name: "네트워크 계층 - 제어 평면 (Network Layer - Control Plane)",
+                date: "2024-05-21",
               },
             },
           },
@@ -97,6 +113,10 @@ export const CategoryKo: CategoryKoinfo = {
               "03": {
                 name: "소스 및 채널 코딩 (Source and Channel Coding)",
                 date: "2024-04-29",
+              },
+              "04": {
+                name: "멀티플렉싱 - MAC (Multiplexing - MAC)",
+                date: "2024-05-13",
               },
             },
           },
@@ -163,6 +183,10 @@ export const CategoryKo: CategoryKoinfo = {
               "12": {
                 name: "결정 트리 & 랜덤 포레스트 (Decision Tree & Random Forest)",
                 date: "2024-05-13",
+              },
+              "13": {
+                name: "연속 확률 변수 (Continuous Random Variable)",
+                date: "2024-05-22",
               },
             },
           },

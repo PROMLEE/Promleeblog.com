@@ -1,0 +1,46 @@
+# 컴퓨터 통신 (Computer Communications)
+## 네트워크 소프트웨어 (Network Software)
+- 네트워크 계층 구조 (Network Layered Architecture)
+	- 대부분의 네트워크는 설계의 복잡성을 줄이기 위해 여러 층으로 구성된다.
+	- 각 계층의 목적은 상위 계층에 특정 서비스를 제공하며, 제공되는 서비스의 구현 세부사항으로부터 상위 계층을 보호한다.
+	- 프로토콜은 통신하는 당사자 간에 통신이 어떻게 진행될지에 대한 합의이다.
+	- 특정 계층은 사용자에게 서비스를 제공하지만 내부 상태와 알고리즘은 숨긴다.
+
+## 용어
+- peer: 서로 다른 기계에서 대응하는 계층을 구성하는 개체
+- interface: 하위 계층이 상위 계층에 제공하는 작업과 서비스
+- network architecture: 여러 계층과 프로토콜의 집합
+- protocol stack: 특정 시스템에서 사용되는 프로토콜 목록
+
+## 서비스 데이터 유닛 VS 프로토콜 데이터 유닛 (SDU vs PDU)
+- SDU: 서비스를 제공하는 계층에서 상위 계층에 전달하는 데이터 단위
+	ex) 계층 k의 SDU는 계층 k+1의 PDU가 된다.
+- PDU: 프로토콜이 사용하는 데이터 단위
+
+## OSI 참조 모델 (OSI Reference Model)
+- OSI: Open Systems Interconnection
+	- ISO(국제 표준화 기구)에서 개발한 네트워크 모델
+- 7개의 계층으로 구성된 네트워크 모델
+	1. Physical Layer
+	2. Data Link Layer
+	3. Network Layer
+	4. Transport Layer
+	5. Session Layer
+	6. Presentation Layer
+	7. Application Layer
+
+## 하이브리드 참조 모델 (Hybrid Reference Model)
+- OSI 모델과 TCP/IP 모델을 결합한 모델
+- 5개의 계층으로 구성된 네트워크 모델
+	1. Application Layer
+	2. Transport Layer
+	3. Network Layer
+	4. Data Link Layer
+	5. Physical Layer
+
+## 데이터 링크 계층 (Data Link Layer)
+- 데이터 링크 계층은 물리적 링크를 통해 정보의 신뢰성 있는 전송을 제공한다.
+- 필요한 동기화, 오류제어, 흐름제어를 포함하여 데이터 블록(프레임)을 전송
+- 매체 접근 제어(MAC)과 논리 링크 제어(LLC)로 세분화됨
+	- MAC(Medium Access Control): 물리적 링크를 통해 데이터를 전송하는 방법을 제어
+	- LLC(Logical Link Control): 네트워크 계층과 데이터 링크 계층 사이의 인터페이스를 제공
