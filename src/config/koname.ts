@@ -50,6 +50,10 @@ export const CategoryKo: CategoryKoinfo = {
                 name: "Client-Server 채팅 서버 구현하기",
                 date: "2024-05-11",
               },
+              "05": {
+                name: "DC 전력선 통신을 위한 안정적이고 효율적인 프로토콜 설계",
+                date: "2024-06-07",
+              },
             },
           },
           Concept: {
@@ -89,6 +93,14 @@ export const CategoryKo: CategoryKoinfo = {
                 date: "2024-04-22",
               },
               "03": {
+                name: "Network",
+                date: "2024-04-22",
+              },
+              "04": {
+                name: "Network",
+                date: "2024-04-22",
+              },
+              "05": {
                 name: "Network",
                 date: "2024-04-22",
               },
