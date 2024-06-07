@@ -27,14 +27,17 @@ export const DarkmodeButton = () => {
     </DropdownMenuItem>
   );
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>☀️</DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <Item label="light" />
-        <Item label="dark" />
-        <Item label="system" />
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="ml-auto flex h-full content-center items-center">
+      <DropdownMenu>
+        <DropdownMenuTrigger className="h-full pr-3 text-2xl">
+          ☀️
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <Item label="light" />
+          <Item label="dark" />
+          <Item label="system" />
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };
-

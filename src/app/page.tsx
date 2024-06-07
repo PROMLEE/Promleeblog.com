@@ -1,3 +1,5 @@
+"use client";
+
 import CytoscapeGraph from "@/components/cytoscape/cytoscape";
 
 export default function App() {

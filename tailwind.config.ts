@@ -20,8 +20,8 @@ const config: Config = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        background: "rgba(var(--background) , <alpha-value>)",
+        foreground: "rgba(var(--foreground) , <alpha-value>)",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -46,9 +46,9 @@ const config: Config = {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
         },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+        button: {
+          DEFAULT: "rgba(var(--button) , <alpha-value>)",
+          foreground: "rgba(var(--button-foreground) , <alpha-value>)",
         },
       },
       backgroundImage: {
@@ -75,7 +75,7 @@ const config: Config = {
         },
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" }, 
+          to: { height: "0" },
         },
       },
       animation: {
