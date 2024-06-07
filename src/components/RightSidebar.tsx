@@ -20,7 +20,7 @@ const parseToc = (content: string) => {
   );
 };
 
-const SidebarComp = (content: any) => {
+const RightSidebarComp = (content: any) => {
   const toc = parseToc(content.content);
   return (
     <div className="related md:sidebar-md xl:right-5 ">
@@ -30,7 +30,7 @@ const SidebarComp = (content: any) => {
             <Link
               key={idx}
               href={item.link}
-              className="sidebar text-sm font-bold mt-3 py-1 border-t-2 border-slate-500 border-dotted dark:text-white"
+              className="sidebar mt-3 border-t-2 border-dotted border-slate-500 py-1 text-sm font-bold dark:text-white"
             >
               💡 {item.text.split("(")[0]}
             </Link>
@@ -40,7 +40,7 @@ const SidebarComp = (content: any) => {
             <Link
               key={idx}
               href={item.link}
-              className="sidebar text-xs ml-8 dark:text-white indent-[-20px]"
+              className="sidebar ml-8 indent-[-20px] text-xs dark:text-white"
             >
               🚀 {item.text.split("(")[0]}
             </Link>
@@ -50,7 +50,7 @@ const SidebarComp = (content: any) => {
             <Link
               key={idx}
               href={item.link}
-              className="sidebar text-xs ml-10 dark:text-slate-300 indent-[-20px]"
+              className="sidebar ml-10 indent-[-20px] text-xs dark:text-slate-300"
             >
               ✅ {item.text.split("(")[0]}
             </Link>
@@ -61,4 +61,4 @@ const SidebarComp = (content: any) => {
   );
 };
 
-export default SidebarComp;
+export default RightSidebarComp;

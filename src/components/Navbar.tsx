@@ -18,9 +18,7 @@ export const Navbar = () => {
     <div className={"topbar"}>
       <Link
         href={"/"}
-        className={
-          "bg-white p-1 text-2xl font-bold text-black hover:cursor-pointer hover:bg-black hover:text-white"
-        }
+        className={"p-1 text-2xl font-bold hover:cursor-pointer"}
       >
         PromleeBlog
       </Link>
@@ -76,7 +74,7 @@ export const Navbar = () => {
           </Menubar>
         );
       })}
-      {/* <DarkmodeButton /> */}
+      <DarkmodeButton />
     </div>
   );
 };

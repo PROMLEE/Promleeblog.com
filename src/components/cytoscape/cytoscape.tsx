@@ -107,12 +107,10 @@ export default function CytoscapeGraph() {
     {
       selector: "node",
       style: {
-        backgroundColor: "#666",
         label: "data(label)",
         width: "data(size)",
         height: "data(size)",
         fontSize: "data(font)",
-        color: "#fff",
       },
     },
     {
@@ -134,12 +132,7 @@ export default function CytoscapeGraph() {
   ];
 
   return (
-    <div
-      style={{
-        border: "1px solid",
-        backgroundColor: "#00073f",
-      }}
-    >
+    <div className="mx-auto my-10 w-full rounded-lg border-2 border-blue-500 bg-foreground p-2 text-foreground md:w-2/3">
       <CytoscapeComponent
         elements={CytoscapeComponent.normalizeElements(graphData)}
         style={{ width: "100%", height: "600px" }}
@@ -179,7 +172,7 @@ export default function CytoscapeGraph() {
           window.addEventListener("resize", function () {
             this.clearTimeout(resizeTimer);
             resizeTimer = this.setTimeout(function () {
-              cy.fit();
+              cy.fit().run();
             }, 200);
           });
         }}

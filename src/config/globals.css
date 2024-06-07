@@ -4,11 +4,11 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 255, 255, 255;
+    --foreground: 200, 200, 200;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --button: 230, 230, 230;
+    --button-foreground: 200, 200, 200;
 
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
@@ -36,11 +36,11 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 32, 33, 36;
+    --foreground: 71, 71, 71;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --button: 255, 255, 255;
+    --button-foreground: 200, 200, 200;
 
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
@@ -81,18 +81,19 @@
   }
   ul,
   ol {
-    @apply marker:dark:text-white;
+    @apply mt-5 marker:dark:text-white;
   }
   ul > li > ul {
-    @apply m-0 dark:list-["৹__"];
-  }
-  ul > li > ul,
-  ol > li > ul {
-    @apply mb-4;
+    @apply dark:list-["৹__"];
   }
   ul > li > ul > li > ul {
-    @apply m-0 dark:list-["▪__"];
+    @apply dark:list-["▪__"];
   }
+
+  /* ul > li > ul,
+  ol > li > ul {
+    @apply mb-4;
+  } */
   blockquote {
     @apply bg-muted py-2 dark:border-white;
   }
