@@ -111,7 +111,7 @@ export default function CytoscapeGraph() {
         width: "data(size)",
         height: "data(size)",
         fontSize: "data(font)",
-        color: "#ccc",
+        color: "#000000",
       },
     },
     {
