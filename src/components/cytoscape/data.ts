@@ -1,12 +1,12 @@
 import { CategoryKo } from "@/config/koname";
 
-const nodeSize1 = 30;
-const nodeSize2 = 20;
+const nodeSize1 = 20;
+const nodeSize2 = 17;
 const nodeSize3 = 15;
 const nodeSize4 = 10;
-const fontSize1 = 10;
-const fontSize2 = 8;
-const fontSize3 = 6;
+const fontSize1 = 7;
+const fontSize2 = 6;
+const fontSize3 = 5;
 const fontSize4 = 4;
 const nodes = [];
 
@@ -14,7 +14,7 @@ for (const key in CategoryKo) {
   nodes.push({
     data: {
       id: key,
-      label: CategoryKo[key].name,
+      label: CategoryKo[key].name.split("(")[0],
       type: "category",
       url: `/blog/${key}`,
       size: nodeSize1,
@@ -25,7 +25,7 @@ for (const key in CategoryKo) {
     nodes.push({
       data: {
         id: key + subKey,
-        label: CategoryKo[key].sub[subKey].name,
+        label: CategoryKo[key].sub[subKey].name.split("(")[0],
         type: "sub",
         url: `/blog/${key}/${subKey}`,
         size: nodeSize2,
@@ -36,7 +36,7 @@ for (const key in CategoryKo) {
       nodes.push({
         data: {
           id: key + subKey + titleKey,
-          label: CategoryKo[key].sub[subKey].title[titleKey].name,
+          label: CategoryKo[key].sub[subKey].title[titleKey].name.split("(")[0],
           type: "title",
           url: `/blog/${key}/${subKey}/${titleKey}`,
           size: nodeSize3,
@@ -49,8 +49,9 @@ for (const key in CategoryKo) {
           data: {
             id: key + subKey + titleKey + contentKey,
             label:
-              CategoryKo[key].sub[subKey].title[titleKey].content[contentKey]
-                .name,
+              CategoryKo[key].sub[subKey].title[titleKey].content[
+                contentKey
+              ].name.split("(")[0],
             type: "content",
             url: `/blog/${key}/${subKey}/${titleKey}/${contentKey}`,
             size: nodeSize4,
