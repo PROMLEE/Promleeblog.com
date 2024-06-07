@@ -27,7 +27,9 @@ export const Navbar = () => {
         return (
           <Menubar
             key={index}
-            className={"rounded-none  bg-slate-700 hover:bg-slate-200"}
+            className={
+              "hidden rounded-none  bg-slate-700 hover:bg-slate-200 md:block"
+            }
           >
             <MenubarMenu>
               <MenubarTrigger
@@ -55,13 +57,12 @@ export const Navbar = () => {
                             const titleName =
                               CategoryKo[key].sub[subKey].title[titleKey].name;
                             return (
-                              <MenubarItem key={index}>
-                                <Link
-                                  href={`/blog/${key}/${subKey}/${titleKey}`}
-                                >
-                                  {titleName}
-                                </Link>
-                              </MenubarItem>
+                              <Link
+                                href={`/blog/${key}/${subKey}/${titleKey}`}
+                                key={index}
+                              >
+                                <MenubarItem>{titleName}</MenubarItem>
+                              </Link>
                             );
                           },
                         )}

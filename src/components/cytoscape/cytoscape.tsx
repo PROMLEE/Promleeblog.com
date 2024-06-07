@@ -111,6 +111,7 @@ export default function CytoscapeGraph() {
         width: "data(size)",
         height: "data(size)",
         fontSize: "data(font)",
+        color: "#ccc",
       },
     },
     {
@@ -141,6 +142,7 @@ export default function CytoscapeGraph() {
         minZoom={0.1}
         autounselectify={false}
         boxSelectionEnabled={true}
+        wheelSensitivity={0.1}
         layout={layout}
         // @ts-ignore
         stylesheet={styleSheet}
@@ -169,12 +171,12 @@ export default function CytoscapeGraph() {
             setResetFocus(e.cy);
           });
           let resizeTimer: any;
-          window.addEventListener("resize", function () {
-            this.clearTimeout(resizeTimer);
-            resizeTimer = this.setTimeout(function () {
-              cy.fit().run();
-            }, 200);
-          });
+          // window.addEventListener("resize", function () {
+          //   this.clearTimeout(resizeTimer);
+          //   resizeTimer = this.setTimeout(function () {
+          //     // cy.fit().run();
+          //   }, 200);
+          // });
         }}
       />
     </div>

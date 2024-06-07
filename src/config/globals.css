@@ -122,6 +122,12 @@
   .sidebar-md {
     @apply fixed right-0 top-[15%] h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl bg-gradient-to-r  p-3 shadow-lg dark:from-slate-900;
   }
+  .leftsidebar {
+    @apply mb-1 block rounded-md no-underline hover:bg-amber-200 dark:hover:bg-amber-800;
+  }
+  .leftsidebar-md {
+    @apply fixed left-0 top-[15%] h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl bg-gradient-to-r  p-3 shadow-lg dark:from-slate-900;
+  }
 }
 
 .prose pre > code {
