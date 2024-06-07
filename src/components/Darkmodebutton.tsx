@@ -9,6 +9,12 @@ import {
 } from "./ui/dropdown-menu";
 import { useTheme } from "next-themes";
 
+const items = [
+  { label: "☀️", value: "light" },
+  { label: "🌙", value: "dark" },
+  { label: "🖥️", value: "system" },
+];
+
 export const DarkmodeButton = () => {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -20,22 +26,30 @@ export const DarkmodeButton = () => {
 
   if (!mounted) return null;
 
-  const Item = ({ label }: any) => (
-    <DropdownMenuItem onClick={() => setTheme(label)}>
-      <div className="flex items-center gap-2">{label}</div>
-      {theme === label}
+  const Item = ({ label, value }: { label: string; value: string }) => (
+    <DropdownMenuItem
+      onClick={() => {
+        setTheme(value);
+      }}
+    >
+      <div className="flex items-center gap-2">
+        {label} {value}
+      </div>
+      {/* {theme === label} */}
     </DropdownMenuItem>
   );
   return (
-    <div className="ml-auto flex h-full content-center items-center">
+    <div className="ml-auto mr-10 flex h-full content-center items-center">
       <DropdownMenu>
-        <DropdownMenuTrigger className="h-full pr-3 text-2xl">
-          ☀️
+        <DropdownMenuTrigger className="h-full text-lg">
+          {theme === "light" ? "☀️" : theme === "dark" ? "🌙" : "🖥️"}
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <Item label="light" />
-          <Item label="dark" />
-          <Item label="system" />
+        <DropdownMenuContent className="w-3">
+          {items.map((items) => {
+            return (
+              <Item key={items.value} label={items.label} value={items.value} />
+            );
+          })}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

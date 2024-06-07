@@ -306,25 +306,6 @@ export const CategoryKo: CategoryKoinfo = {
       },
     },
   },
-
-  //   name: "테스트(Test)",
-  //   sub: {
-  //     Test: {
-  //       name: "테스트(Test)",
-  //       title: {
-  //         Test: {
-  //           name: "테스트(Test)",
-  //           content: {
-  //             "01": {
-  //               name: "테스트(Test)",
-  //               date: "1999-10-02",
-  //             },
-  //           },
-  //         },
-  //       },
-  //     },
-  //   },
-  // },
 };
 
 interface CategoryKoinfo {
