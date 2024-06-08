@@ -4,6 +4,7 @@ import { CategoryKo } from "@/config/koname";
 function CategoryList() {
   const fs = require("fs");
   const path = `${process.cwd()}/src/posts`;
+  console.log(fs.readdirSync(path));
   return fs.readdirSync(path);
 }
 
@@ -19,7 +20,7 @@ const Blog = () => {
           href={`/blog/${category}`}
           className={"category text-white hover:underline"}
         >
-          {category ? CategoryKo[category].name : null}
+          {!category || category === "Test" ? null : CategoryKo[category].name}
         </Link>
       ))}
     </div>

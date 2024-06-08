@@ -107,12 +107,11 @@ export default function CytoscapeGraph() {
     {
       selector: "node",
       style: {
-        backgroundColor: "#666",
         label: "data(label)",
         width: "data(size)",
         height: "data(size)",
         fontSize: "data(font)",
-        color: "#fff",
+        color: "#000000",
       },
     },
     {
@@ -134,12 +133,7 @@ export default function CytoscapeGraph() {
   ];
 
   return (
-    <div
-      style={{
-        border: "1px solid",
-        backgroundColor: "#00073f",
-      }}
-    >
+    <div className="mx-auto my-10 w-full rounded-lg border-2 border-blue-500 bg-foreground p-2 text-foreground md:w-2/3">
       <CytoscapeComponent
         elements={CytoscapeComponent.normalizeElements(graphData)}
         style={{ width: "100%", height: "600px" }}
@@ -148,6 +142,7 @@ export default function CytoscapeGraph() {
         minZoom={0.1}
         autounselectify={false}
         boxSelectionEnabled={true}
+        wheelSensitivity={0.1}
         layout={layout}
         // @ts-ignore
         stylesheet={styleSheet}
@@ -176,12 +171,12 @@ export default function CytoscapeGraph() {
             setResetFocus(e.cy);
           });
           let resizeTimer: any;
-          window.addEventListener("resize", function () {
-            this.clearTimeout(resizeTimer);
-            resizeTimer = this.setTimeout(function () {
-              cy.fit();
-            }, 200);
-          });
+          // window.addEventListener("resize", function () {
+          //   this.clearTimeout(resizeTimer);
+          //   resizeTimer = this.setTimeout(function () {
+          //     // cy.fit().run();
+          //   }, 200);
+          // });
         }}
       />
     </div>

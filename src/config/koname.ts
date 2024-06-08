@@ -50,6 +50,10 @@ export const CategoryKo: CategoryKoinfo = {
                 name: "Client-Server 채팅 서버 구현하기",
                 date: "2024-05-11",
               },
+              "05": {
+                name: "DC 전력선 통신을 위한 안정적이고 효율적인 프로토콜 설계",
+                date: "2024-06-07",
+              },
             },
           },
           Concept: {
@@ -89,6 +93,14 @@ export const CategoryKo: CategoryKoinfo = {
                 date: "2024-04-22",
               },
               "03": {
+                name: "Network",
+                date: "2024-04-22",
+              },
+              "04": {
+                name: "Network",
+                date: "2024-04-22",
+              },
+              "05": {
                 name: "Network",
                 date: "2024-04-22",
               },
@@ -232,43 +244,73 @@ export const CategoryKo: CategoryKoinfo = {
       },
     },
   },
-  // Framework: {
-  //   name: "프레임워크(Framework)",
+  Frontend: {
+    name: "프론트엔드(Frontend)",
+    sub: {
+      // React: {
+      //   name: "React",
+      //   title: {
+      //     React: {
+      //       name: "React",
+      //       content: {
+      //         "1": "Next.js Blog",
+      //       },
+      //     },
+      //   },
+      // },
+      Next: {
+        name: "Next.js",
+        title: {
+          Blog: {
+            name: "블로그 개발기",
+            content: {
+              "01": {
+                name: "Next.js Blog",
+                date: "2024-04-24",
+              },
+            },
+          },
+          // Problem_solve: {
+          //   name: "문제해결",
+          //   content: {
+          //     "01": {
+          //       name: "Next.js Blog",
+          //       date: "2024-04-24",
+          //     },
+          //   },
+          // },
+        },
+      },
+    },
+  },
+  // Backend: {
+  //   name: "백엔드(Backend)",
   //   sub: {
-  //     Next_js: {
-  //       name: "Next.js",
+  //     Nodejs: {
+  //       name: "Node.js",
   //       title: {
-  //         Blog: {
-  //           name: "블로그 개발기",
+  //         Nodejs: {
+  //           name: "Node.js",
   //           content: {
-  //             "1": "Next.js Blog",
-  //           },
-  //         },
-  //         Problem_solve: {
-  //           name: "문제해결",
-  //           content: {
-  //             "1": "Next.js Error",
+  //             "1": "Node.js Blog",
   //           },
   //         },
   //       },
   //     },
-  //     // React: "리액트(React)",
-  //     // Vue: "뷰(Vue)",
-  //     // Spring: "스프링(Spring)",
   //   },
   // },
-  Test: {
-    name: "테스트(Test)",
+  Others: {
+    name: "기타(Others)",
     sub: {
-      Test: {
-        name: "테스트(Test)",
+      tools: {
+        name: "개발도구(Tools)",
         title: {
-          Test: {
-            name: "테스트(Test)",
+          git: {
+            name: "git/github",
             content: {
               "01": {
-                name: "테스트(Test)",
-                date: "1999-10-02",
+                name: "Repository 얕은 복사하기",
+                date: "2024-06-06",
               },
             },
           },

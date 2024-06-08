@@ -1,0 +1,35 @@
+협업 프로젝트를 진행할 때, 주로 Organization을 생성하고 그 안에서 Repository를 생성하여 협업을 진행한다.
+프로젝트 종료 후, Reopsitory를 온전히 나의 소유로 가져오고 싶을 때가 있다.
+이럴 때, Repository를 Fork하여 가져올 수 있지만 원본 Repository를 계속 관리해야 하는 단점이 있다.
+이럴 때 Repository를 `--mirror` 옵션을 사용하여 내 github에 복사하는 방법을 알아보자.
+
+## 새로운 Repository 생성하기
+기존 Repository를 복사할 새로운 Repository를 생성한다.
+1. github 로그인 후 다음 링크로 이동 https://github.com/new
+2. 옮겨담을 Repository name을 입력
+3. Public 또는 Private을 선택
+4. Create repository 버튼 클릭
+	<Img src="/posts/240606-152842.png" alt="240606-152842" width="600"/>
+
+## 로컬에서 Repository 복사 및 push 하기
+5. 기존에 존재하던 *복사 대상 Repository 주소*를 복사한다.
+	<Img src="/posts/240606-154630.png" alt="240606-154630" width="800"/>
+6. 본인 컴퓨터에 적당한 위치에 다음 명령어로 clone한다.
+	`git clone {5번에서 복사한 Repository 주소}{:bash}`
+	<Img src="/posts/240606-154920.png" alt="240606-154920" width="600"/>
+7. clone된 Repository로 이동한다. (여기서는 `cd Old_repo{:bash}`)
+	`cd {Repository 이름}{:bash}`
+8. `--mirror` 옵션을 사용하여 원본 Repository를 새로운 레포지토리로 push한다.
+	`git remote set-url --push origin {새로운 Repository 주소}{:bash}`
+	`git push --mirror{:bash}`
+	<Img src="/posts/240606-155454.png" alt="240606-155454" width="900" />
+
+
+## 결과 확인
+새로 생성한 Repository로 이동하여 정상적으로 push 되었는지 확인한다.
+추가적으로 커밋 내역이 정상적으로 복사되었는지 확인한다.
+<Img src="/posts/240606-155552.png" alt="240606-155552" width="800"/>
+
+## 참고
+[github docs](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/duplicating-a-repository)
+[기존 Git Repository를 복사하여 새로운 Repository 만들기](https://projooni.tistory.com/entry/%EA%B8%B0%EC%A1%B4-Git-Repository%EB%A5%BC-%EB%B3%B5%EC%82%AC%ED%95%98%EC%97%AC-%EC%83%88%EB%A1%9C%EC%9A%B4-Repository-%EB%A7%8C%EB%93%A4%EA%B8%B0)
