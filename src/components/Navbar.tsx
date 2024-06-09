@@ -34,14 +34,12 @@ export const Navbar = () => {
             <Menubar
               key={index}
               className={
-                "hidden rounded-none  bg-slate-700 hover:bg-slate-200 md:block"
+                "hidden rounded-none border-x-2 border-none hover:bg-slate-200 md:block"
               }
             >
               <MenubarMenu>
                 <MenubarTrigger
-                  className={
-                    "font-bold text-white hover:cursor-pointer hover:text-black"
-                  }
+                  className={"font-bold hover:cursor-pointer hover:text-black"}
                 >
                   {name}
                 </MenubarTrigger>
