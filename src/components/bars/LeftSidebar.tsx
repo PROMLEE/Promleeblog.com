@@ -15,20 +15,30 @@ const LeftSidebarComp = () => {
         {Object.keys(CategoryKo).map((key, index) => {
           const name = CategoryKo[key].name.split("(")[0];
           return (
-            <AccordionItem value={name} key={index}>
+            <AccordionItem
+              value={name}
+              key={index}
+              className="border-white p-2 hover:bg-slate-800"
+            >
               <AccordionTrigger>{name}</AccordionTrigger>
               {Object.keys(CategoryKo[key].sub).map((subKey, index) => {
                 const subName = CategoryKo[key].sub[subKey].name.split("(")[0];
                 return (
-                  <AccordionContent key={index}>
+                  <AccordionContent key={index} className="p-0">
                     <Accordion type="multiple">
-                      <AccordionItem value={subName}>
-                        <AccordionTrigger key={index}>
+                      <AccordionItem
+                        value={subName}
+                        className="m-0 border-slate-400 p-2 pb-0 hover:bg-slate-600"
+                      >
+                        <AccordionTrigger key={index} className="text-md py-3">
                           {subName}
                         </AccordionTrigger>
-                        <AccordionContent>
+                        <AccordionContent className="p-0">
                           <Accordion type="multiple">
-                            <AccordionItem value={subName}>
+                            <AccordionItem
+                              value={subName}
+                              className="border-slate-600 p-2"
+                            >
                               {Object.keys(
                                 CategoryKo[key].sub[subKey].title,
                               ).map((titleKey, index) => {
@@ -36,14 +46,19 @@ const LeftSidebarComp = () => {
                                   CategoryKo[key].sub[subKey].title[titleKey]
                                     .name;
                                 return (
-                                  <AccordionItem value={titleName} key={index}>
-                                    <Link
-                                      href={`/blog/${key}/${subKey}/${titleKey}`}
+                                  <Link
+                                    href={`/blog/${key}/${subKey}/${titleKey}`}
+                                    key={index}
+                                    className="text-xs"
+                                  >
+                                    <AccordionItem
+                                      value={titleName}
                                       key={index}
+                                      className=" border-none p-2  pb-0 hover:bg-slate-400 hover:font-bold hover:text-black"
                                     >
                                       {titleName}
-                                    </Link>
-                                  </AccordionItem>
+                                    </AccordionItem>
+                                  </Link>
                                 );
                               })}
                             </AccordionItem>

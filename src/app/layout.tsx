@@ -4,7 +4,7 @@ import React from "react";
 import { Gothic_A1 } from "next/font/google";
 import { Theme } from "@/components/Theme";
 import AutoRefresh from "./AutoRefresh";
-import { Navbar } from "@/components/Navbar";
+import { Navbar } from "@/components/bars/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";

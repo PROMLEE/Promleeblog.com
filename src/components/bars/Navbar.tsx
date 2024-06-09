@@ -12,8 +12,8 @@ import {
 import Link from "next/link";
 import { DarkmodeButton } from "@/components/Darkmodebutton";
 import { CategoryKo } from "@/config/koname";
-import LeftSidebarComp from "@/components/LeftSidebar";
-import { Button } from "./ui/button";
+import LeftSidebarComp from "@/components/bars/LeftSidebar";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 export const Navbar = () => {
