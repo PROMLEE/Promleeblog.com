@@ -1,3 +1,11 @@
+interface ProjectType {
+  name: string;
+  url: string;
+  date: string;
+  contents: string;
+  role: string;
+}
+
 export const Projects = () => {
   return (
     <div className="w-full">
@@ -61,32 +69,12 @@ export const Projects = () => {
             </a>
           </p>
           <figure>
-            <div>
-              <a href="%E1%84%8B%E1%85%B5%E1%84%83%E1%85%A9%E1%86%BC%E1%84%92%E1%85%AE%E1%86%AB%20%E1%84%83%E1%85%A9%E1%84%8C%E1%85%A5%E1%86%AB%E1%84%8B%E1%85%B3%E1%86%AF%20%E1%84%83%E1%85%AE%E1%84%85%E1%85%A7%E1%84%8B%E1%85%AF%20%E1%84%8B%E1%85%A1%E1%86%AD%E1%84%82%E1%85%B3%E1%86%AB%20%E1%84%80%E1%85%A2%E1%84%87%E1%85%A1%E1%86%AF%E1%84%8C%E1%85%A1%20e75fdfd6aa4d404984e135918e59f0df/Final_report_team7.pdf">
-                final_report
-              </a>
-            </div>
+            <div>final_report</div>
           </figure>
           <figure>
-            <div>
-              <a href="%E1%84%8B%E1%85%B5%E1%84%83%E1%85%A9%E1%86%BC%E1%84%92%E1%85%AE%E1%86%AB%20%E1%84%83%E1%85%A9%E1%84%8C%E1%85%A5%E1%86%AB%E1%84%8B%E1%85%B3%E1%86%AF%20%E1%84%83%E1%85%AE%E1%84%85%E1%85%A7%E1%84%8B%E1%85%AF%20%E1%84%8B%E1%85%A1%E1%86%AD%E1%84%82%E1%85%B3%E1%86%AB%20%E1%84%80%E1%85%A2%E1%84%87%E1%85%A1%E1%86%AF%E1%84%8C%E1%85%A1%20e75fdfd6aa4d404984e135918e59f0df/Manual_report.pdf">
-                Manual_report
-              </a>
-            </div>
+            <div>Manual_report</div>
           </figure>
           <p>2023.09.01 ~ 2023.12.15</p>
-          <p></p>
-          <p></p>
-          <h2>Map: 2 Zero</h2>
-          <p>
-            <a href="https://github.com/team-ecolink/map2zero-frontend?tab=readme-ov-file#readme-top">
-              Github: Map: 2 Zero
-            </a>
-          </p>
-          <p>2024.01.05 ~ 2024.02.25</p>
-          <p></p>
-        </div>
-        <div>
           <ul>
             <li>
               Contents
@@ -103,17 +91,18 @@ export const Projects = () => {
               My Role
               <ul>
                 <li>딥 러닝 모델 생성 및 이미지 처리</li>
-              </ul>
-              <ul>
                 <li>Flask API 제작 및 배포</li>
-              </ul>
-              <ul>
                 <li>React 기반 부가기능 웹페이지 제작</li>
               </ul>
-              <p></p>
-              <p></p>
             </li>
           </ul>
+          <h2>Map: 2 Zero</h2>
+          <a href="https://github.com/team-ecolink/map2zero-frontend?tab=readme-ov-file#readme-top">
+            Github: Map: 2 Zero
+          </a>
+          <p>2024.01.05 ~ 2024.02.25</p>
+        </div>
+        <div>
           <ul>
             <li>
               Contents
@@ -128,8 +117,6 @@ export const Projects = () => {
                       서울시의 제로 웨이스트 샵 위치 조회하기(스마트 서울맵 API
                       기반)
                     </li>
-                  </ul>
-                  <ul>
                     <li>매장 제품 등록 및 관리</li>
                   </ul>
                 </li>
@@ -141,14 +128,9 @@ export const Projects = () => {
               My Role
               <ul>
                 <li>네이버 지도 연결 및 매장 데이터 연동</li>
-              </ul>
-              <ul>
                 <li>소셜 로그인 구현</li>
-              </ul>
-              <ul>
                 <li>점주의 매장 제품 등록 및 관리 폼 제작</li>
               </ul>
-              <p></p>
             </li>
           </ul>
         </div>
