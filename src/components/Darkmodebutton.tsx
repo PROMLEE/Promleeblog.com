@@ -39,7 +39,7 @@ export const DarkmodeButton = () => {
     </DropdownMenuItem>
   );
   return (
-    <div className="ml-auto mr-10 flex h-full content-center items-center">
+    <div className="ml-10 mr-10 flex h-full content-center items-center">
       <DropdownMenu>
         <DropdownMenuTrigger className="h-full text-lg">
           {theme === "light" ? "☀️" : theme === "dark" ? "🌙" : "🖥️"}
