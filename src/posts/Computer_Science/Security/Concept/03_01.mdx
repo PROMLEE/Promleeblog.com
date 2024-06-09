@@ -180,21 +180,23 @@ $a \times a^{-1} \equiv 1 \pmod{p}$이므로, <MathBox>$a^{-1} = a^{p-2} \pmod{p
 ## 중국인의 나머지 정리 (Chinese Remainder Theorem)
 <Bbox>
 
-$p$와 $q$가 서로소일 때, 두 방정식<br/>$x ≡ a \pmod{p}$<br/>$x ≡ b \pmod{p}$<br/>은 $pq$에 대한 $x$의 유일한 해를 가진다.
+$p$와 $q$가 서로소일 때, 두 방정식<br/>$x ≡ a \pmod{p}$<br/>$x ≡ b \pmod{q}$<br/>은 $pq$에 대한 $x$의 유일한 해를 가진다.
 </Bbox>
 
-#### 증명
-1. 존재성:
-
+### 증명
+1. **존재성**
 	$x = a \times q \times M_q + b \times p \times M_p \pmod{pq}$
-
 	여기서 $M_q$는 $q^{-1} \pmod{p}$이고, $M_p$는 $p^{-1} \pmod{q}$이다.
-
-2. 유일성:
-
+	- 예시
+		$x ≡ 3 \pmod{7}$이고 $x ≡ 5 \pmod{15}$일 때
+		$M_q = 15^{-1} \pmod{7} = 1$, $M_p = 7^{-1} \pmod{15} = 13$
+		$x = 3 * 15 * 1 + 5 * 7 * 13 = 500$이고, 이를 105로 나눈 나머지는 80이다.
+2. **유일성**
 	만약 $x ≡ y \pmod{p}$이고 $x ≡ y \pmod{q}$라면, $x - y$는 $p$와 $q$의 배수이다. 
-	
 	따라서, $x - y$는 $pq$의 배수이며 $x ≡ y \pmod{pq}$이다.
+	- 예시
+		$x ≡ 3 \pmod{7}$이고 $x ≡ 5 \pmod{15}$일 때
+		$x-y$는 7과 15의 배수이므로, $x ≡ y \pmod{105}$이다.
 
 #### 추가 설명
 

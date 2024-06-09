@@ -35,7 +35,7 @@ export const Navbar = () => {
               <Menubar
                 key={index}
                 className={
-                  "hidden rounded-none border-none hover:bg-slate-200 md:block"
+                  "hidden rounded-none border-none bg-transparent hover:bg-slate-200 md:block"
                 }
               >
                 <MenubarMenu>

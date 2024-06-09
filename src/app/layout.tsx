@@ -33,14 +33,14 @@ export default function RootLayout({
             <Navbar />
             <div
               className={
-                "min-h-[800px] w-full scroll-smooth border-2 px-10 pb-40 dark:border-slate-800 dark:bg-slate-950 md:w-5/6  xl:w-3/5"
+                "min-h-[800px] w-full scroll-smooth bg-background px-10 pb-40 md:w-5/6  xl:w-3/5"
               }
             >
               {children}
             </div>
             <Link href="#">
               <svg
-                className="fixed right-4 top-14 h-6 w-6 rounded-full bg-button"
+                className="fixed right-4 top-14 h-6 w-6 rounded-full bg-foreground"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -59,7 +59,7 @@ export default function RootLayout({
             </Link>
             <Link href="#bottom">
               <svg
-                className="fixed bottom-3 right-4 h-6 w-6 rounded-full bg-button"
+                className="fixed bottom-3 right-4 h-6 w-6 rounded-full bg-foreground"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"

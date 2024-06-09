@@ -5,7 +5,7 @@
 @layer base {
   :root {
     --background: 255, 255, 255;
-    --foreground: 200, 200, 200;
+    --foreground: 240, 240, 240;
 
     --button: 230, 230, 230;
     --button-foreground: 200, 200, 200;
@@ -37,7 +37,7 @@
 
   .dark {
     --background: 32, 33, 36;
-    --foreground: 71, 71, 71;
+    --foreground: 51, 65, 85;
 
     --button: 255, 255, 255;
     --button-foreground: 200, 200, 200;
@@ -102,7 +102,7 @@
 /* custom styles */
 @layer components {
   .topbar {
-    @apply flex h-12 w-full items-center justify-between border-b-2;
+    @apply flex h-12 w-full items-center justify-between bg-foreground;
   }
   .category {
     @apply my-5 block text-3xl font-bold text-blue-500 no-underline hover:underline;
@@ -120,13 +120,13 @@
     @apply mb-1 block rounded-md no-underline hover:bg-amber-200 dark:hover:bg-amber-800;
   }
   .sidebar-md {
-    @apply fixed right-0 top-[15%] h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl bg-gradient-to-r  p-3 shadow-lg dark:from-slate-900;
+    @apply fixed right-0 top-[15%] max-h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl p-3 shadow-inner;
   }
   .leftsidebar {
     @apply mb-1 block rounded-md no-underline;
   }
   .leftsidebar-md {
-    @apply fixed left-0 top-[15%] h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl bg-gradient-to-l  p-3 shadow-lg dark:from-slate-900;
+    @apply fixed left-2 top-[15%] max-h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl p-3 shadow-inner;
   }
 }
 
