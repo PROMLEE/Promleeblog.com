@@ -16,11 +16,31 @@ export const CategoryKo: CategoryKoinfo = {
                 name: "대칭 암호화(Symmetric Encryption)",
                 date: "2024-04-24",
               },
-              "03": {
+              "03_00": {
                 name: "공개 키 암호화 (Public Key Encryption)",
                 date: "2024-04-24",
               },
-              "04": {
+              "03_01": {
+                name: "공개 키 암호화 - 핵심 수론 (Essential Number Theory)",
+                date: "2024-04-24",
+              },
+              "03_02": {
+                name: "공개 키 암호화 - RSA 암호화 (RSA 암호화)",
+                date: "2024-04-24",
+              },
+              "03_03": {
+                name: "공개 키 암호화 - 이산 로그 문제 (Discrete Logarithm Problem)",
+                date: "2024-04-24",
+              },
+              "03_04": {
+                name: "공개 키 암호화 - 디피-헬만 키 교환 (Diffie-Hellman Key Exchange)",
+                date: "2024-04-24",
+              },
+              "03_05": {
+                name: "공개 키 암호화 - 엘가말 암호화 (Public Key Encryption)",
+                date: "2024-04-24",
+              },
+              "04_00": {
                 name: "디지털 서명 (Digital Signature)",
                 date: "2024-05-23",
               },

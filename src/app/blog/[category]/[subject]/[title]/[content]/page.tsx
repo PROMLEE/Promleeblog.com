@@ -40,6 +40,7 @@ const getPostDetail = async (params: params) => {
   return detail;
 };
 const parsePostDetail = async (postPath: string) => {
+  console.log(postPath);
   const file = fs.readFileSync(postPath, "utf8");
   const { data, content } = matter(file);
   const grayMatter = data as dbtable;
