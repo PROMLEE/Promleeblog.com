@@ -14,6 +14,7 @@ import RightSidebarComp from "@/components/RightSidebar";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { CategoryKo } from "@/config/koname";
 import Link from "next/link";
+import { Pw } from "@/components/Pw";
 export interface Post extends dbtable {
   url: string;
   slug: string;
@@ -63,6 +64,7 @@ const Post = async ({ params }: Props) => {
   const post = await getPostDetail(params);
   return (
     <div className="prose dark:prose-invert">
+      <Pw />
       <Link className={"category"} href={`/blog/${params.category}`}>
         {CategoryKo[params.category].name}
       </Link>

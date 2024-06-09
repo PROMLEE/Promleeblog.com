@@ -30,7 +30,6 @@ export default function RootLayout({
         <body>
           <Theme>
             <Navbar />
-            {/* <LeftSidebarComp /> */}
             <div
               className={
                 "min-h-[800px] w-full border-2 px-10 pb-40 dark:border-slate-800 dark:bg-slate-950 md:w-5/6  xl:w-3/5"
