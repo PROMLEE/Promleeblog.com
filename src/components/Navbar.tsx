@@ -75,6 +75,9 @@ export const Navbar = () => {
           </Menubar>
         );
       })}
+      <Link href={"/sitemap"} className="ml-auto">
+        sitemap
+      </Link>
       <DarkmodeButton />
     </div>
   );
