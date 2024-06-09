@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { CategoryKo } from "@/config/koname";
-
 function CategoryList() {
   const fs = require("fs");
   const path = `${process.cwd()}/src/posts`;
