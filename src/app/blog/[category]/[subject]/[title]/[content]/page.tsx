@@ -65,7 +65,8 @@ const Post = async ({ params }: Props) => {
   const post = await getPostDetail(params);
   return (
     <div className="prose dark:prose-invert">
-      <Pw />
+      {CategoryKo[params.category].sub[params.subject].title[params.title]
+        .content[params.content].lock && <Pw />}
       <Link className={"category"} href={`/blog/${params.category}`}>
         {CategoryKo[params.category].name}
       </Link>

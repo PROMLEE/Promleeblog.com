@@ -141,11 +141,21 @@ $\phi(n) = \prod _{i=1}^{n}(p_i^{e_i} - p_i^{e_i-1})$
 
 $\phi(p) = p - 1$ (p는 소수)
 
-#### 예시
+### 예시
 1. $\phi(6) = 2$ (6과 서로소인 수는 1, 5), $\phi(8) = 4$ (8과 서로소인 수는 1, 3, 5, 7)
 2. $m = 240$ 이라 하면, $240 = 2^4 * 3^1 * 5^1$이므로
 
 $\phi(240) = (2^4 - 2^3) * (3^1 - 3^0) * (5^1 - 5^0) = 64$
+
+## 오일러 정리 (Euler's Theorem)
+<Bbox>
+서로 소로수인 정수 $a$, 정수 $m$에 대하여, $a^{\phi(m)} \equiv 1 \pmod{m}$이다.
+</Bbox>
+
+### 예시
+$a = 5, m = 12$ 일 때, $\phi(12) = \phi(2^2 * 3^1) = (2^2 - 2^1) * (3^1 - 3^0) = 4$이다.
+$\because (1, 5, 7, 11)$
+따라서, $5^4 \equiv 1 \pmod{12}$이다.
 
 ## 페르마의 소정리 (Fermat's Little Theorem)
 <Bbox>
@@ -167,17 +177,6 @@ $\phi(240) = (2^4 - 2^3) * (3^1 - 3^0) * (5^1 - 5^0) = 64$
 $a\times a \times a \times ... \times a \equiv a  \pmod{p}$이므로, <MathBox>$a^{p-1} \equiv 1 \pmod{p}$</MathBox>이다.
 $a \times a^{-1} \equiv 1 \pmod{p}$이므로, <MathBox>$a^{-1} = a^{p-2} \pmod{p}$</MathBox>이다.
 
-
-## 오일러 정리 (Euler's Theorem)
-<Bbox>
-
-서로 소로수인 정수 $a$, 정수 $m$에 대하여, $a^{\phi(m)} \equiv 1 \pmod{m}$이다.
-</Bbox>
-
-#### 예시
-$a = 5, m = 12$ 일 때, $\phi(12) = \phi(2^2 * 3^1) = (2^2 - 2^1) * (3^1 - 3^0) = 4$이다.
-$\because (1, 5, 7, 11)$
-따라서, $5^4 \equiv 1 \pmod{12}$이다.
 
 ## 중국인의 나머지 정리 (Chinese Remainder Theorem)
 <Bbox>

@@ -11,38 +11,47 @@ export const CategoryKo: CategoryKoinfo = {
               "01": {
                 name: "암호화(Encryption)",
                 date: "2024-04-24",
+                lock: true,
               },
               "02": {
                 name: "대칭 암호화(Symmetric Encryption)",
                 date: "2024-04-24",
+                lock: true,
               },
               "03_00": {
                 name: "공개 키 암호화 (Public Key Encryption)",
                 date: "2024-04-24",
+                lock: true,
               },
               "03_01": {
                 name: "공개 키 암호화 - 핵심 수론 (Essential Number Theory)",
                 date: "2024-04-24",
+                lock: true,
               },
               "03_02": {
                 name: "공개 키 암호화 - RSA 암호화 (RSA 암호화)",
                 date: "2024-04-24",
+                lock: true,
               },
               "03_03": {
                 name: "공개 키 암호화 - 이산 로그 문제 (Discrete Logarithm Problem)",
                 date: "2024-04-24",
+                lock: true,
               },
               "03_04": {
                 name: "공개 키 암호화 - 디피-헬만 키 교환 (Diffie-Hellman Key Exchange)",
                 date: "2024-04-24",
+                lock: true,
               },
               "03_05": {
                 name: "공개 키 암호화 - 엘가말 암호화 (Public Key Encryption)",
                 date: "2024-04-24",
+                lock: true,
               },
               "04_00": {
                 name: "디지털 서명 (Digital Signature)",
                 date: "2024-05-23",
+                lock: true,
               },
             },
           },
@@ -57,22 +66,27 @@ export const CategoryKo: CategoryKoinfo = {
               "01": {
                 name: "WireShark 다루기",
                 date: "",
+                lock: true,
               },
               "02": {
                 name: "TCP/UDP 소켓 프로그래밍하기",
                 date: "",
+                lock: true,
               },
               "03": {
                 name: "Multiple Client Server 프로그래밍하기",
                 date: "2024-04-27",
+                lock: true,
               },
               "04": {
                 name: "Client-Server 채팅 서버 구현하기",
                 date: "2024-05-11",
+                lock: true,
               },
               "05": {
                 name: "DC 전력선 통신을 위한 안정적이고 효율적인 프로토콜 설계",
                 date: "2024-06-07",
+                lock: true,
               },
             },
           },
@@ -82,22 +96,27 @@ export const CategoryKo: CategoryKoinfo = {
               "01": {
                 name: "TCP/IP",
                 date: "",
+                lock: true,
               },
               "02": {
                 name: "TCP/IP",
                 date: "",
+                lock: true,
               },
               "03": {
                 name: "전송계층 (Transport Layer)",
                 date: "2024-04-30",
+                lock: true,
               },
               "04": {
                 name: "네트워크 계층 (Network Layer)",
                 date: "2024-05-21",
+                lock: true,
               },
               "05": {
                 name: "네트워크 계층 - 제어 평면 (Network Layer - Control Plane)",
                 date: "2024-05-21",
+                lock: true,
               },
             },
           },
@@ -107,22 +126,27 @@ export const CategoryKo: CategoryKoinfo = {
               "01": {
                 name: "TCP/IP",
                 date: "2024-04-22",
+                lock: true,
               },
               "02": {
                 name: "Network",
                 date: "2024-04-22",
+                lock: true,
               },
               "03": {
                 name: "Network",
                 date: "2024-04-22",
+                lock: true,
               },
               "04": {
                 name: "Network",
                 date: "2024-04-22",
+                lock: true,
               },
               "05": {
                 name: "Network",
                 date: "2024-04-22",
+                lock: true,
               },
             },
           },
@@ -137,18 +161,23 @@ export const CategoryKo: CategoryKoinfo = {
               // "01": {
               //   name: "Cellular System",
               //   date: "2024-04-24",
+
+              // lock: true
               // },
               "02": {
                 name: "무선전파와 샘플링 (Wireless Propagation and Sampling)",
                 date: "2024-04-24",
+                lock: true,
               },
               "03": {
                 name: "소스 및 채널 코딩 (Source and Channel Coding)",
                 date: "2024-04-29",
+                lock: true,
               },
               "04": {
                 name: "멀티플렉싱 - MAC (Multiplexing - MAC)",
                 date: "2024-05-13",
+                lock: true,
               },
             },
           },
@@ -163,22 +192,27 @@ export const CategoryKo: CategoryKoinfo = {
               "01": {
                 name: "프론트엔드 (Frontend)",
                 date: "",
+                lock: true,
               },
               "02": {
                 name: "백엔드 (Backend)",
                 date: "",
+                lock: true,
               },
               "03": {
                 name: "데이터베이스 (Database)",
                 date: "",
+                lock: true,
               },
               "04": {
                 name: "네트워크 (Network)",
                 date: "",
+                lock: true,
               },
               "05": {
                 name: "보안 (Security)",
                 date: "",
+                lock: true,
               },
             },
           },
@@ -203,22 +237,27 @@ export const CategoryKo: CategoryKoinfo = {
               "08": {
                 name: "확률 변수의 함수 (Function of Random Variable)",
                 date: "2024-05-01",
+                lock: true,
               },
               "09": {
                 name: "결합 확률 질랑 함수 (Joint PMF)",
                 date: "2024-04-29",
+                lock: true,
               },
               "10": {
                 name: "조건부 확률 질량 함수 (Conditional PMF)",
                 date: "2024-05-01",
+                lock: true,
               },
               "12": {
                 name: "결정 트리 & 랜덤 포레스트 (Decision Tree & Random Forest)",
                 date: "2024-05-13",
+                lock: true,
               },
               "13": {
                 name: "연속 확률 변수 (Continuous Random Variable)",
                 date: "2024-05-22",
+                lock: true,
               },
             },
           },
@@ -241,22 +280,27 @@ export const CategoryKo: CategoryKoinfo = {
               "01": {
                 name: "소프트웨어 설계",
                 date: "2024-05-03",
+                lock: true,
               },
               "02": {
                 name: "소프트웨어 개발",
                 date: "2024-05-07",
+                lock: true,
               },
               "03": {
                 name: "데이터베이스 구축",
                 date: "",
+                lock: true,
               },
               "04": {
                 name: "프로그래밍 언어 활용",
                 date: "",
+                lock: true,
               },
               "05": {
                 name: "정보시스템 구축 관리",
                 date: "",
+                lock: true,
               },
             },
           },
@@ -287,6 +331,7 @@ export const CategoryKo: CategoryKoinfo = {
               "01": {
                 name: "Next.js Blog",
                 date: "2024-04-24",
+                lock: true,
               },
             },
           },
@@ -296,6 +341,7 @@ export const CategoryKo: CategoryKoinfo = {
           //     "01": {
           //       name: "Next.js Blog",
           //       date: "2024-04-24",
+          // lock: true,
           //     },
           //   },
           // },
@@ -331,6 +377,7 @@ export const CategoryKo: CategoryKoinfo = {
               "01": {
                 name: "Repository 얕은 복사하기",
                 date: "2024-06-06",
+                lock: false,
               },
             },
           },
@@ -353,6 +400,7 @@ interface CategoryKoinfo {
               [key: string]: {
                 name: string;
                 date: string;
+                lock: boolean;
               };
             };
           };
