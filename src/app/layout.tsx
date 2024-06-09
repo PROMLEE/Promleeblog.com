@@ -6,7 +6,8 @@ import { Theme } from "@/components/Theme";
 import AutoRefresh from "./AutoRefresh";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import LeftSidebarComp from "@/components/LeftSidebar";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "PromleeBlog by Nextjs",
@@ -32,11 +33,49 @@ export default function RootLayout({
             <Navbar />
             <div
               className={
-                "min-h-[800px] w-full border-2 px-10 pb-40 dark:border-slate-800 dark:bg-slate-950 md:w-5/6  xl:w-3/5"
+                "min-h-[800px] w-full scroll-smooth border-2 px-10 pb-40 dark:border-slate-800 dark:bg-slate-950 md:w-5/6  xl:w-3/5"
               }
             >
               {children}
             </div>
+            <Link href="#">
+              <svg
+                className="fixed right-4 top-14 h-6 w-6 rounded-full bg-button"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="black"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m5 15 7-7 7 7"
+                />
+              </svg>
+            </Link>
+            <Link href="#bottom">
+              <svg
+                className="fixed bottom-3 right-4 h-6 w-6 rounded-full bg-button"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="black"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m19 9-7 7-7-7"
+                />
+              </svg>
+            </Link>
             <Footer />
           </Theme>
         </body>

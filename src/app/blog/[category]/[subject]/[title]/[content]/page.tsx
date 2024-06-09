@@ -64,7 +64,7 @@ const parsePost = async (postPath: string): Promise<any> => {
 const Post = async ({ params }: Props) => {
   const post = await getPostDetail(params);
   return (
-    <div className="prose dark:prose-invert">
+    <div className="prose scroll-smooth dark:prose-invert">
       {CategoryKo[params.category].sub[params.subject].title[params.title]
         .content[params.content].lock && <Pw />}
       <Link className={"category"} href={`/blog/${params.category}`}>
