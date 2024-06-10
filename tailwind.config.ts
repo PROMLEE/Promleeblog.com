@@ -22,6 +22,10 @@ const config: Config = {
         ring: "hsl(var(--ring))",
         background: "rgba(var(--background) , <alpha-value>)",
         foreground: "rgba(var(--foreground) , <alpha-value>)",
+        text: {
+          DEFAULT: "rgba(var(--text) , <alpha-value>)",
+          foreground: "rgba(var(--text-foreground) , <alpha-value>)",
+        },
         primary: {
           DEFAULT: "rgba(var(--primary) , <alpha-value>)",
           foreground: "rgba(var(--primary-foreground) , <alpha-value>)",

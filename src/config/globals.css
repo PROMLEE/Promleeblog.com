@@ -7,6 +7,9 @@
     --background: 255, 255, 255;
     --foreground: 240, 240, 240;
 
+    --text: 51, 65, 85;
+    --text-foreground: 255, 255, 255;
+
     --button: 71, 85, 105;
     --button-foreground: 255, 255, 255;
 
@@ -42,6 +45,9 @@
     --background: 32, 33, 36;
     --foreground: 51, 65, 85;
 
+    --text: 203, 213, 225;
+    --text-foreground: 51, 65, 85;
+
     --button: 255, 255, 255;
     --button-foreground: 71, 85, 105;
 
@@ -71,7 +77,7 @@
     --ring: 212.7 26.8% 83.9%;
   }
   * {
-    @apply border-border text-slate-700 dark:text-slate-300;
+    @apply border-border text-text;
   }
   body {
     @apply flex w-full flex-col bg-background xl:items-center;
@@ -85,23 +91,58 @@
   div > span > span > span > span > span {
     @apply m-0;
   }
-  ul,
-  ol {
-    @apply mt-5 marker:dark:text-white;
+  blockquote {
+    @apply border-text bg-muted py-2;
   }
-  ul > li > ul {
-    @apply dark:list-["৹__"];
+  .prose ul > li > ul {
+    @apply list-["৹__"];
   }
-  ul > li > ul > li > ul {
+  .prose ul > li > ul > li > ul {
     @apply dark:list-["▪__"];
   }
+  .prose pre > code {
+    display: grid;
+  }
+  .prose pre span[data-line] {
+    @apply inline-block px-4 py-0.5 leading-snug;
+  }
 
-  /* ul > li > ul,
-  ol > li > ul {
-    @apply mb-4;
-  } */
-  blockquote {
-    @apply bg-muted py-2 dark:border-white;
+  /* Fenced Code block - line number style */
+  .prose code[data-line-numbers] {
+    counter-reset: line;
+  }
+
+  .prose code[data-line-numbers] > span[data-line]::before {
+    counter-increment: line;
+    content: counter(line);
+    display: inline-block;
+    width: 0.75rem;
+    margin-right: 1.25rem;
+    text-align: right;
+    color: gray;
+  }
+  /* Fenced Code block - line hightlight */
+  .prose code span[data-highlighted-line] {
+    @apply border-y-0 border-l-2 border-blue-400 border-transparent 
+          bg-indigo-400 bg-opacity-10 pl-[calc(1rem-2px)] dark:border-blue-500
+          dark:bg-slate-700;
+  }
+  /* Fenced Code block - with title style*/
+  .prose figcaption[data-rehype-pretty-code-title] {
+    @apply rounded-t-lg border border-b-0 border-gray-200 bg-gray-200 px-5 py-3 font-mono text-sm font-bold text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200;
+  }
+  .prose figcaption[data-rehype-pretty-code-title] + pre {
+    @apply mt-0 rounded-t-none;
+  }
+  /* Inline code block backtick display: none */
+  .prose :not(pre) > code::before,
+  .prose :not(pre) > code::after {
+    display: none;
+  }
+
+  /* inline code block style */
+  .prose :not(pre) > code {
+    @apply rounded border border-gray-200 bg-white px-1 py-0.5 align-middle font-mono text-sm font-normal dark:border-gray-700 dark:bg-gray-900;
   }
 }
 
@@ -134,50 +175,4 @@
   .leftsidebar-md {
     @apply fixed left-2 top-[15%] max-h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl p-3 shadow-inner;
   }
-}
-
-.prose pre > code {
-  display: grid;
-}
-.prose pre span[data-line] {
-  @apply inline-block px-4 py-0.5 leading-snug;
-}
-
-/* Fenced Code block - line number style */
-.prose code[data-line-numbers] {
-  counter-reset: line;
-}
-
-.prose code[data-line-numbers] > span[data-line]::before {
-  counter-increment: line;
-  content: counter(line);
-
-  display: inline-block;
-  width: 0.75rem;
-  margin-right: 1.25rem;
-  text-align: right;
-  color: gray;
-}
-/* Fenced Code block - line hightlight */
-.prose code span[data-highlighted-line] {
-  @apply border-y-0 border-l-2 border-blue-400 border-transparent 
-        bg-indigo-400 bg-opacity-10 pl-[calc(1rem-2px)] dark:border-blue-500
-        dark:bg-slate-700;
-}
-/* Fenced Code block - with title style*/
-.prose figcaption[data-rehype-pretty-code-title] {
-  @apply rounded-t-lg border border-b-0 border-gray-200 bg-gray-200 px-5 py-3 font-mono text-sm font-bold text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200;
-}
-.prose figcaption[data-rehype-pretty-code-title] + pre {
-  @apply mt-0 rounded-t-none;
-}
-/* Inline code block backtick display: none */
-.prose :not(pre) > code::before,
-.prose :not(pre) > code::after {
-  display: none;
-}
-
-/* inline code block style */
-.prose :not(pre) > code {
-  @apply rounded border border-gray-200 bg-white px-1 py-0.5 align-middle font-mono text-sm font-normal dark:border-gray-700 dark:bg-gray-900;
 }

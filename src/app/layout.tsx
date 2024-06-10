@@ -33,49 +33,11 @@ export default function RootLayout({
             <Navbar />
             <div
               className={
-                "min-h-[800px] w-full scroll-smooth bg-background px-10 pb-40  focus:scroll-auto md:w-5/6 xl:w-3/5"
+                "min-h-[800px] w-full scroll-smooth bg-background px-10 focus:scroll-auto md:w-5/6 xl:w-3/5"
               }
             >
               {children}
             </div>
-            <Link href="#">
-              <svg
-                className="fixed right-4 top-14 h-6 w-6 rounded-full bg-foreground"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke="black"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="m5 15 7-7 7 7"
-                />
-              </svg>
-            </Link>
-            <Link href="#bottom">
-              <svg
-                className="fixed bottom-3 right-4 h-6 w-6 rounded-full bg-foreground"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke="black"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="m19 9-7 7-7-7"
-                />
-              </svg>
-            </Link>
             <Footer />
           </Theme>
         </body>
