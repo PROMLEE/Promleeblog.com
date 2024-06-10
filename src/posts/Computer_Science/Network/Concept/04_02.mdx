@@ -1,0 +1,28 @@
+# 라우터 안에 무엇이 있을까 (What's Inside a Router)
+## 스케줄링 매커니즘 (Scheduling Mechanisms)
+- 스케줄링: 링크에서 보낼 다음 패킷 선택
+- FIFO 스케줄링: 가장 간단한 스케줄링 방법
+	- 큐에 도착한 순서대대로 전송(a.k.a FCFS)
+	- 패킷 도착 $\rightarrow$ 큐(대기 구역) $\rightarrow$ 링크(서버) $\rightarrow$ 패킷 출발
+- 패킷 정책: 패킷이 꽉 찬 큐에 도착할 경우 누가 폐기될 것인가
+	- 테일 드롭(tail drop): 도착하는 패킷을 폐기
+	- 우선순위 드롭(priority drop): 우선순위가 낮은 패킷을 폐기
+	- 랜덤 드롭(random drop): 랜덤하게 패킷을 폐기
+	- 기타: RED(Random Early Detection), WRED(Weighted RED), BLUE, ...
+<Bbox> TCP에서는 주로 랜덤 드롭, RED 등 사용 </Bbox>
+
+## 스케줄링 정책: 우선순위 (Scheduling Policies: Priority)
+- 더 높은 우선순위의 큐에 있는 패킷을 먼저 전송함
+- 여러 클래스가 서로 다른 우선순위를 가짐
+	- 클래스는 마킹 또는 기타 헤더 정보(IP 출발지/목적지, 포트 번호 등)에 따라 결정 가능
+		- 제어 패킷 vs 데이터 패킷, VoIP 등
+
+보통 2개 이상의 우선순위가 있을 수 있으며 비 선점형이다.
+
+### 라운드 로빈 스케줄링: RR (Round Robin Scheduling)
+- 여러 클래스
+- 클래스 큐를 순환적으로 스캔하여 각 클래스에서 하나의 완전한 패킷 전송
+
+### 가중치 공정 큐잉 스케줄링: WFQ (Weighted Fair Queuing Scheduling)
+- 일반화된 라운드 로빈
+- 각 클래스는 각 사이클에서 가중치에 따른 서비스 양을 받음

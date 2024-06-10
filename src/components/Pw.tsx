@@ -17,12 +17,21 @@ import {
 export function Pw() {
   const [value, setValue] = React.useState("");
   const [isOpen, setIsOpen] = React.useState(true);
+  const getpw = () => {
+    if (typeof window !== "undefined") {
+      const pw = localStorage.getItem("promleeblogpostpw");
+      if (pw === null) return;
+      else setValue(pw);
+    }
+  };
 
   React.useEffect(() => {
+    getpw();
     if (value.length === 4) {
       const PW = process.env.NEXT_PUBLIC_POST_PW;
       if (value === PW) {
         setIsOpen(false);
+        localStorage.setItem("promleeblogpostpw", PW);
       } else {
         alert("비밀번호가 틀렸습니다.");
         setValue("");

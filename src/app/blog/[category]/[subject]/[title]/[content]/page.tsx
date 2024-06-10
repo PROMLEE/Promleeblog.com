@@ -10,11 +10,19 @@ import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import remarkMath from "remark-math";
 import rehypeSlug from "rehype-slug";
-import RightSidebarComp from "@/components/RightSidebar";
+import RightSidebarComp from "@/components/bars/RightSidebar";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { CategoryKo } from "@/config/koname";
 import Link from "next/link";
 import { Pw } from "@/components/Pw";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 export interface Post extends dbtable {
   url: string;
   slug: string;
@@ -40,6 +48,7 @@ const getPostDetail = async (params: params) => {
   return detail;
 };
 const parsePostDetail = async (postPath: string) => {
+  console.log(postPath);
   const file = fs.readFileSync(postPath, "utf8");
   const { data, content } = matter(file);
   const grayMatter = data as dbtable;
@@ -63,100 +72,116 @@ const parsePost = async (postPath: string): Promise<any> => {
 const Post = async ({ params }: Props) => {
   const post = await getPostDetail(params);
   return (
-    <div className="prose dark:prose-invert">
-      <Pw />
-      <Link className={"category"} href={`/blog/${params.category}`}>
-        {CategoryKo[params.category].name}
-      </Link>
-      <Link
-        className={"subject"}
-        href={`/blog/${params.category}/${params.subject}`}
-      >
-        {CategoryKo[params.category].sub[params.subject].name}
-      </Link>
-      <Link
-        className={"title"}
-        href={`/blog/${params.category}/${params.subject}/${params.title}`}
-      >
-        {
-          CategoryKo[params.category].sub[params.subject].title[params.title]
-            .name
-        }
-      </Link>
-      <div className={"content"}>
-        {params.content}.{" "}
-        {
-          CategoryKo[params.category].sub[params.subject].title[params.title]
-            .content[params.content].name
-        }
-      </div>
-      <div className={"mt-4 text-right text-slate-500"}>
-        {"📅 " +
-          CategoryKo[params.category].sub[params.subject].title[params.title]
-            .content[params.content].date}
-      </div>
-      <RightSidebarComp content={post.content} />
-      <MDXRemote
-        source={post.content}
-        //@ts-ignore
-        components={components}
-        options={{
-          parseFrontmatter: true,
-          mdxOptions: {
-            remarkPlugins: [remarkGfm, remarkBreaks, remarkMath],
-            rehypePlugins: [
-              [
-                // 이슈 존재 https://github.com/hashicorp/next-mdx-remote/issues/86
-                //@ts-ignore
-                rehypePrettyCode,
-              ],
-              [
-                //@ts-ignore
-                rehypeKatex,
-                {
-                  colorIsTextColor: true,
-                  strict: false,
-                },
-              ],
-              rehypeSlug,
-              [
-                rehypeAutolinkHeadings,
-                {
-                  behavior: "append",
-                  properties: {
-                    className: ["anchor"],
+    <>
+      {CategoryKo[params.category].sub[params.subject].title[params.title]
+        .content[params.content].lock && <Pw />}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href={`/blog/${params.category}`}>
+              {CategoryKo[params.category].name}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href={`/blog/${params.category}/${params.subject}`}>
+              {CategoryKo[params.category].sub[params.subject].name}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />{" "}
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              href={`/blog/${params.category}/${params.subject}/${params.title}`}
+            >
+              {
+                CategoryKo[params.category].sub[params.subject].title[
+                  params.title
+                ].name
+              }
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage className="font-bold text-white">
+              {
+                CategoryKo[params.category].sub[params.subject].title[
+                  params.title
+                ].content[params.content].name
+              }
+            </BreadcrumbPage>
+          </BreadcrumbItem>
+          <div className={"ml-auto text-right text-slate-500"}>
+            {"📅 " +
+              CategoryKo[params.category].sub[params.subject].title[
+                params.title
+              ].content[params.content].date}
+          </div>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <div className="prose scroll-smooth dark:prose-invert">
+        <RightSidebarComp content={post.content} />
+        <MDXRemote
+          source={post.content}
+          //@ts-ignore
+          components={components}
+          options={{
+            parseFrontmatter: true,
+            mdxOptions: {
+              remarkPlugins: [remarkGfm, remarkBreaks, remarkMath],
+              rehypePlugins: [
+                [
+                  // 이슈 존재 https://github.com/hashicorp/next-mdx-remote/issues/86
+                  //@ts-ignore
+                  rehypePrettyCode,
+                ],
+                [
+                  //@ts-ignore
+                  rehypeKatex,
+                  {
+                    colorIsTextColor: true,
+                    strict: false,
                   },
+                ],
+                rehypeSlug,
+                [
+                  rehypeAutolinkHeadings,
+                  {
+                    behavior: "append",
+                    properties: {
+                      className: ["anchor"],
+                    },
 
-                  content: {
-                    type: "element",
-                    tagName: "span",
-                    properties: { className: ["icon", "icon-link"] },
-                    children: [{ type: "text", value: "🔗" }],
+                    content: {
+                      type: "element",
+                      tagName: "span",
+                      properties: { className: ["icon", "icon-link"] },
+                      children: [{ type: "text", value: "🔗" }],
+                    },
                   },
-                },
+                ],
               ],
-            ],
-          },
-        }}
-      />
-      {/*For MySQL... Maybe Later...*/}
-      {/*{markdownsource.map((data: dbtable, idx: any) => (*/}
-      {/*  <div key={idx}>*/}
-      {/*    <h1 className={"text-pink-600 hover:text-amber-500"}>*/}
-      {/*      {data.title}*/}
-      {/*    </h1>*/}
-      {/*    <p>{data.description}</p>*/}
-      {/*    <p>{data.date.toString()}</p>*/}
-      {/*    <p>{data.thumbnail}</p>*/}
-      {/*    <MDXRemote*/}
-      {/*      source={data.content}*/}
-      {/*      components={MyComponents}*/}
-      {/*      options={{ parseFrontmatter: true }}*/}
-      {/*    />*/}
-      {/*    <br />*/}
-      {/*  </div>*/}
-      {/*))}*/}
-    </div>
+            },
+          }}
+        />
+        {/*For MySQL... Maybe Later...*/}
+        {/*{markdownsource.map((data: dbtable, idx: any) => (*/}
+        {/*  <div key={idx}>*/}
+        {/*    <h1 className={"text-pink-600 hover:text-amber-500"}>*/}
+        {/*      {data.title}*/}
+        {/*    </h1>*/}
+        {/*    <p>{data.description}</p>*/}
+        {/*    <p>{data.date.toString()}</p>*/}
+        {/*    <p>{data.thumbnail}</p>*/}
+        {/*    <MDXRemote*/}
+        {/*      source={data.content}*/}
+        {/*      components={MyComponents}*/}
+        {/*      options={{ parseFrontmatter: true }}*/}
+        {/*    />*/}
+        {/*    <br />*/}
+        {/*  </div>*/}
+        {/*))}*/}
+      </div>
+    </>
   );
 };
 export default Post;

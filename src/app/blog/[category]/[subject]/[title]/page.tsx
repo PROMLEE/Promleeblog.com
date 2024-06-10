@@ -17,6 +17,7 @@ function contentList(params: params) {
 }
 
 const Title = async ({ params }: Props) => {
+  let seriese = "";
   return (
     <div>
       <Link className={"category"} href={`/blog/${params.category}`}>
@@ -37,19 +38,40 @@ const Title = async ({ params }: Props) => {
             .name
         }
       </Link>
-      {contentList(params).map((content: string, idx: any) => (
-        <Link
-          key={idx}
-          href={`/blog/${params.category}/${params.subject}/${params.title}/${content.replaceAll(".mdx", "")}`}
-          className={"content hover:text-pink-500 hover:underline"}
-        >
-          {content.replaceAll("mdx", "")}{" "}
-          {
-            CategoryKo[params.category].sub[params.subject].title[params.title]
-              .content[content.replaceAll(".mdx", "")].name
-          }
-        </Link>
-      ))}
+      {contentList(params).map((content: string, idx: any) => {
+        if (seriese !== content.slice(0, 2)) {
+          seriese = content.slice(0, 2);
+          return (
+            <Link
+              key={idx}
+              href={`/blog/${params.category}/${params.subject}/${params.title}/${content.replaceAll(".mdx", "")}`}
+              className={"content mt-10 hover:text-pink-500 hover:underline"}
+            >
+              {content.replaceAll("mdx", "")}{" "}
+              {
+                CategoryKo[params.category].sub[params.subject].title[
+                  params.title
+                ].content[content.replaceAll(".mdx", "")].name
+              }
+            </Link>
+          );
+        } else {
+          return (
+            <Link
+              key={idx}
+              href={`/blog/${params.category}/${params.subject}/${params.title}/${content.replaceAll(".mdx", "")}`}
+              className={"content hover:text-pink-500 hover:underline"}
+            >
+              {content.replaceAll("mdx", "")}{" "}
+              {
+                CategoryKo[params.category].sub[params.subject].title[
+                  params.title
+                ].content[content.replaceAll(".mdx", "")].name
+              }
+            </Link>
+          );
+        }
+      })}
     </div>
   );
 };

@@ -1,0 +1,28 @@
+# 엘가말 암호화 (ElGamal Encryption)
+## 엘가말 암호화 개요 (ElGamal Encryption Overview)
+- 확률적 암호화 방식
+- 결정론적 디피-헬만 문제가 불가능할 경우 IND-CPA(INDistinguishability under Chosen-Plaintext Attack) 보안성을 제공
+
+<Bbox> 결정론적 디피-헬만 문제 (DDH, Decisional Diffie-Hellman) </Bbox>
+
+$g, g^a, g^b$와 $X$가 주어졌을 때 $X$가 $g^{ab}$인지 $g^c$인지 구분하는 문제(c는 무작위)
+DDH 문제가 어려운 것으로 간주된다면, 같은 인스턴스의 CDH 문제도 어렵다
+원래의 ElGamal 암호화는 곱셈적 homomorphic(동형성)특성을 가진다.
+- $E_{K_{pub}}(M_1) \cdot E_{K_{pub}}(M_2) = E_{K_{pub}}(M_1 \cdot M_2)$
+일반적인 변환을 사용하면 IND-CCA2(INDistinguishability under Chosen-Ciphertext Attack) 보안성을 제공
+
+**곱셈적 호모모픽 특성**은 암호화된 값을 직접적으로 곱하여, 그 결과를 다시 복호화했을 때 원래 값들의 곱과 같은 결과를 얻는 성질을 의미한다. 이 특성은 데이터의 개인 정보를 보호하면서도 암호화된 형태로 계산을 가능하게 해준다.
+
+## 엘가말 암호화 과정 (ElGamal Encryption Process)
+- 키 생성
+	1. 소수 $p$ 선택
+	2. $\mathbb{Z}_p^*$의 부분군 $\mathbb{G}$에서 생성자 $g$ 선택
+		- 이 부분군의 차수: $q$
+	3. $\mathbb{Z}_q$에서 무작위 원소 $x$ 선택 후 $X = g^x$ 계산
+	4. 공개 키 $\text{pk} = (p, q, g, X)$, 비밀 키 $\text{sk} = x$ 출력
+- 암호화
+	1. $\mathbb{Z}_q$에서 무작위 원소 $r$ 선택
+	2. $C_1 = g^r$과 $C_2 = M \cdot X^r$ 계산 후 암호문 $CT = (C_1, C_2)$ 출력
+- 복호화
+	1. 비밀 키 $\text{sk} = x$와 암호문 $CT = (C_1, C_2)$가 주어졌을 때
+	2. $C_2 / (C_1)^x (= M \cdot X^r / (g^r)^x  = M)$을 계산하여 평문 $M$ 출력

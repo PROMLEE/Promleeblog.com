@@ -2,11 +2,11 @@ import { CategoryKo } from "@/config/koname";
 
 const nodeSize1 = 20;
 const nodeSize2 = 17;
-const nodeSize3 = 15;
+const nodeSize3 = 10;
 const nodeSize4 = 10;
 const fontSize1 = 7;
 const fontSize2 = 6;
-const fontSize3 = 5;
+const fontSize3 = 4;
 const fontSize4 = 4;
 const nodes = [];
 
@@ -43,22 +43,22 @@ for (const key in CategoryKo) {
           font: fontSize3,
         },
       });
-      for (const contentKey in CategoryKo[key].sub[subKey].title[titleKey]
-        .content) {
-        nodes.push({
-          data: {
-            id: key + subKey + titleKey + contentKey,
-            label:
-              CategoryKo[key].sub[subKey].title[titleKey].content[
-                contentKey
-              ].name.split("(")[0],
-            type: "content",
-            url: `/blog/${key}/${subKey}/${titleKey}/${contentKey}`,
-            size: nodeSize4,
-            font: fontSize4,
-          },
-        });
-      }
+      // for (const contentKey in CategoryKo[key].sub[subKey].title[titleKey]
+      //   .content) {
+      //   nodes.push({
+      //     data: {
+      //       id: key + subKey + titleKey + contentKey,
+      //       label:
+      //         CategoryKo[key].sub[subKey].title[titleKey].content[
+      //           contentKey
+      //         ].name.split("(")[0],
+      //       type: "content",
+      //       url: `/blog/${key}/${subKey}/${titleKey}/${contentKey}`,
+      //       size: nodeSize4,
+      //       font: fontSize4,
+      //     },
+      //   });
+      // }
     }
   }
 }
@@ -76,16 +76,16 @@ for (const key in CategoryKo) {
           label: "title",
         },
       });
-      for (const contentKey in CategoryKo[key].sub[subKey].title[titleKey]
-        .content) {
-        edges.push({
-          data: {
-            source: key + subKey + titleKey,
-            target: key + subKey + titleKey + contentKey,
-            label: "content",
-          },
-        });
-      }
+      // for (const contentKey in CategoryKo[key].sub[subKey].title[titleKey]
+      //   .content) {
+      //   edges.push({
+      //     data: {
+      //       source: key + subKey + titleKey,
+      //       target: key + subKey + titleKey + contentKey,
+      //       label: "content",
+      //     },
+      //   });
+      // }
     }
   }
 }

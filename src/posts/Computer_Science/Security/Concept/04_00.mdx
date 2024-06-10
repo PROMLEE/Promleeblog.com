@@ -1,7 +1,6 @@
 # 디지털 서명 정의 (Definition of Digital Signature)
 ## 디지털 서명 개요 (Overview of Digital Signature)
-
-#### 정의
+### 정의
 디지털 서명 체계는 다음과 같은 세 가지 다항 시간 알고리즘으로 구성됨
 - KeyGen($\lambda$) $\rightarrow$ (pk, sk): 키 생성 알고리즘
 	- 보안 매개변수 $\lambda$를 입력으로 받아 공개키(pk)와 개인키(sk)를 생성
@@ -11,7 +10,7 @@
 	- 공개키(pk), 메시지(m), 디지털 서명($\sigma$)을 입력으로 받아 디지털 서명이 유효한지 검증
 	- 유효하면 1, 그렇지 않으면 0을 반환
 
-#### 검증
+### 검증
 **정당성**: 검증 알고리즘은 다음을 만족해야 함
 - 모든 보안 매개변수 $\lambda$와 모든 메시지 $m$에 대해
 - $\text{Verify}(pk, \text{Sign}(sk, M)) = 1$이어야 함
