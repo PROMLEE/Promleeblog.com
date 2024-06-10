@@ -23,12 +23,16 @@ const config: Config = {
         background: "rgba(var(--background) , <alpha-value>)",
         foreground: "rgba(var(--foreground) , <alpha-value>)",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "rgba(var(--primary) , <alpha-value>)",
+          foreground: "rgba(var(--primary-foreground) , <alpha-value>)",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "rgba(var(--secondary) , <alpha-value>)",
+          foreground: "rgba(var(--secondary-foreground) , <alpha-value>)",
+        },
+        third: {
+          DEFAULT: "rgba(var(--third) , <alpha-value>)",
+          foreground: "rgba(var(--third-foreground) , <alpha-value>)",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",

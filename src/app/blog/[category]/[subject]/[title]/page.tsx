@@ -45,7 +45,7 @@ const Title = async ({ params }: Props) => {
             <Link
               key={idx}
               href={`/blog/${params.category}/${params.subject}/${params.title}/${content.replaceAll(".mdx", "")}`}
-              className={"content mt-10 hover:text-pink-500 hover:underline"}
+              className={"content mt-4 hover:text-pink-500 hover:underline"}
             >
               {content.replaceAll("mdx", "")}{" "}
               {
@@ -60,7 +60,7 @@ const Title = async ({ params }: Props) => {
             <Link
               key={idx}
               href={`/blog/${params.category}/${params.subject}/${params.title}/${content.replaceAll(".mdx", "")}`}
-              className={"content hover:text-pink-500 hover:underline"}
+              className={"content mt-1 hover:text-pink-500 hover:underline"}
             >
               {content.replaceAll("mdx", "")}{" "}
               {

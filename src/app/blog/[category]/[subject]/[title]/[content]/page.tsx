@@ -13,7 +13,6 @@ import rehypeSlug from "rehype-slug";
 import RightSidebarComp from "@/components/bars/RightSidebar";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { CategoryKo } from "@/config/koname";
-import Link from "next/link";
 import { Pw } from "@/components/Pw";
 import {
   Breadcrumb,
@@ -79,13 +78,17 @@ const Post = async ({ params }: Props) => {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink href={`/blog/${params.category}`}>
-              {CategoryKo[params.category].name}
+              {CategoryKo[params.category].name.split("(")[0]}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink href={`/blog/${params.category}/${params.subject}`}>
-              {CategoryKo[params.category].sub[params.subject].name}
+              {
+                CategoryKo[params.category].sub[params.subject].name.split(
+                  "(",
+                )[0]
+              }
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />{" "}
@@ -96,21 +99,21 @@ const Post = async ({ params }: Props) => {
               {
                 CategoryKo[params.category].sub[params.subject].title[
                   params.title
-                ].name
+                ].name.split("(")[0]
               }
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage className="font-bold text-white">
+            <BreadcrumbPage className="text-button">
               {
                 CategoryKo[params.category].sub[params.subject].title[
                   params.title
-                ].content[params.content].name
+                ].content[params.content].name.split("(")[0]
               }
             </BreadcrumbPage>
           </BreadcrumbItem>
-          <div className={"ml-auto text-right text-slate-500"}>
+          <div className={"ml-auto text-right"}>
             {"📅 " +
               CategoryKo[params.category].sub[params.subject].title[
                 params.title
@@ -118,7 +121,7 @@ const Post = async ({ params }: Props) => {
           </div>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="prose scroll-smooth dark:prose-invert">
+      <div className="prose mt-10 scroll-smooth dark:prose-invert">
         <RightSidebarComp content={post.content} />
         <MDXRemote
           source={post.content}

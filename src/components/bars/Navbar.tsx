@@ -103,7 +103,9 @@ export const Navbar = () => {
             onClick={() => {
               setMenu(!menu);
             }}
-            className={"ml-2 md:hidden"}
+            className={
+              "ml-2 bg-button text-button-foreground hover:bg-button-foreground hover:text-button md:hidden"
+            }
           >
             Menu
           </Button>

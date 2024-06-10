@@ -18,7 +18,7 @@ const LeftSidebarComp = () => {
             <AccordionItem
               value={name}
               key={index}
-              className="border-white p-2 hover:bg-slate-800"
+              className="border-foreground p-2 hover:bg-primary"
             >
               <AccordionTrigger>{name}</AccordionTrigger>
               {Object.keys(CategoryKo[key].sub).map((subKey, index) => {
@@ -28,7 +28,7 @@ const LeftSidebarComp = () => {
                     <Accordion type="multiple">
                       <AccordionItem
                         value={subName}
-                        className="m-0 border-slate-400 p-2 pb-0 hover:bg-slate-600"
+                        className="m-0 p-2 pb-0 hover:bg-secondary"
                       >
                         <AccordionTrigger key={index} className="text-md py-3">
                           {subName}
@@ -37,7 +37,7 @@ const LeftSidebarComp = () => {
                           <Accordion type="multiple">
                             <AccordionItem
                               value={subName}
-                              className="border-slate-600 p-2"
+                              className="border-secondary p-2"
                             >
                               {Object.keys(
                                 CategoryKo[key].sub[subKey].title,
@@ -54,7 +54,7 @@ const LeftSidebarComp = () => {
                                     <AccordionItem
                                       value={titleName}
                                       key={index}
-                                      className=" border-none p-2  pb-0 hover:bg-slate-400 hover:font-bold hover:text-black"
+                                      className=" hover:bg-third border-none  p-2 pb-0 hover:font-bold hover:text-black"
                                     >
                                       {titleName}
                                     </AccordionItem>
