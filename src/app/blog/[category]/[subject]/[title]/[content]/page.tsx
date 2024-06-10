@@ -75,7 +75,7 @@ const Post = async ({ params }: Props) => {
     <>
       <Link href="#">
         <svg
-          className="sticky top-0 ml-auto h-8 w-8 rounded-b-md bg-foreground"
+          className="sticky top-0 mb-2 ml-auto h-8 w-8 rounded-b-md bg-foreground"
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -216,7 +216,7 @@ const Post = async ({ params }: Props) => {
       </div>
       <Link href="#bottom">
         <svg
-          className="sticky bottom-0 ml-auto h-8 w-8 rounded-t-md bg-foreground"
+          className="sticky bottom-0 ml-auto mt-5 h-8 w-8 rounded-t-md bg-foreground"
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           width="24"

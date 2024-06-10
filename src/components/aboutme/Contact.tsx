@@ -12,16 +12,20 @@ export const Contact = () => {
         <li>
           <div className="flex flex-wrap gap-2">
             <strong>Github | </strong>
-            <a href="https://github.com/PROMLEE" className="flex gap-2">
+            <a
+              href={"https://github.com/PROMLEE"}
+              target="_blank"
+              rel="noreferrer"
+            >
               <Image
                 src="https://github.com/fluidicon.png"
                 alt="git"
                 width={30}
-                height={30}
+                height={10}
                 priority
-                className="m-0"
+                className="m-0 mr-2 inline-block"
               />
-              <div>https://github.com/PROMLEE</div>
+              PROMLEE
             </a>
           </div>
         </li>
