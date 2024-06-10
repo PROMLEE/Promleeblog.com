@@ -14,6 +14,7 @@ import RightSidebarComp from "@/components/bars/RightSidebar";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { CategoryKo } from "@/config/koname";
 import { Pw } from "@/components/Pw";
+import { Suspense } from "react";
 import Link from "next/link";
 import {
   Breadcrumb,
@@ -94,126 +95,131 @@ const Post = async ({ params }: Props) => {
       </Link>
       {CategoryKo[params.category].sub[params.subject].title[params.title]
         .content[params.content].lock && <Pw />}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink
-              href={`/blog/${params.category}`}
-              className="hover:font-bold hover:text-text"
-            >
-              {CategoryKo[params.category].name.split("(")[0]}
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink
-              href={`/blog/${params.category}/${params.subject}`}
-              className="hover:font-bold hover:text-text"
-            >
-              {
-                CategoryKo[params.category].sub[params.subject].name.split(
-                  "(",
-                )[0]
-              }
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />{" "}
-          <BreadcrumbItem>
-            <BreadcrumbLink
-              href={`/blog/${params.category}/${params.subject}/${params.title}`}
-              className="hover:font-bold hover:text-text"
-            >
-              {
+
+      <Suspense fallback={<div>Loading...</div>}>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink
+                href={`/blog/${params.category}`}
+                className="hover:font-bold hover:text-text"
+              >
+                {CategoryKo[params.category].name.split("(")[0]}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink
+                href={`/blog/${params.category}/${params.subject}`}
+                className="hover:font-bold hover:text-text"
+              >
+                {
+                  CategoryKo[params.category].sub[params.subject].name.split(
+                    "(",
+                  )[0]
+                }
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />{" "}
+            <BreadcrumbItem>
+              <BreadcrumbLink
+                href={`/blog/${params.category}/${params.subject}/${params.title}`}
+                className="hover:font-bold hover:text-text"
+              >
+                {
+                  CategoryKo[params.category].sub[params.subject].title[
+                    params.title
+                  ].name.split("(")[0]
+                }
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage className="font-bold text-text">
+                {
+                  CategoryKo[params.category].sub[params.subject].title[
+                    params.title
+                  ].content[params.content].name.split("(")[0]
+                }
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+            <div className={"ml-auto text-right"}>
+              {"📅 " +
                 CategoryKo[params.category].sub[params.subject].title[
                   params.title
-                ].name.split("(")[0]
-              }
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage className="font-bold text-text">
-              {
-                CategoryKo[params.category].sub[params.subject].title[
-                  params.title
-                ].content[params.content].name.split("(")[0]
-              }
-            </BreadcrumbPage>
-          </BreadcrumbItem>
-          <div className={"ml-auto text-right"}>
-            {"📅 " +
-              CategoryKo[params.category].sub[params.subject].title[
-                params.title
-              ].content[params.content].date}
-          </div>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <div className="prose mt-10 min-h-[1000px] scroll-smooth">
-        <RightSidebarComp content={post.content} />
-        <MDXRemote
-          source={post.content === "" ? "no contents 😿" : post.content}
-          //@ts-ignore
-          components={components}
-          options={{
-            parseFrontmatter: true,
-            mdxOptions: {
-              remarkPlugins: [remarkGfm, remarkBreaks, remarkMath],
-              rehypePlugins: [
-                [
-                  // 이슈 존재 https://github.com/hashicorp/next-mdx-remote/issues/86
-                  //@ts-ignore
-                  rehypePrettyCode,
-                ],
-                [
-                  //@ts-ignore
-                  rehypeKatex,
-                  {
-                    colorIsTextColor: true,
-                    strict: false,
-                    macros: {
-                      // issue from google fonts
-                      "\\neq": "\\mathrel{\\char`≠}",
+                ].content[params.content].date}
+            </div>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </Suspense>
+      <Suspense fallback={<div>Loading...</div>}>
+        <div className="prose mt-10 min-h-[1000px] scroll-smooth">
+          <RightSidebarComp content={post.content} />
+          <MDXRemote
+            source={post.content === "" ? "no contents 😿" : post.content}
+            //@ts-ignore
+            components={components}
+            options={{
+              parseFrontmatter: true,
+              mdxOptions: {
+                remarkPlugins: [remarkGfm, remarkBreaks, remarkMath],
+                rehypePlugins: [
+                  [
+                    // 이슈 존재 https://github.com/hashicorp/next-mdx-remote/issues/86
+                    //@ts-ignore
+                    rehypePrettyCode,
+                  ],
+                  [
+                    //@ts-ignore
+                    rehypeKatex,
+                    {
+                      colorIsTextColor: true,
+                      strict: false,
+                      macros: {
+                        // issue from google fonts
+                        "\\neq": "\\mathrel{\\char`≠}",
+                      },
                     },
-                  },
-                ],
-                rehypeSlug,
-                [
-                  rehypeAutolinkHeadings,
-                  {
-                    behavior: "append",
-                    properties: {
-                      className: ["anchor"],
+                  ],
+                  rehypeSlug,
+                  [
+                    rehypeAutolinkHeadings,
+                    {
+                      behavior: "append",
+                      properties: {
+                        className: ["anchor"],
+                      },
+                      content: {
+                        type: "element",
+                        tagName: "span",
+                        properties: { className: ["icon", "icon-link"] },
+                        children: [{ type: "text", value: "🔗" }],
+                      },
                     },
-                    content: {
-                      type: "element",
-                      tagName: "span",
-                      properties: { className: ["icon", "icon-link"] },
-                      children: [{ type: "text", value: "🔗" }],
-                    },
-                  },
+                  ],
                 ],
-              ],
-            },
-          }}
-        />
-        {/*For MySQL... Maybe Later...*/}
-        {/*{markdownsource.map((data: dbtable, idx: any) => (*/}
-        {/*  <div key={idx}>*/}
-        {/*    <h1 className={"text-pink-600 hover:text-amber-500"}>*/}
-        {/*      {data.title}*/}
-        {/*    </h1>*/}
-        {/*    <p>{data.description}</p>*/}
-        {/*    <p>{data.date.toString()}</p>*/}
-        {/*    <p>{data.thumbnail}</p>*/}
-        {/*    <MDXRemote*/}
-        {/*      source={data.content}*/}
-        {/*      components={MyComponents}*/}
-        {/*      options={{ parseFrontmatter: true }}*/}
-        {/*    />*/}
-        {/*    <br />*/}
-        {/*  </div>*/}
-        {/*))}*/}
-      </div>
+              },
+            }}
+          />
+          {/*For MySQL... Maybe Later...*/}
+          {/*{markdownsource.map((data: dbtable, idx: any) => (*/}
+          {/*  <div key={idx}>*/}
+          {/*    <h1 className={"text-pink-600 hover:text-amber-500"}>*/}
+          {/*      {data.title}*/}
+          {/*    </h1>*/}
+          {/*    <p>{data.description}</p>*/}
+          {/*    <p>{data.date.toString()}</p>*/}
+          {/*    <p>{data.thumbnail}</p>*/}
+          {/*    <MDXRemote*/}
+          {/*      source={data.content}*/}
+          {/*      components={MyComponents}*/}
+          {/*      options={{ parseFrontmatter: true }}*/}
+          {/*    />*/}
+          {/*    <br />*/}
+          {/*  </div>*/}
+          {/*))}*/}
+        </div>
+      </Suspense>
       <Link href="#bottom">
         <svg
           className="sticky bottom-0 ml-auto mt-5 h-8 w-8 rounded-t-md bg-foreground"
