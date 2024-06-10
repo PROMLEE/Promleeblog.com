@@ -152,9 +152,11 @@ const Post = async ({ params }: Props) => {
           </BreadcrumbList>
         </Breadcrumb>
       </Suspense>
-      <Suspense fallback={<div>Loading...</div>}>
-        <div className="prose mt-10 min-h-[1000px] scroll-smooth">
+      <div className="prose mt-10 min-h-[1000px] scroll-smooth">
+        <Suspense fallback={<div>Loading...</div>}>
           <RightSidebarComp content={post.content} />
+        </Suspense>
+        <Suspense fallback={<div>Loading...</div>}>
           <MDXRemote
             source={post.content === "" ? "no contents 😿" : post.content}
             //@ts-ignore
@@ -218,8 +220,8 @@ const Post = async ({ params }: Props) => {
           {/*    <br />*/}
           {/*  </div>*/}
           {/*))}*/}
-        </div>
-      </Suspense>
+        </Suspense>
+      </div>
       <Link href="#bottom">
         <svg
           className="sticky bottom-0 ml-auto mt-5 h-8 w-8 rounded-t-md bg-foreground"
