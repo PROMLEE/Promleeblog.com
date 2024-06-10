@@ -24,7 +24,9 @@ export const Navbar = () => {
       <div className={"topbar"}>
         <Link
           href={"/"}
-          className={"ml-2 p-1 text-2xl font-bold hover:cursor-pointer"}
+          className={
+            "ml-2 rounded-lg p-1 text-2xl font-bold hover:cursor-pointer hover:bg-button hover:text-background"
+          }
         >
           PromleeBlog
         </Link>
@@ -35,13 +37,13 @@ export const Navbar = () => {
               <Menubar
                 key={index}
                 className={
-                  "hidden rounded-none border-none bg-transparent hover:bg-slate-200 md:block"
+                  "hidden rounded-none border-none bg-transparent hover:bg-button hover:text-background md:block"
                 }
               >
                 <MenubarMenu>
                   <MenubarTrigger
                     className={
-                      "rounded-none font-bold hover:cursor-pointer  hover:text-black "
+                      "rounded-none font-bold hover:cursor-pointer  hover:bg-button hover:text-background "
                     }
                   >
                     {name}
@@ -85,15 +87,23 @@ export const Navbar = () => {
           })}
         </div>
         <div className="flex content-center items-center">
-          <Link href={"/sitemap"}>sitemap</Link>
-          <Link href={"/aboutme"} className="ml-2">
+          <Link
+            href={"/sitemap"}
+            className="rounded-lg p-2 hover:bg-button hover:text-background"
+          >
+            sitemap
+          </Link>
+          <Link
+            href={"/aboutme"}
+            className="ml-2 rounded-lg p-2 hover:bg-button hover:text-background"
+          >
             aboutMe
           </Link>
           <Button
             onClick={() => {
               setMenu(!menu);
             }}
-            className={"ml-2 md:hidden "}
+            className={"ml-2 md:hidden"}
           >
             Menu
           </Button>

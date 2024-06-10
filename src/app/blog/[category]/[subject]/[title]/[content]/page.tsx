@@ -100,10 +100,6 @@ const Post = async ({ params }: Props) => {
               }
             </BreadcrumbLink>
           </BreadcrumbItem>
-          <BreadcrumbSeparator />{" "}
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/components">Components</BreadcrumbLink>
-          </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbPage className="font-bold text-white">
