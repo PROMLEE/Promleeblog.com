@@ -93,9 +93,10 @@ const Post = async ({ params }: Props) => {
           />
         </svg>
       </Link>
-      {CategoryKo[params.category].sub[params.subject].title[params.title]
-        .content[params.content].lock && <Pw />}
-
+      <Suspense fallback={<div>Loading...</div>}>
+        {CategoryKo[params.category].sub[params.subject].title[params.title]
+          .content[params.content].lock && <Pw />}
+      </Suspense>
       <Suspense fallback={<div>Loading...</div>}>
         <Breadcrumb>
           <BreadcrumbList>
@@ -153,9 +154,7 @@ const Post = async ({ params }: Props) => {
         </Breadcrumb>
       </Suspense>
       <div className="prose mt-10 min-h-[1000px] scroll-smooth">
-        <Suspense fallback={<div>Loading...</div>}>
-          <RightSidebarComp content={post.content} />
-        </Suspense>
+        <RightSidebarComp content={post.content} />
         <Suspense fallback={<div>Loading...</div>}>
           <MDXRemote
             source={post.content === "" ? "no contents 😿" : post.content}
