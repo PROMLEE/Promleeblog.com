@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export const Contact = () => {
   return (
-    <div className="w-auto">
+    <div className="w-2/5">
       <h2>Contact &amp; Channels</h2>
       <hr />
       <ul>

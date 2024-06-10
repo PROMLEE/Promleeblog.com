@@ -91,14 +91,14 @@
   div > span > span > span > span > span {
     @apply m-0;
   }
-  blockquote {
-    @apply border-text bg-muted py-2;
+  .prose blockquote {
+    @apply border-text bg-muted py-2 pr-1;
   }
   .prose ul > li > ul {
     @apply list-["৹__"];
   }
   .prose ul > li > ul > li > ul {
-    @apply dark:list-["▪__"];
+    @apply list-["▪__"];
   }
   .prose pre > code {
     display: grid;
