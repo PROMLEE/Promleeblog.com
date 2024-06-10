@@ -13,8 +13,8 @@ import rehypeSlug from "rehype-slug";
 import RightSidebarComp from "@/components/bars/RightSidebar";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { CategoryKo } from "@/config/koname";
-import Link from "next/link";
 import { Pw } from "@/components/Pw";
+import Link from "next/link";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -73,44 +73,74 @@ const Post = async ({ params }: Props) => {
   const post = await getPostDetail(params);
   return (
     <>
+      <Link href="#">
+        <svg
+          className="sticky top-0 mb-2 ml-auto h-8 w-8 rounded-b-md bg-foreground"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="black"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="m5 15 7-7 7 7"
+          />
+        </svg>
+      </Link>
       {CategoryKo[params.category].sub[params.subject].title[params.title]
         .content[params.content].lock && <Pw />}
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={`/blog/${params.category}`}>
-              {CategoryKo[params.category].name}
+            <BreadcrumbLink
+              href={`/blog/${params.category}`}
+              className="hover:font-bold hover:text-text"
+            >
+              {CategoryKo[params.category].name.split("(")[0]}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href={`/blog/${params.category}/${params.subject}`}>
-              {CategoryKo[params.category].sub[params.subject].name}
+            <BreadcrumbLink
+              href={`/blog/${params.category}/${params.subject}`}
+              className="hover:font-bold hover:text-text"
+            >
+              {
+                CategoryKo[params.category].sub[params.subject].name.split(
+                  "(",
+                )[0]
+              }
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />{" "}
           <BreadcrumbItem>
             <BreadcrumbLink
               href={`/blog/${params.category}/${params.subject}/${params.title}`}
+              className="hover:font-bold hover:text-text"
             >
               {
                 CategoryKo[params.category].sub[params.subject].title[
                   params.title
-                ].name
+                ].name.split("(")[0]
               }
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage className="font-bold text-white">
+            <BreadcrumbPage className="font-bold text-text">
               {
                 CategoryKo[params.category].sub[params.subject].title[
                   params.title
-                ].content[params.content].name
+                ].content[params.content].name.split("(")[0]
               }
             </BreadcrumbPage>
           </BreadcrumbItem>
-          <div className={"ml-auto text-right text-slate-500"}>
+          <div className={"ml-auto text-right"}>
             {"📅 " +
               CategoryKo[params.category].sub[params.subject].title[
                 params.title
@@ -118,10 +148,10 @@ const Post = async ({ params }: Props) => {
           </div>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="prose scroll-smooth dark:prose-invert">
+      <div className="prose mt-10 min-h-[1000px] scroll-smooth">
         <RightSidebarComp content={post.content} />
         <MDXRemote
-          source={post.content}
+          source={post.content === "" ? "no contents 😿" : post.content}
           //@ts-ignore
           components={components}
           options={{
@@ -140,6 +170,10 @@ const Post = async ({ params }: Props) => {
                   {
                     colorIsTextColor: true,
                     strict: false,
+                    macros: {
+                      // issue from google fonts
+                      "\\neq": "\\mathrel{\\char`≠}",
+                    },
                   },
                 ],
                 rehypeSlug,
@@ -150,7 +184,6 @@ const Post = async ({ params }: Props) => {
                     properties: {
                       className: ["anchor"],
                     },
-
                     content: {
                       type: "element",
                       tagName: "span",
@@ -181,6 +214,25 @@ const Post = async ({ params }: Props) => {
         {/*  </div>*/}
         {/*))}*/}
       </div>
+      <Link href="#bottom">
+        <svg
+          className="sticky bottom-0 ml-auto mt-5 h-8 w-8 rounded-t-md bg-foreground"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="black"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="m19 9-7 7-7-7"
+          />
+        </svg>
+      </Link>
     </>
   );
 };

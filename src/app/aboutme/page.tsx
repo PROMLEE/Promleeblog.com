@@ -14,15 +14,16 @@ export default function App() {
     >
       <div className="w-full">
         <h1>👨‍💻이동훈 | 도전을 두려워 않는 개발자</h1>
-        <div className="flex flex-wrap gap-10">
-          <Image
-            src="https://avatars.githubusercontent.com/u/80230701?v=4?s=400"
-            alt="profile_image"
-            width={200}
-            height={200}
-            priority
-            className="w-2/5"
-          />
+        <div className="flex flex-wrap gap-4">
+          <div className="relative mb-10 w-2/5">
+            <Image
+              src="https://avatars.githubusercontent.com/u/80230701?v=4?s=400"
+              alt="profile_image"
+              width={1000}
+              height={1000}
+              className="rounded-full border"
+            />
+          </div>
           <Contact />
         </div>
       </div>

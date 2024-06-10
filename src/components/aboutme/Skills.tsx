@@ -33,12 +33,12 @@ export const Skills = () => {
       <hr />
       {skills.map((skill, idx) => (
         <>
-          <div key={idx} className="contents-start flex">
+          <div key={idx} className="flex">
             <div className="w-2/3 text-xl font-bold">{skill.name}</div>
             <div className="w-2/3">
               <ul className="m-0">
                 {skill.skills.map((s, idx) => (
-                  <li key={idx} className="m-0">
+                  <li key={idx} className="m-0 marker:text-text">
                     {s}
                   </li>
                 ))}

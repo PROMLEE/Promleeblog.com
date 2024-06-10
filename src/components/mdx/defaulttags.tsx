@@ -35,9 +35,7 @@ export function h1tag({ id, children }: Props) {
   return (
     <>
       <hr
-        className={
-          "border-1 mx-auto my-10 w-full  rounded dark:border-slate-800"
-        }
+        className={"mx-auto my-10 w-full rounded border-2 border-foreground"}
       />
       <div id={id} className="mb-5 ml-[-15px] mt-14 text-3xl font-bold">
         💡 {children}
@@ -47,22 +45,25 @@ export function h1tag({ id, children }: Props) {
 }
 export function h2tag({ id, children }: Props) {
   return (
-    <div id={id} className="ml-[-10px] mt-10 text-2xl font-bold">
-      🚀 {children}
-    </div>
+    <>
+      <hr className={"border-1 w-full rounded border-foreground"} />
+      <div id={id} className="mb-3 ml-[-10px] mt-5 text-2xl font-bold">
+        🚀 {children}
+      </div>
+    </>
   );
 }
 export function h3tag({ id, children }: Props) {
   return (
-    <div id={id} className="ml-[-10px] mt-7 text-xl font-bold">
+    <div id={id} className="mb-2 ml-[-10px] mt-7 text-xl font-bold">
       ✅ {children}
     </div>
   );
 }
 export function h4tag({ id, children }: Props) {
   return (
-    <div id={id} className="mt-4 text-lg font-bold">
-      ▫️ {children}
+    <div id={id} className="mb-1 ml-[-8px] mt-4 text-lg font-bold">
+      ➡️ {children}
     </div>
   );
 }
@@ -88,21 +89,19 @@ export const ultag = ({ children }: Props) => {
 };
 export const litag = ({ id, children }: Props) => {
   return (
-    <li id={id} className="">
+    <li id={id} className=" marker:text-text">
       {children}
     </li>
   );
 };
 export const thtag = ({ children }: Props) => {
   return (
-    <th className={"border border-slate-500 bg-slate-800 p-1 dark:text-white"}>
-      {children}
-    </th>
+    <th className={"border border-third bg-foreground p-1"}>{children}</th>
   );
 };
 export const tdtag = ({ children }: Props) => {
   return (
-    <th className={"border border-slate-700 text-center font-normal"}>
+    <th className={"border border-third text-center font-normal"}>
       {children}
     </th>
   );
@@ -111,14 +110,14 @@ export const tdtag = ({ children }: Props) => {
 //   return <code className={"dark:text-white "}>{children}</code>;
 // };
 export const btag = ({ children }: Props) => {
-  return <div className="inline font-bold text-white">{children}</div>;
+  return <div className="inline font-bold text-text">{children}</div>;
 };
 
 export function emtag({ children }: Props) {
   return (
     <div
       className={
-        "inline text-white underline decoration-yellow-800 decoration-wavy underline-offset-4 dark:decoration-yellow-400"
+        "inline text-text underline decoration-yellow-800 decoration-wavy underline-offset-4 dark:decoration-yellow-400"
       }
     >
       {children}

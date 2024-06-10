@@ -18,7 +18,9 @@ import { useState } from "react";
 
 export const Navbar = () => {
   const [menu, setMenu] = useState(false);
-
+  const menuclose = () => {
+    setMenu(false);
+  };
   return (
     <>
       <div className={"topbar"}>
@@ -103,7 +105,9 @@ export const Navbar = () => {
             onClick={() => {
               setMenu(!menu);
             }}
-            className={"ml-2 md:hidden"}
+            className={
+              "ml-2 bg-button text-button-foreground hover:bg-button-foreground hover:text-button md:hidden"
+            }
           >
             Menu
           </Button>
@@ -111,7 +115,7 @@ export const Navbar = () => {
         </div>
       </div>
       <div className={`${menu ? "visible" : "hidden"} xl:block`}>
-        <LeftSidebarComp />
+        <LeftSidebarComp menuclose={menuclose} />
       </div>
     </>
   );

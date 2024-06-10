@@ -7,17 +7,23 @@
     --background: 255, 255, 255;
     --foreground: 240, 240, 240;
 
-    --button: 230, 230, 230;
-    --button-foreground: 200, 200, 200;
+    --text: 51, 65, 85;
+    --text-foreground: 255, 255, 255;
+
+    --button: 71, 85, 105;
+    --button-foreground: 255, 255, 255;
 
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 248, 250, 252;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
+    --secondary: 241, 245, 249;
     --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --third: 203, 213, 225;
+    --third-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
@@ -39,17 +45,23 @@
     --background: 32, 33, 36;
     --foreground: 51, 65, 85;
 
+    --text: 203, 213, 225;
+    --text-foreground: 51, 65, 85;
+
     --button: 255, 255, 255;
-    --button-foreground: 200, 200, 200;
+    --button-foreground: 71, 85, 105;
 
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
+    --primary: 30, 41, 59;
     --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 71, 85, 105;
     --secondary-foreground: 210 40% 98%;
+
+    --third: 148, 163, 184;
+    --third-foreground: 222.2 47.4% 11.2%;
 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
@@ -65,7 +77,7 @@
     --ring: 212.7 26.8% 83.9%;
   }
   * {
-    @apply border-border text-slate-700 dark:text-slate-300;
+    @apply border-border text-text;
   }
   body {
     @apply flex w-full flex-col bg-background xl:items-center;
@@ -79,23 +91,58 @@
   div > span > span > span > span > span {
     @apply m-0;
   }
-  ul,
-  ol {
-    @apply mt-5 marker:dark:text-white;
+  .prose blockquote {
+    @apply border-text bg-muted py-2 pr-1;
   }
-  ul > li > ul {
-    @apply dark:list-["৹__"];
+  .prose ul > li > ul {
+    @apply list-["৹__"];
   }
-  ul > li > ul > li > ul {
-    @apply dark:list-["▪__"];
+  .prose ul > li > ul > li > ul {
+    @apply list-["▪__"];
+  }
+  .prose pre > code {
+    display: grid;
+  }
+  .prose pre span[data-line] {
+    @apply inline-block px-4 py-0.5 leading-snug;
   }
 
-  /* ul > li > ul,
-  ol > li > ul {
-    @apply mb-4;
-  } */
-  blockquote {
-    @apply bg-muted py-2 dark:border-white;
+  /* Fenced Code block - line number style */
+  .prose code[data-line-numbers] {
+    counter-reset: line;
+  }
+
+  .prose code[data-line-numbers] > span[data-line]::before {
+    counter-increment: line;
+    content: counter(line);
+    display: inline-block;
+    width: 0.75rem;
+    margin-right: 1.25rem;
+    text-align: right;
+    color: gray;
+  }
+  /* Fenced Code block - line hightlight */
+  .prose code span[data-highlighted-line] {
+    @apply border-y-0 border-l-2 border-blue-400 border-transparent 
+          bg-indigo-400 bg-opacity-10 pl-[calc(1rem-2px)] dark:border-blue-500
+          dark:bg-slate-700;
+  }
+  /* Fenced Code block - with title style*/
+  .prose figcaption[data-rehype-pretty-code-title] {
+    @apply rounded-t-lg border border-b-0 border-gray-200 bg-gray-200 px-5 py-3 font-mono text-sm font-bold text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200;
+  }
+  .prose figcaption[data-rehype-pretty-code-title] + pre {
+    @apply mt-0 rounded-t-none;
+  }
+  /* Inline code block backtick display: none */
+  .prose :not(pre) > code::before,
+  .prose :not(pre) > code::after {
+    display: none;
+  }
+
+  /* inline code block style */
+  .prose :not(pre) > code {
+    @apply rounded border border-gray-200 bg-white px-1 py-0.5 align-middle font-mono text-sm font-normal dark:border-gray-700 dark:bg-gray-900;
   }
 }
 
@@ -128,50 +175,4 @@
   .leftsidebar-md {
     @apply fixed left-2 top-[15%] max-h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl p-3 shadow-inner;
   }
-}
-
-.prose pre > code {
-  display: grid;
-}
-.prose pre span[data-line] {
-  @apply inline-block px-4 py-0.5 leading-snug;
-}
-
-/* Fenced Code block - line number style */
-.prose code[data-line-numbers] {
-  counter-reset: line;
-}
-
-.prose code[data-line-numbers] > span[data-line]::before {
-  counter-increment: line;
-  content: counter(line);
-
-  display: inline-block;
-  width: 0.75rem;
-  margin-right: 1.25rem;
-  text-align: right;
-  color: gray;
-}
-/* Fenced Code block - line hightlight */
-.prose code span[data-highlighted-line] {
-  @apply border-y-0 border-l-2 border-blue-400 border-transparent 
-        bg-indigo-400 bg-opacity-10 pl-[calc(1rem-2px)] dark:border-blue-500
-        dark:bg-slate-700;
-}
-/* Fenced Code block - with title style*/
-.prose figcaption[data-rehype-pretty-code-title] {
-  @apply rounded-t-lg border border-b-0 border-gray-200 bg-gray-200 px-5 py-3 font-mono text-sm font-bold text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200;
-}
-.prose figcaption[data-rehype-pretty-code-title] + pre {
-  @apply mt-0 rounded-t-none;
-}
-/* Inline code block backtick display: none */
-.prose :not(pre) > code::before,
-.prose :not(pre) > code::after {
-  display: none;
-}
-
-/* inline code block style */
-.prose :not(pre) > code {
-  @apply rounded border border-gray-200 bg-white px-1 py-0.5 align-middle font-mono text-sm font-normal dark:border-gray-700 dark:bg-gray-900;
 }
