@@ -6,12 +6,15 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { CategoryKo } from "@/config/koname";
+import { useState } from "react";
 
 const LeftSidebarComp = () => {
   // const toc = parseToc(content.content);
+  const [value, setValue] = useState("");
+
   return (
     <div className="related leftsidebar xl:leftsidebar-md md:hidden xl:block">
-      <Accordion type="multiple">
+      <Accordion collapsible type="single" data-state value={value}>
         {Object.keys(CategoryKo).map((key, index) => {
           const name = CategoryKo[key].name.split("(")[0];
           return (
@@ -20,12 +23,18 @@ const LeftSidebarComp = () => {
               key={index}
               className="border-foreground p-2 hover:bg-primary"
             >
-              <AccordionTrigger>{name}</AccordionTrigger>
+              <AccordionTrigger
+                onClick={() => {
+                  value === name ? setValue("") : setValue(name);
+                }}
+              >
+                {name}
+              </AccordionTrigger>
               {Object.keys(CategoryKo[key].sub).map((subKey, index) => {
                 const subName = CategoryKo[key].sub[subKey].name.split("(")[0];
                 return (
                   <AccordionContent key={index} className="p-0">
-                    <Accordion type="multiple">
+                    <Accordion collapsible type="single">
                       <AccordionItem
                         value={subName}
                         className="m-0 p-2 pb-0 hover:bg-secondary"
@@ -34,7 +43,7 @@ const LeftSidebarComp = () => {
                           {subName}
                         </AccordionTrigger>
                         <AccordionContent className="p-0">
-                          <Accordion type="multiple">
+                          <Accordion collapsible type="single">
                             <AccordionItem
                               value={subName}
                               className="border-secondary p-2"
@@ -50,6 +59,9 @@ const LeftSidebarComp = () => {
                                     href={`/blog/${key}/${subKey}/${titleKey}`}
                                     key={index}
                                     className="text-xs"
+                                    onClick={() => {
+                                      setValue("");
+                                    }}
                                   >
                                     <AccordionItem
                                       value={titleName}

@@ -143,6 +143,10 @@ const Post = async ({ params }: Props) => {
                   {
                     colorIsTextColor: true,
                     strict: false,
+                    macros: {
+                      // issue from google fonts
+                      "\\neq": "\\mathrel{\\char`≠}",
+                    },
                   },
                 ],
                 rehypeSlug,
@@ -153,7 +157,6 @@ const Post = async ({ params }: Props) => {
                     properties: {
                       className: ["anchor"],
                     },
-
                     content: {
                       type: "element",
                       tagName: "span",

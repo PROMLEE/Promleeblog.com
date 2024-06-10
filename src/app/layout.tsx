@@ -27,13 +27,13 @@ export default function RootLayout({
 }>) {
   return (
     <AutoRefresh>
-      <html className={`${noto.className} scroll-smooth focus:scroll-auto`}>
+      <html className={`${noto.className} `}>
         <body>
           <Theme>
             <Navbar />
             <div
               className={
-                "min-h-[800px] w-full scroll-smooth bg-background px-10 pb-40 md:w-5/6  xl:w-3/5"
+                "min-h-[800px] w-full scroll-smooth bg-background px-10 pb-40  focus:scroll-auto md:w-5/6 xl:w-3/5"
               }
             >
               {children}
@@ -50,9 +50,9 @@ export default function RootLayout({
               >
                 <path
                   stroke="black"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   d="m5 15 7-7 7 7"
                 />
               </svg>
@@ -69,9 +69,9 @@ export default function RootLayout({
               >
                 <path
                   stroke="black"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   d="m19 9-7 7-7-7"
                 />
               </svg>

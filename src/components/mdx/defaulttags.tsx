@@ -35,9 +35,7 @@ export function h1tag({ id, children }: Props) {
   return (
     <>
       <hr
-        className={
-          "border-1 mx-auto my-10 w-full  rounded dark:border-slate-800"
-        }
+        className={"mx-auto my-10 w-full rounded border-2 border-foreground"}
       />
       <div id={id} className="mb-5 ml-[-15px] mt-14 text-3xl font-bold">
         💡 {children}
@@ -47,22 +45,25 @@ export function h1tag({ id, children }: Props) {
 }
 export function h2tag({ id, children }: Props) {
   return (
-    <div id={id} className="ml-[-10px] mt-10 text-2xl font-bold">
-      🚀 {children}
-    </div>
+    <>
+      <hr className={"border-1 w-full rounded border-foreground"} />
+      <div id={id} className="mb-3 ml-[-10px] mt-5 text-2xl font-bold">
+        🚀 {children}
+      </div>
+    </>
   );
 }
 export function h3tag({ id, children }: Props) {
   return (
-    <div id={id} className="ml-[-10px] mt-7 text-xl font-bold">
+    <div id={id} className="mb-2 ml-[-10px] mt-7 text-xl font-bold">
       ✅ {children}
     </div>
   );
 }
 export function h4tag({ id, children }: Props) {
   return (
-    <div id={id} className="mt-4 text-lg font-bold">
-      ▫️ {children}
+    <div id={id} className="mb-1 ml-[-8px] mt-4 text-lg font-bold">
+      ➡️ {children}
     </div>
   );
 }
