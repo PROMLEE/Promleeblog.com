@@ -18,7 +18,9 @@ import { useState } from "react";
 
 export const Navbar = () => {
   const [menu, setMenu] = useState(false);
-
+  const menuclose = () => {
+    setMenu(false);
+  };
   return (
     <>
       <div className={"topbar"}>
@@ -113,7 +115,7 @@ export const Navbar = () => {
         </div>
       </div>
       <div className={`${menu ? "visible" : "hidden"} xl:block`}>
-        <LeftSidebarComp />
+        <LeftSidebarComp menuclose={menuclose} />
       </div>
     </>
   );

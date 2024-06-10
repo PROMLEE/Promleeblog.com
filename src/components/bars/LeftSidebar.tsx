@@ -8,7 +8,7 @@ import {
 import { CategoryKo } from "@/config/koname";
 import { useState } from "react";
 
-const LeftSidebarComp = () => {
+const LeftSidebarComp = ({ menuclose }: { menuclose: any }) => {
   // const toc = parseToc(content.content);
   const [value, setValue] = useState("");
 
@@ -61,12 +61,13 @@ const LeftSidebarComp = () => {
                                     className="text-xs"
                                     onClick={() => {
                                       setValue("");
+                                      menuclose();
                                     }}
                                   >
                                     <AccordionItem
                                       value={titleName}
                                       key={index}
-                                      className=" hover:bg-third border-none  p-2 pb-0 hover:font-bold hover:text-black"
+                                      className=" border-none p-2  pb-0 hover:bg-third hover:font-bold hover:text-black"
                                     >
                                       {titleName}
                                     </AccordionItem>
