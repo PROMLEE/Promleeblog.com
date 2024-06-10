@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "../config/globals.css";
-import React, { Suspense } from "react";
+import React from "react";
 import { Gothic_A1 } from "next/font/google";
 import { Theme } from "@/components/Theme";
 import AutoRefresh from "./AutoRefresh";
