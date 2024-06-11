@@ -7,8 +7,8 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
     <>
       {children}
       <ProgressBar
-        color="#fffd00"
-        options={{ showSpinner: true }}
+        color="#0080ff"
+        options={{ showSpinner: false }}
         shallowRouting
       />
     </>
