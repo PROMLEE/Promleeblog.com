@@ -9,16 +9,19 @@ import { Toup } from "@/components/buttons/Toup";
 import { Todown } from "@/components/buttons/Todown";
 import { useRef } from "react";
 import { useIsVisible } from "@/lib/useIsVisible";
+import { Education } from "@/components/aboutme/Education";
 
 export default function App() {
   const ref1 = useRef<HTMLDivElement>(null);
   const ref2 = useRef<HTMLDivElement>(null);
   const ref3 = useRef<HTMLDivElement>(null);
   const ref4 = useRef<HTMLDivElement>(null);
+  const ref5 = useRef<HTMLDivElement>(null);
   const aboutmeVisible = useIsVisible(ref1);
   const skillsVisible = useIsVisible(ref2);
   const projectsVisible = useIsVisible(ref3);
   const experienceVisible = useIsVisible(ref4);
+  const educationVisible = useIsVisible(ref5);
 
   return (
     <>
@@ -66,6 +69,12 @@ export default function App() {
           className={`w-full duration-700 ease-in ${experienceVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
         >
           <Exprience />
+        </div>
+        <div
+          ref={ref5}
+          className={`w-full duration-700 ease-in ${educationVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
+        >
+          <Education />
         </div>
       </div>
       <Todown />
