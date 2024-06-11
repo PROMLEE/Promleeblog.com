@@ -452,7 +452,7 @@ export const CategoryKo: CategoryKoinfo = {
   },
 };
 
-interface CategoryKoinfo {
+export interface CategoryKoinfo {
   [key: string]: {
     name: string;
     sub: {
