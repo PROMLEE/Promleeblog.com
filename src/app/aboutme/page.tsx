@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import { Contact } from "../../components/aboutme/Contact";
 import { AboutMe } from "../../components/aboutme/AboutMe";
@@ -6,10 +7,23 @@ import { Projects } from "../../components/aboutme/Projects";
 import { Exprience } from "../../components/aboutme/Exprience";
 import { Toup } from "@/components/buttons/Toup";
 import { Todown } from "@/components/buttons/Todown";
+import { useRef } from "react";
+import { useIsVisible } from "@/lib/useIsVisible";
+
 export default function App() {
+  const ref1 = useRef<HTMLDivElement>(null);
+  const ref2 = useRef<HTMLDivElement>(null);
+  const ref3 = useRef<HTMLDivElement>(null);
+  const ref4 = useRef<HTMLDivElement>(null);
+  const aboutmeVisible = useIsVisible(ref1);
+  const skillsVisible = useIsVisible(ref2);
+  const projectsVisible = useIsVisible(ref3);
+  const experienceVisible = useIsVisible(ref4);
+
   return (
     <>
       <Toup />
+
       <div
         className={
           "prose my-10 flex flex-col items-center gap-20 dark:prose-invert md:px-20"
@@ -28,11 +42,31 @@ export default function App() {
             </div>
             <Contact />
           </div>
+        </div>{" "}
+        <div
+          ref={ref1}
+          className={`w-full duration-700 ease-in ${aboutmeVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
+        >
+          <AboutMe />
         </div>
-        <AboutMe />
-        <Skills />
-        <Projects />
-        <Exprience />
+        <div
+          ref={ref2}
+          className={`w-full duration-700 ease-in ${skillsVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
+        >
+          <Skills />
+        </div>
+        <div
+          ref={ref3}
+          className={`w-full duration-700 ease-in ${projectsVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
+        >
+          <Projects />
+        </div>
+        <div
+          ref={ref4}
+          className={`w-full duration-700 ease-in ${experienceVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
+        >
+          <Exprience />
+        </div>
       </div>
       <Todown />
     </>
