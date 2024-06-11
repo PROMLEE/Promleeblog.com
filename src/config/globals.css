@@ -176,3 +176,12 @@
     @apply fixed left-2 top-[15%] max-h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl p-3 shadow-inner;
   }
 }
+
+html {
+  @media (max-width: 1023px) {
+    font-size: 87.5%;
+  }
+  @media (max-width: 767px) {
+    font-size: 62.5%;
+  }
+}
