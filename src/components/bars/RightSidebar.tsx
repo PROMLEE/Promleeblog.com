@@ -23,37 +23,43 @@ const parseToc = (content: string) => {
 const RightSidebarComp = (content: any) => {
   const toc = parseToc(content.content);
   return (
-    <div className="related md:sidebar-md xl:right-5 ">
+    <div className="related md:sidebar-md mb-10 border-y-2 py-3 md:mb-0 md:border-none xl:right-5">
       {toc.map((item, idx) => {
         if (item.indent === 1) {
           return (
-            <Link
-              key={idx}
-              href={item.link}
-              className="sidebar mt-3 border-t-2 border-dotted border-slate-500 py-1 text-sm font-bold dark:text-white"
-            >
-              💡 {item.text.split("(")[0]}
-            </Link>
+            <div key={idx} className="sidebar">
+              <Link
+                key={idx}
+                href={item.link}
+                className="sidebar mt-3 indent-[-5px] text-sm font-bold text-text"
+              >
+                💡 {item.text.split("(")[0]}
+              </Link>
+            </div>
           );
         } else if (item.indent === 2) {
           return (
-            <Link
-              key={idx}
-              href={item.link}
-              className="sidebar ml-8 indent-[-20px] text-xs dark:text-white"
-            >
-              🚀 {item.text.split("(")[0]}
-            </Link>
+            <div key={idx} className="sidebar">
+              <Link
+                key={idx}
+                href={item.link}
+                className="sidebar ml-8 indent-[-20px] text-xs text-text"
+              >
+                🚀 {item.text.split("(")[0]}
+              </Link>
+            </div>
           );
         } else if (item.indent === 3) {
           return (
-            <Link
-              key={idx}
-              href={item.link}
-              className="sidebar ml-10 indent-[-20px] text-xs dark:text-slate-300"
-            >
-              ✅ {item.text.split("(")[0]}
-            </Link>
+            <div key={idx} className="sidebar">
+              <Link
+                key={idx}
+                href={item.link}
+                className="sidebar ml-10 indent-[-20px] text-xs text-text"
+              >
+                ✅ {item.text.split("(")[0]}
+              </Link>
+            </div>
           );
         }
       })}
