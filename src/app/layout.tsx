@@ -8,6 +8,7 @@ import { Navbar } from "@/components/bars/Navbar";
 import { Footer } from "@/components/bars/Footer";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import Providers from "@/components/bars/Progressbar";
 
 export const metadata: Metadata = {
   title: "PromleeBlog",
@@ -36,7 +37,7 @@ export default function RootLayout({
                 "min-h-[100vh] w-full scroll-smooth bg-background px-10 focus:scroll-auto md:w-5/6 xl:w-3/5"
               }
             >
-              {children}
+              <Providers>{children}</Providers>
             </div>
             <Footer />
           </Theme>

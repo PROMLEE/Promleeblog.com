@@ -16,7 +16,7 @@ function contentList(params: params) {
   return fs.readdirSync(path);
 }
 
-const Title = async ({ params }: Props) => {
+const Title = ({ params }: Props) => {
   let seriese = "";
   return (
     <div>
