@@ -1,18 +1,17 @@
-# 이산 로그 문제 (Discrete Logarithm Problem)
-## Group (군)
+## 대수에서의 군 (Group)
 > 이항 연산자 $\;\circ$ 에 대해 닫혀 있고, 결합 법칙, 항등원, 역원을 만족하는 집합
 
 1. 닫힘: $\forall\; a, b \in G, a \circ b \in G$
 2. 결합 법칙: $\forall\; a, b, c \in G, (a \circ b) \circ c = a \circ (b \circ c)$
 3. 항등원: $\exists\;s e \in G, \forall\; a \in G, a \circ e = e \circ a = a$
 4. 역원: $\forall\; a \in G, \exists\; a^{-1} \in G, a \circ a^{-1} = a^{-1} \circ a = e$
-5. 교환 법칙(abelian): $\forall\; a, b \in G, a \circ b = b \circ a$
+5. 교환 법칙(abelian): $\forall\; a, b \in G, a \circ b = b \circ a \rightarrow$ *아벨 군*
 
 ### 부분군 정의 (Subgroup)
 > 군 $G$의 부분집합 $H$가 군이 되기 위한 조건
 
 군 $(\mathbb{H} , \circ)$는 $\mathbb{H}$가 $\mathbb{G}$의 부분집합이면서 스스로 군이 될 때 $(\mathbb{G}, \circ)$의 부분군이다.
-#### 예시
+### 예시 (부분군)
 <Ybox>
 
 $\mathbb{Z} = \{0, 1, 2, ..., n-1\},$
@@ -32,29 +31,36 @@ $\mathbb{C} = \text{복소수}$
 
 군 $(\mathbb{G}, \circ)$는 원소의 수가 유한할 때 유한 군이다. $|\mathbb{G}|$는 $\mathbb{G}$의 크기(카디널리티)를 나타낸다.
 
-#### 예시
+### 예시 (유한 군)
 - $(\mathbb{Z}_n, +)$: 양의 정수 $n$에 대해 아벨 군 ($|\mathbb{Z}_n| = n$)
-- $(\mathbb{Z}_n^*, \times)$: 양의 정수 $n$에 대해 아벨 군 ($|\mathbb{Z}_n^*| = \phi(n)$, 여기서 $\phi$는 [오일러 파이](#오일러-파이-함수-eulers-phi-function) 함수)
+- $(\mathbb{Z}_n^*, \times)$: 양의 정수 $n$에 대해 아벨 군 ($|\mathbb{Z}_n^*| = \phi(n)$, 여기서 $\phi$는 [오일러 파이](/blog/Computer_Science/Security/Concept/03_01#오일러-파이-함수-eulers-phi-function) 함수)
+
+#### 정리 (군)
+- 군은 항상 닫혀 있고, *항등원*과 *역원*을 가진다.
+- 군은 *결합 법칙*을 만족한다.
+- 군은 *교환 법칙*을 만족하지 않을 수 있다.
+- 군은 *부분군*을 가질 수 있다.
+- 군은 *유한 군*일 수 있다.
 
 ## 원소 차수 (Order of Element)
-> $(\mathbb{G}, \circ)$가 군이고 $a \in \mathbb{G}$일 때, $a$의 차수는 $a$를 반복해서 연산하여 항등원 $e$를 만들 때 필요한 최소 횟수이다.
+> $(\mathbb{G}, \circ)$가 군이고 $a \in \mathbb{G}$일 때, $a$의 *원소차수(ord)* 는 $a$를 반복해서 연산하여 항등원 $e$를 만들 때 필요한 최소 횟수이다.
 
 $a^m = id = 1$을 만족하는 가장 작은 양의 정수 $m$을 $a$의 차수라고 한다. $m$을 $\text{ord}(a)$로 표기한다.
 여기서 $id$는 항등원을 의미한다.
 
-#### 예시
+### 예시 (원소 차수)
 $(\mathbb{Z}_{11}^*, \times)$에서 3의 차수:
 - $3^1 = 3$
 - $3^2 = 9$
 - $3^3 = 27 = 5 \;(\text{mod}\; 11)$
 - $3^4 = 15 = 4 \;(\text{mod}\; 11)$
 - $3^5 = 12 = 1 \;(\text{mod}\; 11)$
-- 따라서 $\text{ord}(3) = 5 \;in\; (\mathbb{Z}_{11}^*, \times)$
+- 따라서 $\text{ord}(3) = 5 \;\text{in}\; (\mathbb{Z}_{11}^*, \times)$
 
 ## 순환 군 (Cyclic Group)
-> 최대 차수 $\operatorname{ord}(g) = |\mathbb{G}|$를 가진 원소 $g$를 포함하는 군 $\mathbb{G}$를 순환 군이라고 한다. $g$를 발생자 또는 원시 원소라고 부른다.
+> 최대 차수 $\operatorname{ord}(g) = |\mathbb{G}|$를 가진 원소 $g$를 포함하는 군 $\mathbb{G}$를 순환 군이라고 한다. $g$를 *발생자* 또는 *원시 원소* 라고 부른다.
 
-#### 예시
+### 예시 (순환 군)
 $(\mathbb{Z}_{11}^*) = \{1, 2, 3, 4, 5, 6, 7, 8, 9, 10\}$
 a = 2일 때
 - $2^1 = 2$
@@ -68,18 +74,32 @@ a = 2일 때
 - $2^9 = 3 \times 2 = 6 \; (\text{mod} \; 11)$
 - $2^{10} = 6 \times 2 = 1 \; (\text{mod} \; 11)$
 - 따라서 $\text{ord}(2) = 10$, $|\mathbb{Z}_{11}^*|\; \& \;\mathbb{Z}_{11}^*$는 순환 군이다.
+
 3은 $\mathbb{Z}_{11}^*$의 발생자가 아니다.
-$(3) = \{3, 9, 5, 4, 1\}$는 $\mathbb{Z}_{11}^*$의 부분군이며, 3은 이 부분군의 발생자이다.
+$<3>\; = \{3, 9, 5, 4, 1\}$는 $\mathbb{Z}_{11}^*$의 부분군이며, 3은 이 부분군의 발생자이다.
+
+#### 정리(원소 차수, 순환 군)
+- 군 $\mathbb{G}$의 원소 $a$의 *원소차수*는 $\mathbb{G}$의 원소 중 $a$를 반복해서 연산하여 항등원을 만들 때 필요한 최소 횟수이다.
+- 순환 군은 최대 차수를 가진 원소(*발생자* or *원시 원소*)를 포함하는 군이다.
+- 순환 군이 발생자를 가질 때, 그 발생자는 순환 군의 모든 원소를 생성할 수 있다.
+
 
 ## 이산 로그 문제 (DLP, Discrete Logarithm Problem)
 > 군 $(\mathbb{G}, \times)$와 발생자 $g$가 주어졌을 때, $\mathbb{G}$의 원소 $A$에 대해 $A = g^a$를 만족하는 $a$를 찾는 문제이다.
 
 실수 집합에서 로그를 계산하는 것은 비교적 쉬움 ($log_gA$ 계산)
-이산 로그 문제는 이러한 연산을 근사적으로 계산하는 것이 어려움
-- $\mathbb{Z}_{31}^*$에서 $g = 3$, $A = 20$일 때, $3^x\mod{31} = 20$을 만족하는 $x$를 찾는 것은 어려움
-- $p$ 가 충분히 큰 소수일 경우 $\mathbb{Z}_p^*$에서 DLP는 어려운 문제
+이산 세계에서는 이러한 로그 연산을 근사적으로 계산하는 것이 어려움
+- $\mathbb{Z}_{31}^*$에서 $g = 3$, $A = 20$일 때, $3^x \pmod{31} = 20$을 만족하는 $x$를 찾는 것은 쉬움
+	- $3^1 = 3, 3^2 = 9, 3^3 = 27, 3^4 = 19, \cdots ,3^{8} = 20$
+- $p$ 가 충분히 큰 소수일 경우 $\mathbb{Z}_p^*$ 에서 DLP는 어려운 문제
 
 ## 이산 로그 해결 알고리즘 (Algorithm for Solving DLP)
-- $\mathbb{Z}_p^*$의 부분군 $\mathbb{G}$에서 정의된 DLP 해결법 ($\mathbb{G}$의 차수가 $q$일 때)
-	- $p$ 가 크지 않은 경우: 일반/특수 체 알고리즘 (GNF, SNF)
-	- $q$ 가 크지 않은 경우: 폴라드로 알고리즘 (Pollard's rho algorithm)
+$\mathbb{Z}_p^*$의 부분군 $\mathbb{G}$에서 정의된 DLP 해결법 ($\mathbb{G}$의 차수가 $q$일 때)
+- $p$ 가 크지 않은 경우: 일반/특수 체 알고리즘 (GNF, SNF)
+- $q$ 가 크지 않은 경우: 폴라드로 알고리즘 (Pollard's rho algorithm)
+
+#### 정리 (이산 로그 문제)
+- 이산 로그 문제는 군 $\mathbb{G}$와 발생자 $g$가 주어졌을 때, $\mathbb{G}$의 원소 $A$에 대해 $A = g^a$를 만족하는 $a$를 찾는 문제이다.
+- 이산 로그 문제는 실수 집합에서 로그를 계산하는 것과 달리 이산 세계에서는 어려운 문제이다.
+- 이산 로그 문제는 $\mathbb{Z}_p^*$의 부분군 $\mathbb{G}$에서 정의된 DLP 해결법을 사용하여 해결할 수 있다.
+

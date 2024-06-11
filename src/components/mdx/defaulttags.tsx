@@ -64,7 +64,7 @@ export function h3tag({ id, children }: Props) {
 }
 export function h4tag({ id, children }: Props) {
   return (
-    <div id={id} className="mb-1 ml-[-8px] mt-4 text-lg font-bold">
+    <div id={id} className="mb-1 ml-[-8px] mt-7 text-lg font-bold">
       ➡️ {children}
     </div>
   );

@@ -5,6 +5,7 @@ import {
   Drawer,
   DrawerContent,
   DrawerDescription,
+  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
@@ -13,6 +14,8 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { Button } from "./ui/button";
+
 // import { ToastAction } from "@/components/ui/toast";
 // import { useToast } from "@/components/ui/use-toast";
 
@@ -27,6 +30,10 @@ export function Pw() {
       if (pw === null) return;
       else setValue(pw);
     }
+  };
+
+  const handleBack = () => {
+    window.history.back();
   };
 
   React.useEffect(() => {
@@ -45,7 +52,7 @@ export function Pw() {
         //     <ToastAction altText="비밀번호가 틀렸습니다">Undo</ToastAction>
         //   ),
         // });
-        alert("비밀번호가 틀렸습니다");
+        alert("패스워드가 틀렸습니다");
         setValue("");
       }
     }
@@ -58,7 +65,7 @@ export function Pw() {
           <DrawerTitle>미공개 포스트입니다😢</DrawerTitle>
           <DrawerDescription>패스워드를 입력해주세요</DrawerDescription>
         </DrawerHeader>
-        <div className="mb-20 flex flex-col content-center items-center">
+        <div className="mb-5 flex flex-col content-center items-center">
           <InputOTP
             maxLength={6}
             value={value}
@@ -73,6 +80,11 @@ export function Pw() {
             </InputOTPGroup>
           </InputOTP>
         </div>
+        <DrawerFooter>
+          <Button onClick={handleBack} className="bg-foreground">
+            돌아가기
+          </Button>
+        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );
