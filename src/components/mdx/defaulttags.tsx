@@ -173,7 +173,7 @@ export const atag = ({ id, children, href }: Props) => {
     <a
       id={id}
       className={
-        "font-bold text-yellow-700 no-underline hover:text-blue-700 dark:font-normal dark:text-yellow-500"
+        "font-bold text-yellow-700 no-underline hover:text-blue-700 dark:font-normal dark:text-yellow-500 hover:dark:text-blue-300"
       }
       href={href}
       target="_blank"
