@@ -31,17 +31,15 @@ export const DarkmodeButton = () => {
       onClick={() => {
         setTheme(value);
       }}
+      className="flex items-center gap-2"
     >
-      <div className="flex items-center gap-2">
-        {label} {value}
-      </div>
-      {/* {theme === label} */}
+      {label} {value}
     </DropdownMenuItem>
   );
   return (
     <div className="ml-3 mr-10 flex h-full content-center items-center">
       <DropdownMenu>
-        <DropdownMenuTrigger className="h-full text-lg">
+        <DropdownMenuTrigger className="h-full text-lg outline-none">
           {theme === "light" ? "☀️" : theme === "dark" ? "🌙" : "🖥️"}
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-3">
