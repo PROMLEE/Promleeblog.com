@@ -41,7 +41,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   Object.keys(CategoryKo).map((category) => {
     list.push(putmap(category));
     Object.keys(CategoryKo[category].sub).map((sub) => {
-      console.log(sub);
       list.push(putmap(category + "/" + sub));
       Object.keys(CategoryKo[category].sub[sub].title).map((title) => {
         list.push(putmap(category + "/" + sub + "/" + title));

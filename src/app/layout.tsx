@@ -9,6 +9,7 @@ import { Footer } from "@/components/bars/Footer";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Providers from "@/components/bars/Progressbar";
+import GoogleAnalytics from "@/lib/gtag";
 
 export const metadata: Metadata = {
   title: "PromleeBlog",
@@ -43,6 +44,9 @@ export default function RootLayout({
           </Theme>
           <SpeedInsights />
           <Analytics />
+          {process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS ? (
+            <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS} />
+          ) : null}
         </body>
       </html>
     </AutoRefresh>
