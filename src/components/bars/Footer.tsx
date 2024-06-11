@@ -3,7 +3,7 @@ export const Footer = () => {
     <footer id={"bottom"} className="w-full bg-foreground">
       <div className="mx-auto w-full max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
         <span className="text-sm text-gray-500 dark:text-gray-400 sm:text-center">
-          © 2024 Promlee . All Rights Reserved. ㅋ
+          © 2024 Promlee . All Rights Reserved. ㅎ
         </span>
         <ul className="mt-3 flex flex-wrap items-center text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
           <li>
@@ -28,12 +28,15 @@ export const Footer = () => {
               Github
             </a>
           </li>
-          {/* <li>
-            <a href="#" className="me-4 hover:underline md:me-6">
-              Privacy Policy
+          <li>
+            <a
+              href="https://github.com/PROMLEE/PromleeBlog.com"
+              className="me-4 hover:underline md:me-6"
+            >
+              About this Blog
             </a>
           </li>
-          <li>
+          {/* <li>
             <a href="#" className="me-4 hover:underline md:me-6">
               Licensing
             </a>
