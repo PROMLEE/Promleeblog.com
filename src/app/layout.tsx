@@ -33,7 +33,7 @@ export default function RootLayout({
             <Navbar />
             <div
               className={
-                "min-h-[800px] w-full scroll-smooth bg-background px-10 focus:scroll-auto md:w-5/6 xl:w-3/5"
+                "min-h-[100vh] w-full scroll-smooth bg-background px-10 focus:scroll-auto md:w-5/6 xl:w-3/5"
               }
             >
               {children}

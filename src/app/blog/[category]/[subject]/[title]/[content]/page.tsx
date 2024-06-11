@@ -80,62 +80,60 @@ const Post = async ({ params }: Props) => {
         {CategoryKo[params.category].sub[params.subject].title[params.title]
           .content[params.content].lock && <Pw />}
       </Suspense>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink
-                href={`/blog/${params.category}`}
-                className="hover:font-bold hover:text-text"
-              >
-                {CategoryKo[params.category].name.split("(")[0]}
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink
-                href={`/blog/${params.category}/${params.subject}`}
-                className="hover:font-bold hover:text-text"
-              >
-                {
-                  CategoryKo[params.category].sub[params.subject].name.split(
-                    "(",
-                  )[0]
-                }
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />{" "}
-            <BreadcrumbItem>
-              <BreadcrumbLink
-                href={`/blog/${params.category}/${params.subject}/${params.title}`}
-                className="hover:font-bold hover:text-text"
-              >
-                {
-                  CategoryKo[params.category].sub[params.subject].title[
-                    params.title
-                  ].name.split("(")[0]
-                }
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage className="font-bold text-text">
-                {
-                  CategoryKo[params.category].sub[params.subject].title[
-                    params.title
-                  ].content[params.content].name.split("(")[0]
-                }
-              </BreadcrumbPage>
-            </BreadcrumbItem>
-            <div className={"ml-auto text-right"}>
-              {"📅 " +
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              href={`/blog/${params.category}`}
+              className="hover:font-bold hover:text-text"
+            >
+              {CategoryKo[params.category].name.split("(")[0]}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              href={`/blog/${params.category}/${params.subject}`}
+              className="hover:font-bold hover:text-text"
+            >
+              {
+                CategoryKo[params.category].sub[params.subject].name.split(
+                  "(",
+                )[0]
+              }
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />{" "}
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              href={`/blog/${params.category}/${params.subject}/${params.title}`}
+              className="hover:font-bold hover:text-text"
+            >
+              {
                 CategoryKo[params.category].sub[params.subject].title[
                   params.title
-                ].content[params.content].date}
-            </div>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </Suspense>
+                ].name.split("(")[0]
+              }
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage className="font-bold text-text">
+              {
+                CategoryKo[params.category].sub[params.subject].title[
+                  params.title
+                ].content[params.content].name.split("(")[0]
+              }
+            </BreadcrumbPage>
+          </BreadcrumbItem>
+          <div className={"ml-auto text-right"}>
+            {"📅 " +
+              CategoryKo[params.category].sub[params.subject].title[
+                params.title
+              ].content[params.content].date}
+          </div>
+        </BreadcrumbList>
+      </Breadcrumb>
       <div className="prose mt-10 min-h-[1000px] scroll-smooth">
         <RightSidebarComp content={post.content} />
         <Suspense fallback={<div>Loading...</div>}>
