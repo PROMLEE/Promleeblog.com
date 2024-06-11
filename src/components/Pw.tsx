@@ -13,10 +13,14 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+// import { ToastAction } from "@/components/ui/toast";
+// import { useToast } from "@/components/ui/use-toast";
 
 export function Pw() {
   const [value, setValue] = React.useState("");
   const [isOpen, setIsOpen] = React.useState(true);
+  // const { toast } = useToast();
+
   const getpw = () => {
     if (typeof window !== "undefined") {
       const pw = localStorage.getItem("promleeblogpostpw");
@@ -33,11 +37,20 @@ export function Pw() {
         setIsOpen(false);
         localStorage.setItem("promleeblogpostpw", PW);
       } else {
-        alert("비밀번호가 틀렸습니다.");
+        // toast({
+        //   title: "Scheduled: Catch up ",
+        //   description: "Friday, February 10, 2023 at 5:57 PM",
+        //   className: "z-[9999]",
+        //   action: (
+        //     <ToastAction altText="비밀번호가 틀렸습니다">Undo</ToastAction>
+        //   ),
+        // });
+        alert("비밀번호가 틀렸습니다");
         setValue("");
       }
     }
   }, [value]);
+
   return (
     <Drawer open={isOpen} handleOnly={true}>
       <DrawerContent>
