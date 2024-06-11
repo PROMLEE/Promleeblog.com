@@ -18,7 +18,7 @@ export default function App() {
         <div className="w-full">
           <h1>👨‍💻이동훈 | 도전을 두려워 않는 개발자</h1>
           <div className="flex flex-wrap gap-10">
-            <div className="relative mb-10 mt-[2em] h-[12rem] w-[12rem]">
+            <div className="relative mb-10 mt-[2em] h-[10rem] w-[10rem]">
               <Image
                 src="https://avatars.githubusercontent.com/u/80230701?v=4?s=400"
                 alt="profile_image"

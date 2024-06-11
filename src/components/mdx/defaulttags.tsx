@@ -13,17 +13,19 @@ export function Img({
   alt,
   height,
   width,
+  bg,
 }: {
   src: string;
   alt: string;
   height: string;
   width: string;
+  bg: string;
 }) {
   return (
     <Image
       src={src}
-      alt={alt}
-      className="m-0 my-5"
+      alt={alt || "image"}
+      className={`m-0 my-5 bg-${bg || "white"}`}
       width={Number(width) ? Number(width) : 500}
       height={Number(height) ? Number(height) : 500}
       objectFit="contain"
@@ -96,7 +98,13 @@ export const litag = ({ id, children }: Props) => {
 };
 export const thtag = ({ children }: Props) => {
   return (
-    <th className={"border border-third bg-foreground p-1"}>{children}</th>
+    <th
+      className={
+        "border border-third bg-foreground p-1 font-normal text-text-foreground"
+      }
+    >
+      {children}
+    </th>
   );
 };
 export const tdtag = ({ children }: Props) => {
@@ -110,7 +118,9 @@ export const tdtag = ({ children }: Props) => {
 //   return <code className={"dark:text-white "}>{children}</code>;
 // };
 export const btag = ({ children }: Props) => {
-  return <div className="inline font-bold text-text">{children}</div>;
+  return (
+    <div className="inline font-bold text-text-foreground">{children}</div>
+  );
 };
 
 export function emtag({ children }: Props) {
@@ -150,6 +160,7 @@ export const atag = ({ id, children, href }: Props) => {
         href={href}
         id={id}
         className={"text-yellow-500  no-underline hover:text-blue-700"}
+        target="_blank"
       >
         {children}
       </Link>
