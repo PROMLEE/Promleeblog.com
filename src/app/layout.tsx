@@ -27,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <AutoRefresh>
-      <html className={`${noto.className} `}>
+      <html className={`${noto.className} `} suppressHydrationWarning>
         <body>
           <Theme>
             <Navbar />
