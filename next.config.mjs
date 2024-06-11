@@ -2,7 +2,28 @@
 const nextConfig = {
   images: {
     dangerouslyAllowSVG: true,
-    domains: ["avatars.githubusercontent.com", "github.com", "img.shields.io"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "github.com",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "img.shields.io",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "upload.wikimedia.org",
+        pathname: "**",
+      },
+    ],
   },
 };
 

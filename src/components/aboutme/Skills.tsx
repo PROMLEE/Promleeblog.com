@@ -1,29 +1,76 @@
-import Image from "next/image";
-
 interface SkillType {
   name: string;
-  skills: string[];
+  skills: { name: string; bg: string; logo: string; logocolor: string }[];
 }
 
 const skills: SkillType[] = [
   {
     name: "Front-End",
-    skills: ["React - js, ts", "Flutter - dart", "Kotlin"],
+    skills: [
+      { name: "React", bg: "20232A", logo: "react", logocolor: "61DAFB" },
+      { name: "Next.js", bg: "000000", logo: "nextdotjs", logocolor: "white" },
+      { name: "Flutter", bg: "02569B", logo: "flutter", logocolor: "white" },
+    ],
   },
   {
     name: "Back-End",
-    skills: ["Flask", "DB - Firebase"],
+    skills: [
+      { name: "Flask", bg: "000000", logo: "flask", logocolor: "white" },
+      {
+        name: "Spring Boot",
+        bg: "6DB33F",
+        logo: "springboot",
+        logocolor: "white",
+      },
+      {
+        name: "Firebase",
+        bg: "FFCA28",
+        logo: "firebase",
+        logocolor: "black",
+      },
+    ],
   },
   {
     name: "DevOps",
-    skills: ["AWS - EC2, Cloudfront, S3, Route53"],
+    skills: [
+      { name: "EC2", bg: "FF9900", logo: "amazonec2", logocolor: "white" },
+      { name: "Cloudfront", bg: "8C4FFF", logo: "amazon", logocolor: "white" },
+      { name: "S3", bg: "569A31", logo: "amazons3", logocolor: "white" },
+      {
+        name: "Route53",
+        bg: "8C4FFF",
+        logo: "amazonroute53",
+        logocolor: "white",
+      },
+    ],
   },
   {
     name: "Collaboration & Tools",
     skills: [
-      "Git, Github, Slack, Notion",
-      "IntelliJ, VS Code, Pycharm, Android Studio",
-      "Figma",
+      { name: "Git", bg: "F05032", logo: "git", logocolor: "white" },
+      { name: "Github", bg: "181717", logo: "github", logocolor: "white" },
+      { name: "Slack", bg: "4A154B", logo: "slack", logocolor: "white" },
+      { name: "Notion", bg: "000000", logo: "notion", logocolor: "white" },
+      {
+        name: "VS Code",
+        bg: "007ACC",
+        logo: "visualstudiocode",
+        logocolor: "white",
+      },
+      {
+        name: "IntelliJ",
+        bg: "000000",
+        logo: "intellijidea",
+        logocolor: "white",
+      },
+      { name: "Pycharm", bg: "000000", logo: "pycharm", logocolor: "white" },
+      {
+        name: "Android Studio",
+        bg: "3DDC84",
+        logo: "androidstudio",
+        logocolor: "white",
+      },
+      { name: "Figma", bg: "F24E1E", logo: "figma", logocolor: "white" },
     ],
   },
 ];
@@ -37,21 +84,16 @@ export const Skills = () => {
         <>
           <div key={idx} className="flex">
             <div className="w-2/3 text-xl font-bold">{skill.name}</div>
-            <div className="w-2/3">
-              <ul className="m-0">
-                {skill.skills.map((s, idx) => (
-                  <li key={idx} className="m-0 mb-2 marker:text-text">
-                    <div className="relative h-7 w-24">
-                      <Image
-                        src="https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white"
-                        alt="ho"
-                        className="m-0"
-                        fill
-                      />
-                    </div>
-                  </li>
-                ))}
-              </ul>
+            <div className="m-0 flex w-2/3 flex-wrap gap-2">
+              {skill.skills.map((s, idx) => (
+                <div key={idx} className="m-0 mb-2 marker:text-text">
+                  <img
+                    src={`https://img.shields.io/badge/${s.name}-${s.bg}?style=for-the-badge&logo=${s.logo}&logoColor=${s.logocolor}`}
+                    alt="ho"
+                    className="m-0 h-8 rounded-lg border border-foreground"
+                  />
+                </div>
+              ))}
             </div>
           </div>
           <br />
