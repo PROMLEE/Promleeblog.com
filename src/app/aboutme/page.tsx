@@ -26,7 +26,6 @@ export default function App() {
   return (
     <>
       <Toup />
-
       <div
         className={
           "prose my-10 flex flex-col items-center gap-20 dark:prose-invert md:px-20"
@@ -48,25 +47,25 @@ export default function App() {
         </div>{" "}
         <div
           ref={ref1}
-          className={`w-full duration-700 ease-in ${aboutmeVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
+          className={`w-full duration-1000 ease-in ${aboutmeVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
         >
           <AboutMe />
         </div>
         <div
           ref={ref2}
-          className={`w-full duration-700 ease-in ${skillsVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
+          className={`w-full duration-1000 ease-in ${skillsVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
         >
           <Skills />
         </div>
         <div
           ref={ref3}
-          className={`w-full duration-700 ease-in ${projectsVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
+          className={`w-full duration-1000 ease-in ${projectsVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
         >
           <Projects />
         </div>
         <div
           ref={ref4}
-          className={`w-full duration-700 ease-in ${experienceVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
+          className={`w-full duration-1000 ease-in ${experienceVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
         >
           <Exprience />
         </div>
