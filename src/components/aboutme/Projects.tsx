@@ -59,15 +59,20 @@ export const Projects = () => {
             <h2>{project.name}</h2>
             <div className="flex flex-row gap-4">
               <div className="w-2/3">
-                <a href={project.url} target="_blank" rel="noreferrer">
-                  <Image
-                    src="https://github.com/fluidicon.png"
-                    alt="git"
-                    width={30}
-                    height={10}
-                    priority
-                    className="m-0 mr-2 inline-block"
-                  />
+                <a
+                  href={project.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1"
+                >
+                  <div className="relative h-5 w-5">
+                    <Image
+                      src="https://github.com/fluidicon.png"
+                      alt="git"
+                      fill
+                      className="m-0"
+                    />
+                  </div>
                   {project.name}
                 </a>
                 <p>{project.date}</p>

@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface SkillType {
   name: string;
   skills: string[];
@@ -38,8 +40,15 @@ export const Skills = () => {
             <div className="w-2/3">
               <ul className="m-0">
                 {skill.skills.map((s, idx) => (
-                  <li key={idx} className="m-0 marker:text-text">
-                    {s}
+                  <li key={idx} className="m-0 mb-2 marker:text-text">
+                    <div className="relative h-7 w-24">
+                      <Image
+                        src="https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white"
+                        alt="ho"
+                        className="m-0"
+                        fill
+                      />
+                    </div>
                   </li>
                 ))}
               </ul>
