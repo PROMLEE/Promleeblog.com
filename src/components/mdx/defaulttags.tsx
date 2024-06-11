@@ -13,17 +13,19 @@ export function Img({
   alt,
   height,
   width,
+  bg,
 }: {
   src: string;
   alt: string;
   height: string;
   width: string;
+  bg: string;
 }) {
   return (
     <Image
       src={src}
-      alt={alt}
-      className="m-0 my-5"
+      alt={alt || "image"}
+      className={`m-0 my-5 bg-${bg || "white"}`}
       width={Number(width) ? Number(width) : 500}
       height={Number(height) ? Number(height) : 500}
       objectFit="contain"
@@ -96,7 +98,13 @@ export const litag = ({ id, children }: Props) => {
 };
 export const thtag = ({ children }: Props) => {
   return (
-    <th className={"border border-third bg-foreground p-1"}>{children}</th>
+    <th
+      className={
+        "border border-third bg-foreground p-1 font-normal text-text-foreground"
+      }
+    >
+      {children}
+    </th>
   );
 };
 export const tdtag = ({ children }: Props) => {
@@ -110,14 +118,16 @@ export const tdtag = ({ children }: Props) => {
 //   return <code className={"dark:text-white "}>{children}</code>;
 // };
 export const btag = ({ children }: Props) => {
-  return <div className="inline font-bold text-text">{children}</div>;
+  return (
+    <div className="inline font-bold text-text-foreground">{children}</div>
+  );
 };
 
 export function emtag({ children }: Props) {
   return (
     <div
       className={
-        "inline text-text underline decoration-yellow-800 decoration-wavy underline-offset-4 dark:decoration-yellow-400"
+        "inline text-text-foreground underline decoration-yellow-800 decoration-wavy underline-offset-1 dark:decoration-yellow-400"
       }
     >
       {children}
@@ -142,28 +152,33 @@ export const spantag = ({ children }: Props) => {
 //   );
 // };
 export const atag = ({ id, children, href }: Props) => {
-  const isInternalLink = href && (href.startsWith("/") || href.startsWith("#"));
+  // const isInternalLink = href && (href.startsWith("/") || href.startsWith("#"));
 
-  if (isInternalLink) {
-    return (
-      <Link
-        href={href}
-        id={id}
-        className={"text-yellow-500  no-underline hover:text-blue-700"}
-      >
-        {children}
-      </Link>
-    );
-  }
+  // if (isInternalLink) {
+  //   return (
+  //     <Link
+  //       href={href}
+  //       id={id}
+  //       className={
+  //         "text-yellow-700 no-underline hover:text-blue-700 dark:text-yellow-500"
+  //       }
+  //       target="_blank"
+  //     >
+  //       {children}
+  //     </Link>
+  //   );
+  // }
 
   return (
     <a
       id={id}
-      className={"text-yellow-500  no-underline hover:text-blue-700"}
+      className={
+        "font-bold text-yellow-700 no-underline hover:text-blue-700 dark:font-normal dark:text-yellow-500"
+      }
       href={href}
       target="_blank"
     >
-      {children} ↗️
+      {children}
     </a>
   );
 };
