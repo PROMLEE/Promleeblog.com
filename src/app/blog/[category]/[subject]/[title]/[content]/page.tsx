@@ -15,7 +15,8 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { CategoryKo } from "@/config/koname";
 import { Pw } from "@/components/Pw";
 import { Suspense } from "react";
-import Link from "next/link";
+import { Toup } from "@/components/buttons/Toup";
+import { Todown } from "@/components/buttons/Todown";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -74,25 +75,7 @@ const Post = async ({ params }: Props) => {
   const post = await getPostDetail(params);
   return (
     <>
-      <Link href="#">
-        <svg
-          className="sticky top-0 mb-2 ml-auto h-8 w-8 rounded-b-md bg-foreground"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke="black"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="m5 15 7-7 7 7"
-          />
-        </svg>
-      </Link>
+      <Toup />
       <Suspense fallback={<div>Loading...</div>}>
         {CategoryKo[params.category].sub[params.subject].title[params.title]
           .content[params.content].lock && <Pw />}
@@ -221,25 +204,7 @@ const Post = async ({ params }: Props) => {
           {/*))}*/}
         </Suspense>
       </div>
-      <Link href="#bottom">
-        <svg
-          className="sticky bottom-0 ml-auto mt-5 h-8 w-8 rounded-t-md bg-foreground"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke="black"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="m19 9-7 7-7-7"
-          />
-        </svg>
-      </Link>
+      <Todown />
     </>
   );
 };

@@ -80,26 +80,27 @@ export const Skills = () => {
     <div className="w-full">
       <h1>🛠 Skills</h1>
       <hr />
-      {skills.map((skill, idx) => (
-        <>
+      <div className="flex flex-col gap-16">
+        {skills.map((skill, idx) => (
           <div key={idx} className="flex">
             <div className="w-2/3 text-xl font-bold">{skill.name}</div>
             <div className="m-0 flex w-2/3 flex-wrap gap-2">
               {skill.skills.map((s, idx) => (
                 <div key={idx} className="m-0 mb-2 marker:text-text">
-                  <img
-                    src={`https://img.shields.io/badge/${s.name}-${s.bg}?style=for-the-badge&logo=${s.logo}&logoColor=${s.logocolor}`}
-                    alt="ho"
-                    className="m-0 h-8 rounded-lg border border-foreground"
-                  />
+                  {
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={`https://img.shields.io/badge/${s.name}-${s.bg}?style=for-the-badge&logo=${s.logo}&logoColor=${s.logocolor}`}
+                      alt="ho"
+                      className="m-0 h-8 rounded-lg border border-foreground"
+                    />
+                  }
                 </div>
               ))}
             </div>
           </div>
-          <br />
-          <br />
-        </>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };

@@ -29,8 +29,8 @@ const items: ContactProps[] = [
 
 export const Contact = () => {
   return (
-    <div className="w-1/2">
-      <h2>Contact &amp; Channels</h2>
+    <div className="w-3/5">
+      <h2>📱 Contact &amp; Channels</h2>
       <hr />
       <ul>
         {items.map((item, index) => (
