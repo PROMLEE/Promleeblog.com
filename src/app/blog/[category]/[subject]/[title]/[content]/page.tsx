@@ -15,7 +15,8 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { CategoryKo } from "@/config/koname";
 import { Pw } from "@/components/Pw";
 import { Suspense } from "react";
-import Link from "next/link";
+import { Toup } from "@/components/buttons/Toup";
+import { Todown } from "@/components/buttons/Todown";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -74,85 +75,65 @@ const Post = async ({ params }: Props) => {
   const post = await getPostDetail(params);
   return (
     <>
-      <Link href="#">
-        <svg
-          className="sticky top-0 mb-2 ml-auto h-8 w-8 rounded-b-md bg-foreground"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke="black"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="m5 15 7-7 7 7"
-          />
-        </svg>
-      </Link>
+      <Toup />
       <Suspense fallback={<div>Loading...</div>}>
         {CategoryKo[params.category].sub[params.subject].title[params.title]
           .content[params.content].lock && <Pw />}
       </Suspense>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink
-                href={`/blog/${params.category}`}
-                className="hover:font-bold hover:text-text"
-              >
-                {CategoryKo[params.category].name.split("(")[0]}
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink
-                href={`/blog/${params.category}/${params.subject}`}
-                className="hover:font-bold hover:text-text"
-              >
-                {
-                  CategoryKo[params.category].sub[params.subject].name.split(
-                    "(",
-                  )[0]
-                }
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />{" "}
-            <BreadcrumbItem>
-              <BreadcrumbLink
-                href={`/blog/${params.category}/${params.subject}/${params.title}`}
-                className="hover:font-bold hover:text-text"
-              >
-                {
-                  CategoryKo[params.category].sub[params.subject].title[
-                    params.title
-                  ].name.split("(")[0]
-                }
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage className="font-bold text-text">
-                {
-                  CategoryKo[params.category].sub[params.subject].title[
-                    params.title
-                  ].content[params.content].name.split("(")[0]
-                }
-              </BreadcrumbPage>
-            </BreadcrumbItem>
-            <div className={"ml-auto text-right"}>
-              {"📅 " +
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              href={`/blog/${params.category}`}
+              className="hover:font-bold hover:text-text"
+            >
+              {CategoryKo[params.category].name.split("(")[0]}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              href={`/blog/${params.category}/${params.subject}`}
+              className="hover:font-bold hover:text-text"
+            >
+              {
+                CategoryKo[params.category].sub[params.subject].name.split(
+                  "(",
+                )[0]
+              }
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />{" "}
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              href={`/blog/${params.category}/${params.subject}/${params.title}`}
+              className="hover:font-bold hover:text-text"
+            >
+              {
                 CategoryKo[params.category].sub[params.subject].title[
                   params.title
-                ].content[params.content].date}
-            </div>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </Suspense>
+                ].name.split("(")[0]
+              }
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage className="font-bold text-text">
+              {
+                CategoryKo[params.category].sub[params.subject].title[
+                  params.title
+                ].content[params.content].name.split("(")[0]
+              }
+            </BreadcrumbPage>
+          </BreadcrumbItem>
+          <div className={"ml-auto text-right"}>
+            {"📅 " +
+              CategoryKo[params.category].sub[params.subject].title[
+                params.title
+              ].content[params.content].date}
+          </div>
+        </BreadcrumbList>
+      </Breadcrumb>
       <div className="prose mt-10 min-h-[1000px] scroll-smooth">
         <RightSidebarComp content={post.content} />
         <Suspense fallback={<div>Loading...</div>}>
@@ -221,25 +202,7 @@ const Post = async ({ params }: Props) => {
           {/*))}*/}
         </Suspense>
       </div>
-      <Link href="#bottom">
-        <svg
-          className="sticky bottom-0 ml-auto mt-5 h-8 w-8 rounded-t-md bg-foreground"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke="black"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="m19 9-7 7-7-7"
-          />
-        </svg>
-      </Link>
+      <Todown />
     </>
   );
 };

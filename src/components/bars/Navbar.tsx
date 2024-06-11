@@ -10,7 +10,7 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 import Link from "next/link";
-import { DarkmodeButton } from "@/components/Darkmodebutton";
+import { DarkmodeButton } from "@/components/buttons/Darkmodebutton";
 import { CategoryKo } from "@/config/koname";
 import LeftSidebarComp from "@/components/bars/LeftSidebar";
 import { Button } from "@/components/ui/button";
