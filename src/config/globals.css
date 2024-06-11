@@ -142,7 +142,7 @@
 
   /* inline code block style */
   .prose :not(pre) > code {
-    @apply rounded border border-gray-200 bg-white px-1 py-0.5 align-middle font-mono text-sm font-normal dark:border-gray-700 dark:bg-gray-900;
+    @apply rounded border border-primary bg-foreground px-1 py-0.5 align-middle font-mono text-sm font-normal text-text;
   }
 }
 

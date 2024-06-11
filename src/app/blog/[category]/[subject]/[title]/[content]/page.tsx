@@ -77,8 +77,7 @@ const Post = async ({ params }: Props) => {
     <>
       <Toup />
       <Suspense fallback={<div>Loading...</div>}>
-        {CategoryKo[params.category].sub[params.subject].title[params.title]
-          .content[params.content].lock && <Pw />}
+        {CategoryKo[params.category].lock && <Pw />}
       </Suspense>
       <Breadcrumb>
         <BreadcrumbList>
