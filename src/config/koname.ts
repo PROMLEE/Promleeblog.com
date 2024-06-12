@@ -42,8 +42,16 @@ export const CategoryKo: CategoryKoinfo = {
                 date: "2024-04-24",
               },
               "04_00": {
-                name: "디지털 서명 (Digital Signature)",
+                name: "디지털 서명 정의 (Definitions of Digital Signature)",
                 date: "2024-05-23",
+              },
+              "04_01": {
+                name: "디지털 서명 - 서명 설계 (Signature Schemes)",
+                date: "2024-06-12",
+              },
+              "04_02": {
+                name: "디지털 서명 - 타원 곡선 암호화 (Elliptic Curve Cryptography)",
+                date: "2024-06-12",
               },
             },
           },

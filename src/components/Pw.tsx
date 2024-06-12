@@ -16,13 +16,13 @@ import {
 } from "@/components/ui/input-otp";
 import { Button } from "./ui/button";
 
-// import { ToastAction } from "@/components/ui/toast";
-// import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/use-toast";
 
 export function Pw() {
   const [value, setValue] = React.useState("");
   const [isOpen, setIsOpen] = React.useState(true);
-  // const { toast } = useToast();
+  const { toast } = useToast();
 
   const getpw = () => {
     if (typeof window !== "undefined") {
@@ -44,18 +44,18 @@ export function Pw() {
         setIsOpen(false);
         localStorage.setItem("promleeblogpostpw", PW);
       } else {
-        // toast({
-        //   title: "Scheduled: Catch up ",
-        //   description: "Friday, February 10, 2023 at 5:57 PM",
-        //   className: "z-[9999]",
-        //   action: (
-        //     <ToastAction altText="비밀번호가 틀렸습니다">Undo</ToastAction>
-        //   ),
-        // });
-        alert("패스워드가 틀렸습니다");
+        toast({
+          title: "비밀번호가 틀렸습니다",
+          action: (
+            <ToastAction altText="확인" className="bg-foreground text-text">
+              확인
+            </ToastAction>
+          ),
+        });
         setValue("");
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   return (

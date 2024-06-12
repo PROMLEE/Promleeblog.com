@@ -133,7 +133,7 @@ const Post = async ({ params }: Props) => {
           </div>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="prose mt-10 min-h-[1000px] scroll-smooth">
+      <div className="prose mt-10 scroll-smooth focus:scroll-auto">
         <RightSidebarComp content={post.content} />
         <Suspense fallback={<div>Loading...</div>}>
           <MDXRemote
