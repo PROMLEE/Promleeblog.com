@@ -15,6 +15,7 @@ import { CategoryKo } from "@/config/koname";
 import LeftSidebarComp from "@/components/bars/LeftSidebar";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import Indicator from "@/components/bars/Scrollindicator";
 
 export const Navbar = () => {
   const [menu, setMenu] = useState(false);
@@ -114,6 +115,7 @@ export const Navbar = () => {
           <DarkmodeButton />
         </div>
       </div>
+      <Indicator />
       <div className={`${menu ? "visible" : "hidden"} xl:block`}>
         <LeftSidebarComp menuclose={menuclose} />
       </div>

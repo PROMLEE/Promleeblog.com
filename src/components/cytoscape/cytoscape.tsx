@@ -5,17 +5,20 @@ import CytoscapeComponent from "react-cytoscapejs";
 import { graphData } from "@/components/cytoscape/data";
 // @ts-ignore
 import coseBilkent from "cytoscape-cose-bilkent";
+import { useTheme } from "next-themes";
+
 cytoscape.use(coseBilkent);
 
 export default function CytoscapeGraph() {
+  const { theme } = useTheme();
   const fontActiveSize = 7;
-  const edgeWidth = "2px";
+  const edgeWidth = "3px";
   var edgeActiveWidth = "4px";
   const arrowScale = 0.8;
   const arrowActiveScale = 1.2;
   const dimColor = "#dfe4ea";
-  const edgeColor = "#ced6e0";
-  const nodeColor = "#57606f";
+  const edgeColor = "#CCCCCC";
+  const nodeColor = "#999999";
   const nodeActiveColor = "#ffa502";
   const successorColor = "#ff6348";
   const predecessorsColor = "#1e90ff";
@@ -111,7 +114,7 @@ export default function CytoscapeGraph() {
         width: "data(size)",
         height: "data(size)",
         fontSize: "data(font)",
-        color: "#000000",
+        color: theme === "dark" ? "#ffffff" : "#000000",
       },
     },
     {
@@ -133,7 +136,7 @@ export default function CytoscapeGraph() {
   ];
 
   return (
-    <div className="mx-auto my-10 w-full rounded-lg border-2 border-blue-500 bg-foreground p-2 text-foreground md:w-2/3">
+    <div className="h-full w-full rounded-lg border-2 border-third bg-foreground text-foreground">
       <CytoscapeComponent
         elements={CytoscapeComponent.normalizeElements(graphData)}
         style={{ width: "100%", height: "600px" }}
