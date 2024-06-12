@@ -1,20 +1,32 @@
-# 디지털 서명 정의 (Definition of Digital Signature)
 ## 디지털 서명 개요 (Overview of Digital Signature)
-### 정의
+### 메시지 인증 (Message Authentication)
+메시지 인증 과정에서 Bob이 Alice에게 메시지를 보낼 때, Alice는 메시지가 Bob에게서 온 것인지 확인해야 함 $\rightarrow$ *디지털 서명*사용
+1. Bob은 자신의 비밀 키를 사용하여 서명을 생성
+2. Alice는 Bob의 공개 키를 사용하여 서명을 검증
+
+Bob의 비밀 키가 없으면 누구도 Bob의 서명을 생성할 수 없음
+출처(Bob)와 데이터 무결성(메시지) 측면에서 인증된다.
+
+### 디지털 서명 (Digital Signature)
 디지털 서명 체계는 다음과 같은 세 가지 다항 시간 알고리즘으로 구성됨
-- KeyGen($\lambda$) $\rightarrow$ (pk, sk): 키 생성 알고리즘
+- *KeyGen*($\lambda$) $\rightarrow$ (pk, sk): 키 생성 알고리즘
 	- 보안 매개변수 $\lambda$를 입력으로 받아 공개키(pk)와 개인키(sk)를 생성
-- Sign(sk, m) $\rightarrow$ $\sigma$: 서명 알고리즘
+- *Sign*(sk, m) $\rightarrow$ $\sigma$: 서명 알고리즘
 	- 개인키(sk)와 메시지(m)를 입력으로 받아 디지털 서명($\sigma$)을 생성
-- Verify(pk, m, $\sigma$) $\rightarrow$ {0, 1}: 검증 알고리즘
+- *Verify*(pk, m, $\sigma$) $\rightarrow$ \{0, 1\}: 검증 알고리즘
 	- 공개키(pk), 메시지(m), 디지털 서명($\sigma$)을 입력으로 받아 디지털 서명이 유효한지 검증
 	- 유효하면 1, 그렇지 않으면 0을 반환
 
-### 검증
+### 검증 (Verification)
 **정당성**: 검증 알고리즘은 다음을 만족해야 함
 - 모든 보안 매개변수 $\lambda$와 모든 메시지 $m$에 대해
 - $\text{Verify}(pk, \text{Sign}(sk, M)) = 1$이어야 함
 - 여기서 $(pk, sk) \leftarrow \text{KeyGen}(\lambda)$
+
+#### 정리 (디지털 서명)
+- 디지털 서명은 메시지 인증과 데이터 무결성을 제공
+- 디지털 서명은 *KeyGen*, *Sign*, *Verify* 세 가지 다항 시간 알고리즘으로 구성
+- 디지털 서명은 정당성($\text{Verify}(pk, \text{Sign}(sk, M)) = 1$)을 만족해야 한다
 
 ## 디지털 서명의 보안 모델 (Security Model of Digital Signature)
 도전자 $C$와 공격자 $A$ 사이의 게임을 고려
@@ -25,67 +37,8 @@
 	- $M$은 $C$가 서명하지 않은 메시지이며, $A$가 서명을 요청한 메시지와 다름
 	- $A$가 $M$에 대한 유효한 서명 $\sigma$를 생성한 경우, $A$는 성공
 
-- $A$의 성공 확률은 다음과 같이 정의
-$$\Pr[\text{Verify}(pk, \text{Sign}(M, \sigma)) = 1]$$
-- 서명 체계는 적응적 선택 메시지 공격(Adaptive Chosen Message Attack)에 대해 강하게 위조 불가능
-- 만약 다항 시간 공격자 $A$가 위의 게임에서 성공할 확률이 무시할 만큼 작다면, 서명 체계는 강하게 위조 불가능하다
+$A$의 성공 확률은 다음과 같이 정의
+- $$\Pr[\text{Verify}(pk, \text{Sign}(M, \sigma)) = 1]$$
 
-# 디지털 서명 설계 (Signature Schemes)
-## RSA 서명 (RSA Signature)
-### 키 생성 (Key Generation)
-1. 두 소수 $p, q$를 무작위로 선택, $N = pq$로 설정
-2. 무작위 공개 지수 $e \in \mathbb{Z}^*_{\phi(N)}$를 선택
-3. $d \cdot e \equiv 1 \pmod{\phi(N)}$를 만족하는 $d$를 계산
-4. 공개 키 $pk = (N, e)$, 개인 키 $sk = d$를 반환
-
-### 서명 (Signing)
-메시지 $m$에 대해 $s = M^d \pmod{N}$을 계산하여 서명 $\sigma =(M, s)$를 생성
-
-### 검증 (Verification)
-$\sigma = (M, s)$가 주어졌을 때, $s^e \stackrel{?}{=} M \ (\text{mod} \ N)$을 확인한다. 이 조건이 성립하면 1을 반환하고, 그렇지 않으면 0을 반환한다.
-
-### 정확성 (Correctness)
-$s^e = (M^d)^e = M^{ed} = M^{1 + k\phi(N)} = M \ (\text{mod} \ N)$이 오일러 정리에 의해 성립한다.
-
-## RSA 패딩: 확률론적 서명 표준 (RSA Padding: Probabilistic Signature Standard)
-- 이전 공격을 방지하기 위해 특정 메시지 형식만 허용
-- 확률론적 서명 표준(PSS)
-	1. 임의의 값 $salt$를 생성
-	2. 고정 패딩 8개의 0x00 바이트, 해시 값 $mHash = \text{Hash}(M)$, $salt$를 이어붙여 문자열 $M'$을 생성
-	
-		$M' = \text{0x00} \mathbin\Vert \text{0x01} \mathbin\Vert mHash\mathbin\Vert \text{salt} $
-	4. $H = \text{Hash}(M')$를 계산
-	5. 고정 패딩 $PS$, $0x01$, $salt$를 이어붙여 문자열 $DB$을 생성
-		
-		$DB = \text{PS} \mathbin\Vert \text{0x01} \mathbin\Vert \text{salt}$
-	7. $maskedDB = \text{MGF}(H) \oplus DB$
-	8. 고정 패딩 $TF$를 위해 인코딩된 메시지 $EM$을 생성
-		
-		$EM = maskedDB \mathbin\Vert H\mathbin\Vert TF$
-
-## ElGamal 서명 (ElGamal Signature)
-### 키 생성 (Key Generation)
-1. 큰 소수 $p$ 와 $\mathbb{Z}_p^*$의 큰 subgroup 생성자 $g$를 선택
-2. 임의의 정수 $x \in \{2, 3, \ldots, p-2\}$를 선택
-3. $X = g^x \pmod{p}$를 계산
-4. 공개 키 $pk = (p, g, X)$, 개인 키 $sk = x$를 반환
-
-### 서명 (Signing)
-- 비밀 키 $sk = x$와 메시지 $M$이 주어졌을 때
-	1. $\mathbb{Z}_{p-1}^*$에서 임의의 원소 $k$를 선택
-	2. $r = g^k \pmod{p}$와 $s = (M - xr)k^{-1} \pmod{p-1}$을 계산
-	3. 서명 $\sigma = (M(r, s))$를 반환
-
-### 검증 (Verification)
-- 공개 키 $pk = (p, g, X)$와 메시지 $M$에 대한 서명 $\sigma = (M, r, s)$가 주어졌을 때
-	1. $t = X^r \cdot r^s \pmod{p}$를 계산
-	2. $t \stackrel{?}{=} g^M \pmod{p}$를 확인한다. 이 조건이 성립하면 1을 반환하고, 그렇지 않으면 0을 반환한다.
-
-### 정확성 (Correctness)
-$$t = X^r \cdot r^s = (g^x)^r \cdot (g^k)^s \\= (g^x) \cdot (g^k)^{(M-rx)k^{-1}} \\= g^{xr+M-rx} \\= g^M \ (\text{mod} \ p)$$
-
-### 보안성 (Security)
-- 이산 로그 문제가 풀기 어려운 만큼 비밀 키 $x$를 복구하기 어렵다.
-- 존재적 위조 공격 (Existential Forgery Attack)
-	1. 정수 $i, j$를 선택하고 여기서 $\gcd(j, p-1) = 1$이어야 함
-	2. 
+서명 체계는 적응적 선택 메시지 공격(Adaptive Chosen Message Attack)에 대해 강하게 위조 불가능
+만약 다항 시간 공격자 $A$가 위의 게임에서 성공할 확률이 무시할 만큼 작다면, 서명 체계는 강하게 *위조 불가능*하다
