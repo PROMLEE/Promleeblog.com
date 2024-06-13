@@ -20,8 +20,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       // priority: 0.8,
       // alternates: {
       //   languages: {
-      //     es: 'https://witch.work/es',
-      //     en: 'https://witch.work/en',
+      //     es: 'https://promleeblog.com/es',
+      //     en: 'https://promleeblog.com/en',
       //   }
       // }
     },
@@ -34,7 +34,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
     },
     {
-      url: "https://promleeblog.com/sitemap",
+      url: "https://promleeblog.com/sitemap.xml",
       lastModified: new Date(),
     },
   ];

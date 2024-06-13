@@ -82,7 +82,7 @@ $t = X^r \cdot r^s = (g^x)^r \cdot (g^i \cdot g^{xj})^s \\= g^{xr + si - rj^{-1}
 
 ### 서명 (DSA Signature)
 비밀 키 $sk = x$와 메시지 $M$이 주어졌을 때
-1. $\mathbb{Z}_q$에서 임의의 $k$ 선택
+1. $\mathbb{Z}_q^*$에서 임의의 $k$ 선택
 2. $r = (g^k \pmod{p}) \pmod{q}$ 계산
 3. $s = k^{-1}(H(M) + xr) \pmod{q}$ 계산
 4. 서명 $\sigma = (M,(r, s))$를 반환
@@ -96,9 +96,9 @@ $t = X^r \cdot r^s = (g^x)^r \cdot (g^i \cdot g^{xj})^s \\= g^{xr + si - rj^{-1}
 5. $v \stackrel{?}{=} r$를 확인한다. 이 조건이 성립하면 1을 반환하고, 그렇지 않으면 0을 반환한다.
 
 ### 정확성 (DSA Signature correctness)
-$v = (g^{u_1}X^{u_2} \pmod{p}) \pmod{q} $
-$= (g^{H(M)w}X^{rw} \pmod{p}) \pmod{q} $
-$= (g^{H(M)w}g^{xrw} \pmod{p}) \pmod{q} $
-$= g^{H(M)w + xrw} \pmod{p} = g^{H(M) + xr} \pmod{p} = r$
+$v = g^{u_1}X^{u_2} = g^{u_1+xu_2}$
+$= g^{w(H(M)+xr)}$
+$= g^{k(H(M)+xr)^{-1}(H(M)+xr)}$
+$= g^{k} \ (\text{mod} \ p) \rightarrow (\because s = k^{-1}(H(M)+xr))$
 
-$r \pmod{q} = g^k \pmod{q} = g^{u_1}X^{u_2} \pmod{q} = v$
+$\Longrightarrow  r \pmod{q} = g^k \pmod{q} = g^{u_1}X^{u_2} \pmod{q} = v$
