@@ -28,7 +28,6 @@ export function Img({
       className={`m-0 my-5 bg-${bg || "white"}`}
       width={Number(width) ? Number(width) : 500}
       height={Number(height) ? Number(height) : 500}
-      objectFit="contain"
     />
   );
 }

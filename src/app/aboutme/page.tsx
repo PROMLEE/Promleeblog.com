@@ -11,6 +11,12 @@ import { useRef } from "react";
 import { useIsVisible } from "@/lib/useIsVisible";
 import { Education } from "@/components/aboutme/Education";
 
+interface refs {
+  ref: React.RefObject<HTMLDivElement>;
+  isVisible: boolean;
+  component: React.FC;
+}
+
 export default function App() {
   const ref1 = useRef<HTMLDivElement>(null);
   const ref2 = useRef<HTMLDivElement>(null);
@@ -22,6 +28,14 @@ export default function App() {
   const projectsVisible = useIsVisible(ref3);
   const experienceVisible = useIsVisible(ref4);
   const educationVisible = useIsVisible(ref5);
+
+  const reflist: refs[] = [
+    { ref: ref1, isVisible: aboutmeVisible, component: AboutMe },
+    { ref: ref2, isVisible: skillsVisible, component: Skills },
+    { ref: ref3, isVisible: projectsVisible, component: Projects },
+    { ref: ref4, isVisible: experienceVisible, component: Exprience },
+    { ref: ref5, isVisible: educationVisible, component: Education },
+  ];
 
   return (
     <>
@@ -44,37 +58,20 @@ export default function App() {
             </div>
             <Contact />
           </div>
-        </div>{" "}
-        <div
-          ref={ref1}
-          className={`w-full duration-1000 ease-in ${aboutmeVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
-        >
-          <AboutMe />
         </div>
-        <div
-          ref={ref2}
-          className={`w-full duration-1000 ease-in ${skillsVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
-        >
-          <Skills />
-        </div>
-        <div
-          ref={ref3}
-          className={`w-full duration-1000 ease-in ${projectsVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
-        >
-          <Projects />
-        </div>
-        <div
-          ref={ref4}
-          className={`w-full duration-1000 ease-in ${experienceVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
-        >
-          <Exprience />
-        </div>
-        <div
-          ref={ref5}
-          className={`w-full duration-700 ease-in ${educationVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"}`}
-        >
-          <Education />
-        </div>
+        {reflist.map((ref, index) => {
+          return (
+            <div
+              key={index}
+              ref={ref.ref}
+              className={`w-full duration-1000 ease-in ${
+                ref.isVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"
+              }`}
+            >
+              <ref.component />
+            </div>
+          );
+        })}
       </div>
       <Todown />
     </>
