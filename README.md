@@ -1,9 +1,9 @@
 <!-- <div align="center"> -->
   <p dir="auto">
-    <a href="https://github.com/PROMLEE/PromleeBlog.com/graphs/contributors">
+    <a href="https://github.com/PROMLEE/PromleeBlog.com/graphs/contributors" style="text-decoration: none;">
       <img src="https://img.shields.io/github/contributors/PROMLEE/PromleeBlog.com.svg?style=for-the-badge" alt="badge">
     </a>
-    <a href="https://github.com/PROMLEE/PromleeBlog.com/issues">
+    <a href="https://github.com/PROMLEE/PromleeBlog.com/issues" style="text-decoration: none;">
       <img src="https://img.shields.io/github/issues/PROMLEE/PromleeBlog.com.svg?style=for-the-badge" alt="badge">
     </a>
   </p>
