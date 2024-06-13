@@ -55,7 +55,7 @@ const Post = async () => {
   return (
     <>
       <Toup />
-      <div className="prose mt-10 scroll-smooth">
+      <div className="prose mt-10 min-h-[100vh] scroll-smooth dark:prose-invert focus:scroll-auto">
         <RightSidebarComp content={post.content} />
         <Suspense fallback={<div>Loading...</div>}>
           <MDXRemote
