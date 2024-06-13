@@ -25,16 +25,17 @@
 ## TCP 연결의 여러 종류 (Many Flavors of TCP)
 Taho -> **(New)Reno** -> Vegas -> Westwood -> Binary Increase Congestion control(BIC) -> **Cubic** -> **BBR**
 - new Reno: 거의 모든 OS에서 기본적으로 사용되는 전통적인 TCP
-- Cubic: 리눅스에서 기본적으로 사용되는 TCP
+- Cubic: 현재 리눅스에서 기본적으로 사용되는 TCP
 - BBR: 구글에서 개발한 TCP, 가장 빠른 속도를 보임
 
-혼잡 제어 알고리즘(congestion control algorithm)의 가장 큰 차이점? -> **congestion window size**의 변화
+*혼잡 제어 알고리즘*(congestion control algorithm)의 가장 큰 차이점? -> **congestion window size**의 변화
 
 ## TCP 세그먼트 구조 (TCP Segment Structure)
-- 헤더: 20바이트
+- 헤더
 	- souce port(16bit), destination port(16bit)
 	- sequence number(32bit): DATA의 순서 - 32bit
 	- acknowledgment number(32bit): ACK 번호 - 32bit
+	- RST: 연결 설정 재설정
 	- SYN: 연결 설정 요청
 	- FIN: 연결 종료 요청
 	- ACK valid bit(1bit): ACK 번호가 유효한지
@@ -45,59 +46,69 @@ Taho -> **(New)Reno** -> Vegas -> Westwood -> Binary Increase Congestion control
 
 ## TCP 시퀀스 번호, ACK 번호 (TCP Sequence Number, ACK Number)
 예시: 500kb 메시지를 보낼 때, MSS=1000bytes
-500kb = 500,000bytes = 500개의 세그먼트
+<Img src="/posts/240613-180336.png" width={2000}/>
 
-시퀀스 번호: 각 세그먼트의 첫 번째 바이트의 **바이트 스트림 번호** - 0, 1000, 2000, 3000, 4000
-ACK 번호: 수신자가 **다음에 받을 세그먼트**의 시퀀스 번호 - 1000, 2000, 3000, 4000, 5000
+500kb = 500,000bytes = 500개의 세그먼트
+**시퀀스 번호**: 각 세그먼트의 *첫 번째 바이트*의 바이트 스트림 번호 - 0, 1000, 2000, 3000, 4000
+**ACK 번호**: 수신자가 *다음에 받을 세그먼트*의 시퀀스 번호 - 1000, 2000, 3000, 4000, 5000
+
 ### 특징
 - 패킷은 시퀀스 번호와 ACK 번호를 모두 가지고 있다
 	- 데이터 패킷을 ACK 용으로 사용 가능
 	- 전이중 통신 가능 (full-duplex)
 - 실제로는 0부터 시작하지 않음
-	- 초기 시퀀스 번호는 랜덤하게 선택됨. 왜일까? -> 새로운 패킷을 보낼 때마다 시퀀스 번호가 0부터 시작하면, 이전에 보낸 패킷과 중복될 수 있기 때문
+	- 초기 시퀀스 번호는 랜덤하게 선택됨. 왜일까? -> 새로운 패킷을 보낼 때마다 시퀀스 번호가 0부터 시작하면, 이전에 보낸 패킷과 *중복*될 수 있기 때문
 - 시작 번호를 알 수 있는 방법
 	- 3-way handshake: 초기 시퀀스 번호를 알려줌
 - 수신자가 순서가 어긋난 패킷을 받았을 때
 	- TCP에서 명시하지 않음
 
 ### 예시
-- 사용자가 'C'를 입력한다.
-- 호스트 A는 시퀀스 번호 42, 인정 번호 79, 데이터 'C'를 가진 패킷을 전송한다.
-- 호스트 B는 'C'의 수신을 인정하고 'C'를 에코(반사)로 돌려보낸다.
-- 호스트 B는 시퀀스 번호 79, 인정 번호 43, 데이터 'C'를 가진 패킷을 전송한다.
+<Img src="/posts/240613-182445.png" width={500}/>
+
+1. 사용자가 'C'를 입력한다.
+2. 호스트 A는 시퀀스 번호 42, 인정 번호 79, 데이터 'C'를 가진 패킷을 전송한다.
+3. 호스트 B는 'C'의 수신을 인정하고 'C'를 에코(반사)로 돌려보낸다.
+4. 호스트 B는 시퀀스 번호 79, 인정 번호 43, 데이터 'C'를 가진 패킷을 전송한다.
 	- 시퀀스 번호 79: A가 보낸 ACK
 	- 인정 번호 43: A가 보낸 Seq + 1
-- 호스트 A는 'C'의 수신을 인정하고 시퀀스 번호 43, 인정 번호 80을 가진 패킷을 전송한다.
+5. 호스트 A는 'C'의 수신을 인정하고 시퀀스 번호 43, 인정 번호 80을 가진 패킷을 전송한다.
 	- 시퀀스 번호 43: B가 보낸 ACK
 	- 인정 번호 80: B가 보낸 Seq + 1
 
 ## TCP 왕복 시간, 타임아웃 (TCP Round-Trip Time, Timeout)
-TCP 는 패킷 손실을 회복하기 위해 타임아웃 후 재전송한다.
-- Timeout 값을 설정하는 법
-	- RTT보다 길게 설정
-		- RTT(Round-Trip Time): 패킷을 보내고 ACK를 받는 데 걸리는 시간
-		- RTT는 변할 수 있다
-	- 너무 짧으면: 성급한 타임아웃, 불필요한 재전송
-	- 너무 길면: 세그먼트 손실에 대한 반응이 느림
-	- 몇 개의 타이머가 필요한가
-- RTT를 추정하는 방법
-	- SampleRTT: 패킷(세그먼트)을 보내고 ACK를 받는 데 걸린 시간
-		- 재전송은 무시. 왜? -> RTT가 길어지면 재전송이 빈번해질 수 있음
+> TCP 는 패킷 손실을 회복하기 위해 타임아웃 후 재전송한다.
+
+**Q. Timeout 값을 설정하는 법**
+- RTT보다 길게 설정
+	- RTT(Round-Trip Time): 패킷을 보내고 ACK를 받는 데 걸리는 시간
+	- RTT는 변할 수 있다
+- *너무 짧으면*: 성급한 타임아웃, 불필요한 재전송
+- *너무 길면*: 세그먼트 손실에 대한 반응이 느림
+- 몇 개의 타이머가 필요한가
+
+**Q. RTT를 추정하는 방법**
+- *SampleRTT*: 패킷(세그먼트)을 보내고 ACK를 받는 데 걸린 시간
+	- 재전송은 무시. 왜? -> RTT가 길어지면 재전송이 빈번해질 수 있음
+	- 패킷 윈도우를 보냈음에도 한 번에 하나의 SampleRTT만 측정
 	- 변동성이 있으므로 여러 최근 측정치를 평균낸다.
-- 지수 가중 이동 평균(Exponential Weighted Moving Average)
-	> EstimatedRTT = (1-α) * EstimatedRTT + α * SampleRTT
-	- 과거 샘플의 영향이 지수적으로 빠르게 감소함
-		- $E'=(1-\alpha)\left\{(1-\alpha)E+\alpha S\right\} $
-		- $E''=(1-\alpha)\left\{(1-\alpha)\left\{(1-\alpha)E+\alpha S\right\}+\alpha S\right\}$
-		- ...
-		- $E_n=(1-\alpha)E_{n-1}+\alpha S$
-	- 일반적으로, α: 0.125
+
+### 지수 가중 이동 평균 (Exponential Weighted Moving Average)
+> EstimatedRTT = (1-α) * EstimatedRTT + α * SampleRTT
+
+- 과거 샘플의 영향이 지수적으로 빠르게 감소함
+	- $E'=(1-\alpha)\left\{(1-\alpha)E+\alpha S\right\} $
+	- $E''=(1-\alpha)\left\{(1-\alpha)\left\{(1-\alpha)E+\alpha S\right\}+\alpha S\right\}$
+	- ...
+	- $E_n=(1-\alpha)E_{n-1}+\alpha S$
+- 일반적으로, α: 0.125
+### 타임아웃 간격 (Timeout Interval)
 - 타임아웃 간격(TimeOut Interval): **추정된 RTT(EstimatedRTT)**에 "안전 마진"이 추가됨
-	- 추정된 RTT의 변동이 크면 안전 마진도 커짐
-	- DevRTT: RTT의 변동성
-		> DevRTT = (1-β) * DevRTT + β * |SampleRTT - EstimatedRTT|
-		- 일반적으로, β: 0.25
-	- TCP의 타임아웃 간격(TimeoutInterval) = 추정된 RTT(EstimatedRTT) + 4 * DevRTT(safety margin)
+- 추정된 RTT의 변동이 크면 안전 마진도 커짐
+- DevRTT: RTT의 변동성
+	> DevRTT = (1-β) * DevRTT + β * |SampleRTT - EstimatedRTT|
+	- 일반적으로, β: 0.25
+- TCP의 타임아웃 간격(TimeoutInterval) = 추정된 RTT(EstimatedRTT) + 4 * DevRTT(safety margin)
 
 # 3.5.2 TCP: 신뢰할 수 있는 데이터 전송(Reliable Data Transfer)
 ## 신뢰할 수 있는 데이터 전송(Reliable Data Transfer)

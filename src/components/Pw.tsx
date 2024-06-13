@@ -15,6 +15,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Button } from "./ui/button";
+import Link from "next/link";
 
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
@@ -34,6 +35,9 @@ export function Pw() {
 
   const handleBack = () => {
     window.history.back();
+  };
+  const handlePost = () => {
+    window.location.href = "/blog/Others/tools/git/01";
   };
 
   React.useEffect(() => {
@@ -61,30 +65,37 @@ export function Pw() {
   return (
     <Drawer open={isOpen} handleOnly={true}>
       <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle>미공개 포스트입니다😢</DrawerTitle>
-          <DrawerDescription>패스워드를 입력해주세요</DrawerDescription>
-        </DrawerHeader>
-        <div className="mb-5 flex flex-col content-center items-center">
-          <InputOTP
-            maxLength={6}
-            value={value}
-            onChange={(value) => setValue(value)}
-            autoFocus
-          >
-            <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-              <InputOTPSlot index={3} />
-            </InputOTPGroup>
-          </InputOTP>
+        <div className="mx-auto mt-5 w-full max-w-sm">
+          <DrawerHeader>
+            <DrawerTitle>미공개 포스트입니다😢</DrawerTitle>
+            <DrawerDescription>패스워드를 입력해주세요</DrawerDescription>
+          </DrawerHeader>
+          <div className="mb-5 flex flex-col content-center items-center">
+            <InputOTP
+              maxLength={6}
+              value={value}
+              onChange={(value) => setValue(value)}
+              autoFocus
+            >
+              <InputOTPGroup>
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+                <InputOTPSlot index={3} />
+              </InputOTPGroup>
+            </InputOTP>
+          </div>
+          <DrawerFooter>
+            <Button onClick={handleBack} className="bg-foreground">
+              돌아가기
+            </Button>
+            <Button className="bg-second">
+              <Link href="/blog/Others/tools/git/01">
+                추천 공개 포스트 보러가기
+              </Link>
+            </Button>
+          </DrawerFooter>
         </div>
-        <DrawerFooter>
-          <Button onClick={handleBack} className="bg-foreground">
-            돌아가기
-          </Button>
-        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );
