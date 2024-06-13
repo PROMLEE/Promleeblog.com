@@ -126,7 +126,7 @@ export function emtag({ children }: Props) {
   return (
     <div
       className={
-        "inline text-text-foreground underline decoration-yellow-800 decoration-wavy underline-offset-1 dark:decoration-yellow-400"
+        "inline text-text-foreground underline decoration-yellow-800 decoration-wavy underline-offset-[0.2rem] dark:decoration-yellow-400"
       }
     >
       {children}
