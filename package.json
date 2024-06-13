@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "postinstall: prisma generate",
+    "postinstall": "npx prisma generate",
     "netlify-deploy": "next build && next export",
     "vercel-deploy": "next build && next export"
   },
