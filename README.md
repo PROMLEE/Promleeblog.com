@@ -7,8 +7,10 @@
   </a><br/><br/><br/>
   <a href="https://promleeblog.com">
     <img src="/public/icons/android-chrome-512x512.png" alt="Logo" width="80" height="80">
-  <h1 align="center">PromleeBlog.com</h1>
   </a>
+  <h1 align="center">
+    <a href="https://promleeblog.com">PromleeBlog.com</a>
+  </h1>
   <p align="center">
     <br/>Since 📅 April 20, 2024 ~
     <br/>
