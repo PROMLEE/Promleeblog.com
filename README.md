@@ -1,9 +1,9 @@
-<style>
-  a {
-    text-decoration: none;
-  }
-</style>
 <div align="center">
+  <style>
+    a {
+      text-decoration: none;
+    }
+  </style>
   <a href="https://github.com/PROMLEE/PromleeBlog.com/graphs/contributors">
     <img src="https://img.shields.io/github/contributors/PROMLEE/PromleeBlog.com.svg?style=for-the-badge" alt="badge">
   </a>
