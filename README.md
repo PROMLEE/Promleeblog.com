@@ -1,9 +1,4 @@
 <div align="center">
-  <style>
-    a {
-      text-decoration: none;
-    }
-  </style>
   <a href="https://github.com/PROMLEE/PromleeBlog.com/graphs/contributors">
     <img src="https://img.shields.io/github/contributors/PROMLEE/PromleeBlog.com.svg?style=for-the-badge" alt="badge">
   </a>
@@ -24,13 +19,13 @@
     <a href="https://github.com/PROMLEE/PromleeBlog.com/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
   </p>
   <h2>Built With</h2>
-  <a href="https://Nextjs.org/">
+  <a href="https://Nextjs.org/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="badge">
   </a>
-  <a href="https://www.typescriptlang.org/">
+  <a href="https://www.typescriptlang.org/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/-TypeScript-05122A?style=for-the-badge&logo=typescript" alt="badge">
   </a>
-  <a href="https://tailwindcss.com/">
+  <a href="https://tailwindcss.com/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/Tailwindcss-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="badge">
   </a>
   <a href="https://ui.shadcn.com/">
