@@ -1,4 +1,4 @@
-<div align="center">
+<!-- <div align="center"> -->
   <p dir="auto">
     <a href="https://github.com/PROMLEE/PromleeBlog.com/graphs/contributors">
       <img src="https://img.shields.io/github/contributors/PROMLEE/PromleeBlog.com.svg?style=for-the-badge" alt="badge">
@@ -49,4 +49,4 @@
   <a href="https://supabase.com">
     <img src="https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="badge">
   </a>
-</div>
+<!-- </div> -->
