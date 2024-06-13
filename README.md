@@ -25,16 +25,15 @@
   <h3>Built With</h3>
   <a href="https://Nextjs.org/">
     <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="badge" style="max-width: 100%;">
+    &nbsp;
   </a> 
-  &nbsp;&nbsp;&nbsp;
   <a href="https://www.typescriptlang.org/">
     <img src="https://img.shields.io/badge/-TypeScript-05122A?style=for-the-badge&logo=typescript" alt="badge" style="max-width: 100%;">
+    &nbsp;
   </a>
-  &nbsp;&nbsp;&nbsp;
   <a href="https://tailwindcss.com/">
     <img src="https://img.shields.io/badge/Tailwindcss-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="badge" style="max-width: 100%;">
   </a>
-  &nbsp;&nbsp;&nbsp;
   <a href="https://ui.shadcn.com/">
     <img src="https://img.shields.io/badge/shadcnui-000000?style=for-the-badge&logo=shadcnui&logoColor=white" alt="badge" style="max-width: 100%;">
   </a><br/><br/>
