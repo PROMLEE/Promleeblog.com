@@ -3,7 +3,8 @@
   "pasteImage.basePath": "${projectRoot}/public",
   "pasteImage.path": "${projectRoot}/public/posts",
   "pasteImage.forceUnixStyleSeparator": true,
-  "pasteImage.insertPattern": "![${imageFileNameWithoutExt}](${imageFilePath})",
+  // "pasteImage.insertPattern": "![${imageFileNameWithoutExt}](${imageFilePath})",
+  "pasteImage.insertPattern": "<Img src=\"${imageFilePath}\" width={500}/>",
   "pasteImage.prefix": "/",
 
   "emojisense.languages": {

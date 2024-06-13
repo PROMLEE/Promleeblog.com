@@ -9,9 +9,9 @@ import { Footer } from "@/components/bars/Footer";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Providers from "@/components/bars/Progressbar";
-// import GoogleAnalytics from "@/lib/gtag";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { Toaster } from "@/components/ui/toaster";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "PromleeBlog",
@@ -45,14 +45,16 @@ export default function RootLayout({
             <Footer />
           </Theme>
           <Toaster />
-          <SpeedInsights />
-          <Analytics />
-          <GoogleAnalytics
-            gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS || ""}
-          />
-          <GoogleTagManager
-            gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER || ""}
-          />
+          <Suspense fallback={null}>
+            <SpeedInsights />
+            <Analytics />
+            <GoogleAnalytics
+              gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS || ""}
+            />
+            <GoogleTagManager
+              gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER || ""}
+            />
+          </Suspense>
         </body>
       </html>
     </AutoRefresh>

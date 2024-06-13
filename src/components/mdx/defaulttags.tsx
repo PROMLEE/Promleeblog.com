@@ -38,8 +38,8 @@ export function h1tag({ id, children }: Props) {
       <hr
         className={"mx-auto my-10 w-full rounded border-2 border-foreground"}
       />
-      <div id={id} className="mb-5 ml-[-15px] mt-14 text-3xl font-bold">
-        💡 {children}
+      <div id={id} className="mb-5 ml-[-15px] mt-14 flex gap-2 text-3xl">
+        💡 <h1 className="m-0 text-3xl font-bold">{children}</h1>
       </div>
     </>
   );
@@ -48,37 +48,37 @@ export function h2tag({ id, children }: Props) {
   return (
     <>
       <hr className={"border-1 w-full rounded border-foreground"} />
-      <div id={id} className="mb-3 ml-[-10px] mt-5 text-2xl font-bold">
-        🚀 {children}
+      <div id={id} className="mb-3 ml-[-10px] mt-5 flex gap-2 text-2xl">
+        🚀 <h2 className="m-0 text-2xl font-bold">{children}</h2>
       </div>
     </>
   );
 }
 export function h3tag({ id, children }: Props) {
   return (
-    <div id={id} className="mb-2 ml-[-10px] mt-7 text-xl font-bold">
-      ✅ {children}
+    <div id={id} className="mb-2 ml-[-10px] mt-7 flex gap-2 text-xl font-bold">
+      ✅ <h3 className="m-0 text-xl font-bold">{children}</h3>
     </div>
   );
 }
 export function h4tag({ id, children }: Props) {
   return (
-    <div id={id} className="mb-1 ml-[-8px] mt-7 text-lg font-bold">
-      ➡️ {children}
+    <div id={id} className="mb-1 ml-[-8px] mt-7 flex gap-2">
+      ➡️ <h4 className="m-0 text-lg font-bold">{children}</h4>
     </div>
   );
 }
 export function h5tag({ id, children }: Props) {
   return (
-    <div id={id} className="font-bold">
-      {children}
+    <div id={id} className="flex gap-2">
+      <div className="m-0 font-bold">{children}</div>
     </div>
   );
 }
 export function h6tag({ id, children }: Props) {
   return (
-    <div id={id} className="font-bold">
-      {children}
+    <div id={id} className="flex gap-2">
+      <div className="m-0 font-bold">{children}</div>
     </div>
   );
 }
@@ -126,7 +126,7 @@ export function emtag({ children }: Props) {
   return (
     <div
       className={
-        "inline text-text-foreground underline decoration-yellow-800 decoration-wavy underline-offset-1 dark:decoration-yellow-400"
+        "inline text-text-foreground underline decoration-yellow-800 decoration-wavy underline-offset-[0.2rem] dark:decoration-yellow-400"
       }
     >
       {children}
