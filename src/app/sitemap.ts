@@ -34,6 +34,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
     },
     {
+      url: "https://promleeblog.com/blog/test",
+    },
+    {
       url: "https://promleeblog.com/sitemap.xml",
       lastModified: new Date(),
     },

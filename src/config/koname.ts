@@ -53,6 +53,14 @@ export const CategoryKo: CategoryKoinfo = {
                 name: "디지털 서명 - 타원 곡선 암호화 (Elliptic Curve Cryptography)",
                 date: "2024-06-12",
               },
+              "05_01": {
+                name: "해시 함수 (Hash Functions)",
+                date: "2024-06-13",
+              },
+              "05_02": {
+                name: "메시지 인증 코드 (Message Authentication Code)",
+                date: "2024-06-13",
+              },
             },
           },
         },
