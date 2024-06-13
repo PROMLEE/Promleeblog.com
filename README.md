@@ -1,10 +1,14 @@
 <div align="center">
-  <a href="https://github.com/PROMLEE/PromleeBlog.com/graphs/contributors" style="text-decoration: none;">
-    <img src="https://img.shields.io/github/contributors/PROMLEE/PromleeBlog.com.svg?style=for-the-badge" alt="badge" width="152.250" height="28">
-  </a>
-  <a href="https://github.com/PROMLEE/PromleeBlog.com/issues" style="text-decoration: none;">
-    <img src="https://img.shields.io/github/issues/PROMLEE/PromleeBlog.com.svg?style=for-the-badge" alt="badge" width="142" height="28">
-  </a>
+  <b>
+    <a href="https://github.com/PROMLEE/PromleeBlog.com/graphs/contributors" style="text-decoration: none;">
+      <img src="https://img.shields.io/github/contributors/PROMLEE/PromleeBlog.com.svg?style=for-the-badge" alt="badge" width="152.250" height="28">
+    </a>
+  </b>
+  <b>
+    <a href="https://github.com/PROMLEE/PromleeBlog.com/issues" style="text-decoration: none;">
+      <img src="https://img.shields.io/github/issues/PROMLEE/PromleeBlog.com.svg?style=for-the-badge" alt="badge" width="142" height="28">
+    </a>
+  </b>
   <br/>
   <br/>
   <br/>
