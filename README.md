@@ -1,3 +1,8 @@
+<style>
+  a {
+    text-decoration: none;
+  }
+</style>
 <div align="center">
   <a href="https://github.com/PROMLEE/PromleeBlog.com/graphs/contributors">
     <img src="https://img.shields.io/github/contributors/PROMLEE/PromleeBlog.com.svg?style=for-the-badge" alt="badge">
@@ -19,16 +24,12 @@
     <a href="https://github.com/PROMLEE/PromleeBlog.com/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
   </p>
   <h2>Built With</h2>
-  <span>
-    <a href="https://Nextjs.org/">
-      <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="badge">
-    </a>
-  </span>
-  <span>
-    <a href="https://www.typescriptlang.org/">
-      <img src="https://img.shields.io/badge/-TypeScript-05122A?style=for-the-badge&logo=typescript" alt="badge">
-    </a>
-    </span>
+  <a href="https://Nextjs.org/">
+    <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="badge">
+  </a>
+  <a href="https://www.typescriptlang.org/">
+    <img src="https://img.shields.io/badge/-TypeScript-05122A?style=for-the-badge&logo=typescript" alt="badge">
+  </a>
   <a href="https://tailwindcss.com/">
     <img src="https://img.shields.io/badge/Tailwindcss-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="badge">
   </a>
