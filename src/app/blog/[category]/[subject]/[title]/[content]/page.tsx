@@ -1,4 +1,4 @@
-import { urlParams } from "@/config/types";
+import { urlParams } from "@/config/types/types";
 import RightSidebarComp from "@/components/bars/RightSidebar";
 import { Pw } from "@/components/Pw";
 import { CategoryKo } from "@/config/koname";
