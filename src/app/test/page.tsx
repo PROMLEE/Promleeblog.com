@@ -9,7 +9,7 @@ import { MdxHeader } from "@/components/posts/MdxHeader";
 const Post = async () => {
   const markdownsource = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post`,
-    { cache: "no-store" },
+    { next: { revalidate: 60 } },
   )
     .then((res) => res.json())
     .then((data) => data.data);
