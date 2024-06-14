@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PostParams } from "@/config/types";
 
 const parseToc = (content: string) => {
   const regex = /^(#|##|###) (.*$)/gim;
@@ -20,8 +21,8 @@ const parseToc = (content: string) => {
   );
 };
 
-const RightSidebarComp = (content: any) => {
-  const toc = parseToc(content.content);
+const RightSidebarComp = ({ content }: { content: string }) => {
+  const toc = parseToc(content);
   return (
     <div className="related md:sidebar-md mb-10 border-y-2 py-3 md:mb-0 md:border-none xl:right-5">
       {toc.map((item, idx) => {
