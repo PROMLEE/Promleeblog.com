@@ -7,41 +7,13 @@ import { MdxBody } from "@/components/posts/MdxBody";
 import { MdxHeader } from "@/components/posts/MdxHeader";
 import axios from "axios";
 
-const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
-  headers: {
-    "Access-Control-Allow-Origin": "*",
-    "Content-Type": "application/json",
-  },
-});
-
-const getMarkdownsource = async (): Promise<GetPostApiResponse> => {
-  try {
-    return await apiClient.get("/api/post").then((res) => res.data.data);
-  } catch (error) {
-    return {
-      posting: "Post not found",
-      name: "Post not found",
-      nameko: "Post not found",
-    };
-  }
-};
-
 const Post = async () => {
-  let markdownsource: GetPostApiResponse;
-  try {
-    markdownsource = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post`,
-    )
-      .then((res) => res.json())
-      .then((data) => data.data);
-  } catch (error) {
-    markdownsource = {
-      posting: "Post not found",
-      name: "Post not found",
-      nameko: "Post not found",
-    };
-  }
+  const markdownsource = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post`,
+  )
+    .then((res) => res.json())
+    .then((data) => data.data);
+
   return (
     <>
       <Toup />
