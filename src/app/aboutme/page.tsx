@@ -8,7 +8,7 @@ import { Exprience } from "../../components/aboutme/Exprience";
 import { Toup } from "@/components/buttons/Toup";
 import { Todown } from "@/components/buttons/Todown";
 import { useRef } from "react";
-import { useIsVisible } from "@/lib/useIsVisible";
+import { useIsVisible } from "@/utils/useIsVisible";
 import { Education } from "@/components/aboutme/Education";
 
 interface refs {

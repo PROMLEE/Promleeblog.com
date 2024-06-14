@@ -9,8 +9,8 @@ import { Metadata } from "next";
 import { BreadCrumb } from "@/components/posts/BreadCrumb";
 import { MdxBody } from "@/components/posts/MdxBody";
 import { MdxHeader } from "@/components/posts/MdxHeader";
-import { getPostDetail } from "@/lib/PostUtils/GetPost";
-import { GenerateMeta } from "@/lib/PostUtils/GenerateMeta";
+import { getPostDetail } from "@/utils/PostUtils/GetPost";
+import { GenerateMeta } from "@/utils/PostUtils/GenerateMeta";
 
 export async function generateMetadata({
   params,
