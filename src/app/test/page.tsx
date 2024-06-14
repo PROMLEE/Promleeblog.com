@@ -28,7 +28,20 @@ const getMarkdownsource = async (): Promise<GetPostApiResponse> => {
 };
 
 const Post = async () => {
-  const markdownsource = await getMarkdownsource();
+  let markdownsource: GetPostApiResponse;
+  try {
+    markdownsource = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post`,
+    )
+      .then((res) => res.json())
+      .then((data) => data.data);
+  } catch (error) {
+    markdownsource = {
+      posting: "Post not found",
+      name: "Post not found",
+      nameko: "Post not found",
+    };
+  }
   return (
     <>
       <Toup />
