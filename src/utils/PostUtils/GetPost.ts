@@ -1,4 +1,4 @@
-import { PostParams, MdxMeta, urlParams } from "@/config/types";
+import { PostParams, MdxMeta, urlParams } from "@/config/types/types";
 import fs from "fs";
 import matter from "gray-matter";
 

@@ -1,4 +1,4 @@
-import { MdxMeta, urlParams } from "@/config/types";
+import { MdxMeta, urlParams } from "@/config/types/types";
 const baseUrl = "https://promleeblog.com";
 export const GenerateMeta = ({
   meta,
