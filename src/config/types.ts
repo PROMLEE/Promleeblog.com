@@ -1,15 +1,21 @@
-export interface MDXMeta {
-  title: String;
-  date: String;
-  lastmod: String;
-  desc: String;
-  thumbnail: String;
-}
-export interface dbtable {
-  id: number;
+export interface MdxMeta {
   title: string;
-  date: string;
-  description: string;
+  title_num: number;
+  subtitle: string;
+  subtitle_num: number;
+  desc: string;
+  lock: boolean;
+  tags: string[];
+  date: Date;
+  lastmod: Date;
   thumbnail: string;
+}
+export interface urlParams {
+  category: string;
+  subject: string;
+  title: string;
+  content: string;
+}
+export interface PostParams extends MdxMeta {
   content: string;
 }
