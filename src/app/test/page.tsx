@@ -5,19 +5,21 @@ import { Toup } from "@/components/buttons/Toup";
 import { Todown } from "@/components/buttons/Todown";
 import { MdxBody } from "@/components/posts/MdxBody";
 import { MdxHeader } from "@/components/posts/MdxHeader";
+import axios from "axios";
 
 const getMarkdownsource = async () => {
-  const markdownsource: GetPostApiResponse = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post`,
-    {
-      cache: "no-cache",
+  const markdownsource: GetPostApiResponse = await axios({
+    method: "GET",
+    url: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post`,
+    headers: {
+      "Content-Type": "application/json",
     },
-  ).then((res) => res.json());
+  }).then((res) => res.data.data);
   return markdownsource;
 };
 
 const Post = async () => {
-  const markdownsource = await getMarkdownsource().then((res) => res.data);
+  const markdownsource = await getMarkdownsource();
   return (
     <>
       <Toup />
