@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 const { PrismaClient } = require("@prisma/client");
 import { createResponse } from "@/config/apiResponse";
 import { NextResponse } from "next/server";
@@ -7,7 +8,6 @@ import { NextResponse } from "next/server";
 };
 
 const prisma = new PrismaClient();
-export const dynamic = "force-dynamic";
 /**
  * @swagger
  * /api/post:
