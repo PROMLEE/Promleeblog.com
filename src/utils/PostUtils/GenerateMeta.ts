@@ -7,7 +7,7 @@ export const GenerateMeta = ({
   meta: MdxMeta;
   params: urlParams;
 }) => {
-  const title = `${meta.title} | PromleeBlog`;
+  const title = `PromleeBlog | ${meta.title}`;
   const description = meta.desc;
   const tags = meta.tags;
   const thumbnail = meta.thumbnail;
