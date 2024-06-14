@@ -16,6 +16,30 @@ const prisma = new PrismaClient();
  *     responses:
  *       200:
  *         description: Hello World!
+ *         content:
+ *           /:
+ *             example:
+ *               status: 200
+ *               success: true
+ *               data:  {
+ *                        "id": "3",
+ *                        "series_no": "8",
+ *                        "post_url": "Computer_Science\\Network\\Concept\\03_05.mdx",
+ *                        "name": "Connection-Oriented Transport: TCP",
+ *                        "nameko": "연결 지향 통신: TCP",
+ *                        "desc": "연결 지향 통신에 대한 설명",
+ *                        "init_date": "2024-06-14T07:14:57.104Z",
+ *                        "thumbnail_url": "",
+ *                        "view": 0,
+ *                        "like": 0,
+ *                        "series_id": "2",
+ *                        "mod_date": "2024-06-14T07:14:57.104Z",
+ *                        "lock": true,
+ *                        "posting": "hihihi"
+ *                     }
+ *               message: "Post found"
+ *       405:
+ *         description: Post not found
  */
 export async function GET() {
   const url = "http://localhost:3000/blog/study/network/transport-layer/08";
