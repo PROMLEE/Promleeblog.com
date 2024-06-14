@@ -1,4 +1,4 @@
-import { PostParams, MDXMeta, urlParams } from "@/config/types";
+import { PostParams, MdxMeta, urlParams } from "@/config/types";
 import fs from "fs";
 import matter from "gray-matter";
 
@@ -11,7 +11,7 @@ const parsePostDetail = async (postPath: string) => {
   console.log(postPath);
   const file = fs.readFileSync(postPath, "utf8");
   const { data, content } = matter(file);
-  const grayMatter = data as MDXMeta;
+  const grayMatter = data as MdxMeta;
   return { ...grayMatter, content };
 };
 const parsePost = async (postPath: string): Promise<PostParams> => {

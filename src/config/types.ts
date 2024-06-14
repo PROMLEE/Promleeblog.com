@@ -1,8 +1,11 @@
-export interface MDXMeta {
-  title: String;
-  date: String;
-  lastmod: String;
-  thumbnail: String;
+export interface MdxMeta {
+  title: string;
+  date: string;
+  desc: string;
+  lastmod: string;
+  thumbnail: string;
+  lock: boolean;
+  tags: string[];
 }
 export interface urlParams {
   category: string;
@@ -10,6 +13,6 @@ export interface urlParams {
   title: string;
   content: string;
 }
-export interface PostParams extends MDXMeta {
+export interface PostParams extends MdxMeta {
   content: string;
 }

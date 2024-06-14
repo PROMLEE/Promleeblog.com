@@ -1,6 +1,5 @@
 import { urlParams } from "@/config/types";
 import RightSidebarComp from "@/components/bars/RightSidebar";
-import { CategoryKo } from "@/config/koname";
 import { Pw } from "@/components/Pw";
 import { Suspense } from "react";
 import { Toup } from "@/components/buttons/Toup";
@@ -10,28 +9,15 @@ import { BreadCrumb } from "@/components/posts/BreadCrumb";
 import { MdxBody } from "@/components/posts/MdxBody";
 import { MdxHeader } from "@/components/posts/MdxHeader";
 import { getPostDetail } from "@/lib/PostUtils/GetPost";
+import { GenerateMeta } from "@/lib/PostUtils/GenerateMeta";
 
-type Props = {
+export async function generateMetadata({
+  params,
+}: {
   params: urlParams;
-  searchParams: { [key: string]: string | string[] | undefined };
-};
-
-export async function generateMetadata(
-  { params }: Props,
-  parent: any,
-): Promise<Metadata> {
-  // read route params
-  const id = params.title;
-  // fetch data
-  // const product = await fetch(`https://.../${id}`).then((res) => res.json());
-  // optionally access and extend (rather than replace) parent metadata
-  const previousImages = (await parent).openGraph?.images || [];
-  return {
-    title: id,
-    openGraph: {
-      images: ["/some-specific-page-image.jpg", ...previousImages],
-    },
-  };
+}): Promise<Metadata> {
+  const post = await getPostDetail(params);
+  return GenerateMeta({ meta: post, params });
 }
 
 const Post = async ({ params }: { params: urlParams }) => {
@@ -40,7 +26,7 @@ const Post = async ({ params }: { params: urlParams }) => {
     <>
       <Toup />
       <Suspense fallback={<div>Loading...</div>}>
-        {CategoryKo[params.category].lock && <Pw />}
+        {post.lock && <Pw />}
       </Suspense>
       <BreadCrumb params={params} />
       <RightSidebarComp content={post.content} />
