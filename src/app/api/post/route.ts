@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 };
 
 const prisma = new PrismaClient();
-
+export const dynamic = "force-dynamic";
 /**
  * @swagger
  * /api/post:
@@ -41,7 +41,7 @@ const prisma = new PrismaClient();
  *       405:
  *         description: Post not found
  */
-export async function GET() {
+export async function GET(request: Request) {
   const url = "http://localhost:3000/blog/study/network/transport-layer/08";
   try {
     return NextResponse.json(
