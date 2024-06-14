@@ -10,6 +10,7 @@ import axios from "axios";
 const Post = async () => {
   const markdownsource = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post`,
+    { cache: "no-store" },
   )
     .then((res) => res.json())
     .then((data) => data.data);
