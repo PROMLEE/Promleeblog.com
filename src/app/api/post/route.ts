@@ -9,7 +9,7 @@ import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 export async function GET() {
-  const url = "http://localhost:3000/blog/study/network/transport-laye/08";
+  const url = "http://localhost:3000/blog/study/network/transport-layer/08";
   try {
     return NextResponse.json(
       createResponse("Post found", await findPostByUrl(url)),
