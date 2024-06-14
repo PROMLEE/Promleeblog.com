@@ -5,7 +5,6 @@ import { Toup } from "@/components/buttons/Toup";
 import { Todown } from "@/components/buttons/Todown";
 import { MdxBody } from "@/components/posts/MdxBody";
 import { MdxHeader } from "@/components/posts/MdxHeader";
-import axios from "axios";
 
 const Post = async () => {
   const markdownsource = await fetch(
