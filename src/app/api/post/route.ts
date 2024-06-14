@@ -1,6 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 import { createResponse } from "@/config/apiResponse";
-// import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();
@@ -44,11 +44,11 @@ const prisma = new PrismaClient();
 export async function GET() {
   const url = "http://localhost:3000/blog/study/network/transport-layer/08";
   try {
-    return Response.json(
+    return NextResponse.json(
       createResponse("Post found", await findPostByUrl(url)),
     );
   } catch (error) {
-    return Response.json({ error: "Post not found" }, { status: 405 });
+    return NextResponse.json({ error: "Post not found" }, { status: 405 });
   }
 }
 
