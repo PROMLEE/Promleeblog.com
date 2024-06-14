@@ -1,21 +1,30 @@
-// Prisma Client 초기화
 const { PrismaClient } = require("@prisma/client");
 import { createResponse } from "@/config/apiResponse";
-import { NextResponse } from "next/server";
+// import { NextResponse } from "next/server";
 
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();
 };
 
 const prisma = new PrismaClient();
+
+/**
+ * @swagger
+ * /api/post:
+ *   get:
+ *     description: Returns Post Detail
+ *     responses:
+ *       200:
+ *         description: Hello World!
+ */
 export async function GET() {
   const url = "http://localhost:3000/blog/study/network/transport-layer/08";
   try {
-    return NextResponse.json(
+    return Response.json(
       createResponse("Post found", await findPostByUrl(url)),
     );
   } catch (error) {
-    return NextResponse.json({ error: "Post not found" }, { status: 405 });
+    return Response.json({ error: "Post not found" }, { status: 405 });
   }
 }
 
