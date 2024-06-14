@@ -41,16 +41,16 @@ const prisma = new PrismaClient();
  *       405:
  *         description: Post not found
  */
-export async function GET() {
-  const url = "http://localhost:3000/blog/study/network/transport-layer/08";
-  try {
-    return NextResponse.json(
-      createResponse("Post found", await findPostByUrl(url)),
-    );
-  } catch (error) {
-    return NextResponse.json({ error: "Post not found" }, { status: 405 });
-  }
-}
+// export async function GET() {
+//   const url = "http://localhost:3000/blog/study/network/transport-layer/08";
+//   try {
+//     return NextResponse.json(
+//       createResponse("Post found", await findPostByUrl(url)),
+//     );
+//   } catch (error) {
+//     return NextResponse.json({ error: "Post not found" }, { status: 405 });
+//   }
+// }
 
 async function findPostByUrl(url: string) {
   // URL을 분해

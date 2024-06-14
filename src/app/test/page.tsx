@@ -7,13 +7,17 @@ import { MdxBody } from "@/components/posts/MdxBody";
 import { MdxHeader } from "@/components/posts/MdxHeader";
 
 const Post = async () => {
-  const markdownsource = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post`,
-    { next: { revalidate: 60 } },
-  )
-    .then((res) => res.json())
-    .then((data) => data.data);
-
+  // const markdownsource = await fetch(
+  //   `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post`,
+  //   { next: { revalidate: 60 } },
+  // )
+  //   .then((res) => res.json())
+  //   .then((data) => data.data);
+  const markdownsource: GetPostApiResponse = {
+    posting: "# Hello World",
+    name: "Hello World",
+    nameko: "Hello World",
+  };
   return (
     <>
       <Toup />
