@@ -17,11 +17,12 @@ model Post {
   nameko        String
   desc          String?
   init_date     DateTime   @default(now()) @db.Timestamptz(6)
-  mod_date      DateTime   @updatedAt @default(now()) @db.Timestamptz(6)
   thumbnail_url String?
   view          BigInt?
   like          BigInt?
   series_id     BigInt
+  mod_date      DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
+  lock          Boolean?   @default(false)
   Series        Series     @relation(fields: [series_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   Post_Tag      Post_Tag[]
 }
@@ -32,6 +33,7 @@ model Category {
   id      BigInt    @id @default(autoincrement())
   name    String    @default("")
   nameko  String    @default("")
+  url     String    @unique
   Subject Subject[]
 }
 
@@ -53,6 +55,7 @@ model Series {
   subject_id BigInt
   name       String  @default("")
   nameko     String  @default("")
+  url        String  @unique
   Post       Post[]
   Subject    Subject @relation(fields: [subject_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -64,6 +67,7 @@ model Subject {
   category_id BigInt
   name        String   @default("")
   koname      String   @default("")
+  url         String   @unique
   Series      Series[]
   Category    Category @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
