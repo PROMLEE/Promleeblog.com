@@ -6,7 +6,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { urlParams } from "@/config/types";
+import { urlParams } from "@/config/types/types";
 import { CategoryKo } from "@/config/koname";
 import dayjs from "dayjs";
 

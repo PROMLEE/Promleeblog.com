@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { PostParams } from "@/config/types";
 
 const parseToc = (content: string) => {
   const regex = /^(#|##|###) (.*$)/gim;
