@@ -7,15 +7,16 @@ import { MdxBody } from "@/components/posts/MdxBody";
 import { MdxHeader } from "@/components/posts/MdxHeader";
 import axios from "axios";
 
-const getMarkdownsource = async () => {
-  const markdownsource: GetPostApiResponse = await axios({
-    method: "GET",
-    url: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post`,
-    headers: {
-      "Content-Type": "application/json",
-    },
-  }).then((res) => res.data.data);
-  return markdownsource;
+const apiClient = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    "Content-Type": "application/json",
+  },
+});
+
+const getMarkdownsource = async (): Promise<GetPostApiResponse> => {
+  return await apiClient.get("/api/post").then((res) => res.data.data);
 };
 
 const Post = async () => {
