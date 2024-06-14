@@ -10,7 +10,7 @@ const getMarkdownsource = async () => {
   const markdownsource: GetPostApiResponse = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post`,
     {
-      // cache: "no-store",
+      cache: "no-cache",
     },
   ).then((res) => res.json());
   return markdownsource;
