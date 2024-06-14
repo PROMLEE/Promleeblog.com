@@ -10,8 +10,69 @@ datasource db {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Post {
-  id         BigInt   @id @default(autoincrement())
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @updatedAt @default(now()) @db.Timestamptz(6)
-  content    String?  @default("")
+  id            BigInt     @id @unique @default(autoincrement())
+  series_no     BigInt
+  post_url      String
+  name          String
+  nameko        String
+  desc          String?
+  init_date     DateTime   @default(now()) @db.Timestamptz(6)
+  mod_date      DateTime   @updatedAt @default(now()) @db.Timestamptz(6)
+  thumbnail_url String?
+  view          BigInt?
+  like          BigInt?
+  series_id     BigInt
+  Series        Series     @relation(fields: [series_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Post_Tag      Post_Tag[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Category {
+  id      BigInt    @id @default(autoincrement())
+  name    String    @default("")
+  nameko  String    @default("")
+  Subject Subject[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Post_Tag {
+  post_id BigInt
+  tag_id  BigInt
+  id      BigInt @id @unique @default(autoincrement())
+  Post    Post   @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Tag     Tag    @relation(fields: [tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Series {
+  id         BigInt  @id @default(autoincrement())
+  subject_id BigInt
+  name       String  @default("")
+  nameko     String  @default("")
+  Post       Post[]
+  Subject    Subject @relation(fields: [subject_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Subject {
+  id          BigInt   @id @default(autoincrement())
+  category_id BigInt
+  name        String   @default("")
+  koname      String   @default("")
+  Series      Series[]
+  Category    Category @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Tag {
+  id       BigInt     @id @unique @default(autoincrement())
+  name     String     @default("")
+  nameko   String     @default("")
+  Post_Tag Post_Tag[]
 }
