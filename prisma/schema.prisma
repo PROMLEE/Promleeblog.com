@@ -12,12 +12,11 @@ datasource db {
 model Post {
   id            BigInt     @id @unique @default(autoincrement())
   series_no     BigInt
-  post_url      String     @default("")
   name          String     @default("")
   nameko        String     @default("")
   desc          String?    @default("")
   init_date     DateTime   @default(now()) @db.Timestamptz(6)
-  thumbnail_url String     @default("")
+  thumbnail_url String?    @default("")
   view          BigInt?    @default(0)
   like          BigInt?    @default(0)
   series_id     BigInt

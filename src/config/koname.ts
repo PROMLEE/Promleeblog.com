@@ -96,66 +96,6 @@ export const CategoryKo: CategoryKoinfo = {
           Concept: {
             name: "개념정리",
             content: {
-              "01_00": {
-                name: "컴퓨터 네트워크 도입부 (Computer Network Intro)",
-                date: "2024-06-09",
-              },
-              "01_01": {
-                name: "컴퓨터 네트워크 도입부 - 인터넷이란? (What is the Internet?)",
-                date: "2024-06-09",
-              },
-              "01_02": {
-                name: "컴퓨터 네트워크 도입부 - 네트워크 엣지 (Network Edge)",
-                date: "2024-06-09",
-              },
-              "01_03": {
-                name: "컴퓨터 네트워크 도입부 - 네트워크 코어 (Network Core)",
-                date: "2024-06-09",
-              },
-              "01_04": {
-                name: "컴퓨터 네트워크 도입부 - delay,loss, throughput",
-                date: "2024-06-09",
-              },
-              "01_05": {
-                name: "컴퓨터 네트워크 도입부 - protocol layers, service models",
-                date: "2024-06-09",
-              },
-              "01_07": {
-                name: "컴퓨터 네트워크 도입부 - History",
-                date: "2024-06-09",
-              },
-              "02_01": {
-                name: "응용 계층 - 응용 계층의 원칙 (Principles of Application Layer)",
-                date: "2024-06-09",
-              },
-              "02_02": {
-                name: "응용 계층 - Web and HTTP",
-                date: "2024-06-09",
-              },
-              "02_04": {
-                name: "응용 계층 - DNS",
-                date: "2024-06-09",
-              },
-              "02_07": {
-                name: "응용 계층 - UDP와 TCP를 이용한 소켓 프로그래밍 (Socket Programming with UDP and TCP)",
-                date: "2024-06-09",
-              },
-              "03_01": {
-                name: "전송계층 - 전송 계층 서비스 (Transport Layer Services)",
-                date: "2024-04-30",
-              },
-              "03_02": {
-                name: "전송계층 - 멀티플렉싱과 디멀티플렉싱 (Multiplexing and Demultiplexing)",
-                date: "2024-04-30",
-              },
-              "03_03": {
-                name: "전송계층 - 비연결성 통신: UDP (Connectionless Transport: UDP)",
-                date: "2024-04-30",
-              },
-              "03_04": {
-                name: "전송계층 - 신뢰성있는 데이터 전송 (Reliable Data Transfer)",
-                date: "2024-04-30",
-              },
               "03_05": {
                 name: "전송계층 - 연결 지향 통신: TCP (Connection-Oriented Transport: TCP)",
                 date: "2024-04-30",

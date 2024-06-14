@@ -4,7 +4,7 @@ export async function generateMetadata({}: {}): Promise<Metadata> {
   const baseUrl = "https://promleeblog.com";
   const flattenedPath = "sitemap";
   const thumbnail = "icons/android-chrome-512x512.png";
-  const title = "Sitemap | PromleeBlog";
+  const title = "PromleeBlog | Sitemap";
   const description = "Cytoscape Graph로 만든 Sitemap입니다. - PromleeBlog";
   const tags = ["Sitemap", "Cytoscape"];
   return {
