@@ -8,8 +8,16 @@ import {
 } from "@/components/ui/breadcrumb";
 import { urlParams } from "@/config/types";
 import { CategoryKo } from "@/config/koname";
+import dayjs from "dayjs";
 
-export const BreadCrumb = ({ params }: { params: urlParams }) => {
+export const BreadCrumb = ({
+  params,
+  date,
+}: {
+  params: urlParams;
+  date: Date;
+}) => {
+  const dateString = dayjs(date).locale("ko").format("YYYY년 MM월 DD일");
   return (
     <Breadcrumb>
       <BreadcrumbList>
@@ -58,6 +66,7 @@ export const BreadCrumb = ({ params }: { params: urlParams }) => {
             CategoryKo[params.category].sub[params.subject].title[params.title]
               .content[params.content].date}
         </div>
+        {/* <div className={"ml-auto text-right"}>📅 {dateString}</div> */}
       </BreadcrumbList>
     </Breadcrumb>
   );

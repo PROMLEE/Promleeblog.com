@@ -1,10 +1,6 @@
 import React from "react";
-import { MDXMeta } from "@/config/types";
-export const MdxHeader = ({ props }: { props: MDXMeta }) => {
-  return (
-    <div>
-      {props.title}
-      {props.date}
-    </div>
-  );
+import { MdxMeta } from "@/config/types";
+
+export const MdxHeader = ({ props }: { props: MdxMeta }) => {
+  return <h1 className="w-full text-center">{props.title}</h1>;
 };

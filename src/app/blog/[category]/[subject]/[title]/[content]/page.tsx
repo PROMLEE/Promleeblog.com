@@ -1,6 +1,7 @@
 import { urlParams } from "@/config/types";
 import RightSidebarComp from "@/components/bars/RightSidebar";
 import { Pw } from "@/components/Pw";
+import { CategoryKo } from "@/config/koname";
 import { Suspense } from "react";
 import { Toup } from "@/components/buttons/Toup";
 import { Todown } from "@/components/buttons/Todown";
@@ -26,9 +27,9 @@ const Post = async ({ params }: { params: urlParams }) => {
     <>
       <Toup />
       <Suspense fallback={<div>Loading...</div>}>
-        {post.lock && <Pw />}
+        {CategoryKo[params.category].lock && <Pw />}
       </Suspense>
-      <BreadCrumb params={params} />
+      <BreadCrumb params={params} date={post.date} />
       <RightSidebarComp content={post.content} />
       <div className="prose mt-10 min-h-[100vh] scroll-smooth dark:prose-invert focus:scroll-auto">
         <Suspense fallback={<div>Loading...</div>}>

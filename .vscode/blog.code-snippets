@@ -1,0 +1,20 @@
+{
+  "Meta tag Generator": {
+    "prefix": "meta",
+    "body": [
+      "---",
+      "title: ",
+      "title_num: ",
+      "subtitle: ",
+      "subtitle_num: ",
+      "desc: ",
+      "lock: true",
+      "tags: []",
+      "date: ",
+      "lastmod: ",
+      "thumbnail: ",
+      "---",
+    ],
+    "description": "Generate Meta Tag",
+  },
+}

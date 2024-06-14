@@ -1,11 +1,14 @@
 export interface MdxMeta {
   title: string;
-  date: string;
+  title_num: number;
+  subtitle: string;
+  subtitle_num: number;
   desc: string;
-  lastmod: string;
-  thumbnail: string;
   lock: boolean;
   tags: string[];
+  date: Date;
+  lastmod: Date;
+  thumbnail: string;
 }
 export interface urlParams {
   category: string;
