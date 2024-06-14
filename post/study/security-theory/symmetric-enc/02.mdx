@@ -1,0 +1,17 @@
+# 블록 암호 (Block Cipher)
+## 블록 암호의 구조 (Design of Block Cipher)
+대칭 블록 암호는 여러 **라운드**로 구성되어 있으며, 이는 **키**에 의해 제어되는 **치환**과 **전치**로 구성된다.
+대칭 블록 암호에 대한 파라미터와 설계 특성
+- 블록 크기 (Block Size)
+- 키 크기 (Key Size)
+- 라운드 수 (Number of Rounds) -> **암호화의 핵심 요소**
+- 보조키 생성 알고리즘 (Subkey Schedule Algorithm)
+- 라운드 함수 (Round Function)
+- 소프트웨어/하드웨어의 암호화/복호화 속도 (Encryption/Decryption Speed)
+- (보안) 분석의 용이성 (Ease of (Security) Analysis)
+![240425-124053](/posts/240425-124053.png)
+
+## 계산적 안전성 (Computational Security)
+암호화 스킴은 생성된 암호문이 다음 기준 중 하나 혹은 두 가지를 충족할 때 계산적으로 안전하다고 할 수 있다.
+- 암호를 깨는 비용이 암호화된 정보의 가치를 초과할 때.
+- 암호를 깨는 데 필요한 시간이 정보의 유용한 수명을 초과할 때.
