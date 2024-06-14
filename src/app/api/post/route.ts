@@ -12,7 +12,7 @@ const prisma = new PrismaClient();
  * @swagger
  * /api/post:
  *   get:
- *     description: Returns Post Detail
+ *     description: Returns Post Detail from URL
  *     responses:
  *       200:
  *         description: Hello World!
