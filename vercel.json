@@ -3,5 +3,15 @@
     "deploymentEnabled": {
       "post": false
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://promleeblog.com/:path*"
+    },
+    {
+      "source": "/api/:path*/",
+      "destination": "https://promleeblog.com/:path*/"
+    }
+  ]
 }

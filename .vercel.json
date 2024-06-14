@@ -1,8 +1,0 @@
-{
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "destination": "https://promleeblog.com/api/$1"
-    }
-  ]
-}
