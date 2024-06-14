@@ -1,6 +1,6 @@
 import fs from "fs";
 import matter from "gray-matter";
-import { dbtable } from "@/config/types";
+import { MdxMeta } from "@/config/types";
 import { components } from "@/components/mdx";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
@@ -15,7 +15,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { Suspense } from "react";
 import { Toup } from "@/components/buttons/Toup";
 import { Todown } from "@/components/buttons/Todown";
-export interface Post extends dbtable {
+export interface Post extends MdxMeta {
   url: string;
   slug: string;
   categoryPath: string;
@@ -32,7 +32,7 @@ const parsePostDetail = async (postPath: string) => {
   console.log(postPath);
   const file = fs.readFileSync(postPath, "utf8");
   const { data, content } = matter(file);
-  const grayMatter = data as dbtable;
+  const grayMatter = data as MdxMeta;
   return { ...grayMatter, content };
 };
 const parsePost = async (postPath: string): Promise<any> => {
