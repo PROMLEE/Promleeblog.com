@@ -1,7 +1,5 @@
 export interface GetPostApiResponse {
-  data: {
-    posting: string;
-    name: string;
-    nameko: string;
-  };
+  posting: string;
+  name: string;
+  nameko: string;
 }
