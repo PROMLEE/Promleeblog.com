@@ -46,7 +46,7 @@ export const Navbar = () => {
                 <MenubarMenu>
                   <MenubarTrigger
                     className={
-                      "rounded-none font-bold hover:cursor-pointer  hover:bg-button hover:text-background "
+                      "rounded-none font-bold hover:cursor-pointer hover:bg-button hover:text-background "
                     }
                   >
                     {name}
@@ -59,7 +59,7 @@ export const Navbar = () => {
                         <MenubarSub key={index}>
                           <MenubarSubTrigger
                             key={index}
-                            className={" text-white hover:cursor-pointer "}
+                            className={"text-text hover:cursor-pointer "}
                           >
                             {subName}
                           </MenubarSubTrigger>

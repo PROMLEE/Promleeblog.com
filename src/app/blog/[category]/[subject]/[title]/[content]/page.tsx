@@ -33,7 +33,15 @@ const Post = async ({ params }: { params: urlParams }) => {
       <RightSidebarComp content={post.content} />
       <div className="prose mt-10 min-h-[100vh] scroll-smooth dark:prose-invert focus:scroll-auto">
         <Suspense fallback={<div>Loading...</div>}>
-          <MdxHeader props={post} />
+          <MdxHeader
+            props={
+              params.content +
+              ". " +
+              CategoryKo[params.category].sub[params.subject].title[
+                params.title
+              ].content[params.content].name
+            }
+          />
           <MdxBody content={post.content} />
         </Suspense>
       </div>
