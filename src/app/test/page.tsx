@@ -16,7 +16,15 @@ const apiClient = axios.create({
 });
 
 const getMarkdownsource = async (): Promise<GetPostApiResponse> => {
-  return await apiClient.get("/api/post").then((res) => res.data.data);
+  try {
+    return await apiClient.get("/api/post").then((res) => res.data.data);
+  } catch (error) {
+    return {
+      posting: "Post not found",
+      name: "Post not found",
+      nameko: "Post not found",
+    };
+  }
 };
 
 const Post = async () => {
