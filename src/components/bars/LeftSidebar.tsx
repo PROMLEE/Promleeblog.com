@@ -8,7 +8,6 @@ import {
 import { useState, useEffect } from "react";
 
 const LeftSidebarComp = ({ menuclose }: { menuclose: any }) => {
-  // const toc = parseToc(content.content);
   const [value, setValue] = useState("");
   const [list, setList]: any[] = useState([]);
   useEffect(() => {
@@ -63,19 +62,6 @@ const LeftSidebarComp = ({ menuclose }: { menuclose: any }) => {
             </AccordionItem>
           );
         })}
-        {/* <AccordionItem value="item-1">
-          <AccordionTrigger>컴퓨터 공학</AccordionTrigger>
-          <AccordionContent>
-            <Accordion type="single" collapsible>
-              <AccordionItem value="item-1">
-                <AccordionTrigger>컴퓨터 공학</AccordionTrigger>
-                <AccordionContent>
-                  Yes. It adheres to the WAI-ARIA design pattern.
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </AccordionContent>
-        </AccordionItem> */}
       </Accordion>
     </div>
   );

@@ -33,7 +33,7 @@ const Subject = async ({ params }: Props) => {
         {params.category}
       </Link> */}
       <div
-        className={"subject my-5"}
+        className={"subject"}
         // href={`/blog/${params.category}/${params.subject}`}
       >
         {params.subject}

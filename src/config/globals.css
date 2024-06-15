@@ -157,9 +157,6 @@
   .subject {
     @apply my-10 block text-4xl font-bold text-yellow-500 no-underline;
   }
-  .title {
-    @apply my-1 block text-xl font-bold text-green-500 no-underline hover:underline;
-  }
   .content {
     @apply block font-bold text-text-foreground no-underline hover:underline;
   }
