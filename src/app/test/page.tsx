@@ -5,6 +5,7 @@ import { Toup } from "@/components/buttons/Toup";
 import { Todown } from "@/components/buttons/Todown";
 import { MdxBody } from "@/components/posts/MdxBody";
 import { MdxHeader } from "@/components/posts/MdxHeader";
+import { getPostDetail } from "@/utils/PostUtils/GetPost";
 
 const Post = async () => {
   // const markdownsource = await fetch(
@@ -13,19 +14,20 @@ const Post = async () => {
   // )
   //   .then((res) => res.json())
   //   .then((data) => data.data);
-  const markdownsource: GetPostApiResponse = {
-    posting: "# Hello World",
-    name: "Hello World",
-    nameko: "Hello World",
-  };
+  const markdownsource: any = await getPostDetail({
+    category: "Computer_Science",
+    subject: "Network",
+    title: "Concept",
+    post: "03_05",
+  });
   return (
     <>
       <Toup />
       <div className="prose mt-10 min-h-[100vh] scroll-smooth dark:prose-invert focus:scroll-auto">
-        <RightSidebarComp content={markdownsource.posting} />
+        <RightSidebarComp content={markdownsource.content} />
         <Suspense fallback={<div>Loading...</div>}>
-          <MdxHeader props={markdownsource.nameko} />
-          <MdxBody content={markdownsource.posting} />
+          {/* <MdxHeader props={markdownsource.nameko} /> */}
+          <MdxBody content={markdownsource.content} />
         </Suspense>
       </div>
       <Todown />
