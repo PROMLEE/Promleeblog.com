@@ -1,14 +1,30 @@
 import Image from "next/image";
 import "katex/dist/katex.min.css";
 import Link from "next/link";
+import path from "node:path";
+import fs from "node:fs/promises";
+import { getPlaiceholder } from "plaiceholder";
 
+const getImage = async (src: string) => {
+  const buffer = await fs.readFile(path.join("./public", src));
+
+  const {
+    metadata: { height, width },
+    ...plaiceholder
+  } = await getPlaiceholder(buffer, { size: 10 });
+
+  return {
+    ...plaiceholder,
+    img: { src, height, width },
+  };
+};
 interface Props {
   id: string;
   children: string;
   href: string;
 }
 
-export function Img({
+export async function Img({
   src,
   alt,
   height,
@@ -21,6 +37,7 @@ export function Img({
   width: string;
   bg: string;
 }) {
+  const { base64, img } = await getImage(src);
   return (
     <Image
       src={src}
@@ -29,7 +46,7 @@ export function Img({
       width={Number(width) ? Number(width) : 500}
       height={Number(height) ? Number(height) : 500}
       placeholder="blur"
-      blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFklEQVR42mN8//HLfwYiAOOoQvoqBABbWyZJf74GZgAAAABJRU5ErkJggg=="
+      blurDataURL={base64}
     />
   );
 }

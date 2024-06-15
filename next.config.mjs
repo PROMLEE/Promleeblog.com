@@ -1,5 +1,7 @@
+import withPlaiceholder from "@plaiceholder/next";
+import withImages from "next-images";
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig = withImages({
   images: {
     dangerouslyAllowSVG: true,
     remotePatterns: [
@@ -21,6 +23,16 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "upload.wikimedia.org",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "xzufpdanhnlfveztpqvm.supabase.co",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "www.promleeblog.com",
         pathname: "**",
       },
     ],
@@ -54,6 +66,6 @@ const nextConfig = {
       },
     ];
   },
-};
+});
 
-export default nextConfig;
+export default withPlaiceholder(nextConfig);
