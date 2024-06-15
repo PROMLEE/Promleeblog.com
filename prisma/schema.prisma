@@ -34,6 +34,7 @@ model Category {
   name    String    @default("")
   nameko  String    @default("")
   url     String    @unique
+  ord     BigInt    @unique @default(autoincrement())
   Subject Subject[]
 }
 
@@ -55,7 +56,9 @@ model Series {
   subject_id BigInt
   name       String  @default("")
   nameko     String  @default("")
-  url        String  @unique
+  url        String
+  series_no  BigInt
+  caption    String? @default("")
   Post       Post[]
   Subject    Subject @relation(fields: [subject_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -68,6 +71,7 @@ model Subject {
   name        String   @default("")
   koname      String   @default("")
   url         String   @unique
+  subject_no  BigInt
   Series      Series[]
   Category    Category @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
