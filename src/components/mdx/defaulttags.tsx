@@ -1,12 +1,11 @@
 import Image from "next/image";
 import "katex/dist/katex.min.css";
 import Link from "next/link";
-import path from "node:path";
 import fs from "node:fs/promises";
 import { getPlaiceholder } from "plaiceholder";
 
 const getImage = async (src: string) => {
-  const buffer = await fs.readFile(`${process.cwd()}/public/${src}`);
+  const buffer = await fs.readFile(`${process.cwd()}/public${src}`);
 
   const {
     metadata: { height, width },
