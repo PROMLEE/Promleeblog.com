@@ -7,8 +7,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { urlParams } from "@/config/types/types";
-// import { CategoryKo } from "@/config/koname";
 import dayjs from "dayjs";
+import Link from "next/link";
 
 export const BreadCrumb = ({
   params,
@@ -25,8 +25,9 @@ export const BreadCrumb = ({
           <BreadcrumbLink
             href={`/blog/${params.category}`}
             className="hover:font-bold hover:text-text"
+            asChild
           >
-            {params.category}
+            <Link href={`/blog/${params.category}`}>{params.category}</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
@@ -45,7 +46,6 @@ export const BreadCrumb = ({
           </BreadcrumbPage>
         </BreadcrumbItem>
         <div className={"ml-auto text-right"}>{"📅 " + dateString}</div>
-        {/* <div className={"ml-auto text-right"}>📅 {dateString}</div> */}
       </BreadcrumbList>
     </Breadcrumb>
   );

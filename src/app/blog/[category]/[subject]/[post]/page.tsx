@@ -55,11 +55,11 @@ const Post = async ({ params }: Props) => {
   return (
     <>
       <Toup />
+      <BreadCrumb params={params} date={markdownsource.date} />
       <div className="prose mt-10 min-h-[100vh] scroll-smooth dark:prose-invert focus:scroll-auto">
         {markdownsource.lock && <Pw />}
         <Suspense fallback={<div>Loading...</div>}>
           <RightSidebarComp content={markdownsource.posting} />
-          <BreadCrumb params={params} date={markdownsource.date} />
           <MdxHeader props={markdownsource.nameko} />
           <MdxBody content={markdownsource.posting} />
         </Suspense>

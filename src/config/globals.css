@@ -155,13 +155,13 @@
     @apply my-5 block text-3xl font-bold text-blue-500 no-underline hover:underline;
   }
   .subject {
-    @apply my-2 block text-2xl font-bold text-yellow-500 no-underline hover:underline;
+    @apply my-10 block text-4xl font-bold text-yellow-500 no-underline;
   }
   .title {
     @apply my-1 block text-xl font-bold text-green-500 no-underline hover:underline;
   }
   .content {
-    @apply block font-bold no-underline dark:text-white;
+    @apply block font-bold text-text-foreground no-underline hover:underline;
   }
   .sidebar {
     @apply mb-1 block rounded-md no-underline hover:bg-amber-200 dark:hover:bg-amber-800;
