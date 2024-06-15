@@ -6,7 +6,7 @@ import fs from "fs";
 import { getPlaiceholder } from "plaiceholder";
 
 const getImage = async (src: string) => {
-  const filePath = path.resolve("./public", src);
+  const filePath = path.resolve("./public", src.replace("/", ""));
   const buffer = fs.readFileSync(filePath);
 
   const {
