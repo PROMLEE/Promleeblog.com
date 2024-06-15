@@ -18,7 +18,9 @@ export const Navbar = () => {
   const [list, setList]: any[] = useState([]);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`)
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`, {
+      next: { revalidate: 60 },
+    })
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
