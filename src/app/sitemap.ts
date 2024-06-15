@@ -4,7 +4,7 @@ import { CategoryKo } from "@/config/koname";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const basePath = "https://promleeblog.com/blog/";
 
-  const subjectlist = await fetch(
+  const Links = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`,
     { next: { revalidate: 60 } },
   )
@@ -51,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
     },
   ];
-  subjectlist.map((category: any) => {
+  Links.map((category: any) => {
     list.push(putmap(category.url));
     category.Subject.map((sub: any) => {
       list.push(putmap(category.url + "/" + sub.url));
