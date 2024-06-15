@@ -1,10 +1,6 @@
 export const dynamic = "force-dynamic";
 const { PrismaClient } = require("@prisma/client");
-import Subject from "@/app/blog/[category]/[subject]/page";
-import Category from "@/app/blog/[category]/page";
 import { createResponse } from "@/config/apiResponse";
-import { Sub } from "@radix-ui/react-menubar";
-import { url } from "inspector";
 import { NextResponse, NextRequest } from "next/server";
 
 const prisma = new PrismaClient();
