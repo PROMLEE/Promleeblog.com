@@ -6,7 +6,7 @@ import fs from "node:fs/promises";
 import { getPlaiceholder } from "plaiceholder";
 
 const getImage = async (src: string) => {
-  const buffer = await fs.readFile(path.join("./public", src));
+  const buffer = await fs.readFile(`${process.cwd()}/public/${src}`);
 
   const {
     metadata: { height, width },
