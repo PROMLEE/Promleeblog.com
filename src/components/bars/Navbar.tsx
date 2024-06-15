@@ -20,6 +20,7 @@ export const Navbar = () => {
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`, {
       next: { revalidate: 60 },
+      mode: "no-cors",
     })
       .then((res) => res.json())
       .then((data) => {
