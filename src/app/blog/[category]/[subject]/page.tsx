@@ -44,7 +44,7 @@ const Subject = async ({ params }: Props) => {
                 href={`/blog/${params.category}/${params.subject}/${post.id}`}
                 className={"content hover:content text-white hover:underline"}
               >
-                {post.nameko}
+                {post.series_no}. {post.nameko}
               </Link>
             ))}
           </div>

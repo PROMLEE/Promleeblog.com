@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 const { PrismaClient } = require("@prisma/client");
 import Subject from "@/app/blog/[category]/[subject]/page";
+import Category from "@/app/blog/[category]/page";
 import { createResponse } from "@/config/apiResponse";
 import { Sub } from "@radix-ui/react-menubar";
 import { url } from "inspector";
@@ -54,13 +55,36 @@ export async function GET() {
 
 async function getLinks() {
   const Links = await prisma.category.findMany({
+    orderBy: {
+      ord: "asc",
+    },
     select: {
       nameko: true,
       url: true,
       Subject: {
+        orderBy: {
+          category_no: "asc",
+        },
         select: {
           nameko: true,
           url: true,
+          Series: {
+            orderBy: {
+              subject_no: "asc",
+            },
+            select: {
+              nameko: true,
+              url: true,
+              Post: {
+                orderBy: {
+                  series_no: "asc",
+                },
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
         },
       },
     },

@@ -57,7 +57,7 @@ model Series {
   name       String  @default("")
   nameko     String  @default("")
   url        String
-  series_no  BigInt
+  subject_no BigInt
   caption    String? @default("")
   Post       Post[]
   Subject    Subject @relation(fields: [subject_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -71,7 +71,7 @@ model Subject {
   name        String   @default("")
   nameko      String   @default("")
   url         String   @unique
-  subject_no  BigInt
+  category_no BigInt
   Series      Series[]
   Category    Category @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

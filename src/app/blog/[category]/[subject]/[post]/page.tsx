@@ -21,17 +21,12 @@ const Post = async ({ params }: Props) => {
   )
     .then((res) => res.json())
     .then((data) => data.data);
-  // const markdownsource: GetPostApiResponse = {
-  //   posting: "# Hello World",
-  //   name: "Hello World",
-  //   nameko: "Hello World",
-  // };
   return (
     <>
       <Toup />
       <div className="prose mt-10 min-h-[100vh] scroll-smooth dark:prose-invert focus:scroll-auto">
-        <RightSidebarComp content={markdownsource.posting} />
         <Suspense fallback={<div>Loading...</div>}>
+          <RightSidebarComp content={markdownsource.posting} />
           <MdxHeader props={markdownsource.nameko} />
           <MdxBody content={markdownsource.posting} />
         </Suspense>

@@ -75,10 +75,13 @@ async function getSeriesList(subjecturl: string) {
       subject_id: subject.id,
     },
     orderBy: {
-      series_no: "asc",
+      subject_no: "asc",
     },
     include: {
       Post: {
+        orderBy: {
+          series_no: "asc",
+        },
         select: {
           id: true,
           series_no: true,
