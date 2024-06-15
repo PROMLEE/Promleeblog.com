@@ -19,6 +19,7 @@ export default function CytoscapeGraph() {
       console.log(data);
       setLoading(false);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const { theme } = useTheme();
   const fontActiveSize = 7;
