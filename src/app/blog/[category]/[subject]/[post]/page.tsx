@@ -37,12 +37,21 @@ export async function generateMetadata({
 }
 
 const Post = async ({ params }: Props) => {
-  const markdownsource = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post?id=${params.post}`,
-    { next: { revalidate: 60 } },
-  )
-    .then((res) => res.json())
-    .then((data) => data.data);
+  let markdownsource;
+  try {
+    markdownsource = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post?id=${params.post}`,
+      { next: { revalidate: 60 } },
+    )
+      .then((res) => res.json())
+      .then((data) => data.data);
+  } catch (e) {
+    markdownsource = {
+      posting: "# Hello World",
+      name: "Hello World",
+      nameko: "Hello World",
+    };
+  }
   return (
     <>
       <Toup />

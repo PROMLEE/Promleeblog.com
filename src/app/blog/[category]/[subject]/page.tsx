@@ -16,12 +16,17 @@ interface params {
 // }
 
 const Subject = async ({ params }: Props) => {
-  const serieslist = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/serieslist?subjecturl=${params.subject}`,
-    { next: { revalidate: 60 } },
-  )
-    .then((res) => res.json())
-    .then((data) => data.data);
+  let serieslist;
+  try {
+    serieslist = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/serieslist?subjecturl=${params.subject}`,
+      { next: { revalidate: 60 } },
+    )
+      .then((res) => res.json())
+      .then((data) => data.data);
+  } catch (e) {
+    serieslist = [];
+  }
   return (
     <div>
       <Link className={"category"} href={`/blog/${params.category}`}>

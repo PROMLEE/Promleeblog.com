@@ -7,12 +7,17 @@ import Link from "next/link";
 // }
 
 const Blog = async () => {
-  const categorylist = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/categorylist`,
-    { next: { revalidate: 60 } },
-  )
-    .then((res) => res.json())
-    .then((data) => data.data);
+  let categorylist;
+  try {
+    categorylist = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/categorylist`,
+      { next: { revalidate: 60 } },
+    )
+      .then((res) => res.json())
+      .then((data) => data.data);
+  } catch (e) {
+    categorylist = [];
+  }
   return (
     <div>
       <h1 className={"my-5 text-5xl font-bold text-purple-200"}>

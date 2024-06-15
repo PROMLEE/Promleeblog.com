@@ -13,12 +13,17 @@ type Props = {
 // }
 
 const Category = async ({ params }: Props) => {
-  const subjectlist = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/subjectlist?categoryurl=${params.category}`,
-    { next: { revalidate: 60 } },
-  )
-    .then((res) => res.json())
-    .then((data) => data.data);
+  let subjectlist;
+  try {
+    subjectlist = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/subjectlist?categoryurl=${params.category}`,
+      { next: { revalidate: 60 } },
+    )
+      .then((res) => res.json())
+      .then((data) => data.data);
+  } catch (e) {
+    subjectlist = [];
+  }
   return (
     <div>
       <Link className={"category"} href={`/blog/${params.category}`}>

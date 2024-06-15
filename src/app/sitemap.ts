@@ -2,13 +2,17 @@ import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const basePath = "https://promleeblog.com/blog/";
-
-  const Links = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`,
-    { next: { revalidate: 60 } },
-  )
-    .then((res) => res.json())
-    .then((data) => data.data);
+  let Links: any;
+  try {
+    Links = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`,
+      { next: { revalidate: 60 } },
+    )
+      .then((res) => res.json())
+      .then((data) => data.data);
+  } catch (e) {
+    Links = [];
+  }
   const putmap: any = (url: string) => {
     return {
       url: basePath + url,
