@@ -28,6 +28,8 @@ export function Img({
       className={`m-0 my-5 bg-${bg || "white"}`}
       width={Number(width) ? Number(width) : 500}
       height={Number(height) ? Number(height) : 500}
+      placeholder="blur"
+      blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFklEQVR42mN8//HLfwYiAOOoQvoqBABbWyZJf74GZgAAAABJRU5ErkJggg=="
     />
   );
 }
@@ -151,22 +153,21 @@ export const spantag = ({ children }: Props) => {
 //   );
 // };
 export const atag = ({ id, children, href }: Props) => {
-  // const isInternalLink = href && (href.startsWith("/") || href.startsWith("#"));
+  const isInternalLink = href && (href.startsWith("/") || href.startsWith("#"));
 
-  // if (isInternalLink) {
-  //   return (
-  //     <Link
-  //       href={href}
-  //       id={id}
-  //       className={
-  //         "text-yellow-700 no-underline hover:text-blue-700 dark:text-yellow-500"
-  //       }
-  //       target="_blank"
-  //     >
-  //       {children}
-  //     </Link>
-  //   );
-  // }
+  if (isInternalLink) {
+    return (
+      <Link
+        href={href}
+        id={id}
+        className={
+          "text-yellow-700 no-underline hover:text-blue-700 dark:text-yellow-500"
+        }
+      >
+        {children}
+      </Link>
+    );
+  }
 
   return (
     <a

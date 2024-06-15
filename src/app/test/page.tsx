@@ -18,7 +18,7 @@ const Post = async () => {
     category: "Computer_Science",
     subject: "Network",
     title: "Concept",
-    post: "03_05",
+    post: "03_07",
   });
   return (
     <>

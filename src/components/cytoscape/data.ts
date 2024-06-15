@@ -57,7 +57,7 @@ export default async function getList() {
             id: category.url + sub.url + series.url,
             label: series.nameko,
             type: "series",
-            url: `/`,
+            url: `/blog/${category.url}/${sub.url}`,
             size: nodeSize3,
             font: fontSize3,
           },
