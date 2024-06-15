@@ -4,21 +4,28 @@ import {
   MenubarContent,
   MenubarItem,
   MenubarMenu,
-  MenubarSub,
-  MenubarSubContent,
-  MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar";
 import Link from "next/link";
 import { DarkmodeButton } from "@/components/buttons/Darkmodebutton";
-import { CategoryKo } from "@/config/koname";
 import LeftSidebarComp from "@/components/bars/LeftSidebar";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Indicator from "@/components/bars/Scrollindicator";
 
 export const Navbar = () => {
   const [menu, setMenu] = useState(false);
+  const [list, setList]: any[] = useState([]);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        setList(data.data);
+      });
+  }, []);
+
   const menuclose = () => {
     setMenu(false);
   };
@@ -34,53 +41,32 @@ export const Navbar = () => {
           PromleeBlog
         </Link>
         <div className="flex items-center gap-2">
-          {Object.keys(CategoryKo).map((key, index) => {
-            const name = CategoryKo[key].name.split("(")[0];
+          {list.map((category: any, index: any) => {
             return (
               <Menubar
                 key={index}
                 className={
-                  "hidden rounded-none border-none bg-transparent hover:bg-button hover:text-background md:block"
+                  "hidden rounded-none border-none bg-transparent outline-none hover:bg-button hover:text-background md:block"
                 }
               >
                 <MenubarMenu>
                   <MenubarTrigger
                     className={
-                      "rounded-none font-bold hover:cursor-pointer hover:bg-button hover:text-background "
+                      "rounded-none font-bold hover:cursor-pointer hover:bg-button hover:text-background"
                     }
                   >
-                    {name}
+                    {category.nameko}
                   </MenubarTrigger>
                   <MenubarContent>
-                    {Object.keys(CategoryKo[key].sub).map((subKey, index) => {
-                      const subName =
-                        CategoryKo[key].sub[subKey].name.split("(")[0];
+                    {category.Subject.map((subject: any, index: any) => {
                       return (
-                        <MenubarSub key={index}>
-                          <MenubarSubTrigger
-                            key={index}
-                            className={"text-text hover:cursor-pointer "}
-                          >
-                            {subName}
-                          </MenubarSubTrigger>
-                          <MenubarSubContent>
-                            {Object.keys(CategoryKo[key].sub[subKey].title).map(
-                              (titleKey, index) => {
-                                const titleName =
-                                  CategoryKo[key].sub[subKey].title[titleKey]
-                                    .name;
-                                return (
-                                  <Link
-                                    href={`/blog/${key}/${subKey}/${titleKey}`}
-                                    key={index}
-                                  >
-                                    <MenubarItem>{titleName}</MenubarItem>
-                                  </Link>
-                                );
-                              },
-                            )}
-                          </MenubarSubContent>
-                        </MenubarSub>
+                        <Link
+                          href={`/blog/${category.url}/${subject.url}`}
+                          className={"text-text hover:cursor-pointer"}
+                          key={index}
+                        >
+                          <MenubarItem>{subject.nameko}</MenubarItem>
+                        </Link>
                       );
                     })}
                   </MenubarContent>

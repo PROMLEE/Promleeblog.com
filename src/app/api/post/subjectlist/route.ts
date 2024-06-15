@@ -40,12 +40,12 @@ const prisma = new PrismaClient();
  *         description: Subject List not found
  */
 export async function GET(req: NextRequest) {
-  const categoryUrl = req.nextUrl.searchParams.get("categoryurl");
-  if (!categoryUrl)
+  const categoryurl = req.nextUrl.searchParams.get("categoryurl");
+  if (!categoryurl)
     return NextResponse.json({ error: "Category name Error" }, { status: 404 });
   try {
     return NextResponse.json(
-      createResponse("Subject List found", await getSubjectList(categoryUrl)),
+      createResponse("Subject List found", await getSubjectList(categoryurl)),
     );
   } catch (error) {
     return NextResponse.json(
@@ -55,10 +55,10 @@ export async function GET(req: NextRequest) {
   }
 }
 
-async function getSubjectList(categoryUrl: string) {
+async function getSubjectList(categoryurl: string) {
   const category = await prisma.category.findFirst({
     where: {
-      url: categoryUrl,
+      url: categoryurl,
     },
     select: {
       id: true,

@@ -1,24 +1,30 @@
 import Link from "next/link";
-import { CategoryKo } from "@/config/koname";
-function CategoryList() {
-  const fs = require("fs");
-  const path = `${process.cwd()}/src/posts`;
-  return fs.readdirSync(path);
-}
+// import { CategoryKo } from "@/config/koname";
+// function CategoryList() {
+//   const fs = require("fs");
+//   const path = `${process.cwd()}/src/posts`;
+//   return fs.readdirSync(path);
+// }
 
-const Blog = () => {
+const Blog = async () => {
+  const categorylist = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/categorylist`,
+    { next: { revalidate: 60 } },
+  )
+    .then((res) => res.json())
+    .then((data) => data.data);
   return (
     <div>
       <h1 className={"my-5 text-5xl font-bold text-purple-200"}>
         All Categories
       </h1>
-      {CategoryList().map((category: string, idx: number) => (
+      {categorylist.map((category: any, idx: number) => (
         <Link
           key={idx}
-          href={`/blog/${category}`}
+          href={`/blog/${category.url}`}
           className={"category text-white hover:underline"}
         >
-          {!category || category === "Test" ? null : CategoryKo[category].name}
+          {category.nameko}
         </Link>
       ))}
     </div>

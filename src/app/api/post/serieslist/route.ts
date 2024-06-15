@@ -16,7 +16,7 @@ const prisma = new PrismaClient();
  *     description: Returns Series List
  *     parameters:
  *        - in: query
- *          name: subjectUrl
+ *          name: subjecturl
  *     responses:
  *       200:
  *         description: Returns Series List
@@ -41,12 +41,12 @@ const prisma = new PrismaClient();
  *         description: Series List not found
  */
 export async function GET(req: NextRequest) {
-  const subjectUrl = req.nextUrl.searchParams.get("subjectUrl");
-  if (!subjectUrl)
+  const subjecturl = req.nextUrl.searchParams.get("subjecturl");
+  if (!subjecturl)
     return NextResponse.json({ error: "Series name Error" }, { status: 404 });
   try {
     return NextResponse.json(
-      createResponse("Series List found", await getSeriesList(subjectUrl)),
+      createResponse("Series List found", await getSeriesList(subjecturl)),
     );
   } catch (error) {
     return NextResponse.json(
@@ -56,10 +56,10 @@ export async function GET(req: NextRequest) {
   }
 }
 
-async function getSeriesList(subjectUrl: string) {
+async function getSeriesList(subjecturl: string) {
   const subject = await prisma.subject.findFirst({
     where: {
-      url: subjectUrl,
+      url: subjecturl,
     },
     select: {
       id: true,

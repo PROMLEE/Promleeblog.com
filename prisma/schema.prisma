@@ -69,7 +69,7 @@ model Subject {
   id          BigInt   @id @default(autoincrement())
   category_id BigInt
   name        String   @default("")
-  koname      String   @default("")
+  nameko      String   @default("")
   url         String   @unique
   subject_no  BigInt
   Series      Series[]
