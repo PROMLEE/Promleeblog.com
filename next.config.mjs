@@ -50,7 +50,7 @@ const nextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "https://promleeblog.com/:path*",
+        destination: "https://www.promleeblog.com/:path*",
       },
     ];
   },
