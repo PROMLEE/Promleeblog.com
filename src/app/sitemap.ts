@@ -1,5 +1,4 @@
 import { MetadataRoute } from "next";
-import { CategoryKo } from "@/config/koname";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const basePath = "https://promleeblog.com/blog/";

@@ -18,15 +18,16 @@ const Blog = async () => {
       <h1 className={"my-5 text-5xl font-bold text-purple-200"}>
         All Categories
       </h1>
-      {categorylist.map((category: any, idx: number) => (
-        <Link
-          key={idx}
-          href={`/blog/${category.url}`}
-          className={"category text-white hover:underline"}
-        >
-          {category.nameko}
-        </Link>
-      ))}
+      {categorylist &&
+        categorylist.map((category: any, idx: number) => (
+          <Link
+            key={idx}
+            href={`/blog/${category.url}`}
+            className={"category text-white hover:underline"}
+          >
+            {category.nameko}
+          </Link>
+        ))}
     </div>
   );
 };

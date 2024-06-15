@@ -5,7 +5,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { CategoryKo } from "@/config/koname";
 import { useState, useEffect } from "react";
 
 const LeftSidebarComp = ({ menuclose }: { menuclose: any }) => {
@@ -43,7 +42,7 @@ const LeftSidebarComp = ({ menuclose }: { menuclose: any }) => {
                 {category.Subject.map((subject: any, index: any) => {
                   return (
                     <Link
-                      href={`/blog/${CategoryKo[category.nameko]}/${subject.url}`}
+                      href={`/blog/${category.url}/${subject.url}`}
                       key={index}
                     >
                       <AccordionItem

@@ -1,5 +1,3 @@
-import { CategoryKo } from "@/config/koname";
-
 export default async function getList() {
   const nodeSize1 = 20;
   const nodeSize2 = 17;

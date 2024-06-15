@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CategoryKo } from "@/config/koname";
+
 type Props = {
   params: {
     category: string;
@@ -24,15 +24,16 @@ const Category = async ({ params }: Props) => {
       <Link className={"category"} href={`/blog/${params.category}`}>
         {params.category}
       </Link>
-      {subjectlist.map((subject: any, idx: number) => (
-        <Link
-          key={idx}
-          href={`/blog/${params.category}/${subject.url}`}
-          className={"subject hover:subject text-white hover:underline"}
-        >
-          {subject.nameko}
-        </Link>
-      ))}
+      {subjectlist &&
+        subjectlist.map((subject: any, idx: number) => (
+          <Link
+            key={idx}
+            href={`/blog/${params.category}/${subject.url}`}
+            className={"subject hover:subject text-white hover:underline"}
+          >
+            {subject.nameko}
+          </Link>
+        ))}
     </div>
   );
 };

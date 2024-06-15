@@ -74,7 +74,7 @@ async function getSubjectList(categoryurl: string) {
       category_id: category.id,
     },
     orderBy: {
-      subject_no: "asc",
+      category_no: "asc",
     },
   });
 

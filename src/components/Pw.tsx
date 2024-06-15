@@ -36,9 +36,6 @@ export function Pw() {
   const handleBack = () => {
     window.history.back();
   };
-  const handlePost = () => {
-    window.location.href = "/blog/Others/tools/git/01";
-  };
 
   React.useEffect(() => {
     getpw();
@@ -90,7 +87,7 @@ export function Pw() {
               돌아가기
             </Button>
             <Button className="bg-second">
-              <Link href="/blog/Others/tools/git/01">
+              <Link href="/blog/programming/tool/38">
                 추천 공개 포스트 보러가기
               </Link>
             </Button>
