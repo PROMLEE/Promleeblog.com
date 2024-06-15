@@ -44,6 +44,10 @@ const LeftSidebarComp = ({ menuclose }: { menuclose: any }) => {
                     <Link
                       href={`/blog/${category.url}/${subject.url}`}
                       key={index}
+                      onClick={() => {
+                        setValue("");
+                        menuclose();
+                      }}
                     >
                       <AccordionItem
                         value={subject.nameko}
