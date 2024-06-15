@@ -19,6 +19,11 @@ export const metadata: Metadata = {
   icons: {
     icon: "/icons/apple-touch-icon.png",
   },
+  verification: {
+    other: {
+      "naver-site-verification": ["bb67a48298f9b889aa36d5fe90aad935be356e31"],
+    },
+  },
 };
 const noto = Gothic_A1({
   weight: ["100", "500", "900"],
