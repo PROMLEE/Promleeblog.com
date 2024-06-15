@@ -2,14 +2,24 @@
 
 import cytoscape from "cytoscape";
 import CytoscapeComponent from "react-cytoscapejs";
-import { graphData } from "@/components/cytoscape/data";
+import getList from "@/components/cytoscape/data";
 // @ts-ignore
 import coseBilkent from "cytoscape-cose-bilkent";
 import { useTheme } from "next-themes";
+import { useState, useEffect } from "react";
 
 cytoscape.use(coseBilkent);
 
 export default function CytoscapeGraph() {
+  const [data, setData]: any = useState({ nodes: [], edges: [] });
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    getList().then((link) => {
+      setData(link);
+      console.log(data);
+      setLoading(false);
+    });
+  }, []);
   const { theme } = useTheme();
   const fontActiveSize = 7;
   const edgeWidth = "3px";
@@ -101,7 +111,7 @@ export default function CytoscapeGraph() {
 
   const layout = {
     name: "cose-bilkent",
-    animate: false,
+    animate: true,
     gravityRangeCompound: 1.5,
     fit: true,
     tile: true,
@@ -137,51 +147,54 @@ export default function CytoscapeGraph() {
 
   return (
     <div className="h-full w-full rounded-lg border-2 border-third bg-foreground text-foreground">
-      <CytoscapeComponent
-        elements={CytoscapeComponent.normalizeElements(graphData)}
-        style={{ width: "100%", height: "600px" }}
-        zoomingEnabled={true}
-        maxZoom={4}
-        minZoom={0.1}
-        autounselectify={false}
-        boxSelectionEnabled={true}
-        wheelSensitivity={0.1}
-        layout={layout}
-        // @ts-ignore
-        stylesheet={styleSheet}
-        cy={(cy: any) => {
-          cy.on("tap", function (e: any) {
-            const url = e.target.data("url");
-            if (url && url !== "") {
-              window.open(url);
-            }
-          });
-          cy.on("tapstart mouseover", "node", function (e: any) {
-            setDimStyle(cy, {
-              "background-color": dimColor,
-              "line-color": dimColor,
-              "source-arrow-color": dimColor,
+      {!loading && (
+        <CytoscapeComponent
+          elements={CytoscapeComponent.normalizeElements(data)}
+          style={{ width: "100%", height: "600px" }}
+          zoomingEnabled={true}
+          maxZoom={4}
+          minZoom={0.1}
+          autounselectify={false}
+          boxSelectionEnabled={true}
+          wheelSensitivity={0.1}
+          layout={layout}
+          // @ts-ignore
+          stylesheet={styleSheet}
+          cy={(cy: any) => {
+            cy.on("tap", function (e: any) {
+              e.preventDefault();
+              const url = e.target.data("url");
+              if (url && url !== "") {
+                window.open(url);
+              }
             });
-            setFocus(
-              e.target,
-              successorColor,
-              predecessorsColor,
-              edgeActiveWidth,
-              arrowActiveScale,
-            );
-          });
-          cy.on("tapend mouseout", "node", function (e: any) {
-            setResetFocus(e.cy);
-          });
-          let resizeTimer: any;
-          // window.addEventListener("resize", function () {
-          //   this.clearTimeout(resizeTimer);
-          //   resizeTimer = this.setTimeout(function () {
-          //     // cy.fit().run();
-          //   }, 200);
-          // });
-        }}
-      />
+            cy.on("tapstart mouseover", "node", function (e: any) {
+              setDimStyle(cy, {
+                "background-color": dimColor,
+                "line-color": dimColor,
+                "source-arrow-color": dimColor,
+              });
+              setFocus(
+                e.target,
+                successorColor,
+                predecessorsColor,
+                edgeActiveWidth,
+                arrowActiveScale,
+              );
+            });
+            cy.on("tapend mouseout", "node", function (e: any) {
+              setResetFocus(e.cy);
+            });
+            let resizeTimer: any;
+            window.addEventListener("resize", function () {
+              this.clearTimeout(resizeTimer);
+              resizeTimer = this.setTimeout(function () {
+                // cy.fit().run();
+              }, 200);
+            });
+          }}
+        />
+      )}
     </div>
   );
 }

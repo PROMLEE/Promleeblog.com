@@ -7,7 +7,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { urlParams } from "@/config/types/types";
-import { CategoryKo } from "@/config/koname";
+// import { CategoryKo } from "@/config/koname";
 import dayjs from "dayjs";
 
 export const BreadCrumb = ({
@@ -26,7 +26,7 @@ export const BreadCrumb = ({
             href={`/blog/${params.category}`}
             className="hover:font-bold hover:text-text"
           >
-            {CategoryKo[params.category].name.split("(")[0]}
+            {params.category}
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
@@ -35,37 +35,16 @@ export const BreadCrumb = ({
             href={`/blog/${params.category}/${params.subject}`}
             className="hover:font-bold hover:text-text"
           >
-            {CategoryKo[params.category].sub[params.subject].name.split("(")[0]}
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />{" "}
-        <BreadcrumbItem>
-          <BreadcrumbLink
-            href={`/blog/${params.category}/${params.subject}/${params.title}`}
-            className="hover:font-bold hover:text-text"
-          >
-            {
-              CategoryKo[params.category].sub[params.subject].title[
-                params.title
-              ].name.split("(")[0]
-            }
+            {params.subject}
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
           <BreadcrumbPage className="font-bold text-text">
-            {
-              CategoryKo[params.category].sub[params.subject].title[
-                params.title
-              ].content[params.content].name.split("(")[0]
-            }
+            {params.post}
           </BreadcrumbPage>
         </BreadcrumbItem>
-        <div className={"ml-auto text-right"}>
-          {"📅 " +
-            CategoryKo[params.category].sub[params.subject].title[params.title]
-              .content[params.content].date}
-        </div>
+        <div className={"ml-auto text-right"}>{"📅 " + dateString}</div>
         {/* <div className={"ml-auto text-right"}>📅 {dateString}</div> */}
       </BreadcrumbList>
     </Breadcrumb>

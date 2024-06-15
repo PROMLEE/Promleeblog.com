@@ -5,83 +5,57 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { CategoryKo } from "@/config/koname";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const LeftSidebarComp = ({ menuclose }: { menuclose: any }) => {
   // const toc = parseToc(content.content);
   const [value, setValue] = useState("");
-
+  const [list, setList]: any[] = useState([]);
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        setList(data.data);
+      });
+  }, []);
   return (
     <div className="related leftsidebar xl:leftsidebar-md md:hidden xl:block">
       <Accordion collapsible type="single" data-state value={value}>
-        {Object.keys(CategoryKo).map((key, index) => {
-          const name = CategoryKo[key].name.split("(")[0];
+        {list.map((category: any, index: number) => {
           return (
             <AccordionItem
-              value={name}
+              value={category.nameko}
               key={index}
               className="border-foreground p-2 hover:bg-primary"
             >
               <AccordionTrigger
                 onClick={() => {
-                  value === name ? setValue("") : setValue(name);
+                  value === category.nameko
+                    ? setValue("")
+                    : setValue(category.nameko);
                 }}
               >
-                {name}
+                {category.nameko}
               </AccordionTrigger>
-              {Object.keys(CategoryKo[key].sub).map((subKey, index) => {
-                const subName = CategoryKo[key].sub[subKey].name.split("(")[0];
-                return (
-                  <AccordionContent key={index} className="p-0">
-                    <Accordion collapsible type="single">
+              <AccordionContent className="p-0">
+                {category.Subject.map((subject: any, index: any) => {
+                  return (
+                    <Link
+                      href={`/blog/${category.url}/${subject.url}`}
+                      key={index}
+                    >
                       <AccordionItem
-                        value={subName}
+                        value={subject.nameko}
+                        key={index}
                         className="m-0 p-2 pb-0 hover:bg-secondary"
                       >
-                        <AccordionTrigger key={index} className="text-md py-3">
-                          {subName}
-                        </AccordionTrigger>
-                        <AccordionContent className="p-0">
-                          <Accordion collapsible type="single">
-                            <AccordionItem
-                              value={subName}
-                              className="border-secondary p-2"
-                            >
-                              {Object.keys(
-                                CategoryKo[key].sub[subKey].title,
-                              ).map((titleKey, index) => {
-                                const titleName =
-                                  CategoryKo[key].sub[subKey].title[titleKey]
-                                    .name;
-                                return (
-                                  <Link
-                                    href={`/blog/${key}/${subKey}/${titleKey}`}
-                                    key={index}
-                                    className="text-xs"
-                                    onClick={() => {
-                                      setValue("");
-                                      menuclose();
-                                    }}
-                                  >
-                                    <AccordionItem
-                                      value={titleName}
-                                      key={index}
-                                      className=" border-none p-2  pb-0 hover:bg-third hover:font-bold hover:text-black"
-                                    >
-                                      {titleName}
-                                    </AccordionItem>
-                                  </Link>
-                                );
-                              })}
-                            </AccordionItem>
-                          </Accordion>
-                        </AccordionContent>
+                        {subject.nameko}
                       </AccordionItem>
-                    </Accordion>
-                  </AccordionContent>
-                );
-              })}
+                    </Link>
+                  );
+                })}
+              </AccordionContent>
             </AccordionItem>
           );
         })}

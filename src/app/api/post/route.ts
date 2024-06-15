@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 const { PrismaClient } = require("@prisma/client");
 import { createResponse } from "@/config/apiResponse";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();
@@ -13,9 +13,12 @@ const prisma = new PrismaClient();
  * /api/post:
  *   get:
  *     description: Returns Post Detail from URL
+ *     parameters:
+ *        - in: query
+ *          name: id
  *     responses:
  *       200:
- *         description: Hello World!
+ *         description: Returns Post Detail from URL
  *         content:
  *           /:
  *             example:
@@ -24,7 +27,6 @@ const prisma = new PrismaClient();
  *               data:  {
  *                        "id": "3",
  *                        "series_no": "8",
- *                        "post_url": "Computer_Science\\Network\\Concept\\03_05.mdx",
  *                        "name": "Connection-Oriented Transport: TCP",
  *                        "nameko": "연결 지향 통신: TCP",
  *                        "desc": "연결 지향 통신에 대한 설명",
@@ -41,62 +43,24 @@ const prisma = new PrismaClient();
  *       405:
  *         description: Post not found
  */
-// export async function GET() {
-//   const url = "http://localhost:3000/blog/study/network/transport-layer/08";
-//   try {
-//     return NextResponse.json(
-//       createResponse("Post found", await findPostByUrl(url)),
-//     );
-//   } catch (error) {
-//     return NextResponse.json({ error: "Post not found" }, { status: 405 });
-//   }
-// }
-
-async function findPostByUrl(url: string) {
-  // URL을 분해
-  const urlParts = url.replace("http://localhost:3000/blog/", "").split("/");
-  const [categoryUrl, subjectUrl, seriesUrl, postSeriesNo] = urlParts;
-
-  // Category 찾기
-  const category = await prisma.category.findUnique({
-    where: {
-      url: categoryUrl,
-    },
-  });
-
-  if (!category) {
-    throw new Error("Category not found");
+export async function GET(req: NextRequest) {
+  const id = req.nextUrl.searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ error: "Post id Error" }, { status: 404 });
   }
-
-  // Subject 찾기
-  const subject = await prisma.subject.findUnique({
-    where: {
-      url: subjectUrl,
-      category_id: category.id,
-    },
-  });
-
-  if (!subject) {
-    throw new Error("Subject not found");
+  try {
+    return NextResponse.json(
+      createResponse("Post found", await findPostById(id)),
+    );
+  } catch (error) {
+    return NextResponse.json({ error: "Post not found" }, { status: 405 });
   }
+}
 
-  // Series 찾기
-  const series = await prisma.series.findUnique({
-    where: {
-      url: seriesUrl,
-      subject_id: subject.id,
-    },
-  });
-
-  if (!series) {
-    throw new Error("Series not found");
-  }
-
-  // Post 찾기
+async function findPostById(id: string) {
   const post = await prisma.post.findFirst({
     where: {
-      series_no: postSeriesNo,
-      series_id: series.id,
+      id: BigInt(id),
     },
   });
 

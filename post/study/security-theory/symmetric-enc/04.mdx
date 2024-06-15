@@ -1,0 +1,166 @@
+## AES란? (Advanced Encryption Standard)
+고급 암호화 표준
+블록 크기: 128비트
+키 크기: 128, 192, 256비트
+라운드 수: 10, 12, 14
+기본 구조: 치환-전치 네트워크(Substitution-Permutation Network)
+
+## AES의 사전 준비 (Preliminaries for AES)
+16진수 표기법을 사용하여 데이터 표현
+평문과 키는 4x4 행렬로 표현, 각 칸에 8비트를, 4비트씩 나누어 16진수로 표현 -> 행렬을 State라고 부름
+
+## AES의 단일 라운드 (AES Single Round)
+Substitution Bytes: 16바이트 State의 각 바이트를 S-Box에 대응하는 값으로 치환(전 라운드)
+Shift Rows: State의 각 행을 왼쪽으로 shift(전 라운드)
+Mix Columns: State의 각 열을 함수로 변환(1~9 라운드)
+Add Round Key: State에 라운드 키를 XOR 연산(전 라운드)
+
+## 필요한 수학적 지식: 유한필드 (Mathematical Background: Finite Field)
+> 필드 $\mathbb{F}$은 덧셈, 곱셈, 뺄셈, 그리고 0이 아닌 원소로의 나눗셈 연산을 가지는 집합.
+결합법칙, 교환법칙, 분배법칙이 성립해야 한다.
+$a, b, c \in \mathbb{F}$
+- 결합법칙: $(a+b)+c = a+(b+c)$, $(a \times b) \times c = a \times (b \times c)$
+- 교환법칙: $a+b = b+a$, $a \times b = b \times a$
+- 분배법칙: $a \times (b+c) = a \times b + a \times c$
+
+실수의 집합, 복소수의 집합은 필드이지만 정수의 집합은 필드가 아님
+$Z_p=\{0, 1, ..., p-1\}$은 $p$가 소수일 때 필드이다. $p$ 가 합성수이면 필드가 아님.
+$GF(p^n):p^n$개의 원소를 가진 필드 $Z_p[X]/(mod\;P(X))$에서 $P(X)$는 $p$를 계수로 가지는 $n$차 기약다항식
+-> p:소수, n:자연수
+
+## AES를 위한 유한필드: $GF(2^8)$ (Finite Field for AES: $GF(2^8)$)
+<Math>
+
+```math
+  (P(X) = X^8 + X^4 + X^3 + X + 1) 은 (Z_2[X])에서 기약이다.\\
+```
+```math
+  (GF(2^8)): 다음을 포함하는 집합\\
+	(b_7X^7 + b_6X^6 + b_5X^5 + b_4X^4 + b_3X^3 + b_2X^2 + b_1X^1 + b_0)\\
+	여기서 (b_i in {0, 1}) (0 leq i leq 7)\\
+```
+```math
+  (B(X) = b_7X^7 + b_6X^6 + b_5X^5 + b_4X^4 + b_3X^3 + b_2X^2 + b_1X^1 + b_0) 는 8비트 벡터 \\(b_7b_6b_5b_4b_3b_2b_1b_0)과 대응된다.\\
+```
+```math
+  덧셈: (A(X) + B(X)) mod (P(X)) 에 대해 (A(X), B(X) in GF(2^8))\\
+	(A(X) = X^7 + X^6 + X^3 + X + 1)\\
+	(B(X) = X^4 + X^3 + 1)\\
+	(A(X)+B(X) = (X^7 + X^6 + X^3 + X + 1) + (X^4 + X^3 + 1) = X^7 + X^6 + X^4 + X)\\
+	대응되는 벡터들 간의 비트단위 XOR\\
+		11001011 ⊕ 00110101 = 11111110\\
+```
+```math
+곱셈: A(X)*B(X) mod (P(X)) 에 대해 (A(X), B(X) in GF(2^8))\\
+	(A(X) = X^7 + X^6 + X^3 + X + 1)\\
+	(B(X) = X^4 + X^3 + 1)\\
+	(A(X)*B(X) = (X^7 + X^6 + X^3 + X + 1) * (X^4 + X^3 + 1) = X^11 + X^10 + X^8 + X^7 + X^6 + X^4 + X^3 + X^2 + 1)\\
+	모듈러 다항식 P(X)로 나눈 나머지\\
+		11001011 * 00110101 = 10001110\\
+```
+</Math>
+
+## 유클리드 알고리즘 1 (Euclidean Algorithm 1)
+$\mathbb{F}$가 필드일 때 $A(x),P(x) \in \mathbb{F}[x]$이고 $S(X), T(X) \in \mathbb{F}[x]$인 다항식이 존재할 때 
+$$P(X)S(X) + A(X)T(X) = gcd(P(X), A(X))$$이다.
+
+## 유클리드 알고리즘 2 (Euclidean Algorithm 2)
+$P(X)$의 차수가 $A(X)$의 차수보다 크거나 같다고 가정
+$P(X) = A(X)Q_0(X) + R_2(X)$ ( $P(X)=R_0(X), A(X)=R_1(X)$ )
+$R_1(X) = R_2(X)Q_1(X) + R_3(X)$
+$R_2(X) = R_3(X)Q_2(X) + R_4(X)$
+...
+$R_{n-2}(X) = R_{n-1}(X)Q_{n-2}(X)+R_n(X)$
+$\rightarrow R_n(X) = gcd(P(X), A(X))$
+
+## 확장된 유클리드 알고리즘 (Extended Euclidean Algorithm)
+$S₀(X) = 1, S₁(X) = 0$
+$T₀(X) = 0, T₁(X) = 1$
+$Sᵢ₊₁ = Sᵢ₋₁ - SᵢQᵢ, Tᵢ₊₁ = Tᵢ₋₁ - TᵢQᵢ$
+$그러면, P(X)Sᵢ(X) + A(X)Tᵢ(X) = Rᵢ(X).$
+
+### 예시
+$S_2 = S_0 - S_1Q_1 = 1, T_2 = T_0 - T_1Q_1 = -(X+1)$
+$\rightarrow P(X) - (X+1)\times A(X) = R_2(X)$
+$\rightarrow P(X) = (X+1)\times A(X) + R_2(X)$ 
+<br/>
+
+$S_3 = S_1 - S_2Q_2 = -(X+1), T_3 = T_1 - T_2Q_2 = 1+(X+1)^2 = X^2$
+$\rightarrow P(X)(X+1) + (X^2) A(X) = 1$
+
+### 역원 구하기
+![240425-144433](/posts/240425-144433.png)
+
+## AED: 바이트 치환 (AES: Byte Substitution)
+S-Box: 8비트 입력을 8비트 출력으로 변환하는 비선형 치환
+S(xy) = S-box에서 (x, y) 성분, 여기서 x, y는 16진수 자릿수
+역 S-Box: S-Box의 역함수
+
+## AES: S-Box 설계 원리 (AES: S-Box Design Principles)
+두 바이트 요소를 $Z_2[X] / (X^8 + X^4 + X^3 + X + 1)$에서의 요소로 간주한다.
+S-Box: $x = (x_7x_6x_5x_4x_3x_2x_1x_0)$이고, $x_i ∈ {0, 1} (0 ≤ i ≤ 7)$일 때,
+1. $y_7y_6y_5y_4y_3y_2y_1y_0$을 계산: $x_7x_6x_5x_4x_3x_2x_1x_0$의 역원 (예: 00000000 ←→ 00000000).
+2. 계산한다.
+3. 출력 $Z_7Z_6Z_5Z_4Z_3Z_2Z_1Z_0$
+
+## AES: 행 이동 변환 (AES: Shift Rows Transformation)
+첫번째 행: 그대로
+두번째 행: 왼쪽으로 1칸 shift
+세번째 행: 왼쪽으로 2칸 shift
+네번째 행: 왼쪽으로 3칸 shift
+
+행 이동 변환의 역: 오른쪽으로 shift
+
+## AES: 열 혼합 변환 (AES: Mix Columns Transformation)
+현재 상태에 가역행렬 M을 곱한다.
+$M(4\times 4)\times C(4\times 4) = D(4\times 4)$
+M의 다항식을 곱할 때 shift 연산의 덧셈으로 구하는 방법도 있음
+ex) $X \times F2(1111 0010) = 1 1110 0100 = 1110 0100 + 0001 1011(P(X))$
+열 섞기 변환의 역: M의 역을 곱한다.
+
+## AES: 라운드 키 추가 변환 (AES: Add Round Key Transformation)
+현재 상태의 128 비트와 라운드 키의 128 비트에 대해 비트 단위 XOR 수행
+라운드 키 추가 변환의 역: 라운드 결과 XOR 라운드 키 = 현재 상태
+
+각 라운드에 고유한 키를 현재 상태와 결합하여 데이터의 패턴을 더욱 무작위하게 만든다.
+AES의 각 라운드에서는 다른 라운드 키를 사용한다 -> 주 키로부터 파생된다.
+AES 암호화의 마지막 단계로, 블록의 데이터에 최종적인 변형을 가하는 역할을 한다.
+
+## AES: 키 확장 (AES: Key Expansion)
+키 K는 (W(0), W(1), W(2), W(3))
+<Math>
+
+```math
+\begin{pmatrix}
+	w_{0,0} & w_{0,1} & w_{0,2} & w_{0,3} \\
+	w_{1,0} & w_{1,1} & w_{1,2} & w_{1,3} \\
+	w_{2,0} & w_{2,1} & w_{2,2} & w_{2,3} \\
+	w_{3,0} & w_{3,1} & w_{3,2} & w_{3,3} \\
+\end{pmatrix}\\
+W(0)\;\;\;W(1)\;\;\;W(2)\;\;\;W(3)
+```
+</Math>
+<Math>
+
+```math
+W(i) = \begin{cases}
+W(i - 4) \oplus W(i - 1) & \text{if } i \text{ is not a multiple of 4} \\
+W(i - 4) \oplus T(W(i - 1)) & \text{if } i \text{ is a multiple of 4}\\
+\end{cases}\\
+\text{where $T$ is a Transformation performed as follows}
+```
+</Math>
+
+S-box를 이용한 변환 : $S(w_{1,i - 1})$
+$r(i) = X^{(i-4)/4}\;in\;GF(2^8)$
+$T(w(i - 1)) = (S(w_{1,i - 1}) \oplus r(i), S(w_{2,i - 1}), S(w_{3,i - 1}), S(w_{0,i - 1}))$
+
+## AES: 보안성 분석 (AES: Security Analysis)
+라운드 키 추가 변환만이 키를 사용함
+무차별 대입 공격에 강함 : AES-128의 키에는 $2^{128}$개의 가능한 값이 있음
+알려진 가장 효과적인 공격: 바이클릭 공격
+
+## 블록 암호 비교 (Comparison of Block Ciphers)
+DES: 64비트 블록, 56비트 키, 16라운드 - 피스텔 구조
+3DES: 64비트 블록, 168비트 키, 48라운드 - 피스텔 구조
+AES: 128비트 블록, 128, 192, 256비트 키, 10, 12, 14라운드 - 치환-전치 네트워크 구조

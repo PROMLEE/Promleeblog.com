@@ -7,11 +7,11 @@ export const GenerateMeta = ({
   meta: MdxMeta;
   params: urlParams;
 }) => {
-  const title = `PromleeBlog | ${meta.title}`;
+  const title = `PromleeBlog | ${meta.nameko}`;
   const description = meta.desc;
-  const tags = meta.tags;
-  const thumbnail = meta.thumbnail;
-  const flattenedPath = `blog/${params.category}/${params.subject}/${params.title}/${params.content}`;
+  const tags: any = ["PromleeBlog", "Promlee", "Blog", "PromleeBlog.com"];
+  const thumbnail = meta.thumbnail_url || "icons/android-chrome-512x512.png";
+  const flattenedPath = `blog/${params.category}/${params.subject}/${params.post}`;
   return {
     title,
     description,
@@ -22,9 +22,7 @@ export const GenerateMeta = ({
       url: `${baseUrl}/${flattenedPath}`,
       siteName: "PromleeBlog",
       images: {
-        url:
-          `${baseUrl}/${thumbnail}` ||
-          `${baseUrl}/icons/android-chrome-512x512.png`,
+        url: `${baseUrl}/${thumbnail}`,
         alt: "Post Image",
       },
       locale: "ko_KR",
@@ -37,9 +35,7 @@ export const GenerateMeta = ({
       title,
       description,
       images: {
-        url:
-          `${baseUrl}/${thumbnail}` ||
-          `${baseUrl}/icons/android-chrome-512x512.png`,
+        url: `${baseUrl}/${thumbnail}`,
         alt: "Post Image",
       },
     },

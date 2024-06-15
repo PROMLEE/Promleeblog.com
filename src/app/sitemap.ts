@@ -1,9 +1,18 @@
 import { MetadataRoute } from "next";
-import { CategoryKo } from "@/config/koname";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const basePath = "https://promleeblog.com/blog/";
-
+  let Links: any;
+  try {
+    Links = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`,
+      { next: { revalidate: 60 } },
+    )
+      .then((res) => res.json())
+      .then((data) => data.data);
+  } catch (e) {
+    Links = [];
+  }
   const putmap: any = (url: string) => {
     return {
       url: basePath + url,
@@ -45,19 +54,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
     },
   ];
-  Object.keys(CategoryKo).map((category) => {
-    list.push(putmap(category));
-    Object.keys(CategoryKo[category].sub).map((sub) => {
-      list.push(putmap(category + "/" + sub));
-      Object.keys(CategoryKo[category].sub[sub].title).map((title) => {
-        list.push(putmap(category + "/" + sub + "/" + title));
-        Object.keys(CategoryKo[category].sub[sub].title[title].content).map(
-          (content) => {
-            list.push(
-              putmap(category + "/" + sub + "/" + title + "/" + content),
-            );
-          },
-        );
+  Links.map((category: any) => {
+    list.push(putmap(category.url));
+    category.Subject.map((sub: any) => {
+      list.push(putmap(category.url + "/" + sub.url));
+      sub.Series.map((series: any) => {
+        series.Post.map((post: any) => {
+          list.push(
+            putmap(
+              category.url + "/" + sub.url + "/" + post.id.padStart(2, "0"),
+            ),
+          );
+        });
       });
     });
   });
