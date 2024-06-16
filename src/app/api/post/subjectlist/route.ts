@@ -62,7 +62,9 @@ async function getSubjectList(categoryurl: string) {
     },
     select: {
       id: true,
+      name: true,
       nameko: true,
+      desc: true,
     },
   });
 
@@ -71,7 +73,9 @@ async function getSubjectList(categoryurl: string) {
   }
 
   const subjectList = {
+    name: category.name,
     nameko: category.nameko,
+    desc: category.desc,
     Subject: await prisma.subject.findMany({
       where: {
         category_id: category.id,

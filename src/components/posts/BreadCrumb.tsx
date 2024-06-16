@@ -32,6 +32,15 @@ export const BreadCrumb = ({ params }: { params: any }) => {
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
+          <BreadcrumbLink
+            href={`/blog/${params.Series.Subject.Category.url}/${params.Series.Subject.url}#${params.Series.nameko}`}
+            className="hover:font-bold hover:text-text"
+          >
+            {params.Series.nameko}
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
           <BreadcrumbPage className="font-bold text-text">
             {params.nameko}
           </BreadcrumbPage>

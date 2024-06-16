@@ -1,10 +1,20 @@
 import Link from "next/link";
-// import { CategoryKo } from "@/config/koname";
-// function CategoryList() {
-//   const fs = require("fs");
-//   const path = `${process.cwd()}/src/posts`;
-//   return fs.readdirSync(path);
-// }
+import { Metadata } from "next";
+import { GenerateMeta } from "@/utils/PostUtils/GenerateMeta_category";
+import { MdxMeta } from "@/config/types/types";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const source: MdxMeta = {
+    name: "Category list",
+    nameko: "카테고리 리스트",
+    desc: "카테고리 리스트",
+    url: "",
+    thumbnail_url: "",
+    mod_date: "",
+    init_date: "",
+  };
+  return GenerateMeta({ meta: source, params: { category: "" } });
+}
 
 const Blog = async () => {
   let categorylist;
