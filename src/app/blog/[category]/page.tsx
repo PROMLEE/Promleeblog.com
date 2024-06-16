@@ -10,10 +10,16 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const subjectlist = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/subjectlist?categoryurl=${params.category}`,
+    { next: { revalidate: 60 } },
+  )
+    .then((res) => res.json())
+    .then((data) => data.data);
   const source: MdxMeta = {
-    name: "Category",
-    nameko: "카테고리",
-    desc: "카테고리별 포스트 모음",
+    name: subjectlist.name,
+    nameko: subjectlist.nameko,
+    desc: subjectlist.desc,
     url: "",
     thumbnail_url: "",
     mod_date: "",

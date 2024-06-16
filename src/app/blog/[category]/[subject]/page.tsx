@@ -54,7 +54,9 @@ const Subject = async ({ params }: Props) => {
       {serieslist.Series &&
         serieslist.Series.map((series: any, idx: any) => (
           <div key={idx}>
-            <h2 className="mb-3 mt-7 text-3xl font-bold">{series.nameko}</h2>
+            <h2 className="mb-3 mt-7 text-3xl font-bold" id={series.nameko}>
+              {series.nameko}
+            </h2>
             <div>
               {series.Post.length
                 ? series.Post.map((post: any, idx: number) => (

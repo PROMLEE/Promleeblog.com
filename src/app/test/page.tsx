@@ -1,10 +1,8 @@
-import { GetPostApiResponse } from "@/config/types/ApiResponse";
 import RightSidebarComp from "@/components/bars/RightSidebar";
 import { Suspense } from "react";
 import { Toup } from "@/components/buttons/Toup";
 import { Todown } from "@/components/buttons/Todown";
 import { MdxBody } from "@/components/posts/MdxBody";
-import { MdxHeader } from "@/components/posts/MdxHeader";
 import { getPostDetail } from "@/utils/PostUtils/GetPost";
 
 const Post = async () => {
@@ -16,9 +14,10 @@ const Post = async () => {
   //   .then((data) => data.data);
   const markdownsource: any = await getPostDetail({
     category: "Computer_Science",
-    subject: "Network",
+    subject: "Wireless_Mobile_Communications",
+    // subject: "Network",
     title: "Concept",
-    post: "03_07",
+    post: "03",
   });
   return (
     <>

@@ -46,6 +46,7 @@
   <!-- <a href="https://www.prisma.io/"> -->
   <img src="https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="badge">
   <!-- </a> -->
+  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="badge">
   <!-- <a href="https://supabase.com"> -->
   <img src="https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="badge">
   <!-- </a> -->
