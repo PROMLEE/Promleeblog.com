@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Metadata } from "next";
 import { GenerateMeta } from "@/utils/PostUtils/GenerateMeta_category";
+import { Suspense } from "react";
 
 type Props = {
   params: params;
@@ -40,7 +41,7 @@ const Subject = async ({ params }: Props) => {
     serieslist = { Series: [], nameko: "" };
   }
   return (
-    <div>
+    <Suspense fallback={<div>loading...</div>}>
       {/* <Link className={"category"} href={`/blog/${params.category}`}>
         {params.category}
       </Link> */}
@@ -69,7 +70,7 @@ const Subject = async ({ params }: Props) => {
             </div>
           </div>
         ))}
-    </div>
+    </Suspense>
   );
 };
 export default Subject;
