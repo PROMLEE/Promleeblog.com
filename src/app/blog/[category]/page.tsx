@@ -36,15 +36,13 @@ const Category = async ({ params }: Props) => {
   }
   return (
     <div>
-      <Link className={"category"} href={`/blog/${params.category}`}>
-        {params.category}
-      </Link>
-      {subjectlist &&
-        subjectlist.map((subject: any, idx: number) => (
+      <div className={"category"}>{subjectlist.nameko}</div>
+      {subjectlist.Subject &&
+        subjectlist.Subject.map((subject: any, idx: number) => (
           <Link
             key={idx}
             href={`/blog/${params.category}/${subject.url}`}
-            className={"subject hover:subject text-white hover:underline"}
+            className={"subject hover:subject text-white"}
           >
             {subject.nameko}
           </Link>
