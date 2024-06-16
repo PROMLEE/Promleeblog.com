@@ -38,18 +38,30 @@ export async function Img({
   width: string;
   bg: string;
 }) {
-  const { base64, img } = await getImage(src);
-  return (
-    <Image
-      src={src}
-      alt={alt || "image"}
-      className={`m-0 my-5 bg-${bg || "white"}`}
-      width={Number(width) ? Number(width) : 500}
-      height={Number(height) ? Number(height) : 500}
-      placeholder="blur"
-      blurDataURL={base64}
-    />
-  );
+  try {
+    const { base64, img } = await getImage(src);
+    return (
+      <Image
+        src={src}
+        alt={alt || "image"}
+        className={`m-0 my-5 bg-${bg || "white"}`}
+        width={Number(width) ? Number(width) : 500}
+        height={Number(height) ? Number(height) : 500}
+        placeholder="blur"
+        blurDataURL={base64}
+      />
+    );
+  } catch {
+    return (
+      <Image
+        src={src}
+        alt={alt || "image"}
+        className={`m-0 my-5 bg-${bg || "white"}`}
+        width={Number(width) ? Number(width) : 500}
+        height={Number(height) ? Number(height) : 500}
+      />
+    );
+  }
 }
 
 export function h1tag({ id, children }: Props) {

@@ -54,7 +54,8 @@ const Subject = async ({ params }: Props) => {
       {serieslist.Series &&
         serieslist.Series.map((series: any, idx: any) => (
           <div key={idx}>
-            <h2 className="mb-3 mt-7 text-3xl font-bold" id={series.nameko}>
+            <h2 className="mb-3 mt-7 text-2xl font-bold" id={series.nameko}>
+              {series.caption && series.caption + " - "}
               {series.nameko}
             </h2>
             <div>
