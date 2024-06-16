@@ -62,6 +62,7 @@ async function getSubjectList(categoryurl: string) {
     },
     select: {
       id: true,
+      nameko: true,
     },
   });
 
@@ -69,14 +70,17 @@ async function getSubjectList(categoryurl: string) {
     throw new Error("Category not found");
   }
 
-  const subjectList = await prisma.subject.findMany({
-    where: {
-      category_id: category.id,
-    },
-    orderBy: {
-      category_no: "asc",
-    },
-  });
+  const subjectList = {
+    nameko: category.nameko,
+    Subject: await prisma.subject.findMany({
+      where: {
+        category_id: category.id,
+      },
+      orderBy: {
+        category_no: "asc",
+      },
+    }),
+  };
 
   if (!subjectList) {
     throw new Error("Subject List error");
