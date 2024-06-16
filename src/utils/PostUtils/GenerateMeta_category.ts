@@ -1,11 +1,17 @@
 import { MdxMeta } from "@/config/types/types";
 const baseUrl = "https://promleeblog.com";
+
+interface params {
+  category: string;
+  subject?: string;
+}
+
 export const GenerateMeta = ({
   meta,
-  param,
+  params,
 }: {
   meta: MdxMeta;
-  param: string;
+  params: params;
 }) => {
   const title = `PromleeBlog | ${meta.nameko}`;
   const description = meta.desc;
@@ -15,11 +21,12 @@ export const GenerateMeta = ({
     "PromleeBlog.com",
     meta.nameko,
     meta.name,
-    meta.desc,
     meta.url,
   ];
   const thumbnail = meta.thumbnail_url || "icons/android-chrome-512x512.png";
-  const flattenedPath = `blog/post/${param}`;
+  const flattenedPath = params.subject
+    ? `blog/${params.category}/${params.subject}`
+    : `blog/${params.category}`;
   return {
     title,
     description,

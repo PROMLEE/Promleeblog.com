@@ -152,10 +152,10 @@
     @apply flex h-12 w-full items-center justify-between bg-foreground;
   }
   .category {
-    @apply my-5 block text-3xl font-bold text-blue-500 no-underline hover:underline;
+    @apply my-14 block text-4xl font-bold text-blue-500 no-underline;
   }
   .subject {
-    @apply my-10 block text-4xl font-bold text-yellow-500 no-underline;
+    @apply my-10 block text-3xl font-bold text-yellow-500 no-underline;
   }
   .content {
     @apply block font-bold text-text-foreground no-underline hover:underline;

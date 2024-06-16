@@ -23,6 +23,7 @@ model Post {
   mod_date      DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
   lock          Boolean?   @default(false)
   posting       String?    @default("")
+  url           String     @unique @default("")
   Series        Series     @relation(fields: [series_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   Post_Tag      Post_Tag[]
 }
@@ -35,6 +36,7 @@ model Category {
   nameko  String    @default("")
   url     String    @unique
   ord     BigInt    @unique @default(autoincrement())
+  desc    String?   @default("")
   Subject Subject[]
 }
 
@@ -72,6 +74,7 @@ model Subject {
   nameko      String   @default("")
   url         String   @unique
   category_no BigInt
+  desc        String?  @default("")
   Series      Series[]
   Category    Category @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

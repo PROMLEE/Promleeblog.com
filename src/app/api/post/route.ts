@@ -44,14 +44,21 @@ const prisma = new PrismaClient();
  *         description: Post not found
  */
 export async function GET(req: NextRequest) {
-  const id = req.nextUrl.searchParams.get("id");
-  if (!id) {
+  const id = req.nextUrl.searchParams.get("id")?.split("-")[0];
+  const rest = req.nextUrl.searchParams
+    .get("id")
+    ?.split("-")
+    .slice(1)
+    .join("-");
+  if (!id || !rest) {
     return NextResponse.json({ error: "Post id Error" }, { status: 404 });
   }
   try {
-    return NextResponse.json(
-      createResponse("Post found", await findPostById(id)),
-    );
+    const post = await findPostById(id);
+    if (post.url !== rest) {
+      return NextResponse.json({ error: "url error" }, { status: 405 });
+    }
+    return NextResponse.json(createResponse("Post found", post));
   } catch (error) {
     return NextResponse.json({ error: "Post not found" }, { status: 405 });
   }
@@ -61,6 +68,26 @@ async function findPostById(id: string) {
   const post = await prisma.post.findFirst({
     where: {
       id: BigInt(id),
+    },
+    include: {
+      Series: {
+        select: {
+          url: true,
+          nameko: true,
+          Subject: {
+            select: {
+              url: true,
+              nameko: true,
+              Category: {
+                select: {
+                  url: true,
+                  nameko: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 

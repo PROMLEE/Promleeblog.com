@@ -20,7 +20,7 @@ const Blog = async () => {
   }
   return (
     <div>
-      <h1 className={"my-5 text-5xl font-bold text-purple-200"}>
+      <h1 className={"my-20 text-7xl font-bold text-purple-200"}>
         All Categories
       </h1>
       {categorylist &&
@@ -28,7 +28,7 @@ const Blog = async () => {
           <Link
             key={idx}
             href={`/blog/${category.url}`}
-            className={"category text-white hover:underline"}
+            className={"category hover:category text-white"}
           >
             {category.nameko}
           </Link>

@@ -1,5 +1,3 @@
-import { GetPostApiResponse } from "@/config/types/ApiResponse";
-import { urlParams } from "@/config/types/types";
 import RightSidebarComp from "@/components/bars/RightSidebar";
 import { Suspense } from "react";
 import { Toup } from "@/components/buttons/Toup";
@@ -7,25 +5,14 @@ import { Todown } from "@/components/buttons/Todown";
 import { MdxBody } from "@/components/posts/MdxBody";
 import { MdxHeader } from "@/components/posts/MdxHeader";
 import { Metadata } from "next";
-import { getPostDetail } from "@/utils/PostUtils/GetPost";
 import { GenerateMeta } from "@/utils/PostUtils/GenerateMeta";
 import { BreadCrumb } from "@/components/posts/BreadCrumb";
 import { Pw } from "@/components/Pw";
 
-type Props = {
-  params: params;
-};
-
-interface params {
-  category: string;
-  subject: string;
-  post: string;
-}
-
 export async function generateMetadata({
   params,
 }: {
-  params: urlParams;
+  params: { post: string };
 }): Promise<Metadata> {
   const markdownsource = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post?id=${params.post}`,
@@ -33,10 +20,10 @@ export async function generateMetadata({
   )
     .then((res) => res.json())
     .then((data) => data.data);
-  return GenerateMeta({ meta: markdownsource, params });
+  return GenerateMeta({ meta: markdownsource, param: params.post });
 }
 
-const Post = async ({ params }: Props) => {
+const Post = async ({ params }: { params: { post: string } }) => {
   let markdownsource;
   try {
     markdownsource = await fetch(
@@ -55,15 +42,17 @@ const Post = async ({ params }: Props) => {
   return (
     <>
       <Toup />
-      <BreadCrumb params={params} date={markdownsource.date} />
-      <div className="prose mt-10 min-h-[100vh] scroll-smooth dark:prose-invert focus:scroll-auto">
-        {markdownsource.lock && <Pw />}
-        <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div>Loading...</div>}>
+        <BreadCrumb params={markdownsource} />
+      </Suspense>
+      <Suspense fallback={<div>Loading...</div>}>
+        <MdxHeader props={markdownsource.nameko} />
+        <div className="prose mt-10 min-h-[100vh] scroll-smooth dark:prose-invert focus:scroll-auto">
+          {markdownsource.lock && <Pw />}
           <RightSidebarComp content={markdownsource.posting} />
-          <MdxHeader props={markdownsource.nameko} />
           <MdxBody content={markdownsource.posting} />
-        </Suspense>
-      </div>
+        </div>
+      </Suspense>
       <Todown />
     </>
   );

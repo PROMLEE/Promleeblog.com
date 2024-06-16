@@ -63,6 +63,7 @@ async function getSeriesList(subjecturl: string) {
     },
     select: {
       id: true,
+      nameko: true,
     },
   });
 
@@ -70,34 +71,38 @@ async function getSeriesList(subjecturl: string) {
     throw new Error("Subject not found");
   }
 
-  const seriesList = await prisma.series.findMany({
-    where: {
-      subject_id: subject.id,
-    },
-    orderBy: {
-      subject_no: "asc",
-    },
-    include: {
-      Post: {
-        orderBy: {
-          series_no: "asc",
-        },
-        select: {
-          id: true,
-          series_no: true,
-          name: true,
-          nameko: true,
-          desc: true,
-          init_date: true,
-          thumbnail_url: true,
-          view: true,
-          like: true,
-          mod_date: true,
-          lock: true,
+  const seriesList = {
+    nameko: subject.nameko,
+    Series: await prisma.series.findMany({
+      where: {
+        subject_id: subject.id,
+      },
+      orderBy: {
+        subject_no: "asc",
+      },
+      include: {
+        Post: {
+          orderBy: {
+            series_no: "asc",
+          },
+          select: {
+            id: true,
+            series_no: true,
+            url: true,
+            name: true,
+            nameko: true,
+            desc: true,
+            init_date: true,
+            thumbnail_url: true,
+            view: true,
+            like: true,
+            mod_date: true,
+            lock: true,
+          },
         },
       },
-    },
-  });
+    }),
+  };
 
   if (!seriesList) {
     throw new Error("Series List error");
