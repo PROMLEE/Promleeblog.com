@@ -44,7 +44,7 @@ const prisma = new PrismaClient();
  *         description: Post not found
  */
 export async function GET(req: NextRequest) {
-  const id = req.nextUrl.searchParams.get("id");
+  const id = req.nextUrl.searchParams.get("id")?.split("-")[0];
   if (!id) {
     return NextResponse.json({ error: "Post id Error" }, { status: 404 });
   }
@@ -61,6 +61,26 @@ async function findPostById(id: string) {
   const post = await prisma.post.findFirst({
     where: {
       id: BigInt(id),
+    },
+    include: {
+      Series: {
+        select: {
+          url: true,
+          nameko: true,
+          Subject: {
+            select: {
+              url: true,
+              nameko: true,
+              Category: {
+                select: {
+                  url: true,
+                  nameko: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 

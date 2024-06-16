@@ -23,6 +23,7 @@ model Post {
   mod_date      DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
   lock          Boolean?   @default(false)
   posting       String?    @default("")
+  url           String     @default("")
   Series        Series     @relation(fields: [series_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   Post_Tag      Post_Tag[]
 }

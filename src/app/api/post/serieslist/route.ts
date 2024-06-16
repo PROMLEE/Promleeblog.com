@@ -85,6 +85,7 @@ async function getSeriesList(subjecturl: string) {
         select: {
           id: true,
           series_no: true,
+          url: true,
           name: true,
           nameko: true,
           desc: true,
