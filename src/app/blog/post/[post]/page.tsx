@@ -1,5 +1,3 @@
-import { GetPostApiResponse } from "@/config/types/ApiResponse";
-import { urlParams } from "@/config/types/types";
 import RightSidebarComp from "@/components/bars/RightSidebar";
 import { Suspense } from "react";
 import { Toup } from "@/components/buttons/Toup";
@@ -12,24 +10,24 @@ import { BreadCrumb } from "@/components/posts/BreadCrumb";
 import { Pw } from "@/components/Pw";
 
 export async function generateMetadata({
-  param,
+  params,
 }: {
-  param: string;
+  params: { post: string };
 }): Promise<Metadata> {
   const markdownsource = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post?id=${param}`,
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post?id=${params.post}`,
     { next: { revalidate: 60 } },
   )
     .then((res) => res.json())
     .then((data) => data.data);
-  return GenerateMeta({ meta: markdownsource, param });
+  return GenerateMeta({ meta: markdownsource, param: params.post });
 }
 
-const Post = async ({ param }: { param: string }) => {
+const Post = async ({ params }: { params: { post: string } }) => {
   let markdownsource;
   try {
     markdownsource = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post?id=${param}`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post?id=${params.post}`,
       { next: { revalidate: 60 } },
     )
       .then((res) => res.json())
