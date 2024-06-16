@@ -1,17 +1,25 @@
-import { MdxMeta, urlParams } from "@/config/types/types";
+import { MdxMeta } from "@/config/types/types";
 const baseUrl = "https://promleeblog.com";
 export const GenerateMeta = ({
   meta,
-  params,
+  param,
 }: {
   meta: MdxMeta;
-  params: urlParams;
+  param: string;
 }) => {
   const title = `PromleeBlog | ${meta.nameko}`;
   const description = meta.desc;
-  const tags: any = ["PromleeBlog", "Promlee", "Blog", "PromleeBlog.com"];
+  const tags: string[] = [
+    "PromleeBlog",
+    "Promlee",
+    "PromleeBlog.com",
+    meta.nameko,
+    meta.name,
+    meta.desc,
+    meta.url,
+  ];
   const thumbnail = meta.thumbnail_url || "icons/android-chrome-512x512.png";
-  const flattenedPath = `blog/${params.category}/${params.subject}/${params.post}`;
+  const flattenedPath = `blog/post/${param}`;
   return {
     title,
     description,

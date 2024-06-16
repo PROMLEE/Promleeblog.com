@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const basePath = "https://promleeblog.com/blog/";
+  const basePath = "https://www.promleeblog.com/blog/";
   let Links: any;
   try {
     Links = await fetch(
@@ -23,34 +23,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   };
   var list: any[] = [
     {
-      url: "https://promleeblog.com",
+      url: "https://www.promleeblog.com",
       lastModified: new Date(),
       // changeFrequency: 'daily',
       // priority: 0.8,
       // alternates: {
       //   languages: {
-      //     es: 'https://promleeblog.com/es',
-      //     en: 'https://promleeblog.com/en',
+      //     es: 'https://www.promleeblog.com/es',
+      //     en: 'https://www.promleeblog.com/en',
       //   }
       // }
     },
     {
-      url: "https://promleeblog.com/aboutme",
+      url: "https://www.promleeblog.com/aboutme",
       lastModified: new Date(),
     },
     {
-      url: "https://promleeblog.com/blog",
+      url: "https://www.promleeblog.com/blog",
       lastModified: new Date(),
     },
     {
-      url: "https://promleeblog.com/test",
+      url: "https://www.promleeblog.com/test",
     },
     {
-      url: "https://promleeblog.com/sitemap",
+      url: "https://www.promleeblog.com/sitemap",
       lastModified: new Date(),
     },
     {
-      url: "https://promleeblog.com/sitemap.xml",
+      url: "https://www.promleeblog.com/sitemap.xml",
       lastModified: new Date(),
     },
   ];
@@ -60,11 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       list.push(putmap(category.url + "/" + sub.url));
       sub.Series.map((series: any) => {
         series.Post.map((post: any) => {
-          list.push(
-            putmap(
-              category.url + "/" + sub.url + "/" + post.id.padStart(2, "0"),
-            ),
-          );
+          list.push(putmap("post/" + post.id + "-" + post.url));
         });
       });
     });

@@ -45,13 +45,20 @@ const prisma = new PrismaClient();
  */
 export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get("id")?.split("-")[0];
-  if (!id) {
+  const rest = req.nextUrl.searchParams
+    .get("id")
+    ?.split("-")
+    .slice(1)
+    .join("-");
+  if (!id || !rest) {
     return NextResponse.json({ error: "Post id Error" }, { status: 404 });
   }
   try {
-    return NextResponse.json(
-      createResponse("Post found", await findPostById(id)),
-    );
+    const post = await findPostById(id);
+    if (post.url !== rest) {
+      return NextResponse.json({ error: "url error" }, { status: 405 });
+    }
+    return NextResponse.json(createResponse("Post found", post));
   } catch (error) {
     return NextResponse.json({ error: "Post not found" }, { status: 405 });
   }

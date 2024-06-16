@@ -77,6 +77,7 @@ async function getLinks() {
                 },
                 select: {
                   id: true,
+                  url: true,
                 },
               },
             },

@@ -47,7 +47,7 @@ const Subject = async ({ params }: Props) => {
                 ? series.Post.map((post: any, idx: number) => (
                     <Link
                       key={idx}
-                      href={`/blog/${params.category}/${params.subject}/${post.id}`}
+                      href={`/blog/post/${post.id}-${post.url}`}
                       className={"content"}
                     >
                       {post.series_no}. {post.nameko} {post.lock && "🔒"}
