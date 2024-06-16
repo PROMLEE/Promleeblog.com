@@ -173,7 +173,12 @@
     @apply fixed left-2 top-[15%] max-h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl p-3 shadow-inner;
   }
 }
-
+/* body > div {
+  -ms-overflow-style: none;
+} */
+body ::-webkit-scrollbar {
+  display: none;
+}
 html {
   @media (max-width: 1500px) {
     font-size: 87.5%;
