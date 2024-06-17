@@ -66,7 +66,7 @@ const Subject = async ({ params }: Props) => {
                       href={`/blog/post/${post.id}-${post.url}`}
                       className={"content"}
                     >
-                      {post.series_no}. {post.nameko} {post.lock && "🔒"}
+                      {idx + 1}. {post.nameko} {post.lock && "🔒"}
                     </Link>
                   ))
                 : "no contents 😿"}
