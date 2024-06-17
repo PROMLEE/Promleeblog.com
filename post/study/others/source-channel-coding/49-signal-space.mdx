@@ -1,0 +1,101 @@
+## 신호 공간이란? (What is Signal Space?)
+신호 공간이란?
+- 신호 공간: 신호를 N차원 벡터로 표현하는 공간
+- Constallation(별자리)이라고도 함
+
+신호 공간이 필요한 이유
+- 신호를 벡터로 변환하고 그 반대의 과정을 가능하게 함
+- 신호 간 *에너지*와 *유클리드 거리*를 구할 수 있다.
+
+왜 신호 간 유클리드 거리에 관심을 가지는가
+- 감지 목적: 수신된 신호를 벡터로 변환
+- 수신된 신호와 *최소 거리*에 있는 신호를 전송된 신호로 추정함
+
+## 신호 공간 개념도 (Schematic example of Signal Space)
+<Img src="/posts/240513-152758.png" width={400} />
+
+전송된 신호의 대안들
+- $S_1(t) = a_{11}\psi_1(t) + a_{12}\psi_2(t) \Leftrightarrow S_1 = (a_{11}, a_{12})$
+- $S_2(t) = a_{21}\psi_1(t) + a_{22}\psi_2(t) \Leftrightarrow S_2 = (a_{21}, a_{22})$
+- $S_3(t) = a_{31}\psi_1(t) + a_{32}\psi_2(t) \Leftrightarrow S_3 = (a_{31}, a_{32})$
+
+일치 필터 출력에서 수신된 신호
+- $Z(t) = Z_1\psi_1(t) + Z_2\psi_2(t) \leftrightarrow Z = (Z_1, Z_2)$
+- $Z$ 벡터와 각 $S_i$ 벡터 사이의 거리를 계산하여, 수신된 신호가 전송된 신호와 얼마나 가까운지 판단
+- 거리가 가장 작은 $S_i$를 전송된 신호로 추정
+
+## 신호 공간 형성 (Signal Space Formation)
+신호 공간을 형성하기 위해선 두 신호 간의 내적을 알아야 함
+- *내적(스칼라 곱)*: $\langle x(t), y(t) \rangle = \int_{-\infty}^{\infty} x(t) y^*(t) dt$는 $x(t)$와 $y(t)$ 간의 교차 상관 관계를 나타낸다.
+	- $y^*(t)$는 $y(t)$의 켤레 복소수
+
+	내적의 성질:
+	- $\langle ax(t), y(t) \rangle = a \langle x(t), y(t) \rangle$
+	- $\langle x(t), ay(t) \rangle = a^* \langle x(t), y(t) \rangle$
+	- $\langle x(t) + y(t), z(t) \rangle = \langle x(t), z(t) \rangle + \langle y(t), z(t) \rangle$
+<br/>
+
+신호 공간에서 거리는 norm을 계산하므로써 측정됨
+- *신호의 norm*: 
+$\|x(t)\| = \sqrt{\langle x(t), x(t) \rangle} = \sqrt{\int_{-\infty}^{\infty} |x(t)|^2 dt} = \sqrt{E_x} = x(t)$의 **길이**
+$\|ax(t)\| = |a|\|x(t)\|$
+- *두 신호 간의 norm*:
+$d_{x,y} = \|x(t) - y(t)\|$
+두 신호 사이의 거리를 **유클리드 거리**라고 한다.
+
+
+### 예시 (신호 공간에서의 거리 계산)
+<Img src="/posts/240617-112144.jpeg" width={400}/>
+
+신호 $z(t)$와 $s_i(t)$ 사이의 유클리드 거리:
+- $d_{S_i,Z} = \|s_i(t) - z(t)\| = \sqrt{(a_{i1} - z_1)^2 + (a_{i2} - z_2)^2}$
+- $i = 1, 2, 3$
+
+## 정규 직교 신호 공간 (Orthogonal Signal Space)
+N차원 직교 신호 공간은 N개의 선형 독립적인 기저 함수 $\{\psi_i(t)\}_{i=1}^N$에 의해 정의된다. 
+이 기저 함수들은 직교성 조건을 만족해야 한다.
+<Math>
+
+```math
+\langle \psi_i(t), \psi_j(t) \rangle = \int_0^T \psi_i(t) \psi_j^*(t) dt = K_i \delta_{ij} \quad (0 \leq t \leq T, j, i = 1, \ldots, N)
+```
+</Math>
+
+여기서  $\delta_{ij} = \begin{cases}	1 & \text{if } i = j \\	0 & \text{if } i \neq j	\end{cases}$
+
+- 모든 $K_i = 1$이면, 신호 공간은 *정규 직교*(orthonormal)이다.
+- 비정규 직교 세트로부터 정규 직교 기저를 구성하는 방법:
+	- 그램-슈미트 방법론 사용
+
+###	예시 (정규 직교 신호 공간) 
+*2차원* 정규 직교 신호 공간
+$\begin{cases}\psi_1(t) = \sqrt{\frac{2}{T}} \cos(2\pi t/T) \quad 0 \leq t < T\\\psi_2(t) = \sqrt{\frac{2}{T}} \sin(2\pi t/T) \quad 0 \leq t < T \end{cases}$
+- $\langle \psi_1(t), \psi_2(t) \rangle = \int_0^T \psi_1(t)\psi_2(t) dt = 0$
+- $|\psi_1(t)| = |\psi_2(t)| = 1$ $\rightarrow$ 반각공식 사용
+
+*1차원* 정규 직교 신호 공간
+- $\psi_1(t) = \frac{1}{\sqrt{T}}$ (0부터 T까지 일정한 값)
+- $|\psi_1(t)| = 1$ (정규화)
+
+### 예제: BPSK (Binary Phase Shift Keying)
+Q. 이진 위상 변조 키잉(BPSK) 변조는 신호 $s_1(t) = a \cos(2\pi f_ct)$, $0 \leq t \leq T$로 1 비트를 전송하고, $s_2(t) = -a \cos(2\pi f_ct)$, $0 \leq t \leq T$로 0 비트를 전송한다. 이 변조에 대한 정규 직교 기저 함수와 계수 $\{s_{ij}\}$를 찾아라.
+A. 이 변조에는 단 하나의 기저 함수 $\phi(t) = \sqrt{\frac{2}{T}} \cos(2\pi f_ct)$가 있으며, 정규화를 위해 $\sqrt{\frac{2}{T}}$가 필요하다. 계수는 $s_1 = a\sqrt{\frac{T}{2}}$와 $s_2 = -a\sqrt{\frac{T}{2}}$로 주어진다.
+BPSK에는 *두 개의 신호*, *하나의 차원*이 있다. 따라서, 이 신호 공간은 1차원이다.
+
+## 신호 집합을 직교 벡터로 표현 (Representation of Signal Set as Orthogonal Vectors)
+임의의 유한한 파형 집합 $\{s_i(t)\}_{i=1}^M$은 각 요소가 시간 T 동안 지속되며, N개의 직교 파형 $\{\psi_j(t)\}_{j=1}^N$의 선형 조합으로 표현될 수 있다. (여기서 $N \leq M$)
+- $s_i(t) = \sum_{j=1}^N a_{ij} \psi_j(t) (i=1, ..., M; N \leq M)$
+
+여기서
+- $a_{ij} = \frac{1}{K_j} \langle s_i(t), \psi_j(t) \rangle = \frac{1}{K_j} \int_0^T s_i(t) \psi_j(t) dt$ $(j=1, ..., N; i=1, ..., M)$
+	- $s_i = (a_{i1}, a_{i2}, ..., a_{iN})$는 파형의 벡터 표현이다.
+	- 파형 에너지 $E_i = \sum_{j=1}^N K_j |a_{ij}|^2$
+
+## 직교 진폭 변조 (Quadrature Amplitude Modulation, QAM)
+> [AM](/blog/post/48-modulation#진폭-변조-amplitude-modulation-am)(진폭 변조)과 [PSK](/blog/post/48-modulation#위상-편이-변조-phase-shift-keying-psk)(위상 변조)의 조합으로, 진폭과 위상을 동시에 변조하는 방식
+
+QAM은 진폭 변조와 위상 변조를 결합한 변조 방식으로, 복소수 신호 공간을 사용하여 다수의 비트를 동시에 전송할 수 있다.
+90도 위상차를 가지는 두 개의 신호를 사용하여, 2차원 신호 공간을 형성한다.
+예를 들어, 16-QAM의 성좌도는 다음과 같다.
+$\begin{array} {c|c|c|c} 0000 & 0001 & 0011 & 0010  \\ 1000 & 1001 & 1011 & 1010  \\ 1100 & 1101 & 1111 & 1110  \\ 0100 & 0101 & 0101 & 0100 \end{array}$
+각 점은 4개의 비트 정보를 나타내며, 각각 다른 진폭 조합을 나타낸다.
