@@ -1,0 +1,219 @@
+## 상호작용 다이어그램 (Interaction Diagram)
+> 객체가 메시지를 통해 어떻게 상호작용하는지를 보여주는 다이어그램 → *동적 객체 모델링*
+
+**시퀀스 다이어그램 (Sequence Diagram)**
+- 객체 간의 상호작용을 시간 순서대로 나열하여 표현
+- 객체 간의 메시지 교환을 통해 시스템의 동작을 표현
+
+**커뮤니케이션 다이어그램 (Communication Diagram)**
+- 객체 간의 상호작용을 객체 간의 연결선으로 표현
+- 객체 간의 메시지 교환을 통해 시스템의 동작을 표현
+
+**타이밍 다이어그램 (Timing Diagram)**
+- 객체 간의 상호작용을 시간 순서대로 나열하여 표현
+- 객체 간의 메시지 교환을 통해 시스템의 동작을 표현
+
+**상태 다이어그램 (State Diagram)**
+- 객체의 상태 변화를 표현
+- 객체의 상태와 상태 전이를 표현
+
+## 시퀀스 다이어그램과 커뮤니케이션 다이어그램 (Sequence Diagram and Communication Diagram)
+> 동등하지만, 다른 초점을 가지고 있음
+
+**시퀀스 다이어그램 (Sequence Diagram)**
+*객체 협업 모델*
+- 시간 순서에 따라 객체의 협업을 모델링함
+- 상호작용의 시간적 순서에 초점을 맞춘다.
+<br/>
+
+**커뮤니케이션 다이어그램 (Communication Diagram)**
+*커뮤니케이션 파트너 간의 관계 모델*
+- 누가 누구와 어떻게 커뮤니케이션하는지를 초점을 맞추어 모델링함
+- 소수점 분류를 통한 메시지 순서
+- 공간 효율적임
+
+### 예시 (시퀀스 다이어그램과 커뮤니케이션 다이어그램)
+<Img src="/posts/240617-204917.png" width={300}/>
+위는 시퀀스 다이어그램, 아래는 커뮤니케이션 다이어그램
+``` java title="예시 클래스 코드" showLineNumbers=true {5,6}
+public class A {
+    B myB;
+    // 기타 코드
+    public void doOne() {
+        myB.doTwo();
+        myB.doThree();
+    }
+}
+```
+
+## 커뮤니케이션 다이어그램 (Communication Diagram)
+### 링크 (Link)
+두 객체 간의 *연결 경로*
+객체 간의 *탐색 및 가시성*의 형태를 나타냄
+공식적으로, 링크는 *연관*, 의존성 및 집합의 인스턴스(상속 X)
+#### 예시 (링크)
+<Img src="/posts/240617-205747.png" width={500}/>
+`:Register`에서 `:Sale`로의 링크 또는 탐색 경로가 있으며, 이 경로를 따라 `makePayment` 메시지와 같은 메시지가 흐를 수 있다.
+
+### 메시지 (Message)
+메시지 표현과 메시지 방향을 나타내는 작은 화살표
+많은 메시지가 링크를 따라 흐를 수 있다.
+현재 제어 스레드의 메시지 순서를 나타내기 위해 시퀀스 번호가 추가됨
+#### 예시 (메시지)
+<Img src="/posts/240617-205937.png" width={500}/>
+- `msg1` 메시지가 `:Register` 객체로 전달된다.
+- `msg2`, `msg3`, `msg4` 메시지가 `:Register` 객체에서 `:Sale` 객체로 순서대로 전달된다.
+- `msg5` 메시지가 `:Sale` 객체에서 `:Register` 객체로 반환된다.
+
+``` java title="예시 클래스 코드" showLineNumbers=true
+public class Register {
+    Sale mySale;
+		public void msg2() {
+        mySale.processMsg2();
+    }
+		public void msg3() {
+        mySale.processMsg3();
+    }
+		public void msg4() {
+        mySale.processMsg4();
+    }
+		public void receiveMsg5() {
+        // 메시지 처리 로직
+    }
+}
+
+public class Sale {
+    public void processMsg2() {
+        // 메시지 처리 로직
+    }
+		public void processMsg3() {
+        // 메시지 처리 로직
+    }
+		public void processMsg4() {
+        // 메시지 처리 로직
+    }
+		public void sendMsg5(Register register) {
+        register.receiveMsg5();
+    }
+}
+```
+
+### 생성 (Creation)
+어떤 메시지도 인스턴스를 생성하는 데 사용될 수 있음
+이 목적을 위해 `create`라는 메시지를 사용함(일부는 `new`로 표시)
+UML 태그 값 `{new}`를 라이프라인 상자에 추가하여 생성을 강조할 수 있다.
+덜 명확한 메시지 이름을 사용하는 경우, 메시지를 `<<create>>`와 같은 UML 스테레오타입으로 주석을 달아서 명확하게 할 수 있다.
+
+#### 예시 (생성)
+<Img src="/posts/240617-210843.png" width={400}/>
+**세 가지 방법으로 생성 표시**:
+- `:Register` 객체가 `create(cashier)` 메시지를 `:Sale` 객체로 보낸다.
+- `:Register` 객체가 `create(cashier)` 메시지를 `:Sale {new}` 객체로 보낸다.
+- `:Register` 객체가 `«create» 1: make(cashier)` 메시지를 `:Sale` 객체로 보낸다.
+→ 명확하지 않은 생성 메시지 이름이 사용된 경우, 메시지에 스테레오타입을 사용하여 명확하게 할 수 있다.
+
+### 번호 매기기 (Numbering)
+<Img src="/posts/240617-211830.png" width={500}/>
+**번호 없는 메시지**
+- `msg1` 메시지가 `:A` 객체로 전달된다.
+
+**번호 매기기**
+- `1: msg2` 메시지가 `:A` 객체에서 `:B` 객체로 전달된다.
+- `1.1: msg3` 메시지가 `:B` 객체에서 `:C` 객체로 전달된다.
+
+### 조건부/상호 배타적 메시지 (Conditional/Mutually Exclusive Messages)
+**조건부 메시지**
+<Img src="/posts/240617-212026.png" width={500}/>
+- `:Foo` 객체가 `message1` 메시지를 보낸다.
+- `1 [color = red] : calculate` 메시지가 조건에 따라 `:Bar` 객체로 전달된다.
+<br/>
+
+**상호 배타적 메시지**
+<Img src="/posts/240617-212113.png" width={500}/>
+특정 *조건*에 따라 경로가 *분기*된다.
+한 경로가 선택되면 다른 경로는 선택되지 않는다.
+- `1a [test1] : msg2`와 `1b [not test1] : msg4`는 상호 배타적 경로다.
+- `test1` 조건이 참이면 `msg2`가 전송되고, 거짓이면 `msg4`가 전송된다.
+- 각각의 경로는 추가 메시지로 이어진다. 예를 들어, `msg2`는 `msg3`로, `msg4`는 `msg5`로 이어진다.
+
+### 반복 메시지 (Iterated Messages)
+반복 메시지는 `1 * [i = 1..n]`과 같은 형태로 표현된다.
+여기서 `i`는 *반복 인덱스*를 나타내며, `1..n`은 반복 범위를 나타낸다.
+<Img src="/posts/240617-212519.png" width={500}/>
+- 반복 및 재귀 절은 `lineItems` 컬렉션의 각 요소를 반복하고 있음을 나타낸다.
+- `:Sale` 객체는 `1 * [i = 1..n] : st = getSubtotal` 메시지를 통해 `lineItems[i]`에서 `SalesLineItem` 객체를 가져온다.
+- 이는 `lineItems` 컬렉션의 많은 `SalesLineItem` 객체 중 하나의 인스턴스를 나타낸다.
+- `lineItems[i]`는 많은 `SalesLineItems` 컬렉션에서 하나의 요소를 선택하는 표현이다. `i` 값은 메시지 절에서 온다.
+
+<Img src="/posts/240617-212552.png" width={500}/>
+- `t = getTotal` 메시지가 `:Sale` 객체로 전달된다.
+- `1 * : st = getSubtotal` 메시지가 `:Sale` 객체에서 `lineItems[i] : SalesLineItem` 객체로 전달된다.
+- 덜 정확하지만 컬렉션 멤버에 대한 반복을 의미하기에 충분히 좋다.
+
+### 정적 메소드 호출 (Static Method Call)
+수신 객체가 클래스 또는 메타클래스의 인스턴스임을 나타내는 라이프라인 박스 레이블을 사용한다.
+<Img src="/posts/240617-214229.png" width={500}/>
+- `doX` 메시지가 `:Foo` 객체로부터 발생한다.
+- `1: locs = getAvailableLocales` 메시지가 정적 메서드 호출을 나타내며, 이는 `Calendar` 메타클래스에 전달된다.
+
+### 다형성 메소드 호출 (Polymorphic Method Call)
+<Img src="/posts/240617-214454.png" width={500}/>
+`authorize` 메소드가 `:Register` 객체로부터 `:Payment` 객체로 전달된다.
+`:Payment`는 추상 슈퍼클래스 역할의 객체이다
+<Img src="/posts/240617-215601.png" width={500}/>
+구체적인 구현에 따라 'DebitPayment'나 'CreditPayment' 클래스에서 각각 다른 방식으로 처리될 수 있다.
+
+### 비동기/동기 호출 (Asynchronous/Synchronous Call)
+*비동기 호출*은 호출자가 응답을 기다리지 않고 즉시 다음 작업을 수행할 수 있도록 한다.
+*동기 호출*은 호출자가 응답을 받을 때까지 기다린다.
+*활성 객체*는 자체적인 스레드를 가지고 독립적으로 실행되는 객체이다.
+<Img src="/posts/240617-215700.png" width={500}/>
+
+`ClockStarter` 객체가 `Clock` 객체의 `run` 메소드를 *비동기적*으로 호출하면, `ClockStarter`는 `Clock`의 응답을 기다리지 않고 바로 다음 작업을 수행할 수 있다.
+`ClockStarter` 객체가 `System` 클래스의 `runFinalization` 메소드를 *동기적*으로 호출하면, `ClockStarter`는 `System`의 응답을 받을 때까지 대기한다.
+`Clock` 객체는 *활성 객체*로 별도의 스레드에서 실행되며, 다른 객체의 간섭 없이 독립적으로 동작할 수 있다.
+
+## 시퀀스 다이어그램 (Sequence Diagram)
+### 컬렉션 반복 (Iteration over a Collection)
+동일한 메시지를 컬렉션(리스트 또는 맵) 내 모든 객체에 전송하여 반복
+- 선택자 표현식, 예: `lineItems[i]`, 그룹에서 하나의 객체 선택
+- 생명선 참여자는 컬렉션이 아닌 하나의 객체를 나타내야 함
+
+<Img src="/posts/240617-220313.png" width={500}/>
+- 다이어그램에서는 `Sale` 객체가 `getTotal` 메소드를 호출하여 총합을 계산한다.
+- 이 과정에서 `lineItems` 컬렉션의 각 요소에 대해 `getSubtotal` 메소드를 호출하여 소계를 구한다.
+- 반복 조건인 `[ i < lineItems.size ]`는 컬렉션의 크기만큼 루프를 수행하도록 한다.
+- 각 반복마다 i++ 연산을 통해 인덱스를 증가시킨다.
+
+<Bbox>
+
+생명선 상자는 여러 `SalesLineItem` 객체 중 하나의 인스턴스를 나타냄
+`lineItems[i]`는 여러 `SalesLineItem` 컬렉션에서 하나의 요소를 선택하는 표현식; 'i' 값은 루프 프레임의 조건에서 동일한 'i' 값을 나타냄
+액션 박스는 임의의 언어 구문을 포함할 수 있음 (이 경우 'i' 증가)
+적용되는 생명선 위에 배치됨
+</Bbox>
+
+### 정적 메소드 호출을 위한 클래스에 대한 메시지 (Message to a Class for a Static Method Call)
+클래스 또는 정적 메소드 호출을 나타내려면 수신 객체가 클래스, 더 정확히는 메타클래스의 인스턴스임을 나타내는 생명선 상자 레이블을 사용한다
+<Img src="/posts/240617-220940.png" width={300}/>
+- 다이어그램에서 `:Foo` 객체는 `doX` 메소드를 호출한다.
+- `doX` 메소드 내에서 `Calendar` 클래스의 `getAvailableLocales` 정적 메소드를 호출한다.
+- `getAvailableLocales` 메소드는 locale 배열을 반환하며, 이 배열은 `Foo` 객체 내에서 사용된다.
+
+### 다형성 메소드 호출 (Polymorphic Method Call)
+*다형성 메시지*를 *추상 슈퍼클래스*나 *인터페이스 객체*로 전송
+그런 다음 각 *다형성 사례*를 자세히 설명하는 별도의 시퀀스 다이어그램을 작성 (다형성 메시지로 시작)
+<Img src="/posts/240617-221110.png" width={500}/>
+- 두 번째 다이어그램에서 `Register` 객체는 `doX` 메소드를 호출하여 `Payment` 추상 클래스의 `authorize` 메소드를 호출한다.
+- 이 호출은 `Payment`의 서브클래스인 `CreditPayment`나 `DebitPayment`에서 실제로 실행된다.
+- 각 서브클래스는 `authorize` 메소드를 고유하게 구현하여 각기 다른 방식으로 처리한다.
+
+### 비동기/동기 호출 (Asynchronous/Synchronous Call)
+UML에서 막대 화살표는 비동기 호출을 의미함
+채워진 화살표는 더 일반적인 동기 호출을 의미함
+<Img src="/posts/240617-222215.png" width={300}/>
+- 다이어그램에서 `ClockStarter`는 `startClock` 메소드를 호출하여 `Clock` 객체를 생성한다.
+- `Clock` 객체는 생성된 후 `run` 메소드를 호출하며, 이는 비동기 호출로 표시된다.
+- 그 후, `Clock` 객체는 `System` 클래스의 `runFinalization` 메소드를 호출한다.
+- UML 다이어그램에서 `Thread` 객체와 `start` 메시지를 생략하여 단순화하였다.
+- 중요한 세부사항인 `Clock` 생성과 `run` 메시지가 비동기 호출을 의미한다.
