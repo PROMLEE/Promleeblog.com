@@ -1,0 +1,187 @@
+## 왜 유닛 테스트인가 (Why Unit Testing)
+**실용적**
+- 대부분의 프로그래머는 테스트에 의존
+	ex. MS에서는 개발자 한 명당 테스트 담당자 한 명 배정
+- 테스트 담당자로 일할 수 있음
+
+**분할 정복 접근 방식**(Divide and Conquer Approach)
+- 시스템을 단위로 나누어 테스트
+- 각 단위를 개별적으로 디버그
+- 버그가 있을 수 있는 부분을 식별
+- 다른 단위에서 버그를 추적하고 싶지 않다
+
+## 테스트 스위트 (Test Suite)
+> 여러 개의 테스트 케이스를 모아놓은 집합으로 소프트웨어가 정상적으로 작동하는지 확인하는 데 사용
+
+**즉흥적 테스트(Ad-hoc Testing)**
+- 개발자가 생각나는 대로 테스트
+
+**테스트 스위트**
+- 테스트 케이스를 미리 정의하고 실행
+
+**테스트 프레임워크**
+- 테스트 스위트를 실행하는 프로그램
+- JUnit, TestNG 등
+
+## 회귀 테스트
+> 소프트웨어 변경 후 기존 기능이 여전히 정상적으로 작동하는지 확인하는 과정
+
+변경 사항에는 소프트웨어 개선, 패치, 구성 변경 등이 포함될 수 있다.
+안정적이고 유지 가능한 코드 베이스를 위해 회귀 테스트는 필수적이다.
+
+## 테스트에서 드라이버와 스텁 (Driver and Stub in Testing)
+<Img src="/posts/240618-010225.png" width={300}/>
+**드라이버(Driver)**
+- 테스트를 실행하고 결과를 수집하는 역할을 함
+- 테스트 케이스를 유닛 언더 테스트에 전달하고, 테스트 실행 후 결과를 받아 분석한다
+
+**스텁(Stub)**
+- 유닛 언더 테스트가 다른 유닛과 상호작용할 때 사용하는 가짜 객체
+- 실제 모듈 대신 유닛 언더 테스트에 필요한 간단한 응답 제공
+
+## JUnit
+> 자바 프로그래밍 언어를 위한 단위 테스트 프레임워크
+- 테스트 케이스는 단일 메서드에 대한 단일 테스트
+- 테스트 스위트는 테스트 케이스의 모음
+
+단위 테스트는 애자일 접근 방식을 채택할 때 중요한 역할을 한다.
+- 코드는 변경 사항을 반영하기 위해 종종 리팩토링되어야 함
+- 단위 테스트는 리팩토링된 코드가 계속해서 작동하도록 보장
+
+### JUnit 메소드 (JUnit Methods)
+| 메소드 | 설명 |
+| --- | --- |
+| assertEquals(expected, actual) | 두 값이 같은지 확인 |
+| assertTrue(condition) | 조건이 참인지 확인 |
+| assertFalse(condition) | 조건이 거짓인지 확인 |
+| assertNull(object) | 객체가 null인지 확인 |
+| assertNotNull(object) | 객체가 null이 아닌지 확인 |
+| assertSame(expected, actual) | 두 객체가 같은 객체인지 확인 |
+| assertNotSame(expected, actual) | 두 객체가 다른 객체인지 확인 |
+
+**주의**
+자바에는 객체를 비교하기 위한 `x.equals(y)` 메서드가 있다.
+- 이 메서드는 `String` 및 몇몇 다른 자바 클래스에 대해 잘 작동한다.
+- 사용자가 만든 클래스의 객체에 대해서는 `equals` 메서드를 정의해야 한다.
+	```java
+	public boolean equals(Object obj) { ... }
+	```
+	인수는 Object 타입이어야 한다. 이는 원하는 타입이 아니기 때문에, 올바른 타입(예: Person)으로 캐스팅해야 한다:
+	```java
+	public boolean equals(Object something) {
+			Person p = (Person)something;
+			return this.name == p.name; // 원하는 대로 비교할 수 있다.
+	}
+	```
+
+
+### 예제 (JUnit Test Case)
+#### 전통적 Test Case
+```java
+/** IMath 클래스를 테스트하는 클래스이다. */
+public class IMathTestNoJUnit {
+    /** 테스트를 실행한다. */
+    public static void main(String[] args) {
+        printTestResult(0);
+        printTestResult(1);
+        printTestResult(2);
+        printTestResult(3);
+        printTestResult(4);
+        printTestResult(7);
+        printTestResult(9);
+        printTestResult(100);
+    }
+
+    private static void printTestResult(int arg) {
+        System.out.print("isqrt(" + arg + ") ==> ");
+        System.out.println(IMath.isqrt(arg));
+    }
+}
+
+// 실행 결과
+// isqrt(0) ==> 0
+// isqrt(1) ==> 1
+// isqrt(2) ==> 2
+// isqrt(3) ==> 2
+// isqrt(4) ==> 2
+// isqrt(7) ==> 3
+// isqrt(9) ==> 3
+// isqrt(100) ==> 10
+```
+
+#### JUnit Test Case
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class IMathTest extends TestCase{
+		@Test
+		public void testIsqrt() {
+				assertEquals(0, IMath.isqrt(0));
+				assertEquals(1, IMath.isqrt(1));
+				assertEquals(2, IMath.isqrt(2));
+				assertEquals(2, IMath.isqrt(3));
+				assertEquals(2, IMath.isqrt(4));
+				assertEquals(3, IMath.isqrt(7));
+				assertEquals(3, IMath.isqrt(9));
+				assertEquals(10, IMath.isqrt(100));
+		}
+}
+
+// 실행 결과
+// 테스트 케이스가 성공하면 아무것도 출력되지 않음
+
+// 테스트 케이스가 실패하면 다음과 같이 출력됨
+// java.lang.AssertionError: expected:<0> but was:<1>
+```
+
+### 연습문제 (JUnit Test Case)
+다음 코드를 JUnit을 사용하여 테스트하라.
+```java
+public class ForYou {
+	public static int min(int x, int y){
+		if(x < y) return x;
+		else return y;
+	}
+}
+```
+
+#### Answer
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class ForYouTest extends TestCase{
+		@Test
+		public void testMin() {
+				assertEquals(1, ForYou.min(1, 2));
+				assertEquals(1, ForYou.min(2, 1));
+				assertEquals(0, ForYou.min(0, 0));
+				assertEquals(-1, ForYou.min(-1, 0));
+				assertEquals(-1, ForYou.min(0, -1));
+		}
+}
+```
+
+## Fixture
+> 테스트 케이스 전 또는 후에 실행하고자 하는 코드
+
+메서드를 오버라이드하여 fixture을 얻을 수 있다.
+```java
+protected void setUp() { ... }
+protected void tearDown() { ... }
+```
+테스트 실행 규칙
+```java
+protected void runTest() {
+    setUp();
+    // <run the test>;
+    tearDown();
+}
+```
+
+## 테스트 메서드의 구조 (Structure of Test Methods)
+- 테스트 메서드는 결과를 반환하지 않는다.
+- 테스트가 올바르게 실행되면, 테스트 메서드는 아무런 동작도 하지 않는다.
+- 테스트가 실패하면, `AssertionFailedError`를 던진다.
+- JUnit 프레임워크는 이 오류를 잡아서 처리하므로, 따로 작업할 필요가 없다.

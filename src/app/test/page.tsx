@@ -13,11 +13,11 @@ const Post = async () => {
   //   .then((res) => res.json())
   //   .then((data) => data.data);
   const markdownsource: any = await getPostDetail({
-    category: "Computer_Science",
-    subject: "Wireless_Mobile_Communications",
-    // subject: "Network",
-    title: "Concept",
-    post: "04",
+    // category: "Computer_Science",
+    // subject: "Wireless_Mobile_Communications",
+    // // subject: "Network",
+    // title: "Concept",
+    // post: "04",
   });
   return (
     <>

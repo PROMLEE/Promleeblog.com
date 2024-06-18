@@ -3,7 +3,7 @@ import fs from "fs";
 import matter from "gray-matter";
 
 const getPostDetail = async (params: any) => {
-  const filePath = `${process.cwd()}/src/posts/01.mdx`;
+  const filePath = `${process.cwd()}/src/posts/test.mdx`;
   const detail = await parsePost(filePath);
   return detail;
 };

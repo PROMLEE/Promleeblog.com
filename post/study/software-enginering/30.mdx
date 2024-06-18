@@ -1,0 +1,70 @@
+## 디자인을 코드로 매핑
+디자인 작업 중 생성된 UML 산출물(상호작용 다이어그램 및 DCD)은 코드 생성 과정의 입력으로 사용됨
+**구현 모델**
+- 모든 구현 산출물
+	- 소스 코드, 데이터베이스 정의, JSP/XML/HTML 페이지 등
+
+객체 지향 언어로 구현할 때는 다음을 위한 소스코드 작성
+- 클래스 및 인터페이스 정의
+- 메서드 정의
+
+**UML 디자인을 코드로 변환하는 과정**
+- 클래스 다이어그램에서 *클래스 정의*로
+- 상호작용 다이어그램에서 *메서드 본문*으로
+
+## DCD에서 클래스 정의 생성 (Creating Class Definitions from DCD)
+DCD는 객체 지향 언어에서 기본 클래스 정의를 생성하기 충분함
+<Img src="/posts/240618-003747.png" width={400}/>
+**속성 정의 (Java 필드)**:
+DCD에서 속성으로 정의된 항목을 자바 필드로 선언한다.
+- 예: `quantity: Integer`는 `private int quantity;`로 매핑된다.
+- 예: `description: ProductDescription`는 `private ProductDescription description;`로 매핑된다.
+
+**메서드 시그니처**:
+DCD에서 메서드로 정의된 항목을 자바 메서드로 선언한다.
+- 예: `getSubtotal(): Money`는 `public Money getSubtotal() { ... }`로 매핑된다.
+
+## 상호작용 다이어그램에서 메서드 본문 생성 (Creating Method Bodies from Interaction Diagrams)
+상호작용 다이어그램의 메시지 순서는 메서드 정의에서 일련의 문장으로 변환된다.
+<Img src="/posts/240618-004009.png" width={500}/>
+
+**상호작용 다이어그램에서 메시지 추출**:
+- `enterItem` 메시지가 `Register` 인스턴스로 보내진다. 따라서, `enterItem` 메서드는 `Register` 클래스에 정의된다.
+- 메시지 순서를 따라가며 메서드의 동작을 코드로 작성한다.
+
+**메시지 순서**:
+- 메시지 1: `ProductCatalog` 객체에 `getProductDescription` 메시지를 보내 제품 설명을 가져온다.
+- 메시지 2: `Sale` 객체에 `makeLineItem` 메시지를 보내 판매 항목을 생성한다.
+
+**자바 코드 구현**:
+- 메시지 순서를 코드의 명령문으로 변환하여 `enterItem` 메서드를 작성한다.
+	```java title="예시 코드" showLineNumbers=true
+	public class Register {
+			private ProductCatalog catalog;
+			private Sale currentSale;
+			public Register(ProductCatalog catalog) {
+					this.catalog = catalog;
+					this.currentSale = new Sale();
+			}
+			public void enterItem(int itemID, int qty) {
+					ProductDescription desc = catalog.getProductDescription(itemID);
+					currentSale.makeLineItem(desc, qty);
+			}
+	}
+	```
+
+## 코드에서의 컬렉션 클래스 (Collection Classes in Code)
+> 객체 지향 프로그래밍에서 다수의 객체를 관리하고 조작하기 위한 중요한 도구
+특히 *일대 다* 관계를 표현하는 데 사용된다.
+
+객체 지향 프로그래밍 언어에서는 *컬렉션 객체*를 도입하여 이를 구현한다:
+- List (ArrayList - List 인터페이스): 성장하는 순서가 있는 목록
+- Map (HashMap - Map 인터페이스): 키 기반 조회
+- 단순 배열
+
+## 구현 순서 (Order of Implementation)
+> 클래스는 결합도가 낮은 것에서 높은 것으로 구현되어야 한다.
+
+<Img src="/posts/240618-004911.png" width={500}/>
+- 첫 번째로 구현할 수 있는 클래스는 Payment 또는 ProductDescription이다.
+- 다음으로는 이전 구현에만 의존하는 클래스들; ProductCatalog 또는 SalesLineItem.
