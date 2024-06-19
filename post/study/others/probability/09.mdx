@@ -1,0 +1,227 @@
+## 표준확률변수의 기대값 (Expectations of Standard Random Variables)
+> 확률변수가 표준확률변수일 때, 기대값을 구하는 방법
+1. Uniform(균등 분포) on ${a, a+1, ... , b} : E[X] = \mathbf{(a+b)/2}$
+2. Bernoulli(베르누이 분포): $E[X] = (1-p)*0+p*1=\mathbf{p}$
+3. Binomial(이항 분포): $E[X] = \sum_{k=0}^{n} k \cdot \binom{n}{k} \cdot p^k \cdot (1-p)^{n-k} = \mathbf{np}$
+4. Geometric(기하 분포): $E[X] = \sum_{k=1}^{\infty} k \cdot (1 - p)^{k-1} \cdot p = \mathbf{1/p}$
+5. Poisson(포아송 분포): $E[X] = \sum_{k=0}^{\infty} k \cdot \frac{e^{-\lambda} \lambda^k}{k!} = \mathbf{\lambda}$
+
+### 균등분포의 기대값 증명 (Uniform Expectation)
+- $E[X] = (b+a)/2$
+<Math> 
+
+```math
+E[X] = \sum_{k=a}^{b} kP(X = k) \\
+= \sum_{k=a}^{b} k \times \frac{1}{b - a + 1} (\because \text{PMF of uniform R.V}) \\
+= \frac{1}{b - a + 1} \sum_{k=a}^{b} k \\
+= \frac{1}{b - a + 1} \frac{(a + b)(b - a + 1)}{2} \\
+= \frac{a + b}{2}
+```
+</Math>
+
+
+### 포아송분포의 기대값 증명 (Poisson Expectation)
+- $E[X] = \lambda$
+<Math>
+
+```math
+E[X] = \sum_{k=0}^{\infty} k \cdot \frac{e^{-\lambda} \lambda^k}{k!} (\because \text{PMF of Poisson R.V}) \\
+= \lambda \sum_{k=1}^{\infty} \frac{k \cdot e^{-\lambda} \lambda^{k-1}}{k!} \\
+= \lambda \sum_{k=1}^{\infty} \frac{e^{-\lambda} \lambda^{k-1}}{(k - 1)!} \\
+= \lambda (P(X = 0) + P(X = 1) + P(X = 2) + \ldots ) (\because \sum_{k=1}^{\infty} \frac{e^{-\lambda} \lambda^{k-1}}{(k - 1)!} = \sum{P_X(x)} = 1) \\
+= \lambda
+
+```
+</Math>
+
+
+### 기하분포의 기대값 증명 (Geometric Expectation)
+- $E[X] = 1/p$
+<Math>
+
+```math
+E[X] = \sum_{k=1}^{\infty} k \cdot (1 - p)^{k-1} \cdot p \\
+= \sum_{k=1}^{\infty} (1 - p)^{k-1} \cdot p + \sum_{k=1}^{\infty} (k - 1) \cdot (1 - p)^{k-1} \cdot p \\
+= 1 + (1 - p) \sum_{k=2}^{\infty} (k - 1) \cdot (1 - p)^{k-2} \cdot p \\
+= 1 + (1 - p) \left( 1 \times P(X = 1) + 2 \times P(X = 2) + 3 \times P(X = 3) + \ldots \right) \\
+= 1 + (1 - p) E[X] \\
+\text{and so } E[X] = \frac{1}{p}
+```
+</Math>
+
+
+## 표준확률변수의 분산 (Variance of Standard Random Variables)
+확률변수가 표준확률변수일 때, 분산을 구하는 방법
+- Bernoulli(베르누이 분포): $var[X] = p(1 - p)$
+- Binomial(이항 분포): $var[X] = np(1 - p)$
+- Geometric(기하 분포): $var[X] = (1-p) / p^2$
+- Uniform(균등 분포): $var[X] = (b-a+1)^2 - 1 / 12$
+- Poisson(포아송 분포): $var[X] = λ$
+
+### 예제 (표준확률변수의 기대값과 분산)
+#### 문제
+당신의 확률론 수업에 300명의 학생이 있고, 각 학생이 다른 학생과 독립적으로 A를 받을 확률이 1/3이다. A를 받는 학생들의 기대 수는 어떻게 될까?
+i번째 학생이 A를 받으면 Xi = 1, 그렇지 않으면 0이다.
+#### 답
+$X_i$: Bernoulli Random Variable
+$P(X_i = 1) = 1/3, P(X_i = 0) = 2/3$
+각 $X_1, X_2, ..., X_n$은 **Bernoulli Random Variable**이며 $E[X_i] = p = 1/3$이다.
+*분산* $var[X_i] = \underline{p(1 - p)} = \underline{1/3 * 2/3} = 2/9$
+그들의 합 $X = X_1 + X_2 + ... + X_n$은 A를 받는 학생들의 수이며, n번의 독립 시행에서 '성공'의 수이다.
+이것은 **Binomial Random Variables인** $n$과 $p$의 매개변수를 가진 *이항 분포*이다.
+$\therefore E[X] = ΣE[Xi] = Σp = \underline{np} = \underline{300 * 1/3} = 100$이다.
+
+## 합동 확률 질량 함수 (Joint Probability Mass Function)
+> 두 개의 이산 확률 변수 X, Y에 대한 합동 확률 질량 함수는 다음과 같이 정의된다.
+$p_{X,Y}(x, y) = P(X = x, Y = y)$
+
+이 때, $p_{X,Y}(x, y)$는 X와 Y가 각각 x와 y를 가질 확률을 나타낸다.
+$P(X = x, Y = y)$는 $P({X = x} \cap {Y = y})$의 축약형이다.
+*여러 속성*을 실험의 결과 공간에서 설명 하는 것에 유용함
+예를 들어, 무작위로 학생을 선택하고 X를 그들의 키로, Y를 그들의 시험 점수로 설정할 수 있다.
+
+### 예시 (합동 확률 질량 함수)
+결합 확률 질량 함수의 *표 형식 표현*
+|  | Y=1  | Y=2  | Y=3  | Y=4  |
+|-----|------|------|------|------|
+| X=1 | 0.1  | 0.1  | 0    | 0.2  |
+| X=2 | 0.05 | 0    | 0.1  | 0    |
+| X=3 | 0    | 0.1  | 0.2  | 0.1  |
+
+예를 들어, $P(X=2, Y=3) = 0.1, P(X=3, Y=1) = 0, ...$
+
+## 주변 확률 질량 함수 (Marginal Probability Mass Function)
+>X와 Y의 확률 질량 함수를 다음 공식을 사용하여 계산 가능하다
+$p_X(x) = P(X = x) = \sum_{y} P(X = x, Y = y)$
+$p_Y(y) = P(Y = y) = \sum_{x} P(X = x, Y = y)$
+
+이 때, $p_X(x)$는 X가 x를 가질 확률을 나타내고, $p_Y(y)$는 Y가 y를 가질 확률을 나타낸다.
+$p_X$ 와 $p_Y$는 각각 X와 Y의 *주변 확률 질량 함수*(*Marginal PMF*)이다. -> 결합 PMF와 구별하기 위함
+예를 들어, $p_X(x)$는 변수 Y의 모든 가능한 값에 대해 X가 특정 값 x를 취할 확률을 모두 합한 것이다.
+이 과정을 통해 X의 독립적인 분포를 파악할 수 있으며, Y의 영향을 받지 않는 X의 행동을 이해하는 데 도움이 된다.
+
+### 주변화 (Marginalization)
+> *결합 확률 분포*(Joint PMF)에서 *주변 확률 분포*(Marginal PMF)를 계산하는 과정
+
+$Y: \{y_1, y_2, \dots, y_N\}$ 일 때, 
+1. $\{Y = y_1\}, \{Y = y_2\}, \dots, \{Y = y_N\}$: *disjoint events*
+2. $\{Y=y_1\} \cup \{Y=y_2\} \cup \dots \cup \{Y=y_N\} = \Omega$
+=> $\{Y=y_1\}, \{Y=y_2\}, \dots, \{Y=y_N\}$: *partition of $\Omega$*
+
+<Math>
+
+```math
+P_X(x) = P(\{X=x\}) = P(\{X=x\} \cap (\{Y=y_1\} \cup \{Y=y_2\} \cup \dots \cup \{Y=y_N\}))\\
+= P(\{X=x\} \cap \{Y=y_1\}) + P(\{X=x\} \cap \{Y=y_2\}) + \dots + P(\{X=x\} \cap \{Y=y_N\})\\
+\rightarrow \text{덧셈 공리(Additivity Axiom) \& 정규화 공리(Normalization Axiom) 사용}\\
+= \sum_{y} P(\{X=x\} \cap \{Y=y\}) = \sum_{y} P(X=x, Y=y) \\
+= \sum_{y} p_{X,Y}(x, y)
+```
+</Math>
+
+덧셈 공리는 여러 확률 이벤트의 확률을 합칠 때 사용되고, 정규화 공리는 전체 확률의 합이 1이 되도록 보장한다.
+
+### 예시 1 (주변 확률 질량 함수)
+
+주변 확률 질량 함수의 표 형식 표현
+- 결합 확률 P(X, Y)
+	| X\\Y | 1    | 2    | 3    | 4    |
+	|-----|------|------|------|------|
+	| 1   | 0.1  | 0.1  | 0    | 0.2  |
+	| 2   | 0.05 | 0.05 | 0.1  | 0    |
+	| 3   | 0    | 0.1  | 0.2  | 0.1  |
+- X의 주변 확률 P(X)
+	| X   | P(X) |
+	|-----|------|
+	| 1   | 0.4  |
+	| 2   | 0.2  |
+	| 3   | 0.4  |
+- Y의 주변 확률 P(Y)
+	| Y   | P(Y) |
+	|-----|------|
+	| 1   | 0.15 |
+	| 2   | 0.25 |
+	| 3   | 0.3  |
+	| 4   | 0.3  |
+
+### 예제 (주변 확률 질량 함수)
+
+| X \\ Y | 1    | 2    | 3    | 4    |
+|-----|------|------|------|------|
+| 1   | 0.1  | 0.1  | 0    | 0  |
+| 2   | 0 | 0.05 | 0.1  | 0.05 |
+| 3   | 0.1  | 0.2  | 0.2  | 0.1
+
+1. $P(X = 2, Y = 3)$의 값은 얼마인가?
+	표에서 $X = 2$이고 $Y = 3$인 셀의 값을 보면, 확률은 0.1이다.
+
+2. $P(X = 3)$의 값은 얼마인가?
+	X가 3일 때의 주변 확률 $P(X = 3)$을 계산하기 위해서는 Y가 갖는 모든 값에 대해 $X = 3$의 결합 확률을 합산해야 한다.
+	표를 참조하면,
+	- $P(X = 3, Y = 1) = 0.1$
+	- $P(X = 3, Y = 2) = 0.2$
+	- $P(X = 3, Y = 3) = 0.2$
+	- $P(X = 3, Y = 4) = 0.1$
+	이 확률들을 모두 합하면, $P(X = 3) = 0.1 + 0.2 + 0.2 + 0.1 = 0.6$이다.
+
+이렇게 각 변수의 특정 값에 대한 결합 확률과 주변 확률을 통해 전체 확률 분포를 이해하고 계산할 수 있다.
+
+## 여러 확률 변수의 함수(Functions of Multiple Random Variables)
+함수의 기대값 규칙은 자연스럽게 확장되어 다음과 같은 형태를 취한다.
+- $E[g(X, Y)] = \sum_{x,y} g(x, y) p_{X,Y}(x, y)$
+
+특별한 경우에, 함수 $g$가 선형이고 $Z = g(X, Y) = aX + bY + c$일 때, 주어진 스칼라 $a, b, c$에 대해 다음과 같다.
+- $E[aX + bY + c] = aE[X] + bE[Y] + c$
+
+## 요약 (Summary)
+X와 Y의 **결합 확률 질량 함수**(Joint PMF):
+- $p_{X,Y}(x, y) = P(X = x, Y = y)$
+
+X와 Y의 **주변 확률 질량 함수**(Marginal PMF):
+- $p_X(x) = P(X = x) = \sum_{y} P(X = x, Y = y)$
+
+**여러 확률 변수의 함수**(Functions of Multiple Random Variables):
+- $E[g(X, Y)] = \sum_{x,y} g(x, y) p_{X,Y}(x, y)$
+g가 선형이고 Z = g(X, Y) = aX + bY + c일 때:
+	- $E[aX + bY + c] = aE[X] + bE[Y] + c$
+
+## 추가 문제
+수업 중에 교수님이 무작위로 학생을 선택하여 과목의 특정 정의를 알고 있는지 물어본다.
+다음 두 개의 확률 변수 $X$와 $Y$를 정의한다.
+$X$는 학생이 답을 알고 있으면 1의 값을 가지며 그렇지 않으면 0의 값을 가진다.
+$Y$는 학생의 토론 섹션 번호로 1, 2, 3 중 하나의 값을 가진다.
+결합 확률은 다음과 같다.
+$
+\begin{array}{c|ccc}
+	& Y = 1 & Y = 2 & Y = 3 \\
+	\hline
+	X = 0 & 0.2 & 0.2 & 0.2 \\
+	X = 1 & 0.05 & 0.05 & 0.3 \\
+\end{array}
+$
+### 문제
+1. $P(X = 1, Y = 3)$의 값은 무엇인가?
+1. 다음 확률 값을 구하시오:
+$P(X = 0) = ?$
+$P(X = 1) = ?$
+$P(Y = 1) = ?$
+$P(Y = 2) = ?$
+$P(Y = 3) = ?$
+1. $P(X = 0, Y = 1)$과 $P(X = 1 | Y = 1)$의 값은 무엇인가?
+1. $X$와 $Y$는 독립인가? 답을 정당화하시오.
+1. $X$의 기대값과 $Y$의 기대값은 무엇인가?
+
+### 답
+1. $P(X = 1, Y = 3) = 0.3$
+1. $P(X = 0) = 0.2 + 0.2 + 0.2 = 0.6$
+$P(X = 1) = 0.05 + 0.05 + 0.3 = 0.4$
+$P(Y = 1) = 0.2 + 0.05 = 0.25$
+$P(Y = 2) = 0.2 + 0.05 = 0.25$
+$P(Y = 3) = 0.2 + 0.3 = 0.5$
+1. $P(X = 0, Y = 1) = 0.2$
+$P(X = 1 | Y = 1) = \frac{P(X = 1, Y = 1)}{P(Y = 1)} = \frac{0.05}{0.25} = 0.2$
+1. $X$와 $Y$가 독립이라면, $P(X = x, Y = y) = P(X = x)P(Y = y)$여야 한다.
+하지만, $P(X = 1, Y = 3) = 0.3 \neq P(X = 1)P(Y = 3) = 0.4 \times 0.5 = 0.2$
+따라서, $X$와 $Y$는 독립이 아니다.
+1. $E[X] = 0 \times 0.6 + 1 \times 0.4 = 0.4$
+$E[Y] = 1 \times 0.25 + 2 \times 0.25 + 3 \times 0.5 = 2.25$

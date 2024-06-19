@@ -1,58 +1,87 @@
-## 개요
-Decision Tree & Random Forest : Entropy, Variance, Independence
-
 ##  지도 기계 학습 (Supervised Machine Learning)
-### Setting
+**Setting**
 - $x$ : data(observation) 
 - $y$ : label(class)
 
 $y = f(x)$
+<br/>
 
-### Goal
+**Goal**
 $x$가 주어졌을 때, $y$를 예측하는 함수 $f$를 찾는 것
 $f^*$ : $f$의 근사함수 $\rightarrow$ $y = f^*(x)$
+<br/>
 
-### error
+
+**error**
 $L = |y - f(x)|$  
 $L$: loss function
-ex) $y = f(x) \Longleftrightarrow L=0$, $f^* \Longleftrightarrow |y - f(x)| \rightarrow 0$
+ex) 
+$y = f(x) \Longleftrightarrow L=0$
+$f^* \Longleftrightarrow |y - f(x)| \rightarrow 0$이 되도록 찾아야 함
+<br/>
 
-### training data
+
+**training data**
 $D = \{(x_1, y_1), (x_2, y_2), \cdots, (x_n, y_n)\}$
-$f^* = \arg \min \sum_{i=1}^{n} |y_i - f(x_i)|$
+$f^* = \arg \min \sum_{i=1}^{n} |y_i - f(x_i)|$: *loss of training data*
 $f$ : porbability function $\rightarrow$ Naive Bayes
 $f$ : tree-like function $\rightarrow$ Decision Tree
 $f$ : neuron-like function $\rightarrow$ CNN
-
-### 요약
-x: 데이터, y:각 데이터에 해당하는 카테고리
-f를 정의하는 데 x에 따라 y가 정의됨
-카테고리를 정확하게 출력하는 f를 찾아야 함
-정답 y와 출력 f의 차이를 최소화하는 f를 찾아야 함
-y-f = 0이면 정답을 맞춘 것
-찾는 법은 training data D를 이용해서 찾음
-training data는 수 개의 x, y로 이루어짐
-f*는 training data D를 이용해서 찾음
 
 ## Decision Tree
 Root node: 전체 데이터 집합
 Internal node: 데이터 집합을 분할하는 데 사용되는 *특징*
 Leaf node: 분할된 데이터 집합에 대한 *라벨(클래스)*
-
-결정 트리는 특성 공간을 축에 평행한 사각형으로 나눈다
-![240513-103225w](/posts/240513-103225.png)
+**결정 트리**는 특성 공간을 *축에 평행한 사각형*으로 나눈다
+<Img src="/posts/240513-103225.png"  width={500} />
 
 ## 결정 트리 학습 (Decision Tree Learning)
-### 결정 트리 학습 알고리즘 (Decision Tree Learning Algorithm)
+**결정 트리 학습 알고리즘** (Decision Tree Learning Algorithm)
 1. 데이터 집합을 가장 잘 나눌 수 있는 특징을 선택
 	좋은 특징을 고르는 방법? - 데이터가 나눠진 후 불순도가 가장 낮은 특징을 선택(같은 클래스로 이루어진 데이터가 많이 모이는 특징)
 2. 선택된 특징의 값을 기준으로 데이터 집합을 나눈다
 	좋은 값을 판단하는 방법?
 
 ## 불확실성 측정 (Measure of Uncertainty)
-### 엔트로피 (Entropy)
-### 높은 엔트로피, 낮은 엔트로피 (High Entropy, Low Entropy)
-### 엔트로피 예제 (Entropy Example)
+결정론적 분포가 좋음(Deterministic Good)
+$P(Y = A) = 1$, $P(Y = B) = 0$, $P(Y = C) = 0$, $P(Y = D) = 0$
+
+균등 분포가 나쁨(Uniform Distribution Bad)
+$P(Y = A) = 0.25$, $P(Y = B) = 0.25$, $P(Y = C) = 0.25$, $P(Y = D) = 0.25$
+
+그 사이의 분포는?
+$P(Y = A) = 0.5$, $P(Y = B) = 0.25$, $P(Y = C) = 0.125$, $P(Y = D) = 125$
+
+## 엔트로피 (Entropy)
+> 확률 변수의 불확실성을 측정하는 방법
+
+확률 변수 $Y$의 엔트로피 $H(Y)$
+$H(Y) = -\sum_{i=1}^{n} p(Y=y_i) \log_2 p(Y=y_i)$
+불확실성이 높을수록 엔트로피가 높다
+성질: $H(p) \geq 0$
+
+1. *최대값*: $p$ 가 균등 분포일 때 (완전 불확실)
+	ex. $p(Y = y_1) = 0.5$, $p(Y = y_2) = 0.5$
+	$H(Y) = -0.5 \log 0.5 - 0.5 \log 0.5 = 1$
+2. *최소값*: 0 (완전 확실)
+	ex. $p(Y = y_1) = 1$, $p(Y = y_2) = 0$
+	$H(Y) = -1 \log 1 - 0 \log 0 = 0$
+
+## 높은 엔트로피, 낮은 엔트로피 (High Entropy, Low Entropy)
+**높은 엔트로피 (High Entropy)**
+- $Y$가 균등한 분포에서 나온 경우
+- 히스토그램이 평평함
+- 이로부터 샘플링된 값들은 예측하기 어려움
+
+**낮은 엔트로피 (Low Entropy)**
+- $Y$가 다양한 분포 (피크와 계곡이 있는 분포)에서 나온 경우
+- 히스토그램에 많은 낮음과 높음이 있음
+- 이로부터 샘플링된 값들은 예측하기 쉬움
+
+***목표***
+- 엔트로피를 줄이는 *특징*을 선택하여 데이터를 분할
+
+## 엔트로피 예제 (Entropy Example)
 $H(Y)= -\sum_{i=1}^{n} p(Y=y_i) \log_2 p(Y=y_i)$
 | $X_1$ | $X_2$ | $Y$ |
 | --- | --- | --- |
@@ -65,14 +94,14 @@ $H(Y)= -\sum_{i=1}^{n} p(Y=y_i) \log_2 p(Y=y_i)$
 - $p(Y = T) = \frac{5}{6}$
 - $p(Y = F) = \frac{1}{6}$
 - $H(Y) = - \frac{5}{6} \log \frac{5}{6} - \frac{1}{6} \log \frac{1}{6} = 0.19$
-### 조건부 엔트로피 (Conditional Entropy)
+## 조건부 엔트로피 (Conditional Entropy)
 <Bbox> 
 
 조건부 엔트로피 $H(Y|X_k)$: 확률 변수 $Y$가 확률 변수 $X_k$에 조건부일 때의 엔트로피 
 </Bbox>
 
 
-#### 예제
+### 예제 (조건부 엔트로피)
 
 $H(Y|X_1) = -\sum_{j=1}^{n} p(X_1=x_j) \sum_{j=1}^{m} p(Y=y_j|X_1=x_j) \log_2 p(Y=y_i|X_1=x_j)$
 
@@ -96,7 +125,7 @@ $p(X_1 = T) = \frac{4}{6}$, $p(X_1 = F) = \frac{2}{6}$
 $H(Y|X_1) = -\frac{4}{6} (1 \log 1 + 0 \log 0 ) - \frac{2}{6} (0.5 \log 0.5 + 0.5 \log 0.5) = 0.1$
 
 **Entropy of $Y$ after split using $X_1$ (0.19 $\rightarrow$ 0.1)**
-<hr/>
+<br/>
 
 $p(X_2 = T) = \frac{3}{6}$, $p(X_2 = F) = \frac{3}{6}$
 - $X_2$이 T일 때, $p(Y = T) = \frac{3}{3}$, $p(Y = F) = \frac{0}{3}$
@@ -110,16 +139,17 @@ $H(Y|X_2) = -\frac{3}{6} (1 \log 1 + 0 \log 0 ) - \frac{3}{6} (\frac{2}{3} \log 
 
 > $X_2$를 사용하여 데이터를 나누는 것이 더 좋은 결과를 가져옴(엔트로피를 줄임)
 
-### 정보 이득 (Information Gain)
-> 정보 이득: 분할 후 엔트로피(불확실성)의 감소
+## 정보 이득 (Information Gain)
+> 분할 후 엔트로피(불확실성)의 감소
 
 $IG(X) = H(Y) - H(Y|X)$
 
 위의 예제에서,
-- $IG(X_1) = H(Y) - H(Y|X_1) = 0.19 - 0.1 = 0.09$
-	- $IG(X_1) > 0 \rightarrow$ $X_1$은 분할에 유용한 특징
-- $IG(X_2) = H(Y) - H(Y|X_2) = 0.19 - 0.03 = 0.16$
-	- $IG(X_2) > 0 \rightarrow$ $IG(X_2)$는 분할에 더 유용한 특징
+$IG(X_1) = H(Y) - H(Y|X_1) = 0.19 - 0.1 = 0.09$
+- $IG(X_1) > 0 \rightarrow$ $X_1$은 분할에 *유용한* 특징
+
+$IG(X_2) = H(Y) - H(Y|X_2) = 0.19 - 0.03 = 0.16$
+- $IG(X_2) > 0 \rightarrow$ $X_2$는 분할에 *더 유용한* 특징
 
 ## 결정 트리 학습 알고리즘 (Decision Tree Learning Algorithm)
 1. 빈 결정 트리에서 시작
@@ -133,10 +163,19 @@ $IG(X) = H(Y) - H(Y|X)$
 ## 무작위 포레스트 (Random Forest)
 > 부트스트랩 집계(Bootstrap Aggregating)를 사용하여 많은 결정 트리를 학습시킴
 
-- 무작위로 n개의 예제 부분 샘플링
-- 부분 샘플링한 데이터 집합을 사용하여 결정 트리를 학습
-- 학습된 트리들 간의 평균 또는 다수결 투표를 사용하여 예측
+무작위로 n개의 예제 부분 샘플링
+부분 샘플링한 데이터 집합을 사용하여 결정 트리를 학습
+학습된 트리들 간의 평균 또는 다수결 투표를 사용하여 예측
+<br/>
 
-랜덤 포레스트 예측 결합
-$Y = \frac{1}{N} \sum_{i=1}^{N} f_i(x)$
-$Var(Y) = \frac{1}{N^2} \sum_{i=1}^{N} Var(f_i(x)) + \frac{1}{N^2} \sum_{i \neq j} Cov(f_i(x), f_j(x))$
+랜덤 포레스트 *예측 결합*
+$Y$ : 예측 변수
+$Y_1, Y_2, \cdots, Y_T$ : 결정 트리의 예측 변수
+$Y = \frac{1}{T} \sum_{i=1}^{T} Y_i$
+<br/>
+
+랜덤 포레스트 *예측 변수의 분산*
+$Var(\text{label})$: 라벨의 불확실성
+$Var(Y) = Var(\frac{1}{T} \sum_{i=1}^{T} Y_i) = \frac{1}{T^2} \sum_{i=1}^{T} Var(Y_i)\\
+= \frac{1}{T^2} \times T \times Var(Y_i) = \frac{Var(Y_i)}{T}$
+$Var(Y) < Var(Y_i) \Rightarrow$ 랜덤 포레스트의 예측 변수가 더 안정적
