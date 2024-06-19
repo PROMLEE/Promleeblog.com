@@ -4,21 +4,28 @@ import { Toup } from "@/components/buttons/Toup";
 import { Todown } from "@/components/buttons/Todown";
 import { MdxBody } from "@/components/posts/MdxBody";
 import { getPostDetail } from "@/utils/PostUtils/GetPost";
+import { createClient } from "@/utils/Supabase/supabase_server";
 
 const Post = async () => {
-  // const markdownsource = await fetch(
-  //   `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post`,
-  //   { next: { revalidate: 60 } },
-  // )
-  //   .then((res) => res.json())
-  //   .then((data) => data.data);
-  const markdownsource: any = await getPostDetail({
-    // category: "Computer_Science",
-    // subject: "Wireless_Mobile_Communications",
-    // // subject: "Network",
-    // title: "Concept",
-    // post: "04",
-  });
+  const supabase = createClient();
+  const { data } = await supabase.from("Category").select(`
+    name,
+    Subject (
+      name,
+      Series (
+        name,
+        Subject (
+          name
+        ),
+        Post (
+          name
+        )
+      )
+    )
+  `);
+  const jsondata = JSON.stringify(data, null, 2);
+  // console.log(jsondata);
+  const markdownsource: any = await getPostDetail({});
   return (
     <>
       <Toup />
