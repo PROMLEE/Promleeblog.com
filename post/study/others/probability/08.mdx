@@ -1,0 +1,267 @@
+## 임의 변수의 함수 (Function of a Random Variable)
+> X 가 임의 변수이고 $f: \mathbb{R} \to \mathbb{R}$ 이면 $Y = f(X)$ 도 확률 질량 함수(PMF)를 가지는 임의 변수이다.
+
+$P(Y = k) = P(f(X) = k) = \sum_{o \in \Omega \text{ such that } f(X(o))=k} P(o)$
+
+### 예제 (임의 변수의 함수)
+#### 문제
+$Y = |X|$라고 하자. 이 경우 PMF $p_Y$에 대한 앞선 공식을 적용해 보자. X의 확률 $p_X(x)$는 다음과 같다:
+- $p_X(x) = \frac{1}{9}$ (x가 [-4, 4] 범위 내의 정수일 경우)
+- 그 외의 경우 $p_X(x) = 0$
+
+#### 해결
+가능한 $Y$의 값은 0, 1, 2, 3, 4이다.
+- $P(Y = 0) = P(X = 0) = \frac{1}{9}$
+- $P(Y = 1) = P(X = 1) + P(X = -1) = \frac{1}{9} + \frac{1}{9} = \frac{2}{9}$
+- $P(Y = 2) = P(X = 2) + P(X = -2) = \frac{1}{9} + \frac{1}{9} = \frac{2}{9}$
+- $P(Y = 3) = P(X = 3) + P(X = -3) = \frac{1}{9} + \frac{1}{9} = \frac{2}{9}$
+- $P(Y = 4) = P(X = 4) + P(X = -4) = \frac{1}{9} + \frac{1}{9} = \frac{2}{9}$
+따라서 $Y$의 PMF는 다음과 같다:
+- $p_Y(y) = \frac{2}{9}$ (y = 1, 2, 3, 4인 경우)
+- $p_Y(y) = \frac{1}{9}$ (y = 0인 경우)
+- 그 외의 경우 $p_Y(y) = 0$
+
+## 기대값 (Expected Value)
+> 임의 변수 $X$의 기대값은 $E[X] = \sum_{x \in \mathbb{R}} x \cdot P(X = x)$로 정의된다.
+즉, $X$의 가능한 모든 값에 대해 *확률 가중 평균*이다.
+
+$E[X]$는 $X$의 기대값(expectation) 또는 평균(mean)이라고도 한다.
+#### 참고 (기대값)
+$E[\text{Binomial R.V(이항 분포 임의 변수)}] = n \cdot p = \text{(number of trials)} \cdot \text{(probability of success)}$
+
+
+### 예제 1 (기대값)
+#### 문제
+두 독립적인 동전 던지기를 고려하자. 
+각각의 동전 던지기에서 앞면이 나올 확률은 3/4이다. 
+X를 얻은 앞면의 수로 나타내는데, 이는 n = 2, p = 3/4의 매개변수를 가진 이항 분포 임의 변수이다.
+- 그의 PMF(확률 질량 함수)는 다음과 같다:
+		- $p_X(k) = \binom{2}{k} \cdot (3/4)^k \cdot (1/4)^{2-k}$
+    - $p_X(k) = \begin{cases}
+    (1/4)^2 & \text{if } k = 0, \\
+    2 \cdot (1/4) \cdot (3/4) & \text{if } k = 1, \\
+    (3/4)^2 & \text{if } k = 2.
+    \end{cases}$
+
+X의 기대값은 무엇인가?
+
+#### 해결
+$E[X] = 0 \cdot (1/4)^2 + 1 \cdot 2 \cdot (1/4) \cdot (3/4) + 2 \cdot (3/4)^2 = \frac{24}{16} = \frac{3}{2}$
+
+### 예제 2 (기대값)
+#### 문제
+X가 \{1, 2, 6\}에 해당하고 각각의 확률이 다음과 같다고 하자:
+- $P(X = 1) = \frac{1}{3}$, $P(X = 2) = \frac{1}{2}$, $P(X = 6) = \frac{1}{6}$
+
+X의 기대값은 무엇인가?
+
+#### 해결
+$E[X] = 1 \cdot \frac{1}{3} + 2 \cdot \frac{1}{2} + 6 \cdot \frac{1}{6} = \frac{1}{3} + 1 + 1 = \frac{7}{3} = 2.\overline{3}$
+
+## 기대값의 선형성 (Linearity of Expectation)
+> 임의 변수 $X$와 $Y$에 대해 $E[X + Y] = E[X] + E[Y]$이다.
+
+### 예제 (기대값의 선형성)
+#### 문제
+12개의 공정한 6면 주사위를 던진다. X를 "1"의 수로, Y를 "6"의 수로 하자. X + Y의 기대값은 얼마인가?
+
+#### 해결
+$E[X] = E[Y] = 12 \cdot \frac{1}{6} = 2$이므로 $E[X + Y] = E[X] + E[Y] = 2 + 2 = 4$
+
+## 임의 변수 함수에 대한 기대값 규칙 (Expectation Rule for Functions of Random Variables)
+> 임의 변수 $X$가 PMF $\;p_X(x)$를 가진 임의 변수일 때 함수 $Y = g(X)$에 대해 
+$E[Y] = E[g(X)] = \sum_{x \in \mathbb{R}} g(x) \cdot P(X = x)$이다.
+
+$E[X] = \sum_{x \in \mathbb{R}} x \cdot p_X(x)$
+$\Rightarrow E[g(X)] = \sum_{x \in \mathbb{R}} g(x) \cdot p_X(x) \rightarrow$ *기대값 규칙*(Expectation Rule)
+
+## 분산 (Variance)
+> 임의 변수가 평균에서 얼마나 벗어나는지 측정
+$var(X) = E[X^2] - E[X]^2 = E[(X - E[X])^2] = \sum_{x \in \mathbb{R}} (x - E[X])^2 \cdot p_X(x)$
+
+**표준편차**는 분산의 양의 제곱근이다.
+
+$\sigma_x = std(X) = \sqrt{var(X)}$
+
+### 증명 (분산)
+$E[X] = \mu$(상수)
+$E[\mu] = \mu$, $E[\mu \cdot X] = \mu \cdot E[X] = \mu^2$
+$E[(X - E[X])^2] = E[X^2 - 2 \cdot X \cdot E[X] + E[X]^2]$
+$= E[X^2] - 2\mu \cdot E[X] + \mu^2 = E[X^2] - 2\mu^2 + \mu^2 $
+$= E[X^2] - \mu^2 = E[X^2] - E[X]^2$
+
+### 예제 1 (분산) 
+#### 문제
+임의 변수 X를 고려하자. X는 다음과 같은 확률 질량 함수(PMF)를 가진다:
+- $p_X(x) = \frac{1}{9}$ (x가 [-4, 4] 범위 내의 정수인 경우)
+- 그 외의 경우 $p_X(x) = 0$
+
+X의 분산은 무엇인가?
+
+#### 해결
+X의 기대값 E[X]는
+$E[X] = 0 \cdot \frac{1}{9} + 1 \cdot \frac{1}{9} + 2 \cdot \frac{1}{9} + 3 \cdot \frac{1}{9} + 4 \cdot \frac{1}{9} + (-1) \cdot \frac{1}{9} + (-2) \cdot \frac{1}{9} + (-3) \cdot \frac{1}{9} + (-4) \cdot \frac{1}{9} = 0$
+우리는 $var(x) = E[(X-E[X])^2]$를 계산해야 한다.
+$Z = (X-E[X])^2 = X^2$ 라고 하자.
+
+$var(x) = E[(X-E[X])^2] = E[X^2] = E[Z] = \sum{Z \cdot p_Z(Z)}$
+<br/>
+<br/>
+
+X의 가능한 값: -4, -3, -2, -1, 0, 1, 2, 3, 4
+Z의 가능한 값: 0, 1, 4, 9, 16
+- $P(Z = 0) = P(X = 0) = \frac{1}{9}$
+- $P(Z = 1) = P(X = 1) + P(X = -1) = \frac{1}{9} + \frac{1}{9} = \frac{2}{9}$
+- $P(Z = 4) = P(X = 2) + P(X = -2) = \frac{1}{9} + \frac{1}{9} = \frac{2}{9}$
+- $P(Z = 9) = P(X = 3) + P(X = -3) = \frac{1}{9} + \frac{1}{9} = \frac{2}{9}$
+- $P(Z = 16) = P(X = 4) + P(X = -4) = \frac{1}{9} + \frac{1}{9} = \frac{2}{9}$
+
+따라서 $var(X) = E[X^2] - E[X]^2 = 1 \cdot \frac{2}{9} + 4 \cdot \frac{2}{9} + 9 \cdot \frac{2}{9} + 16 \cdot \frac{2}{9} = \frac{2}{9} + \frac{8}{9} + \frac{18}{9} + \frac{32}{9} = \frac{60}{9} = \frac{20}{3}$
+
+### 예제 2 (분산)
+#### 문제
+임의 변수 X가 \{1, 2, 6\}의 값을 가지고, 각 값의 확률이 $P(X = 1) = \frac{1}{3}$, $P(X = 2) = \frac{1}{3}$, $P(X = 6) = \frac{1}{3}$라고 하자.
+
+X의 분산은 무엇인가?
+
+#### 해결
+$E[X] = 1 \cdot \frac{1}{3} + 2 \cdot \frac{1}{3} + 6 \cdot \frac{1}{3} = \frac{1}{3} + \frac{2}{3} + 2 = \frac{9}{3} = 3$
+$var(x) = E[(X-E[X])^2] = E[(X-3)^2] =  4 \cdot \frac{1}{3} + 1 \cdot \frac{1}{3} + 9 \cdot \frac{1}{3} = \frac{4}{3} + \frac{1}{3} + 3 = \frac{14}{3} = 4.\overline{6}$ 
+
+
+## 선형 함수의 임의 변수에 대한 기대값과 분산 (Expectation and Variance of Linear Functions of Random Variables)
+> 임의 변수 $X$에 대한 선형 함수 $Y = aX + b$의 기대값과 분산은 다음과 같다:
+$E[Y] = aE[X] + b$
+$var(Y) = a^2var(X)$
+
+### 예제 (임의 변수 함수에 대한 기대값과 분산)
+#### 문제
+Y = g(X) = aX + b
+
+1. Y의 기대값은 얼마인가?
+2. Y의 분산은 얼마인가?
+#### 해결
+1. Y의 기대값
+$E[Y] = E[aX + b] = E[g(x)] = \sum g(x) \cdot p_X(x)$
+$= \sum (ax + b) \cdot p_X(x) = a \sum x \cdot p_X(x) + b \sum p_X(x) = aE[X] + b$
+
+2. Y의 분산
+$var(Y) = var(aX + b) = E[(aX + b - E[aX + b])^2]$
+$= E[(aX + b - aE[X] - b)^2] = E[(aX - aE[X])^2] = E[a^2(X - E[X])^2]$
+$= a^2E[(X - E[X])^2] = a^2var(X)$
+
+
+## 요약 (Summary)
+**임의 변수의 기대값**(Expectation): 
+
+$E[X] = \sum_{x \in \mathbb{R}} x \cdot p_X(x)$
+**분산**(Variance): 
+
+$var(X) = E[X^2] - E[X]^2 = E[(X - E[X])^2] = \sum_{x \in \mathbb{R}} (x - E[X])^2 \cdot p_X(x) = E[X^2] - E[X]^2$
+**임의 변수 함수에 대한 기대값 규칙**(Expectation Rule for Functions of Random Variables): 
+
+$E[g(X)] = \sum_{x \in \mathbb{R}} g(x) \cdot p_X(x)$
+**선형 함수의 임의 변수에 대한 기대값과 분산**(Expectation and Variance of Linear Functions of Random Variables):
+
+$E[Y] = aE[X] + b$, $var(Y) = a^2var(X)$
+
+## 추가 문제
+### 문제 1
+#### 문제
+$X$가 0에서 9까지의 값을 가지며 각각의 값이 동일한 확률 $1/10$로 선택되는 확률 변수라고 하자.
+(**a**) 확률 변수 $Y = X \mod(3)$의 확률 질량 함수(PMF)를 구하시오.
+(**b**) 확률 변수 $Z = 5 \mod(X + 1)$의 확률 질량 함수(PMF)를 구하시오.
+
+#### 해결
+(**a**) 확률 변수 $Y = X \mod(3)$의 확률 질량 함수(PMF)는 다음과 같다:
+- $P(Y = 0) = P(X = 0) + P(X = 3) + P(X = 6) + P(X = 9) = 4 \cdot \frac{1}{10} = \frac{2}{5}$
+- $P(Y = 1) = P(X = 1) + P(X = 4) + P(X = 7) = 3 \cdot \frac{1}{10} = \frac{3}{10}$
+- $P(Y = 2) = P(X = 2) + P(X = 5) + P(X = 8) = 3 \cdot \frac{1}{10} = \frac{3}{10}$
+
+따라서 $Y$의 확률 질량 함수(PMF)는 다음과 같다:
+- $p_Y(y) = \begin{cases}
+	\frac{2}{5} & \text{if } y = 0, \\
+	\frac{3}{10} & \text{if } y = 1, 2, \\
+	0 & \text{otherwise}.
+	\end{cases}$
+
+(**b**) 확률 변수 $Z = 5 \mod(X + 1)$의 확률 질량 함수(PMF)는 다음과 같다:
+- $P(Z = 0) = P(X = 0) + P(X = 4) = 2 \cdot \frac{1}{10} = \frac{1}{5}$
+- $P(Z = 1) = P(X = 1) + P(X = 3) = 2 \cdot \frac{1}{10} = \frac{1}{5}$
+- $P(Z = 2) = P(X = 2) = \frac{1}{10}
+- $P(Z = 5) = P(X = 5) + P(X = 6) + P(X = 7) + P(X = 8) + P(X = 9) = 5 \cdot \frac{1}{10} = \frac{1}{2}$
+
+따라서 $Z$의 확률 질량 함수(PMF)는 다음과 같다:
+- $p_Z(z) = \begin{cases}
+	\frac{1}{5} & \text{if } z = 0, 1, \\
+	\frac{1}{10} & \text{if } z = 2, \\
+	\frac{1}{2} & \text{if } z = 5, \\
+	0 & \text{otherwise}.
+	\end{cases}$
+
+### 문제 2
+#### 문제
+확률 질량 함수(PMF) $p_X(x)$를 다음과 같이 갖는 확률 변수 $X$를 고려하시오.
+
+$ p_X(x) =\begin{cases}
+\frac{x^2}{a} & \text{if } x = -3, -2, -1, 0, 1, 2, 3 \\
+0 & \text{otherwise}\end{cases}$
+
+(a) $a$와 $E[X]$를 구하시오.
+
+(b) 확률 변수 $z = (x - E[X])^2$의 확률 질량 함수(PMF)를 구하시오.
+
+(c) (b)를 이용하여 $X$의 분산을 계산하시오.
+
+(d) 기대값 규칙 공식을 이용하여 $X$의 분산을 계산하시오.
+$Var(X) = \sum_x (x - E[X])^2 p_X(x)$
+#### 해결
+(**a**) 
+1. $a$와 $E[X]$ 구하기
+$\sum_{x=-3}^{3} \frac{x^2}{a} = 1$
+$\frac{(-3)^2}{a} + \frac{(-2)^2}{a} + \frac{(-1)^2}{a} + \frac{0^2}{a} + \frac{1^2}{a} + \frac{2^2}{a} + \frac{3^2}{a} = 1$
+$\frac{9}{a} + \frac{4}{a} + \frac{1}{a} + 0 + \frac{1}{a} + \frac{4}{a} + \frac{9}{a} = 1$
+$\frac{28}{a} = 1$
+$a = 28$
+2. $E[X]$ 구하기
+$E[X] = \sum_{x=-3}^{3} x \cdot p_X(x)$
+$p_X(x) = \frac{x^2}{28}$
+$E[X] = \sum_{x=-3}^{3} x \cdot \frac{x^2}{28}$
+$E[X] = \frac{1}{28} [(-3)^3 + (-2)^3 + (-1)^3 + 0 + 1^3 + 2^3 + 3^3]$
+$E[X] = \frac{1}{28} [-27 - 8 - 1 + 0 + 1 + 8 + 27]$
+$E[X] = \frac{1}{28} [0] = 0$
+
+(**b**) 확률 변수 $z = (x - E[X])^2$의 확률 질량 함수(PMF) 구하기
+1. $z = (x - 0)^2 = x^2$
+2. 가능한 값:
+	- $x^2 = 0, 1, 4, 9$
+3. 각 값의 확률:
+	- $P(z=0) = P(x=0) = \frac{0^2}{28} = 0$
+	- $P(z=1) = P(x=1 \text{ 또는 } x=-1) = 2 \cdot \frac{1}{28} = \frac{2}{28} = \frac{1}{14}$
+	- $P(z=4) = P(x=2 \text{ 또는 } x=-2) = 2 \cdot \frac{4}{28} = \frac{8}{28} = \frac{2}{7}$
+	- $P(z=9) = P(x=3 \text{ 또는 } x=-3) = 2 \cdot \frac{9}{28} = \frac{18}{28} = \frac{9}{14}$
+
+- 따라서 $z$의 PMF는 다음과 같다:
+$P_Z(z) =\begin{cases} \frac{1}{14} & \text{if } z = 1 \\
+\frac{2}{7} & \text{if } z = 4 \\
+\frac{9}{14} & \text{if } z = 9 \\
+0 & \text{otherwise}\end{cases}$
+
+(**c**) (b)를 이용한 $X$의 분산 계산
+- $Var(X) = E[(X - E[X])^2] = E[Z] = \sum_{z=1, 4, 9} z \cdot p_Z(z)$
+$Var(X) = 1 \cdot \frac{1}{14} + 4 \cdot \frac{2}{7} + 9 \cdot \frac{9}{14}$
+$Var(X) = \frac{1}{14} + \frac{8}{7} + \frac{81}{14}$
+$Var(X) = \frac{1}{14} + \frac{16}{14} + \frac{81}{14}$
+$Var(X) = \frac{98}{14} = 7$
+
+
+(**d**) 기대값 규칙 공식을 이용한 분산 계산
+- **분산 $Var(X)$ 계산**:
+$Var(X) = E[X^2] - (E[X])^2$
+$E[X^2] = \sum_{x=-3}^{3} x^2 \cdot p_X(x)$
+$E[X^2] = \frac{1}{28} [(-3)^4 + (-2)^4 + (-1)^4 + 0 + 1^4 + 2^4 + 3^4]$
+$E[X^2] = \frac{1}{28} [81 + 16 + 1 + 0 + 1 + 16 + 81]$
+$E[X^2] = \frac{196}{28} = 7$
+$Var(X) = 7 - 0 = 7$
+
+따라서, (c)와 (d)에서 계산한 $X$의 분산은 동일하게 7이다.
