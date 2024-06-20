@@ -13,7 +13,7 @@ N은 두 소수 p, q의 곱이다. 즉, $N = p * q$이다.
 1. 두 개의 소수를 선택합니다. 이 두 소수를 p와 q라고 한다.
 2. $N = p * q$를 계산합니다.
 3. $\phi(N) = (p-1) * (q-1)$를 계산합니다. $\phi(N)$은 N과 서로소인 수의 개수를 의미함
-	[오일러 파이 함수](/blog/Computer_Science/Security/Concept/03_01)
+	[오일러 파이 함수](/blog/post/28-essential-num-theory#오일러-파이-함수-eulers-phi-function)
 4. $e$를 선택합니다. $1 < e < \phi(N)$이며, $e$와 $\phi(N)$은 서로소여야 함.
 5. $d$를 계산합니다. $d$는 $d * e \equiv 1 \pmod{\phi(N)}$을 만족하는 수이다.
 	확장된 유클리드 알고리즘을 사용하여 계산
@@ -115,7 +115,7 @@ $d_p = d \mod (p-1) \rightarrow d_p = 77 \mod 12 = 5$
 $d_q = d \mod (q-1) \rightarrow d_q = 77 \mod 16 = 13$
 $C_{d_p} = C^{d_p} \mod p \rightarrow C_{d_p} = 22^5 \mod 13 = 3$
 $C_{d_q} = C^{d_q} \mod q	\rightarrow C_{d_q} = 22^{13} \mod 17 = 3$
-[중국인의 나머지 정리](/blog/Computer_Science/Security/Concept/03_01)를 사용하여
+[중국인의 나머지 정리](/blog/post/28-essential-num-theory#중국인의-나머지-정리-chinese-remainder-theorem)를 사용하여
 $M_p = 17^{-1} = 10 \pmod{13}$
 $M_q = 13^{-1} = 4 \pmod{17}$
 - $M = C_{d_p} \cdot q \cdot M_q + C_{d_q} \cdot p \cdot M_p$
