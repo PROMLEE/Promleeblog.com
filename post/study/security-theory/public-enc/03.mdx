@@ -109,7 +109,7 @@ $ = (M^{\phi(N)})^s \cdot M = M (\because \text{오일러 정리})$
 ## CRT를 이용한 RSA 복호화 (RSA Decryption using CRT)
 **이전 예제에서의 복호화**
 $N = 221$, $p = 13$, $q = 17$, $d = 77$, $C = 22$
-따라서 $M' = C^d = 22^{77} = (22^{11})^{7} \times 22^2 = 61^{11} \times 3 = 3$ (mod 221)
+따라서 $M' = C^d = 22^{77} = (22^{11})^{7} = 61^{11} = 3$ (mod 221)
 **중국인의 나머지 정리를 사용한 복호화**
 $d_p = d \mod (p-1) \rightarrow d_p = 77 \mod 12 = 5$
 $d_q = d \mod (q-1) \rightarrow d_q = 77 \mod 16 = 13$
