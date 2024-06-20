@@ -28,37 +28,34 @@ const RightSidebarComp = ({ content }: { content: string }) => {
         if (item.indent === 1) {
           return (
             <div key={idx} className="sidebar">
-              <Link
-                key={idx}
+              <a
                 href={item.link}
                 className="sidebar mt-3 indent-[-5px] text-sm font-bold text-text"
               >
                 💡 {item.text.split("(")[0]}
-              </Link>
+              </a>
             </div>
           );
         } else if (item.indent === 2) {
           return (
             <div key={idx} className="sidebar">
-              <Link
-                key={idx}
+              <a
                 href={item.link}
                 className="sidebar ml-8 indent-[-20px] text-xs text-text"
               >
                 🚀 {item.text.split("(")[0]}
-              </Link>
+              </a>
             </div>
           );
         } else if (item.indent === 3) {
           return (
             <div key={idx} className="sidebar">
-              <Link
-                key={idx}
+              <a
                 href={item.link}
                 className="sidebar ml-10 indent-[-20px] text-xs text-text"
               >
                 ✅ {item.text.split("(")[0]}
-              </Link>
+              </a>
             </div>
           );
         }
