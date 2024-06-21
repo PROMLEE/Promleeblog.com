@@ -9,7 +9,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       { next: { revalidate: 60 } },
     )
       .then((res) => res.json())
-      .then((data) => data.data);
+      .then((data) => {
+        if (data.response === 200) {
+          return data.data;
+        } else {
+          throw new Error("Links not found");
+        }
+      });
   } catch (e) {
     Links = [];
   }
