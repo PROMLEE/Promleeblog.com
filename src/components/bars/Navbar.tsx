@@ -12,24 +12,24 @@ import LeftSidebarComp from "@/components/bars/LeftSidebar";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import Indicator from "@/components/bars/Scrollindicator";
+import { supabase } from "@/utils/Supabase/supabase_client";
+
+const getData = async () => {
+  const { data }: { data: any } = await supabase
+    .from("Category")
+    .select(`*, Subject!inner(nameko, url)`)
+    .order("id", { ascending: true });
+  console.log(data);
+  return data;
+};
 
 export const Navbar = () => {
   const [menu, setMenu] = useState(false);
   const [list, setList]: any[] = useState([]);
-
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`, {
-      mode: "cors",
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        setList(data.data);
-      });
+    getData().then((data) => {
+      setList(data);
+    });
   }, []);
 
   const menuclose = () => {

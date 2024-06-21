@@ -157,7 +157,7 @@ $= a^2E[(X - E[X])^2] = a^2var(X)$
 $E[X] = \sum_{x \in \mathbb{R}} x \cdot p_X(x)$
 **분산**(Variance): 
 
-$var(X) = E[X^2] - E[X]^2 = E[(X - E[X])^2] = \sum_{x \in \mathbb{R}} (x - E[X])^2 \cdot p_X(x) = E[X^2] - E[X]^2$
+$var(X) = E[X^2] - E[X]^2 = E[(X - E[X])^2] = \sum_{x \in \mathbb{R}} (x - E[X])^2 \cdot p_X(x)$
 **임의 변수 함수에 대한 기대값 규칙**(Expectation Rule for Functions of Random Variables): 
 
 $E[g(X)] = \sum_{x \in \mathbb{R}} g(x) \cdot p_X(x)$
@@ -257,11 +257,11 @@ $Var(X) = \frac{98}{14} = 7$
 
 (**d**) 기대값 규칙 공식을 이용한 분산 계산
 - **분산 $Var(X)$ 계산**:
-$Var(X) = E[X^2] - (E[X])^2$
-$E[X^2] = \sum_{x=-3}^{3} x^2 \cdot p_X(x)$
-$E[X^2] = \frac{1}{28} [(-3)^4 + (-2)^4 + (-1)^4 + 0 + 1^4 + 2^4 + 3^4]$
-$E[X^2] = \frac{1}{28} [81 + 16 + 1 + 0 + 1 + 16 + 81]$
-$E[X^2] = \frac{196}{28} = 7$
-$Var(X) = 7 - 0 = 7$
+$Var(X) = \sum_{x \in \mathbb{R}} (x - E[X])^2 \cdot p_X(x)\\
+= 1^2 \cdot (p_X(-1)+p_X(1)) + 2^2 \cdot (p_X(-2)+p_X(2)) + 3^2 \cdot (p_X(-3)+p_X(3))\\
+= 1^2 \cdot \left(\frac{1}{28}+\frac{1}{28}\right) + 2^2 \cdot \left(\frac{4}{28}+\frac{4}{28}\right) + 3^2 \cdot \left(\frac{9}{28}+\frac{9}{28}\right)\\
+= 1^2 \cdot \frac{2}{28} + 2^2 \cdot \frac{8}{28} + 3^2 \cdot \frac{18}{28}\\
+= \frac{2}{28} + \frac{32}{28} + \frac{162}{28}\\
+= \frac{196}{28} = 7$
 
 따라서, (c)와 (d)에서 계산한 $X$의 분산은 동일하게 7이다.
