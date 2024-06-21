@@ -10,7 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     )
       .then((res) => res.json())
       .then((data) => {
-        if (data.response === 200) {
+        if (data.status === 200) {
           return data.data;
         } else {
           throw new Error("Links not found");
