@@ -14,7 +14,6 @@ const LeftSidebarComp = ({ menuclose }: { menuclose: any }) => {
     fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         setList(data.data);
       });
   }, []);
