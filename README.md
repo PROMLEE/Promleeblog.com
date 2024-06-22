@@ -42,7 +42,10 @@
   <!-- <a href="https://aws.amazon.com/route53"> -->
   <img src="https://img.shields.io/badge/ROUTE53-8C4FFF?style=for-the-badge&logo=amazonroute53&logoColor=white" alt="badge">
   <!-- </a> -->
+  <img src="https://img.shields.io/badge/CloudFront-8C4FFF?style=for-the-badge&logo=amazon&logoColor=white" alt="badge">
+  <img src="https://img.shields.io/badge/GitHubActions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" alt="badge">
   <br/><br/>
+  <img src="https://img.shields.io/badge/S3-569A31?style=for-the-badge&logo=amazons3&logoColor=white" alt="badge">
   <!-- <a href="https://www.prisma.io/"> -->
   <img src="https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="badge">
   <!-- </a> -->
