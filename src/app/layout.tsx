@@ -43,15 +43,17 @@ export default function RootLayout({
             <Suspense fallback={<Loading />}>
               <Navbar />
             </Suspense>
-            <div
-              className={
-                "min-h-[100vh] w-full scroll-smooth bg-background px-10 focus:scroll-auto md:w-5/6 xl:w-3/5"
-              }
-            >
+            <Suspense fallback={<Loading />}>
               <Providers>
-                <Suspense fallback={<Loading />}>{children}</Suspense>
+                <div
+                  className={
+                    "min-h-[100vh] w-full scroll-smooth bg-background px-10 focus:scroll-auto md:w-5/6 xl:w-3/5"
+                  }
+                >
+                  {children}
+                </div>
               </Providers>
-            </div>
+            </Suspense>
             <Suspense fallback={<Loading />}>
               <Footer />
             </Suspense>

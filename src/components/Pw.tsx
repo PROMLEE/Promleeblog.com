@@ -16,13 +16,21 @@ import {
 } from "@/components/ui/input-otp";
 import { Button } from "./ui/button";
 import Link from "next/link";
-
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
-export function Pw() {
+export function Pw({
+  isOpen,
+  Close,
+  url,
+}: {
+  isOpen: any;
+  Close: any;
+  url: any;
+}) {
   const [value, setValue] = React.useState("");
-  const [isOpen, setIsOpen] = React.useState(true);
+  const router = useRouter();
   const { toast } = useToast();
 
   const getpw = () => {
@@ -33,17 +41,15 @@ export function Pw() {
     }
   };
 
-  const handleBack = () => {
-    window.history.back();
-  };
-
   React.useEffect(() => {
     getpw();
     if (value.length === 4) {
       const PW = process.env.NEXT_PUBLIC_POST_PW;
       if (value === PW) {
-        setIsOpen(false);
+        router.push(url);
+        console.log("password correct");
         localStorage.setItem("promleeblogpostpw", PW);
+        Close;
       } else {
         toast({
           title: "비밀번호가 틀렸습니다",
@@ -57,7 +63,7 @@ export function Pw() {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [isOpen, value]);
 
   return (
     <Drawer open={isOpen} handleOnly={true}>
@@ -83,7 +89,7 @@ export function Pw() {
             </InputOTP>
           </div>
           <DrawerFooter>
-            <Button onClick={handleBack} className="bg-foreground">
+            <Button onClick={Close} className="bg-foreground">
               돌아가기
             </Button>
             <Button className="bg-second">
