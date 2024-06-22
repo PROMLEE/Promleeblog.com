@@ -2,10 +2,10 @@ import fs from "fs";
 // @ts-ignore
 import { WebSocketServer } from "ws";
 
-const CONTENT_FOLDER = "./src/posts";
+// const CONTENT_FOLDER = "./src/posts";
 
 fs.watch(
-  CONTENT_FOLDER,
+  "./public/posts",
   { persistent: true, recursive: true },
   async (eventType, fileName) => {
     clients.forEach((ws) => {

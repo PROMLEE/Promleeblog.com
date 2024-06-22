@@ -1,10 +1,10 @@
 {
   "pasteImage.defaultName": "YYMMDD-HHmmss",
   "pasteImage.basePath": "${projectRoot}/public",
-  "pasteImage.path": "${projectRoot}/public/posts",
+  "pasteImage.path": "${projectRoot}/Promleeblog.com/public/posts",
   "pasteImage.forceUnixStyleSeparator": true,
   // "pasteImage.insertPattern": "![${imageFileNameWithoutExt}](${imageFilePath})",
-  "pasteImage.insertPattern": "<Img src=\"${imageFilePath}\" width={500}/>",
+  "pasteImage.insertPattern": "<Img src=\"/posts/${imageFileNameWithoutExt}.png\" width={500}/>",
   "pasteImage.prefix": "/",
 
   "emojisense.languages": {
