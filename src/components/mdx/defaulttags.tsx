@@ -6,7 +6,11 @@ import fs from "fs";
 import { getPlaiceholder } from "plaiceholder";
 
 const getImage = async (src: string) => {
-  const filePath = path.resolve("./public", src.replace("/", ""));
+  // const filePath = path.resolve("./public", src.replace("/", ""));
+  const filePath = path.resolve(
+    "https://cdn.promleeblog.com",
+    src.replace("/", ""),
+  );
   const buffer = fs.readFileSync(filePath);
 
   const {
@@ -42,7 +46,7 @@ export async function Img({
     const { base64, img } = await getImage(src);
     return (
       <Image
-        src={src}
+        src={`https://cdn.promleeblog.com${src}`}
         alt={alt || "image"}
         className={`m-0 my-5 bg-${bg || "white"}`}
         width={Number(width) ? Number(width) : 500}
@@ -54,7 +58,7 @@ export async function Img({
   } catch {
     return (
       <Image
-        src={src}
+        src={`https://cdn.promleeblog.com${src}`}
         alt={alt || "image"}
         className={`m-0 my-5 bg-${bg || "white"}`}
         width={Number(width) ? Number(width) : 500}
