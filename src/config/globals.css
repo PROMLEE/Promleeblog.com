@@ -145,7 +145,10 @@
     @apply rounded border border-primary bg-foreground px-1 py-0.5 align-middle font-mono text-sm font-normal text-text;
   }
 }
-
+html {
+  --scroll-behavior: smooth !important;
+  scroll-behavior: smooth !important;
+}
 /* custom styles */
 @layer components {
   .topbar {
