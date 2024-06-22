@@ -2,10 +2,13 @@ import React from "react";
 
 export const MdxHeader = ({ props }: { props: any }) => {
   return (
-    <h1 className="my-40 w-full text-center text-4xl font-bold text-text-foreground">
-      {props.nameko}
-      <div className="h-3" />
-      {props.nameko !== props.name && props.name}
-    </h1>
+    <div>
+      <h1 className="mt-36 w-full text-center text-4xl font-bold text-text-foreground">
+        {props.nameko}
+      </h1>
+      <h1 className="mb-36 mt-10 w-full text-center text-3xl font-bold text-text">
+        {props.nameko !== props.name && props.name}
+      </h1>
+    </div>
   );
 };
