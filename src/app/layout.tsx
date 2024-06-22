@@ -6,12 +6,13 @@ import { Theme } from "@/components/Theme";
 import AutoRefresh from "./AutoRefresh";
 import { Navbar } from "@/components/bars/Navbar";
 import { Footer } from "@/components/bars/Footer";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+// import { Analytics } from "@vercel/analytics/react";
+// import { SpeedInsights } from "@vercel/speed-insights/next";
 import Providers from "@/components/bars/Progressbar";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { Toaster } from "@/components/ui/toaster";
 import { Suspense } from "react";
+import { Loading } from "@/components/Loading";
 
 export const metadata: Metadata = {
   title: "PromleeBlog",
@@ -39,20 +40,26 @@ export default function RootLayout({
       <html className={`${noto.className} `} suppressHydrationWarning>
         <body>
           <Theme>
-            <Navbar />
+            <Suspense fallback={<Loading />}>
+              <Navbar />
+            </Suspense>
             <div
               className={
                 "min-h-[100vh] w-full scroll-smooth bg-background px-10 focus:scroll-auto md:w-5/6 xl:w-3/5"
               }
             >
-              <Providers>{children}</Providers>
+              <Providers>
+                <Suspense fallback={<Loading />}>{children}</Suspense>
+              </Providers>
             </div>
-            <Footer />
+            <Suspense fallback={<Loading />}>
+              <Footer />
+            </Suspense>
           </Theme>
           <Toaster />
-          <Suspense fallback={null}>
-            <SpeedInsights />
-            <Analytics />
+          <Suspense fallback={<Loading />}>
+            {/* <SpeedInsights />
+            <Analytics /> */}
             <GoogleAnalytics
               gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS || ""}
             />

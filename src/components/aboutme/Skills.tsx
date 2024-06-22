@@ -28,6 +28,12 @@ const skills: SkillType[] = [
         logo: "firebase",
         logocolor: "black",
       },
+      {
+        name: "Supabase",
+        bg: "3FCF8E",
+        logo: "supabase",
+        logocolor: "white",
+      },
     ],
   },
   {

@@ -4,6 +4,7 @@ import withImages from "next-images";
 const nextConfig = withImages({
   images: {
     dangerouslyAllowSVG: true,
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
         protocol: "https",
@@ -33,6 +34,11 @@ const nextConfig = withImages({
       {
         protocol: "https",
         hostname: "www.promleeblog.com",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.promleeblog.com",
         pathname: "**",
       },
     ],
