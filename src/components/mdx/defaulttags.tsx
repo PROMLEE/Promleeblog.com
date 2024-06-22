@@ -6,11 +6,18 @@ import fs from "fs";
 import { getPlaiceholder } from "plaiceholder";
 
 const getImage = async (src: string) => {
-  // const filePath = path.resolve("./public", src.replace("/", ""));
-  const filePath = path.resolve(
-    "https://cdn.promleeblog.com",
-    src.replace("/", ""),
-  );
+  let filePath;
+  let srcPath;
+  if (process.env.NEXT_PUBLIC_API_BASE_URL === "http://localhost:3000") {
+    srcPath = src;
+    filePath = path.resolve("./public", src.replace("/", ""));
+  } else {
+    filePath = path.resolve(
+      "https://cdn.promleeblog.com",
+      src.replace("/", ""),
+    );
+    srcPath = filePath;
+  }
   const buffer = fs.readFileSync(filePath);
 
   const {
@@ -21,6 +28,7 @@ const getImage = async (src: string) => {
   return {
     ...plaiceholder,
     img: { src, height, width },
+    srcPath,
   };
 };
 interface Props {
@@ -43,10 +51,11 @@ export async function Img({
   bg: string;
 }) {
   try {
-    const { base64, img } = await getImage(src);
+    const { base64, img, srcPath } = await getImage(src);
+    console.log(srcPath);
     return (
       <Image
-        src={`https://cdn.promleeblog.com${src}`}
+        src={srcPath}
         alt={alt || "image"}
         className={`m-0 my-5 bg-${bg || "white"}`}
         width={Number(width) ? Number(width) : 500}
