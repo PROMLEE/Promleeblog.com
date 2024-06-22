@@ -7,7 +7,6 @@ import { MdxHeader } from "@/components/posts/MdxHeader";
 import { Metadata } from "next";
 import { GenerateMeta } from "@/utils/PostUtils/GenerateMeta";
 import { BreadCrumb } from "@/components/posts/BreadCrumb";
-import { Pw } from "@/components/Pw";
 import { Loading } from "@/components/Loading";
 // import { createClient } from "@/utils/Supabase/supabase_server";
 
@@ -64,9 +63,10 @@ const Post = async ({ params }: { params: { post: string } }) => {
         <BreadCrumb params={markdownsource} />
       </Suspense>
       <Suspense fallback={<Loading />}>
-        <MdxHeader props={markdownsource.nameko} />
+        <MdxHeader
+          props={{ nameko: markdownsource.nameko, name: markdownsource.name }}
+        />
         <div className="prose mt-10 min-h-[100vh] scroll-smooth dark:prose-invert focus:scroll-auto">
-          {markdownsource.lock && <Pw />}
           <RightSidebarComp content={markdownsource.posting} />
           <MdxBody content={markdownsource.posting} />
         </div>
