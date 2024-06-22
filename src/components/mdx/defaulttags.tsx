@@ -52,7 +52,6 @@ export async function Img({
 }) {
   try {
     const { base64, img, srcPath } = await getImage(src);
-    console.log(srcPath);
     return (
       <Image
         src={srcPath}
