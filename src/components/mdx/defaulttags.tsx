@@ -5,20 +5,28 @@ import path from "path";
 import fs from "fs";
 import { getPlaiceholder } from "plaiceholder";
 
-const getImage = async (src: string) => {
+const getImage = async (
+  src: string,
+  // getheight: number = 500,
+  // getwidth: number = 500,
+) => {
   let filePath;
   let srcPath;
+  let buffer;
   if (process.env.NEXT_PUBLIC_API_BASE_URL === "http://localhost:3000") {
     srcPath = src;
     filePath = path.resolve("./public", src.replace("/", ""));
+    buffer = fs.readFileSync(filePath);
   } else {
     filePath = path.resolve(
       "https://cdn.promleeblog.com",
       src.replace("/", ""),
     );
     srcPath = filePath;
+    buffer = await fetch(filePath).then(async (res) =>
+      Buffer.from(await res.arrayBuffer()),
+    );
   }
-  const buffer = fs.readFileSync(filePath);
 
   const {
     metadata: { height, width },
@@ -51,14 +59,18 @@ export async function Img({
   bg: string;
 }) {
   try {
-    const { base64, img, srcPath } = await getImage(src);
+    const { base64, img, srcPath } = await getImage(
+      src,
+      // Number(height),
+      // Number(width),
+    );
     return (
       <Image
         src={srcPath}
         alt={alt || "image"}
         className={`m-0 my-5 bg-${bg || "white"}`}
-        width={Number(width) ? Number(width) : 500}
-        height={Number(height) ? Number(height) : 500}
+        width={img.width}
+        height={img.height}
         placeholder="blur"
         blurDataURL={base64}
       />
