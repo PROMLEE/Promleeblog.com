@@ -1,41 +1,41 @@
 import Image from "next/image";
 import "katex/dist/katex.min.css";
 import Link from "next/link";
-import path from "path";
-import fs from "fs";
-import { getPlaiceholder } from "plaiceholder";
+// import path from "path";
+// import fs from "fs";
+// import { getPlaiceholder } from "plaiceholder";
 
-const getImage = async (
-  src: string,
-  // getheight: number = 500,
-  // getwidth: number = 500,
-) => {
-  let filePath;
-  let srcPath;
-  let buffer;
-  if (process.env.NEXT_PUBLIC_API_BASE_URL === "http://localhost:3000") {
-    srcPath = src;
-    filePath = path.resolve("./public", src.replace("/", ""));
-    buffer = fs.readFileSync(filePath);
-  } else {
-    filePath = `https://cdn.promleeblog.com${src}`;
-    srcPath = filePath;
-    buffer = await fetch(filePath).then(async (res) =>
-      Buffer.from(await res.arrayBuffer()),
-    );
-  }
+// const getImage = async (
+//   src: string,
+//   // getheight: number = 500,
+//   // getwidth: number = 500,
+// ) => {
+//   let filePath;
+//   let srcPath;
+//   let buffer;
+//   if (process.env.NEXT_PUBLIC_API_BASE_URL === "http://localhost:3000") {
+//     srcPath = src;
+//     filePath = path.resolve("./public", src.replace("/", ""));
+//     buffer = fs.readFileSync(filePath);
+//   } else {
+//     filePath = `https://cdn.promleeblog.com${src}`;
+//     srcPath = filePath;
+//     buffer = await fetch(filePath).then(async (res) =>
+//       Buffer.from(await res.arrayBuffer()),
+//     );
+//   }
 
-  const {
-    metadata: { height, width },
-    ...plaiceholder
-  } = await getPlaiceholder(buffer, { size: 10 });
+//   const {
+//     metadata: { height, width },
+//     ...plaiceholder
+//   } = await getPlaiceholder(buffer, { size: 10 });
 
-  return {
-    ...plaiceholder,
-    img: { src, height, width },
-    srcPath,
-  };
-};
+//   return {
+//     ...plaiceholder,
+//     img: { src, height, width },
+//     srcPath,
+//   };
+// };
 interface Props {
   id: string;
   children: string;
@@ -55,31 +55,10 @@ export async function Img({
   width: string;
   bg: string;
 }) {
-  try {
-    const { base64, img, srcPath } = await getImage(
-      src,
-      // Number(height),
-      // Number(width),
-    );
-    return (
-      <div
-        className={`relative overflow-hidden aspect-[${img.width}/${img.height}] width-[${width}px]`}
-      >
-        <Image
-          src={srcPath}
-          alt={alt || "image"}
-          className={`m-0 my-5 bg-${bg || "white"}`}
-          fill
-          placeholder="blur"
-          blurDataURL={base64}
-        />
-      </div>
-    );
-  } catch {
-    console.log("error");
+  if (process.env.NEXT_PUBLIC_API_BASE_URL === "http://localhost:3000") {
     return (
       <Image
-        src={`https://cdn.promleeblog.com${src}`}
+        src={src}
         alt={alt || "image"}
         className={`m-0 my-5 bg-${bg || "white"}`}
         width={Number(width) ? Number(width) : 500}
@@ -87,6 +66,29 @@ export async function Img({
       />
     );
   }
+  return (
+    <Image
+      src={`https://cdn.promleeblog.com${src}`}
+      alt={alt || "image"}
+      className={`m-0 my-5 bg-${bg || "white"}`}
+      width={Number(width) ? Number(width) : 500}
+      height={Number(height) ? Number(height) : 500}
+      // placeholder="blur"
+      // blurDataURL={base64}
+    />
+  );
+  // } catch {
+  //   console.log("error");
+  //   return (
+  //     <Image
+  //       src={`https://cdn.promleeblog.com${src}`}
+  //       alt={alt || "image"}
+  //       className={`m-0 my-5 bg-${bg || "white"}`}
+  //       width={Number(width) ? Number(width) : 500}
+  //       height={Number(height) ? Number(height) : 500}
+  //     />
+  //   );
+  // }
 }
 
 export function h1tag({ id, children }: Props) {
