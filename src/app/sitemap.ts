@@ -59,7 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       list.push(putmap(category.url + "/" + sub.url));
       sub.Series.map((series: any) => {
         series.Post.map((post: any) => {
-          list.push(putmap("post/" + post.id + "-" + post.url));
+          post.lock || list.push(putmap("post/" + post.id + "-" + post.url));
         });
       });
     });
