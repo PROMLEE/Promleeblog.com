@@ -18,10 +18,7 @@ const getImage = async (
     filePath = path.resolve("./public", src.replace("/", ""));
     buffer = fs.readFileSync(filePath);
   } else {
-    filePath = path.resolve(
-      "https://cdn.promleeblog.com",
-      src.replace("/", ""),
-    );
+    filePath = `https://cdn.promleeblog.com${src}`;
     srcPath = filePath;
     buffer = await fetch(filePath).then(async (res) =>
       Buffer.from(await res.arrayBuffer()),
