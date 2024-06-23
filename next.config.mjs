@@ -1,7 +1,7 @@
-import withPlaiceholder from "@plaiceholder/next";
-import withImages from "next-images";
+// import withPlaiceholder from "@plaiceholder/next";
+// import withImages from "next-images";
 /** @type {import('next').NextConfig} */
-const nextConfig = withImages({
+const nextConfig = {
   images: {
     dangerouslyAllowSVG: true,
     formats: ["image/avif", "image/webp"],
@@ -72,6 +72,6 @@ const nextConfig = withImages({
       },
     ];
   },
-});
+};
 
-export default withPlaiceholder(nextConfig);
+export default nextConfig;
