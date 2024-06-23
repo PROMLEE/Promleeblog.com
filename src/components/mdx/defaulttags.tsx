@@ -62,17 +62,21 @@ export async function Img({
       // Number(width),
     );
     return (
-      <Image
-        src={srcPath}
-        alt={alt || "image"}
-        className={`m-0 my-5 bg-${bg || "white"}`}
-        width={img.width}
-        height={img.height}
-        placeholder="blur"
-        blurDataURL={base64}
-      />
+      <div
+        className={`relative overflow-hidden aspect-[${img.width}/${img.height}] width-[${width}px]`}
+      >
+        <Image
+          src={srcPath}
+          alt={alt || "image"}
+          className={`m-0 my-5 bg-${bg || "white"}`}
+          fill
+          placeholder="blur"
+          blurDataURL={base64}
+        />
+      </div>
     );
   } catch {
+    console.log("error");
     return (
       <Image
         src={`https://cdn.promleeblog.com${src}`}
