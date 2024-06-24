@@ -9,7 +9,10 @@ import { useState, useEffect } from "react";
 
 const LeftSidebarComp = ({ menuclose }: { menuclose: any }) => {
   const [value, setValue] = useState("");
-  const [list, setList]: any[] = useState([]);
+  const [list, setList]: any[] = useState([
+    { Category: [], nameko: "개발" },
+    { Category: [], nameko: "개인공부" },
+  ]);
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`)
       .then((res) => res.json())

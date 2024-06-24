@@ -40,9 +40,7 @@ export default function RootLayout({
       <html className={`${noto.className} `} suppressHydrationWarning>
         <body>
           <Theme>
-            <Suspense fallback={<Loading />}>
-              <Navbar />
-            </Suspense>
+            <Navbar />
             <div
               className={
                 "min-h-[100vh] w-full scroll-smooth bg-background px-10 focus:scroll-auto md:w-5/6 xl:w-3/5"
@@ -50,21 +48,17 @@ export default function RootLayout({
             >
               <Providers>{children}</Providers>
             </div>
-            <Suspense fallback={<Loading />}>
-              <Footer />
-            </Suspense>
+            <Footer />
           </Theme>
           <Toaster />
-          <Suspense fallback={<Loading />}>
-            {/* <SpeedInsights />
+          {/* <SpeedInsights />
             <Analytics /> */}
-            <GoogleAnalytics
-              gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS || ""}
-            />
-            <GoogleTagManager
-              gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER || ""}
-            />
-          </Suspense>
+          <GoogleAnalytics
+            gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS || ""}
+          />
+          <GoogleTagManager
+            gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER || ""}
+          />
         </body>
       </html>
     </AutoRefresh>
