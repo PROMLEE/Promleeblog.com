@@ -10,7 +10,9 @@ import dayjs from "dayjs";
 import Link from "next/link";
 
 export const BreadCrumb = ({ params }: { params: any }) => {
-  const dateString = dayjs(params.date).locale("ko").format("YYYY년 MM월 DD일");
+  const dateString = dayjs(params.init_date)
+    .locale("ko")
+    .format("YYYY년 MM월 DD일");
   return (
     <Breadcrumb>
       <BreadcrumbList>
@@ -45,7 +47,6 @@ export const BreadCrumb = ({ params }: { params: any }) => {
             {params.nameko}
           </BreadcrumbPage>
         </BreadcrumbItem>
-        <div className={"ml-auto text-right"}>{"📅 " + dateString}</div>
       </BreadcrumbList>
     </Breadcrumb>
   );
