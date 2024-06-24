@@ -8,6 +8,7 @@ import { Metadata } from "next";
 import { GenerateMeta } from "@/utils/PostUtils/GenerateMeta";
 import { BreadCrumb } from "@/components/posts/BreadCrumb";
 import { Loading } from "@/components/Loading";
+import dayjs from "dayjs";
 // import { createClient } from "@/utils/Supabase/supabase_server";
 
 // const getData = async ({ params }: { params: { post: string } }) => {
@@ -56,6 +57,9 @@ const Post = async ({ params }: { params: { post: string } }) => {
       nameko: "Hello World",
     };
   }
+  const dateString = dayjs(markdownsource.init_date)
+    .locale("ko")
+    .format("YYYY년 MM월 DD일");
   return (
     <>
       <Toup />
@@ -66,6 +70,7 @@ const Post = async ({ params }: { params: { post: string } }) => {
         <MdxHeader
           props={{ nameko: markdownsource.nameko, name: markdownsource.name }}
         />
+        <div className={"ml-auto text-right"}>{"📅 " + dateString}</div>
         <div className="prose mt-10 min-h-[100vh] scroll-smooth dark:prose-invert focus:scroll-auto">
           <RightSidebarComp content={markdownsource.posting} />
           <MdxBody content={markdownsource.posting} />
