@@ -68,7 +68,7 @@ export async function Img({
   }
   return (
     <Image
-      src={`https://cdn.promleeblog.com${src}`}
+      src={`https://cdn.promleeblog.com/posts${src}`}
       alt={alt || "image"}
       className={`m-0 my-5 bg-${bg || "white"}`}
       width={Number(width) ? Number(width) : 500}
