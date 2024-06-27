@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 const parseToc = (content: string) => {
   const regex = /^(#|##|###) (.*$)/gim;
@@ -21,6 +24,28 @@ const parseToc = (content: string) => {
 };
 
 const RightSidebarComp = ({ content }: { content: string }) => {
+  const observer = useRef<IntersectionObserver>();
+  const [activeToc, setActiveToc] = useState("");
+  useEffect(() => {
+    observer.current = new IntersectionObserver(
+      (entries) => {
+        console.log(entries);
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveToc(`#${entry.target.id}`);
+            console.log(activeToc);
+          }
+        });
+      },
+      {
+        rootMargin: "0px 0px -95% 0px",
+        threshold: 1.0,
+      },
+    );
+    const headingElements = document.querySelectorAll("h1, h2, h3");
+    headingElements.forEach((element) => observer.current?.observe(element));
+    return () => observer.current?.disconnect();
+  }, []);
   const toc = parseToc(content);
   return (
     <div className="related md:sidebar-md mb-10 border-y-2 py-3 md:mb-0 md:border-none xl:right-5">
@@ -30,7 +55,7 @@ const RightSidebarComp = ({ content }: { content: string }) => {
             <div key={idx} className="sidebar">
               <a
                 href={item.link}
-                className="sidebar mt-3 indent-[-5px] text-sm font-bold text-text"
+                className={`sidebar mt-3 indent-[-5px] text-sm font-bold text-text ${activeToc === item.link && "bg-foreground"}`}
               >
                 💡 {item.text.split("(")[0]}
               </a>
@@ -41,7 +66,7 @@ const RightSidebarComp = ({ content }: { content: string }) => {
             <div key={idx} className="sidebar">
               <a
                 href={item.link}
-                className="sidebar ml-8 indent-[-20px] text-xs text-text"
+                className={`sidebar ml-8 indent-[-20px] text-xs  ${activeToc === item.link && "bg-foreground"}`}
               >
                 🚀 {item.text.split("(")[0]}
               </a>
@@ -52,7 +77,7 @@ const RightSidebarComp = ({ content }: { content: string }) => {
             <div key={idx} className="sidebar">
               <a
                 href={item.link}
-                className="sidebar ml-10 indent-[-20px] text-xs text-text"
+                className={`sidebar ml-10 indent-[-20px] text-xs text-text ${activeToc === item.link && "bg-foreground"}`}
               >
                 ✅ {item.text.split("(")[0]}
               </a>
