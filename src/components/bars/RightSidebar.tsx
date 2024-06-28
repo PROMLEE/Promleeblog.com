@@ -5,10 +5,10 @@ import { useEffect, useRef, useState } from "react";
 const parseToc = (content: string) => {
   const regex = /^(#|##|###) (.*$)/gim;
   const headingList = content.match(regex);
+  let toc: string[] = [];
   return (
-    headingList?.map((heading: string) => ({
-      text: heading.replaceAll("# ", "").replaceAll("#", ""),
-      link:
+    headingList?.map((heading: string) => {
+      let link =
         "#" +
         heading
           .trim()
@@ -17,9 +17,21 @@ const parseToc = (content: string) => {
           .replace(/[\[\]:!@#$/%^&*()+=,.'"]/g, "")
           .replace(/ /g, "-")
           .toLowerCase()
-          .replace("?", ""),
-      indent: heading.match(/#/g)?.length || 2,
-    })) || []
+          .replace("?", "");
+      if (toc.includes(link)) {
+        let i = 1;
+        while (toc.includes(link + "-" + i)) {
+          i++;
+        }
+        link = link + "-" + i;
+      }
+      toc.push(link);
+      return {
+        text: heading.replaceAll("# ", "").replaceAll("#", ""),
+        link: link,
+        indent: heading.match(/#/g)?.length || 2,
+      };
+    }) || []
   );
 };
 
