@@ -56,14 +56,12 @@ export const Navbar = () => {
             return (
               <Menubar
                 key={index}
-                className={
-                  "hidden rounded-none border-none bg-transparent outline-none hover:bg-button hover:text-background md:block"
-                }
+                className={"hidden border-none bg-transparent md:block "}
               >
                 <MenubarMenu>
                   <MenubarTrigger
                     className={
-                      "rounded-none font-bold hover:cursor-pointer hover:bg-button hover:text-background"
+                      "rounded-md font-bold hover:cursor-pointer hover:bg-button hover:text-background focus:bg-button focus:text-background data-[state=open]:bg-button data-[state=open]:text-background"
                     }
                   >
                     {category.nameko}
@@ -73,10 +71,11 @@ export const Navbar = () => {
                       return (
                         <Link
                           href={`/blog/${category.url}/${subject.url}`}
-                          className={"text-text hover:cursor-pointer"}
                           key={index}
                         >
-                          <MenubarItem>{subject.nameko}</MenubarItem>
+                          <MenubarItem className="cursor-pointer text-text">
+                            {subject.nameko}
+                          </MenubarItem>
                         </Link>
                       );
                     })}
