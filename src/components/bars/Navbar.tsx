@@ -46,7 +46,7 @@ export const Navbar = () => {
         <Link
           href={"/"}
           className={
-            "ml-2 rounded-lg p-1 text-2xl font-bold hover:cursor-pointer"
+            "ml-2 rounded-lg p-1 text-2xl font-bold hover:cursor-pointer hover:bg-button hover:text-background"
           }
         >
           PromleeBlog
