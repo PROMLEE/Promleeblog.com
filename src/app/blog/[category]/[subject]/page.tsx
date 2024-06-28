@@ -40,7 +40,7 @@ const Cards = ({ post, idx }: { post: any; idx: number }) => {
     >
       <div className="absolute">{post.lock && "🔒"}</div>
       <div
-        className={`flex w-full justify-center rounded-md  ${hover ? "bg-button" : "bg-text"}`}
+        className={`flex w-full justify-center rounded-md  ${hover ? "bg-button" : "bg-third"}`}
       >
         <Image
           src={"/icons/android-chrome-512x512.png"}
