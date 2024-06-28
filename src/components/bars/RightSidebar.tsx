@@ -56,7 +56,7 @@ const RightSidebarComp = ({ content }: { content: string }) => {
         });
       },
       {
-        rootMargin: "-32px 0px -80px 0px",
+        rootMargin: "10px 0px 0px 0px",
       },
     );
     const headingElements = document.querySelectorAll("h1, h2, h3");
