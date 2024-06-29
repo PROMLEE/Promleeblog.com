@@ -5,6 +5,7 @@ import { Suspense, useEffect, useState } from "react";
 import { Loading } from "@/components/Loading";
 import Image from "next/image";
 import { Pw } from "@/components/Pw";
+import dayjs from "dayjs";
 
 type Props = {
   params: params;
@@ -32,11 +33,12 @@ const getSource = async (params: params) => {
 const Cards = ({ post, idx }: { post: any; idx: number }) => {
   const [hover, setHover] = useState(false);
 
+  const dateString = dayjs(post.init_date).format("YYYY-MM-DD");
   return (
     <div
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      className=" content my-2 flex w-52 flex-col items-center gap-3 rounded-md border border-third text-xs hover:cursor-pointer hover:bg-foreground"
+      className=" content my-2 flex w-52 flex-col items-center gap-1 rounded-md border border-third text-xs hover:cursor-pointer hover:bg-foreground"
     >
       <div className="absolute">{post.lock && "🔒"}</div>
       <div
@@ -49,6 +51,7 @@ const Cards = ({ post, idx }: { post: any; idx: number }) => {
           height={100}
         />
       </div>
+      <div className="flex text-xs">{dateString}</div>
       <div className="text-overflow flex h-10 w-full items-center break-normal py-2 pl-7 pr-1 indent-[-1.25rem]">
         {idx + 1}. {hover ? post.name : post.nameko}
       </div>

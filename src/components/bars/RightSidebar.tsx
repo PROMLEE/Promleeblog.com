@@ -73,7 +73,7 @@ const RightSidebarComp = ({ content }: { content: string }) => {
             <div key={idx} className={`sidebar`}>
               <a
                 href={item.link}
-                className={`sidebar mt-3 indent-[-5px] text-sm font-bold text-text  ${active && "text-blue-700 dark:text-blue-400"}`}
+                className={`sidebar mt-3 indent-[-5px] text-sm font-bold text-text  ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
               >
                 💡 {item.text.split("(")[0]}
               </a>
@@ -84,7 +84,7 @@ const RightSidebarComp = ({ content }: { content: string }) => {
             <div key={idx} className={`sidebar`}>
               <a
                 href={item.link}
-                className={`sidebar ml-8 indent-[-20px] text-xs  ${active && "text-blue-700 dark:text-blue-400"}`}
+                className={`sidebar ml-8 indent-[-20px] text-xs  ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
               >
                 🚀 {item.text.split("(")[0]}
               </a>
@@ -95,7 +95,7 @@ const RightSidebarComp = ({ content }: { content: string }) => {
             <div key={idx} className={`sidebar`}>
               <a
                 href={item.link}
-                className={`sidebar ml-10 indent-[-20px] text-xs text-text ${active && "text-blue-700 dark:text-blue-400"}`}
+                className={`sidebar ml-10 indent-[-20px] text-xs text-text ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
               >
                 ✅ {item.text.split("(")[0]}
               </a>
