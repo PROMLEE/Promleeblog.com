@@ -24,7 +24,7 @@ interface params {
 const getSource = async (params: params) => {
   return await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/serieslist?subjecturl=${params.subject}`,
-    { next: { revalidate: 60 } },
+    { next: { revalidate: 3600 } },
   )
     .then((res) => res.json())
     .then((data) => data.data);
