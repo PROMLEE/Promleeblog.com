@@ -25,14 +25,14 @@ export default function App() {
   const ref5 = useRef<HTMLDivElement>(null);
   const aboutmeVisible = useIsVisible(ref1);
   const skillsVisible = useIsVisible(ref2);
-  const projectsVisible = useIsVisible(ref3);
+  // const projectsVisible = useIsVisible(ref3);
   const experienceVisible = useIsVisible(ref4);
   const educationVisible = useIsVisible(ref5);
 
   const reflist: refs[] = [
     { ref: ref1, isVisible: aboutmeVisible, component: AboutMe },
     { ref: ref2, isVisible: skillsVisible, component: Skills },
-    { ref: ref3, isVisible: projectsVisible, component: Projects },
+    { ref: ref3, isVisible: true, component: Projects },
     { ref: ref4, isVisible: experienceVisible, component: Exprience },
     { ref: ref5, isVisible: educationVisible, component: Education },
   ];

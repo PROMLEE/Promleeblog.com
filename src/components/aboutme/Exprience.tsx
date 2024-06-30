@@ -30,7 +30,6 @@ const expriences: ExprienceType[] = [
     ],
   },
 ];
-
 export const Exprience = () => {
   return (
     <div className="w-full">
