@@ -81,7 +81,7 @@ const projects: ProjectType[] = [
       "Spring Boot 기반 서버 API 제작(Project Management Part)",
       "AWS EC2 서버 배포 및 관리",
     ],
-    mystack: ["React", "Spring Boot", "MySQL", "AWS EC2", "AWS RDS"],
+    mystack: ["React", "Spring Boot", "MySQL", "AWS EC2, RDS"],
   },
 ];
 
