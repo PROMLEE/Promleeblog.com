@@ -1,10 +1,10 @@
 "use client";
 import Image from "next/image";
-import { Contact } from "../../components/aboutme/Contact";
-import { AboutMe } from "../../components/aboutme/AboutMe";
-import { Skills } from "../../components/aboutme/Skills";
-import { Projects } from "../../components/aboutme/Projects";
-import { Exprience } from "../../components/aboutme/Exprience";
+import { Contact } from "@/components/aboutme/Contact";
+import { AboutMe } from "@/components/aboutme/AboutMe";
+import { Skills } from "@/components/aboutme/Skills";
+import { Projects } from "@/components/aboutme/Projects";
+import { Exprience } from "@/components/aboutme/Exprience";
 import { Toup } from "@/components/buttons/Toup";
 import { Todown } from "@/components/buttons/Todown";
 import { useRef } from "react";

@@ -1,6 +1,7 @@
 import Image from "next/image";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useIsVisible } from "@/utils/useIsVisible";
+import Link from "next/link";
 
 interface ProjectType {
   name: string;
@@ -12,6 +13,9 @@ interface ProjectType {
   mystack: string[];
   ref: React.RefObject<HTMLDivElement>;
   isVisible: boolean;
+  detail: string;
+  hover: boolean;
+  sethover: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const Projects = () => {
@@ -25,6 +29,11 @@ export const Projects = () => {
   const p2 = useIsVisible(ref2);
   const p3 = useIsVisible(ref3);
   const p4 = useIsVisible(ref4);
+  const [hover1, setHover1] = useState<boolean>(false);
+  const [hover2, setHover2] = useState<boolean>(false);
+  const [hover3, setHover3] = useState<boolean>(false);
+  const [hover4, setHover4] = useState<boolean>(false);
+
   const projects: ProjectType[] = [
     {
       name: "Wear_os Watchface",
@@ -48,6 +57,9 @@ export const Projects = () => {
       mystack: ["Kotlin", "Android Studio", "Wear Os"],
       ref: ref1,
       isVisible: p1,
+      detail: "watchface",
+      hover: hover1,
+      sethover: setHover1,
     },
     {
       name: "Indoor Map",
@@ -71,6 +83,9 @@ export const Projects = () => {
       mystack: ["Flutter", "Flask", "React", "OpenCV", "DeepLabV3+"],
       ref: ref2,
       isVisible: p2,
+      detail: "indoor-map",
+      hover: hover2,
+      sethover: setHover2,
     },
     {
       name: "Map: 2 Zero",
@@ -95,6 +110,9 @@ export const Projects = () => {
       mystack: ["React", "AWS S3, CloudFront", "Naver Map API"],
       ref: ref3,
       isVisible: p3,
+      detail: "map2zero",
+      hover: hover3,
+      sethover: setHover3,
     },
     {
       name: "이슈역",
@@ -118,6 +136,9 @@ export const Projects = () => {
       mystack: ["React", "Spring Boot", "MySQL", "AWS S3, EC2, RDS"],
       ref: ref4,
       isVisible: p4,
+      detail: "issue-station",
+      hover: hover4,
+      sethover: setHover4,
     },
   ];
   return (
@@ -141,8 +162,22 @@ export const Projects = () => {
                 ? "scale-100 opacity-100"
                 : "scale-110 opacity-25"
             }`}
+            onMouseEnter={() => project.sethover && project.sethover(true)}
+            onMouseLeave={() => project.sethover && project.sethover(false)}
           >
-            <h2>{project.name}</h2>
+            <div className="flex items-center justify-between">
+              <h2>{project.name}</h2>
+              <div
+                className={`mt-7 flex h-7 ${project.hover ? "w-28" : "w-10"} scale-100 items-center justify-center overflow-hidden whitespace-nowrap rounded-md bg-foreground text-xs duration-1000 hover:bg-blue-600 hover:text-white`}
+              >
+                <Link
+                  href={`/aboutme/${project.detail}`}
+                  className="flex h-full w-full items-center justify-center no-underline"
+                >
+                  {project.hover ? ">> Veiw Detail" : ">>"}
+                </Link>
+              </div>
+            </div>
             <div className="flex flex-row gap-4">
               <div className="w-2/3">
                 <a
@@ -156,7 +191,7 @@ export const Projects = () => {
                       src="https://github.com/fluidicon.png"
                       alt="git"
                       fill
-                      className="m-0"
+                      className={`m-0`}
                     />
                   </div>
                   {project.name} ↗
@@ -168,7 +203,7 @@ export const Projects = () => {
                     alt={project.name}
                     width={project.thumbnail.width}
                     height={project.thumbnail.height}
-                    className="m-0 rounded-md"
+                    className={`m-0 scale-100 rounded-md duration-500`}
                   />
                 )}
               </div>
