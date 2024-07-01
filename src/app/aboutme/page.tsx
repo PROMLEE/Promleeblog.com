@@ -46,7 +46,7 @@ export default function App() {
         }
       >
         <div className="w-full">
-          <h2>👨‍💻안녕하세요, 풀스택 개발자 이동훈입니다</h2>
+          <h2>👨‍💻안녕하세요, 도전을 두려워 않는 개발자 이동훈입니다</h2>
           <div className="flex flex-wrap gap-10">
             <div className="relative mb-10 mt-[2em] h-[10rem] w-[10rem]">
               <Image
