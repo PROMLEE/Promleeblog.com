@@ -25,12 +25,11 @@ const expriences: ExprienceType[] = [
     contents: [
       "5기 Web 파트(React) 참여",
       "5기 Map: 2 Zero 프로젝트 런칭",
-      "6기 중앙대학교 Web 파트장",
+      "6기 중앙대학교 Web 파트 리더",
       "6기 Server 파트(Spring) 참여",
     ],
   },
 ];
-
 export const Exprience = () => {
   return (
     <div className="w-full">

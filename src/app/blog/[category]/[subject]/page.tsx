@@ -5,6 +5,7 @@ import { Suspense, useEffect, useState } from "react";
 import { Loading } from "@/components/Loading";
 import Image from "next/image";
 import { Pw } from "@/components/Pw";
+import dayjs from "dayjs";
 
 type Props = {
   params: params;
@@ -23,7 +24,7 @@ interface params {
 const getSource = async (params: params) => {
   return await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/serieslist?subjecturl=${params.subject}`,
-    { next: { revalidate: 60 } },
+    { next: { revalidate: 3600 } },
   )
     .then((res) => res.json())
     .then((data) => data.data);
@@ -32,15 +33,16 @@ const getSource = async (params: params) => {
 const Cards = ({ post, idx }: { post: any; idx: number }) => {
   const [hover, setHover] = useState(false);
 
+  const dateString = dayjs(post.init_date).format("YYYY-MM-DD");
   return (
     <div
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      className=" content my-2 flex w-52 flex-col items-center gap-3 rounded-md border border-third text-xs hover:cursor-pointer hover:bg-foreground"
+      className=" content my-2 flex w-52 flex-col items-center gap-1 rounded-md border border-third text-xs hover:cursor-pointer hover:bg-foreground"
     >
       <div className="absolute">{post.lock && "🔒"}</div>
       <div
-        className={`flex w-full justify-center rounded-md  ${hover ? "bg-button" : "bg-text"}`}
+        className={`flex w-full justify-center rounded-md  ${hover ? "bg-button" : "bg-third"}`}
       >
         <Image
           src={"/icons/android-chrome-512x512.png"}
@@ -49,6 +51,7 @@ const Cards = ({ post, idx }: { post: any; idx: number }) => {
           height={100}
         />
       </div>
+      <div className="flex text-xs">{dateString}</div>
       <div className="text-overflow flex h-10 w-full items-center break-normal py-2 pl-7 pr-1 indent-[-1.25rem]">
         {idx + 1}. {hover ? post.name : post.nameko}
       </div>

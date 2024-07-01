@@ -12,7 +12,7 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const subjectlist = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/subjectlist?categoryurl=${params.category}`,
-    { next: { revalidate: 60 } },
+    { next: { revalidate: 3600 } },
   )
     .then((res) => res.json())
     .then((data) => data.data);

@@ -6,7 +6,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     Links = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`,
-      { next: { revalidate: 60 } },
+      { next: { revalidate: 3600 } },
     )
       .then((res) => res.json())
       .then((data) => {

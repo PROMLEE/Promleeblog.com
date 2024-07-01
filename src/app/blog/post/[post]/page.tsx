@@ -33,7 +33,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const markdownsource = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post?id=${params.post}`,
-    { next: { revalidate: 60 } },
+    { next: { revalidate: 3600 } },
   )
     .then((res) => res.json())
     .then((data) => data.data);
@@ -46,7 +46,7 @@ const Post = async ({ params }: { params: { post: string } }) => {
   try {
     markdownsource = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post?id=${params.post}`,
-      { next: { revalidate: 60 } },
+      { next: { revalidate: 3600 } },
     )
       .then((res) => res.json())
       .then((data) => data.data);

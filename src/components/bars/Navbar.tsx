@@ -12,6 +12,7 @@ import LeftSidebarComp from "@/components/bars/LeftSidebar";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import Indicator from "@/components/bars/Scrollindicator";
+import Image from "next/image";
 // import { supabase } from "@/utils/Supabase/supabase_client";
 
 // const getData = async () => {
