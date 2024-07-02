@@ -54,12 +54,12 @@ export const Projects = () => {
       contents: [
         "Wear Os 기반의 안드로이드 웨어러블 기기의 배경화면 커스텀 제작 개인 프로젝트",
         "시계바늘, 배경화면, 기능을 커스텀하여 사용자가 원하는 시계 화면을 제작할 수 있도록 지원",
+        "원하는 배경, 원하는 시계바늘, 워하는 기능 지원하는 컴플리케이션 8개 지원",
         "개인 용도로 사용중",
       ],
       myrole: [
         "시계 화면의 모양과 동작을 구성하는 XML 형식 파악",
         "androidx.wear.watchface 라이브러리 사용",
-        "원하는 배경, 원하는 시계바늘, 워하는 기능 지원하는 컴플리케이션 8개 지원",
       ],
       mystack: ["Kotlin", "Android Studio", "Wear Os"],
       ref: ref1,
@@ -156,7 +156,11 @@ export const Projects = () => {
         width: 100,
         height: 100,
       },
-      contents: ["개인 블로그 제작", "Next.js 기반의 정적 블로그"],
+      contents: [
+        "개인 블로그 제작",
+        "Next.js 기반의 정적 블로그",
+        "SEO 최적화를 통한 일일 검색 노출 평균 15회",
+      ],
       myrole: [
         "Next.js 기반 블로그 제작",
         "Tailwind CSS를 이용한 디자인",
@@ -200,7 +204,7 @@ export const Projects = () => {
               <h2>{project.name}</h2>
               {project.detail && (
                 <div
-                  className={`mt-7 flex h-7 ${project.hover ? "w-28" : "w-10"} w-28 scale-100 items-center justify-center overflow-hidden whitespace-nowrap rounded-md bg-foreground text-xs duration-1000 hover:bg-blue-600 hover:text-white md:w-10`}
+                  className={`mt-7 flex h-7  w-28 ${project.hover && "md:w-28"} scale-100 items-center justify-center overflow-hidden whitespace-nowrap rounded-md bg-foreground text-xs duration-1000 hover:bg-blue-600 hover:text-white md:w-10`}
                 >
                   <Link
                     href={project.detail}
@@ -236,7 +240,7 @@ export const Projects = () => {
                     alt={project.name}
                     width={project.thumbnail.width}
                     height={project.thumbnail.height}
-                    className={`m-0 scale-100 rounded-md duration-500`}
+                    className={`m-0 rounded-md`}
                   />
                 )}
               </div>
