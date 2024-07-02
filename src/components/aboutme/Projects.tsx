@@ -2,6 +2,7 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import { useIsVisible } from "@/utils/useIsVisible";
 import Link from "next/link";
+import { useMediaQuery } from "react-responsive";
 
 interface ProjectType {
   name: string;
@@ -13,12 +14,15 @@ interface ProjectType {
   mystack: string[];
   ref: React.RefObject<HTMLDivElement>;
   isVisible: boolean;
-  detail: string;
+  detail?: string;
   hover: boolean;
   sethover: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const Projects = () => {
+  const isMobile = useMediaQuery({
+    query: "(max-width: 768px)",
+  });
   const ref = useRef<HTMLDivElement>(null);
   const ref1 = useRef<HTMLDivElement>(null);
   const ref2 = useRef<HTMLDivElement>(null);
@@ -57,7 +61,7 @@ export const Projects = () => {
       mystack: ["Kotlin", "Android Studio", "Wear Os"],
       ref: ref1,
       isVisible: p1,
-      detail: "watchface",
+      // detail: "watchface",
       hover: hover1,
       sethover: setHover1,
     },
@@ -83,7 +87,7 @@ export const Projects = () => {
       mystack: ["Flutter", "Flask", "React", "OpenCV", "DeepLabV3+"],
       ref: ref2,
       isVisible: p2,
-      detail: "indoor-map",
+      // detail: "indoor-map",
       hover: hover2,
       sethover: setHover2,
     },
@@ -110,7 +114,7 @@ export const Projects = () => {
       mystack: ["React", "AWS S3, CloudFront", "Naver Map API"],
       ref: ref3,
       isVisible: p3,
-      detail: "map2zero",
+      // detail: "map2zero",
       hover: hover3,
       sethover: setHover3,
     },
@@ -136,7 +140,7 @@ export const Projects = () => {
       mystack: ["React", "Spring Boot", "MySQL", "AWS S3, EC2, RDS"],
       ref: ref4,
       isVisible: p4,
-      detail: "issue-station",
+      // detail: "issue-station",
       hover: hover4,
       sethover: setHover4,
     },
@@ -167,16 +171,18 @@ export const Projects = () => {
           >
             <div className="flex items-center justify-between">
               <h2>{project.name}</h2>
-              <div
-                className={`mt-7 flex h-7 ${project.hover ? "w-28" : "w-10"} scale-100 items-center justify-center overflow-hidden whitespace-nowrap rounded-md bg-foreground text-xs duration-1000 hover:bg-blue-600 hover:text-white`}
-              >
-                <Link
-                  href={`/aboutme/${project.detail}`}
-                  className="flex h-full w-full items-center justify-center no-underline"
+              {project.detail && (
+                <div
+                  className={`mt-7 flex h-7 ${project.hover ? "w-28" : "w-10"} w-28 scale-100 items-center justify-center overflow-hidden whitespace-nowrap rounded-md bg-foreground text-xs duration-1000 hover:bg-blue-600 hover:text-white md:w-10`}
                 >
-                  {project.hover ? ">> Veiw Detail" : ">>"}
-                </Link>
-              </div>
+                  <Link
+                    href={`/aboutme/${project.detail}`}
+                    className="flex h-full w-full items-center justify-center no-underline"
+                  >
+                    {project.hover || isMobile ? ">> Veiw Detail" : ">>"}
+                  </Link>
+                </div>
+              )}
             </div>
             <div className="flex flex-row gap-4">
               <div className="w-2/3">
