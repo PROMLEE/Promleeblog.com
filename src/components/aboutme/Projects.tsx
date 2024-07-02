@@ -200,7 +200,7 @@ export const Projects = () => {
               <h2>{project.name}</h2>
               {project.detail && (
                 <div
-                  className={`mt-7 flex h-7 ${project.hover ? "w-28" : "w-10"} w-28 scale-100 items-center justify-center overflow-hidden whitespace-nowrap rounded-md bg-foreground text-xs duration-1000 hover:bg-blue-600 hover:text-white md:w-10`}
+                  className={`mt-7 flex h-7  w-28 ${project.hover && "md:w-28"} scale-100 items-center justify-center overflow-hidden whitespace-nowrap rounded-md bg-foreground text-xs duration-1000 hover:bg-blue-600 hover:text-white md:w-10`}
                 >
                   <Link
                     href={project.detail}
