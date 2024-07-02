@@ -28,15 +28,18 @@ export const Projects = () => {
   const ref2 = useRef<HTMLDivElement>(null);
   const ref3 = useRef<HTMLDivElement>(null);
   const ref4 = useRef<HTMLDivElement>(null);
+  const ref5 = useRef<HTMLDivElement>(null);
   const title = useIsVisible(ref);
   const p1 = useIsVisible(ref1);
   const p2 = useIsVisible(ref2);
   const p3 = useIsVisible(ref3);
   const p4 = useIsVisible(ref4);
+  const p5 = useIsVisible(ref5);
   const [hover1, setHover1] = useState<boolean>(false);
   const [hover2, setHover2] = useState<boolean>(false);
   const [hover3, setHover3] = useState<boolean>(false);
   const [hover4, setHover4] = useState<boolean>(false);
+  const [hover5, setHover5] = useState<boolean>(false);
 
   const projects: ProjectType[] = [
     {
@@ -144,6 +147,30 @@ export const Projects = () => {
       hover: hover4,
       sethover: setHover4,
     },
+    {
+      name: "PromleeBlog",
+      url: "https://github.com/PROMLEE/Promleeblog.com",
+      date: "2024.04.20 ~",
+      thumbnail: {
+        url: "/icons/android-chrome-192x192.png",
+        width: 100,
+        height: 100,
+      },
+      contents: ["개인 블로그 제작", "Next.js 기반의 정적 블로그"],
+      myrole: [
+        "Next.js 기반 블로그 제작",
+        "Tailwind CSS를 이용한 디자인",
+        "Markdown을 이용한 포스트 작성",
+        "Supabase를 이용한 데이터베이스 연동",
+        "SEO 최적화 및 SDN환경 구성을 통한 이미지 최적화",
+      ],
+      mystack: ["Next.js", "Supabase", "AWS S3, CloudFront"],
+      ref: ref5,
+      isVisible: p5,
+      detail: "/blog/programming/build-blog",
+      hover: hover5,
+      sethover: setHover5,
+    },
   ];
   return (
     <div className="w-full">
@@ -176,7 +203,7 @@ export const Projects = () => {
                   className={`mt-7 flex h-7 ${project.hover ? "w-28" : "w-10"} w-28 scale-100 items-center justify-center overflow-hidden whitespace-nowrap rounded-md bg-foreground text-xs duration-1000 hover:bg-blue-600 hover:text-white md:w-10`}
                 >
                   <Link
-                    href={`/aboutme/${project.detail}`}
+                    href={project.detail}
                     className="flex h-full w-full items-center justify-center no-underline"
                   >
                     {project.hover || isMobile ? ">> Veiw Detail" : ">>"}
