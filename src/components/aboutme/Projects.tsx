@@ -90,7 +90,8 @@ export const Projects = () => {
       mystack: ["Flutter", "Flask", "React", "OpenCV", "DeepLabV3+"],
       ref: ref2,
       isVisible: p2,
-      // detail: "indoor-map",
+      detail:
+        "https://github.com/PROMLEE/Indoor_map/blob/main/Final_report_team7.pdf",
       hover: hover2,
       sethover: setHover2,
     },
@@ -107,6 +108,7 @@ export const Projects = () => {
         "지속가능한 소비를 위한 제로 웨이스트 매장 정보 제공 서비스 제작 Team Project",
         "지속가능한 삶을 위한 ESG 서비스 Map:Zero(맵투제로)",
         "현재 위치를 기반으로, 소비자에게 제로 웨이스트 매장 추천 및 정보를 제공하고, 점주는 매장의 정보를 관리할 수 있는 서비스",
+        "Neordinary Demoday 출품 및 실 사용자 100여명 유치",
       ],
       myrole: [
         "네이버 지도 연결 및 매장 데이터 연동",
@@ -181,7 +183,7 @@ export const Projects = () => {
       <div
         ref={ref}
         className={`w-full duration-1000 ease-in ${
-          title ? "scale-100 opacity-100" : "scale-110 opacity-25"
+          title ? "opacity-100" : "opacity-25"
         }`}
       >
         <h1>💻 Contribute to</h1>
@@ -193,9 +195,7 @@ export const Projects = () => {
             key={index}
             ref={project.ref}
             className={`w-full duration-1000 ease-in ${
-              project.isVisible
-                ? "scale-100 opacity-100"
-                : "scale-110 opacity-25"
+              project.isVisible ? "opacity-100" : "opacity-25"
             }`}
             onMouseEnter={() => project.sethover && project.sethover(true)}
             onMouseLeave={() => project.sethover && project.sethover(false)}
@@ -204,7 +204,7 @@ export const Projects = () => {
               <h2>{project.name}</h2>
               {project.detail && (
                 <div
-                  className={`mt-7 flex h-7  w-28 ${project.hover && "md:w-28"} scale-100 items-center justify-center overflow-hidden whitespace-nowrap rounded-md bg-foreground text-xs duration-1000 hover:bg-blue-600 hover:text-white md:w-10`}
+                  className={`mt-7 flex h-7 w-28 ${project.hover && "md:w-28"} scale-100 items-center justify-center overflow-hidden whitespace-nowrap rounded-md bg-foreground text-xs duration-1000 hover:bg-blue-300 hover:text-white hover:dark:bg-blue-600 md:w-10`}
                 >
                   <Link
                     href={project.detail}
@@ -246,7 +246,7 @@ export const Projects = () => {
               </div>
               <div className="w-2/3">
                 <ul className="m-0">
-                  <li className="text-text-foreground marker:text-white">
+                  <li className="text-text-foreground marker:text-black marker:dark:text-white">
                     Contents and Results
                     <ul>
                       {project.contents.map((content, index) => {
@@ -254,7 +254,7 @@ export const Projects = () => {
                       })}
                     </ul>
                   </li>
-                  <li className="text-text-foreground marker:text-white">
+                  <li className="text-text-foreground marker:text-black marker:dark:text-white">
                     My Role
                     <ul>
                       {project.myrole.map((role, index) => {
@@ -262,7 +262,7 @@ export const Projects = () => {
                       })}
                     </ul>
                   </li>
-                  <li className="text-text-foreground marker:text-white">
+                  <li className="text-text-foreground marker:text-black marker:dark:text-white">
                     My Stack
                     <ul>
                       {project.mystack.map((stack, index) => {
