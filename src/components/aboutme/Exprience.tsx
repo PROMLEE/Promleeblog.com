@@ -58,7 +58,7 @@ export const Exprience = () => {
                 />
               )}
             </div>
-            <ul className="m-0 w-2/3">
+            <ul className="m-0 w-2/3 marker:text-black marker:dark:text-white">
               {exprience.contents.map((content, idx) => (
                 <li key={idx}>{content}</li>
               ))}

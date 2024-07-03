@@ -65,7 +65,7 @@ export default function App() {
               key={index}
               ref={ref.ref}
               className={`w-full duration-1000 ease-in ${
-                ref.isVisible ? "scale-100 opacity-100" : "scale-110 opacity-25"
+                ref.isVisible ? "opacity-100" : "opacity-25"
               }`}
             >
               <ref.component />
