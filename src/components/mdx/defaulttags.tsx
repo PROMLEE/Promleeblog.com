@@ -57,25 +57,31 @@ export async function Img({
 }) {
   if (process.env.NEXT_PUBLIC_API_BASE_URL === "http://localhost:3000") {
     return (
+      <div className="my-5 flex flex-col items-center">
+        <Image
+          src={src}
+          alt={alt || "image"}
+          className={`m-0 bg-${bg || "white"}`}
+          width={Number(width) ? Number(width) : 500}
+          height={Number(height) ? Number(height) : 500}
+        />
+        <div className="mt-2 text-sm">{alt}</div>
+      </div>
+    );
+  }
+  return (
+    <div className="my-5 flex flex-col items-center">
       <Image
-        src={src}
+        src={`https://cdn.promleeblog.com/posts${src}`}
         alt={alt || "image"}
         className={`m-0 my-5 bg-${bg || "white"}`}
         width={Number(width) ? Number(width) : 500}
         height={Number(height) ? Number(height) : 500}
+        // placeholder="blur"
+        // blurDataURL={base64}
       />
-    );
-  }
-  return (
-    <Image
-      src={`https://cdn.promleeblog.com/posts${src}`}
-      alt={alt || "image"}
-      className={`m-0 my-5 bg-${bg || "white"}`}
-      width={Number(width) ? Number(width) : 500}
-      height={Number(height) ? Number(height) : 500}
-      // placeholder="blur"
-      // blurDataURL={base64}
-    />
+      <div className="mt-2 text-sm">{alt}</div>
+    </div>
   );
   // } catch {
   //   console.log("error");
@@ -165,7 +171,7 @@ export const ultag = ({ children }: Props) => {
 };
 export const litag = ({ id, children }: Props) => {
   return (
-    <li id={id} className=" marker:text-text">
+    <li id={id} className="marker:text-text">
       {children}
     </li>
   );
@@ -213,7 +219,7 @@ export const brtag = () => {
   return <div className="h-3" />;
 };
 export const ptag = ({ children }: Props) => {
-  return <div className={"leading-7 "}>{children}</div>;
+  return <div className={"leading-7"}>{children}</div>;
 };
 export const spantag = ({ children }: Props) => {
   return <span>{children}</span>;

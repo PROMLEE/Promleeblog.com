@@ -195,7 +195,9 @@ export const Projects = () => {
             key={index}
             ref={project.ref}
             className={`w-full duration-1000 ease-in ${
-              project.isVisible ? "opacity-100" : "opacity-25"
+              project.isVisible
+                ? "scale-100 opacity-100"
+                : "scale-105 opacity-25"
             }`}
             onMouseEnter={() => project.sethover && project.sethover(true)}
             onMouseLeave={() => project.sethover && project.sethover(false)}

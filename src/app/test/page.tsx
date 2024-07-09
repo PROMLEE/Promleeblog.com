@@ -4,26 +4,26 @@ import { Toup } from "@/components/buttons/Toup";
 import { Todown } from "@/components/buttons/Todown";
 import { MdxBody } from "@/components/posts/MdxBody";
 import { getPostDetail } from "@/utils/PostUtils/GetPost";
-import { createClient } from "@/utils/Supabase/supabase_server";
+// import { createClient } from "@/utils/Supabase/supabase_server";
 
 const Post = async () => {
-  const supabase = createClient();
-  const { data } = await supabase.from("Category").select(`
-    name,
-    Subject (
-      name,
-      Series (
-        name,
-        Subject (
-          name
-        ),
-        Post (
-          name
-        )
-      )
-    )
-  `);
-  const jsondata = JSON.stringify(data, null, 2);
+  // const supabase = createClient();
+  // const { data } = await supabase.from("Category").select(`
+  //   name,
+  //   Subject (
+  //     name,
+  //     Series (
+  //       name,
+  //       Subject (
+  //         name
+  //       ),
+  //       Post (
+  //         name
+  //       )
+  //     )
+  //   )
+  // `);
+  // const jsondata = JSON.stringify(data, null, 2);
   // return <div>{jsondata}</div>;
   // console.log(jsondata);
   const markdownsource: any = await getPostDetail({});
