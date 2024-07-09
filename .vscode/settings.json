@@ -4,7 +4,7 @@
   "pasteImage.path": "${projectRoot}/Promleeblog.com/public/posts",
   "pasteImage.forceUnixStyleSeparator": true,
   // "pasteImage.insertPattern": "![${imageFileNameWithoutExt}](${imageFilePath})",
-  "pasteImage.insertPattern": "<Img src=\"/posts/${imageFileNameWithoutExt}.png\" width={500}/>",
+  "pasteImage.insertPattern": "<Img src=\"/posts/${imageFileNameWithoutExt}.png\" width={500} alt=\"\"/>",
   "pasteImage.prefix": "/",
 
   "emojisense.languages": {
