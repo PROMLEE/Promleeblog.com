@@ -38,21 +38,23 @@ const Cards = ({ post, idx }: { post: any; idx: number }) => {
     <div
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      className=" content my-2 flex w-52 flex-col items-center gap-1 rounded-md border border-third text-xs hover:cursor-pointer hover:bg-foreground"
+      className="content my-2 flex w-52 flex-col items-center gap-1 rounded-md border border-third text-xs hover:cursor-pointer hover:bg-foreground"
     >
       <div className="absolute">{post.lock && "🔒"}</div>
       <div
-        className={`flex w-full justify-center rounded-md  ${hover ? "bg-button" : "bg-third"}`}
+        className={`flex w-full justify-center rounded-md ${hover ? "bg-button" : "bg-third"}`}
       >
         <Image
-          src={"/icons/android-chrome-512x512.png"}
+          src={post.thumbnail_url || "/icons/android-chrome-512x512.png"}
           alt="thumbnail"
           width={100}
           height={100}
         />
       </div>
       <div className="flex text-xs">{dateString}</div>
-      <div className="text-overflow flex h-10 w-full items-center break-normal py-2 pl-7 pr-1 indent-[-1.25rem]">
+      <div
+        className={`text-overflow h-8 w-full items-center pb-2 pl-7 pr-1 indent-[-1.25rem]`}
+      >
         {idx + 1}. {hover ? post.name : post.nameko}
       </div>
     </div>
