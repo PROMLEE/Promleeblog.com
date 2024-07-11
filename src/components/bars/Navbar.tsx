@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import Indicator from "@/components/bars/Scrollindicator";
 import Image from "next/image";
-// import { supabase } from "@/utils/Supabase/supabase_client";
+// import { supabase } from "@/lib/Supabase/supabase_client";
 
 // const getData = async () => {
 //   const { data }: { data: any } = await supabase

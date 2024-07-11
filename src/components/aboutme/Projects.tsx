@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
-import { useIsVisible } from "@/utils/useIsVisible";
+import { useIsVisible } from "@/lib/useIsVisible";
 import Link from "next/link";
 import { useMediaQuery } from "react-responsive";
 

@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { GenerateMeta } from "@/utils/PostUtils/GenerateMeta_category";
+import { GenerateMeta } from "@/lib/PostUtils/GenerateMeta_category";
 
 type Props = {
   params: params;

@@ -1,4 +1,4 @@
-// utils/response.ts
+// lib/response.ts
 
 interface ResponseFormat<T> {
   status: number;

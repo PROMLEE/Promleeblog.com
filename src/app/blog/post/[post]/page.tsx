@@ -5,11 +5,11 @@ import { Todown } from "@/components/buttons/Todown";
 import { MdxBody } from "@/components/posts/MdxBody";
 import { MdxHeader } from "@/components/posts/MdxHeader";
 import { Metadata } from "next";
-import { GenerateMeta } from "@/utils/PostUtils/GenerateMeta";
+import { GenerateMeta } from "@/lib/PostUtils/GenerateMeta";
 import { BreadCrumb } from "@/components/posts/BreadCrumb";
 import { Loading } from "@/components/Loading";
 import dayjs from "dayjs";
-// import { createClient } from "@/utils/Supabase/supabase_server";
+// import { createClient } from "@/lib/Supabase/supabase_server";
 
 // const getData = async ({ params }: { params: { post: string } }) => {
 //   const id = params.post.split("-")[0];
