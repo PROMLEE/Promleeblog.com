@@ -71,6 +71,7 @@ async function getLinks() {
             select: {
               nameko: true,
               url: true,
+              id: true,
               Post: {
                 orderBy: {
                   series_no: "asc",
@@ -79,6 +80,7 @@ async function getLinks() {
                   id: true,
                   url: true,
                   lock: true,
+                  nameko: true,
                 },
               },
             },
