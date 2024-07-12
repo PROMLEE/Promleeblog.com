@@ -1,23 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-interface Link {
-  nameko: string;
-  url: string;
-  Subject: {
-    nameko: string;
-    url: string;
-    Series: {
-      nameko: string;
-      id: number;
-      Post: {
-        id: number;
-        url: string;
-        nameko: string;
-        lock: boolean;
-      }[];
-    }[];
-  }[];
-}
+import { Link } from "@/config/types/apis";
 
 const getList = async () => {
   return await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`, {
@@ -26,12 +9,18 @@ const getList = async () => {
     .then((res) => res.json())
     .then((data) => data.data);
 };
+
+interface names {
+  url: string;
+  id: number | null;
+}
+
 const page = () => {
   const [Links, setLinks] = useState<Link[]>([]);
-  const [category, setCategory] = useState<string>("");
-  const [subject, setSubject] = useState<string>("");
-  const [series, setSeries] = useState<string>("");
-  const [post, setPost] = useState<string>("");
+  const [category, setCategory] = useState<names>({ url: "", id: null });
+  const [subject, setSubject] = useState<names>({ url: "", id: null });
+  const [series, setSeries] = useState<names>({ url: "", id: null });
+  const [post, setPost] = useState<names>({ url: "", id: null });
   useEffect(() => {
     getList().then((data) => {
       setLinks(data);
@@ -42,66 +31,81 @@ const page = () => {
     "flex flex-1 flex-col gap-2 border p-2 border-text min-h-64 overflow-hidden select-none";
   const titlestyle =
     "rounded-md bg-slate-400 p-2 text-center font-bold text-primary mb-3";
+  const pstyle =
+    "block overflow-hidden text-ellipsis whitespace-nowrap text-xs hover:cursor-pointer";
+  const buttonstyle = "ml-5 rounded bg-primary-foreground px-1";
   return (
     <div className="flex min-h-64 w-full rounded-lg p-10">
       <div className={blockstyle}>
         <h2 className={titlestyle}>
           카테고리
-          <button
-            className="ml-5 rounded bg-primary-foreground px-1"
-            onClick={() => {}}
-          >
+          <button className={buttonstyle} onClick={() => {}}>
             +
           </button>
         </h2>
         {Links.map((item) => (
           <div
-            key={item.url}
-            className={`${item.url === category && "bg-third dark:bg-slate-600"} rounded-md p-2`}
+            key={item.id}
+            className={`${item.id === category.id && "bg-third dark:bg-slate-600"} rounded-md p-2`}
           >
-            <p onClick={() => setCategory(item.url)}>{item.nameko}</p>
+            <p
+              onClick={() => setCategory({ url: item.url, id: item.id })}
+              className={pstyle}
+            >
+              {item.ord}. {item.nameko}
+            </p>
           </div>
         ))}
       </div>
       <div className={blockstyle}>
         <h2 className={titlestyle}>주제</h2>
-        {Links.find((link) => link.url === category)?.Subject.map((item) => (
+        {Links.find((link) => link.id === category.id)?.Subject.map((item) => (
           <div
-            key={item.url}
-            className={`${item.url === subject && "bg-third dark:bg-slate-600"} rounded-md p-2`}
+            key={item.id}
+            className={`${item.id === subject.id && "bg-third dark:bg-slate-600"} rounded-md p-2`}
           >
-            <p onClick={() => setSubject(item.url)}>{item.nameko}</p>
+            <p
+              onClick={() => setSubject({ url: item.url, id: item.id })}
+              className={pstyle}
+            >
+              {item.category_no}. {item.nameko}
+            </p>
           </div>
         ))}
       </div>
       <div className={blockstyle}>
         <h2 className={titlestyle}>시리즈</h2>
-        {Links.find((link) => link.url === category)
-          ?.Subject.find((link) => link.url === subject)
+        {Links.find((link) => link.id === category.id)
+          ?.Subject.find((link) => link.id === subject.id)
           ?.Series.map((item) => (
             <div
               key={item.id}
-              className={`${item.id.toString() === series && "bg-third dark:bg-slate-600"} rounded-md p-2`}
+              className={`${item.id === series.id && "bg-third dark:bg-slate-600"} rounded-md p-2`}
             >
-              <p onClick={() => setSeries(item.id.toString())}>{item.nameko}</p>
+              <p
+                onClick={() => setSeries({ url: item.url, id: item.id })}
+                className={pstyle}
+              >
+                {item.subject_no}. {item.nameko}
+              </p>
             </div>
           ))}
       </div>
       <div className={blockstyle}>
         <h2 className={titlestyle}>포스트</h2>
-        {Links.find((link) => link.url === category)
-          ?.Subject.find((link) => link.url === subject)
-          ?.Series.find((link) => link.id.toString() === series)
+        {Links.find((link) => link.id === category.id)
+          ?.Subject.find((link) => link.id === subject.id)
+          ?.Series.find((link) => link.id === series.id)
           ?.Post.map((item) => (
             <div
               key={item.id}
-              className={`${item.url === post && "bg-third dark:bg-slate-600"} rounded-md p-2`}
+              className={`${item.id === post.id && "bg-third dark:bg-slate-600"} rounded-md p-2`}
             >
               <p
-                onClick={() => setPost(item.url)}
-                className="block overflow-hidden text-ellipsis whitespace-nowrap"
+                onClick={() => setPost({ url: item.url, id: item.id })}
+                className={pstyle}
               >
-                {item.nameko}
+                {item.series_no}. {item.nameko}
               </p>
             </div>
           ))}
