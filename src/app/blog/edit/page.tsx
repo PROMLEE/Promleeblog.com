@@ -37,12 +37,20 @@ const page = () => {
   });
   const [series, setSeries] = useState<names>({ url: "", id: null, name: "" });
   const [post, setPost] = useState<names>({ url: "", id: null, name: "" });
-  const comps = [<AddCategory />, <AddSubject />, <AddSeries />, <AddPost />];
+  const comps = [
+    <AddCategory />,
+    <AddSubject category_id={category.id || 0} />,
+    <AddSeries />,
+    <AddPost />,
+  ];
   useEffect(() => {
     getList().then((data) => {
       setLinks(data);
     });
   }, []);
+  useEffect(() => {
+    setAddnum(0);
+  }, [category.id, subject.id, series.id, post.id]);
   const blockstyle =
     "flex flex-1 flex-col gap-2 border p-2 border-text min-h-64 overflow-hidden select-none";
   const titlestyle =
@@ -71,9 +79,16 @@ const page = () => {
               className={`${item.id === category.id && "bg-third dark:bg-slate-600"} rounded-md p-2`}
             >
               <p
-                onClick={() =>
-                  setCategory({ url: item.url, id: item.id, name: item.nameko })
-                }
+                onClick={() => {
+                  setCategory({
+                    url: item.url,
+                    id: item.id,
+                    name: item.nameko,
+                  });
+                  setSubject({ url: "", id: null, name: "" });
+                  setSeries({ url: "", id: null, name: "" });
+                  setPost({ url: "", id: null, name: "" });
+                }}
                 className={pstyle}
               >
                 {item.ord}. {item.nameko}
@@ -100,13 +115,15 @@ const page = () => {
                 className={`${item.id === subject.id && "bg-third dark:bg-slate-600"} rounded-md p-2`}
               >
                 <p
-                  onClick={() =>
+                  onClick={() => {
                     setSubject({
                       url: item.url,
                       id: item.id,
                       name: item.nameko,
-                    })
-                  }
+                    });
+                    setSeries({ url: "", id: null, name: "" });
+                    setPost({ url: "", id: null, name: "" });
+                  }}
                   className={pstyle}
                 >
                   {item.category_no}. {item.nameko}
@@ -135,9 +152,14 @@ const page = () => {
                 className={`${item.id === series.id && "bg-third dark:bg-slate-600"} rounded-md p-2`}
               >
                 <p
-                  onClick={() =>
-                    setSeries({ url: item.url, id: item.id, name: item.nameko })
-                  }
+                  onClick={() => {
+                    setSeries({
+                      url: item.url,
+                      id: item.id,
+                      name: item.nameko,
+                    });
+                    setPost({ url: "", id: null, name: "" });
+                  }}
                   className={pstyle}
                 >
                   {item.subject_no}. {item.nameko}

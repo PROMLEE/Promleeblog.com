@@ -73,7 +73,6 @@ const joinApi = async ({ body }: { body: Category }) => {
     },
   });
   const data = await res.json();
-  console.log(data);
 };
 
 export const AddCategory = () => {
@@ -89,7 +88,6 @@ export const AddCategory = () => {
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(JSON.stringify(data, null, 2));
     joinApi({ body: data });
   }
 
