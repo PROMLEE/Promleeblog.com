@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Metadata } from "next";
-import { GenerateMeta } from "@/utils/PostUtils/GenerateMeta_category";
+import { GenerateMeta } from "@/lib/PostUtils/GenerateMeta_category";
 import { MdxMeta } from "@/config/types/types";
 
 export async function generateMetadata(): Promise<Metadata> {

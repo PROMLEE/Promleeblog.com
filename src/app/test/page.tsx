@@ -3,8 +3,8 @@ import { Suspense } from "react";
 import { Toup } from "@/components/buttons/Toup";
 import { Todown } from "@/components/buttons/Todown";
 import { MdxBody } from "@/components/posts/MdxBody";
-import { getPostDetail } from "@/utils/PostUtils/GetPost";
-// import { createClient } from "@/utils/Supabase/supabase_server";
+import { getPostDetail } from "@/lib/PostUtils/GetPost";
+// import { createClient } from "@/lib/Supabase/supabase_server";
 
 const Post = async () => {
   // const supabase = createClient();

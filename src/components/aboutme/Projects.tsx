@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
-import { useIsVisible } from "@/utils/useIsVisible";
+import { useIsVisible } from "@/lib/useIsVisible";
 import Link from "next/link";
 import { useMediaQuery } from "react-responsive";
 
@@ -42,6 +42,34 @@ export const Projects = () => {
   const [hover5, setHover5] = useState<boolean>(false);
 
   const projects: ProjectType[] = [
+    {
+      name: "PromleeBlog",
+      url: "https://github.com/PROMLEE/Promleeblog.com",
+      date: "2024.04.20 ~",
+      thumbnail: {
+        url: "/icons/android-chrome-192x192.png",
+        width: 100,
+        height: 100,
+      },
+      contents: [
+        "개인 블로그 제작",
+        "Next.js 기반의 정적 블로그",
+        "SEO 최적화를 통한 일일 검색 노출 평균 15회",
+      ],
+      myrole: [
+        "Next.js 기반 블로그 제작",
+        "Tailwind CSS를 이용한 디자인",
+        "Markdown을 이용한 포스트 작성",
+        "Supabase를 이용한 데이터베이스 연동",
+        "SEO 최적화 및 SDN환경 구성을 통한 이미지 최적화",
+      ],
+      mystack: ["Next.js", "Supabase", "AWS S3, CloudFront"],
+      ref: ref5,
+      isVisible: p5,
+      detail: "/blog/programming/build-blog",
+      hover: hover5,
+      sethover: setHover5,
+    },
     {
       name: "Wear_os Watchface",
       url: "https://github.com/PROMLEE/Wear_Os_WatchFace",
@@ -148,34 +176,6 @@ export const Projects = () => {
       // detail: "issue-station",
       hover: hover4,
       sethover: setHover4,
-    },
-    {
-      name: "PromleeBlog",
-      url: "https://github.com/PROMLEE/Promleeblog.com",
-      date: "2024.04.20 ~",
-      thumbnail: {
-        url: "/icons/android-chrome-192x192.png",
-        width: 100,
-        height: 100,
-      },
-      contents: [
-        "개인 블로그 제작",
-        "Next.js 기반의 정적 블로그",
-        "SEO 최적화를 통한 일일 검색 노출 평균 15회",
-      ],
-      myrole: [
-        "Next.js 기반 블로그 제작",
-        "Tailwind CSS를 이용한 디자인",
-        "Markdown을 이용한 포스트 작성",
-        "Supabase를 이용한 데이터베이스 연동",
-        "SEO 최적화 및 SDN환경 구성을 통한 이미지 최적화",
-      ],
-      mystack: ["Next.js", "Supabase", "AWS S3, CloudFront"],
-      ref: ref5,
-      isVisible: p5,
-      detail: "/blog/programming/build-blog",
-      hover: hover5,
-      sethover: setHover5,
     },
   ];
   return (

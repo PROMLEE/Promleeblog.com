@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 const { PrismaClient } = require("@prisma/client");
 import { createResponse } from "@/config/apiResponse";
 import { NextResponse, NextRequest } from "next/server";
-
+import { Link } from "@/config/types/apis";
 const prisma = new PrismaClient();
 
 (BigInt.prototype as any).toJSON = function () {
@@ -50,13 +50,15 @@ export async function GET() {
 }
 
 async function getLinks() {
-  const Links = await prisma.category.findMany({
+  const Links: Link[] = await prisma.category.findMany({
     orderBy: {
       ord: "asc",
     },
     select: {
       nameko: true,
+      id: true,
       url: true,
+      ord: true,
       Subject: {
         orderBy: {
           category_no: "asc",
@@ -64,6 +66,8 @@ async function getLinks() {
         select: {
           nameko: true,
           url: true,
+          id: true,
+          category_no: true,
           Series: {
             orderBy: {
               subject_no: "asc",
@@ -71,6 +75,8 @@ async function getLinks() {
             select: {
               nameko: true,
               url: true,
+              id: true,
+              subject_no: true,
               Post: {
                 orderBy: {
                   series_no: "asc",
@@ -79,6 +85,8 @@ async function getLinks() {
                   id: true,
                   url: true,
                   lock: true,
+                  nameko: true,
+                  series_no: true,
                 },
               },
             },
