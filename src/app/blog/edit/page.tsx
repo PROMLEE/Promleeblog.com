@@ -44,10 +44,21 @@ const page = () => {
     <AddPost series_id={series.id || 0} />,
   ];
   useEffect(() => {
+    getpw();
     getList().then((data) => {
       setLinks(data);
     });
   }, []);
+
+  const getpw = () => {
+    if (typeof window !== "undefined") {
+      const pw = localStorage.getItem("promleeblogpostpw");
+      if (pw !== process.env.NEXT_PUBLIC_POST_PW) {
+        alert("관리자용 페이지입니다.");
+        window.location.href = "/";
+      }
+    }
+  };
   useEffect(() => {
     setAddnum(0);
   }, [category.id, subject.id, series.id, post.id]);

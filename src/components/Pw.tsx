@@ -24,10 +24,12 @@ export function Pw({
   isOpen,
   Close,
   url,
+  edit,
 }: {
-  isOpen: any;
+  isOpen: boolean;
   Close: any;
   url: any;
+  edit?: boolean;
 }) {
   const [value, setValue] = React.useState("");
   const router = useRouter();
@@ -40,16 +42,14 @@ export function Pw({
       else setValue(pw);
     }
   };
-
   React.useEffect(() => {
     getpw();
     if (value.length === 4) {
       const PW = process.env.NEXT_PUBLIC_POST_PW;
       if (value === PW) {
-        router.push(url);
-        console.log("password correct");
+        edit || router.push(url);
         localStorage.setItem("promleeblogpostpw", PW);
-        Close;
+        Close();
       } else {
         toast({
           title: "비밀번호가 틀렸습니다",
@@ -93,7 +93,7 @@ export function Pw({
               돌아가기
             </Button>
             <Button className="bg-second">
-              <Link href="/blog/programming/tool/38">
+              <Link href="/blog/post/106-optimize-image-cdn">
                 추천 공개 포스트 보러가기
               </Link>
             </Button>
