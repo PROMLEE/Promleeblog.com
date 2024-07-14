@@ -122,6 +122,7 @@ export const AddSeries = ({ subject_id }: { subject_id: number }) => {
                     disabled={value.disabled}
                     {...field}
                     type={value.type ? "number" : "text"}
+                    className="border-third"
                   />
                 </FormControl>
                 <FormMessage />

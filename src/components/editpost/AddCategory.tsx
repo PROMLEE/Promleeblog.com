@@ -111,6 +111,7 @@ export const AddCategory = () => {
                     placeholder={value.formlabel}
                     {...field}
                     type={value.type ? "number" : "text"}
+                    className="border-third"
                   />
                 </FormControl>
                 <FormMessage />

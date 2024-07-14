@@ -137,7 +137,7 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
 
   return (
     <Form {...form}>
-      <h1 className="my-4 text-2xl font-bold">시리즈(Series) 추가</h1>
+      <h1 className="my-4 text-2xl font-bold">포스트(Post) 추가</h1>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
         {values.map((value) => (
           <FormField
@@ -153,6 +153,7 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
                     disabled={value.disabled}
                     {...field}
                     type={value.type}
+                    className="border-third"
                   />
                 </FormControl>
                 <FormMessage />
@@ -165,12 +166,13 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
           key="lock"
           name="lock"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border border-third p-4">
               <FormLabel>Lock</FormLabel>
               <FormControl>
                 <Switch
                   checked={field.value}
                   onCheckedChange={field.onChange}
+                  className="data-[state=checked]:bg-third data-[state=unchecked]:bg-secondary"
                 />
               </FormControl>
             </FormItem>
@@ -186,7 +188,7 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
               <FormControl>
                 <Textarea
                   placeholder="Posting"
-                  className="resize-none"
+                  className="resize-none border-third"
                   {...field}
                 />
               </FormControl>
