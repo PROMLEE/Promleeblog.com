@@ -30,15 +30,15 @@ const values: value[] = [
   },
   {
     name: "name",
-    formlabel: "Category Name(Eng)",
+    formlabel: "Subject Name(Eng)",
   },
   {
     name: "nameko",
-    formlabel: "Category Name(Kor)",
+    formlabel: "Subject Name(Kor)",
   },
   {
     name: "url",
-    formlabel: "Category URL",
+    formlabel: "Subject URL",
   },
   {
     name: "category_no",
@@ -55,7 +55,7 @@ interface Subject {
   name: string;
   nameko: string;
   url: string;
-  category_no: string;
+  category_no: number;
   desc: string;
 }
 const FormSchema = z.object({
@@ -74,14 +74,13 @@ const FormSchema = z.object({
 });
 
 const joinApi = async ({ body }: { body: Subject }) => {
-  const res = await fetch("/api/edit/addsubject", {
+  await fetch("/api/edit/addsubject", {
     method: "POST",
     body: JSON.stringify(body),
     headers: {
       "Content-Type": "application/json",
     },
   });
-  const data = await res.json();
 };
 
 export const AddSubject = ({ category_id }: { category_id: number }) => {
@@ -98,15 +97,21 @@ export const AddSubject = ({ category_id }: { category_id: number }) => {
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    // joinApi({ body: data });
+    const confirmtext = `Category ID: ${data.category_id}\nSubject Name(Eng): ${data.name}\nSubject Name(Kor): ${data.nameko}\nSubject URL: ${data.url}\nCategory_no: ${data.category_no}\nDescription: ${data.desc}`;
+    if (window.confirm("Do you want to add this Subject?\n" + confirmtext)) {
+      joinApi({ body: data });
+      window.location.reload();
+    }
   }
 
   return (
     <Form {...form}>
+      <h1 className="my-4 text-2xl font-bold">주제(Subject) 추가</h1>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
         {values.map((value) => (
           <FormField
             control={form.control}
+            key={value.name}
             name={value.name}
             render={({ field }) => (
               <FormItem>

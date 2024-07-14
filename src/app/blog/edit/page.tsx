@@ -40,8 +40,8 @@ const page = () => {
   const comps = [
     <AddCategory />,
     <AddSubject category_id={category.id || 0} />,
-    <AddSeries />,
-    <AddPost />,
+    <AddSeries subject_id={subject.id || 0} />,
+    <AddPost series_id={series.id || 0} />,
   ];
   useEffect(() => {
     getList().then((data) => {
