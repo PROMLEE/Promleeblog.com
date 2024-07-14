@@ -65,14 +65,13 @@ const FormSchema = z.object({
 });
 
 const joinApi = async ({ body }: { body: Category }) => {
-  const res = await fetch("/api/edit/addcategory", {
+  await fetch("/api/edit/addcategory", {
     method: "POST",
     body: JSON.stringify(body),
     headers: {
       "Content-Type": "application/json",
     },
   });
-  const data = await res.json();
 };
 
 export const AddCategory = () => {
@@ -88,16 +87,22 @@ export const AddCategory = () => {
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    joinApi({ body: data });
+    const confirmtext = `Category Name(Eng): ${data.name}\nCategory Name(Kor): ${data.nameko}\nCategory URL: ${data.url}\nOrder: ${data.ord}\nDescription: ${data.desc}`;
+    if (window.confirm("Do you want to add this Category?\n" + confirmtext)) {
+      joinApi({ body: data });
+      window.location.reload();
+    }
   }
 
   return (
     <Form {...form}>
+      <h1 className="my-4 text-2xl font-bold">카테고리(Category) 추가</h1>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
         {values.map((value) => (
           <FormField
             control={form.control}
             name={value.name}
+            key={value.name}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{value.formlabel}</FormLabel>
@@ -106,6 +111,7 @@ export const AddCategory = () => {
                     placeholder={value.formlabel}
                     {...field}
                     type={value.type ? "number" : "text"}
+                    className="border-third"
                   />
                 </FormControl>
                 <FormMessage />
