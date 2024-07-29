@@ -179,7 +179,8 @@ export const Projects = () => {
       mystack: ["React", "Spring Boot", "MySQL", "AWS S3, EC2, RDS"],
       ref: ref4,
       isVisible: p4,
-      // detail: "issue-station",
+      detail:
+        "https://github.com/PROMLEE/Issue-Station/blob/main/Issue-Station%20Document.pdf",
       id: "이슈역",
       hover: hover4,
       sethover: setHover4,
