@@ -14,6 +14,7 @@ interface ProjectType {
   mystack: string[];
   ref: React.RefObject<HTMLDivElement>;
   isVisible: boolean;
+  id: string;
   detail?: string;
   hover: boolean;
   sethover: React.Dispatch<React.SetStateAction<boolean>>;
@@ -59,14 +60,15 @@ export const Projects = () => {
       myrole: [
         "Next.js 기반 블로그 제작",
         "Tailwind CSS를 이용한 디자인",
-        "Markdown을 이용한 포스트 작성",
+        "다크 모드, 반응형 지원",
         "Supabase를 이용한 데이터베이스 연동",
         "SEO 최적화 및 SDN환경 구성을 통한 이미지 최적화",
       ],
-      mystack: ["Next.js", "Supabase", "AWS S3, CloudFront"],
+      mystack: ["Next.js", "Supabase", "AWS S3, CloudFront", "Route53"],
       ref: ref5,
       isVisible: p5,
       detail: "/blog/programming/build-blog",
+      id: "promleeblog",
       hover: hover5,
       sethover: setHover5,
     },
@@ -92,7 +94,9 @@ export const Projects = () => {
       mystack: ["Kotlin", "Android Studio", "Wear Os"],
       ref: ref1,
       isVisible: p1,
-      // detail: "watchface",
+      id: "wear_os-watchface",
+      detail:
+        "https://github.com/PROMLEE/Wear_Os_WatchFace/blob/master/%EC%9B%8C%EC%B9%98%ED%8E%98%EC%9D%B4%EC%8A%A4%20%EA%B0%9C%EB%B0%9C.pdf",
       hover: hover1,
       sethover: setHover1,
     },
@@ -118,6 +122,7 @@ export const Projects = () => {
       mystack: ["Flutter", "Flask", "React", "OpenCV", "DeepLabV3+"],
       ref: ref2,
       isVisible: p2,
+      id: "indoor-map",
       detail:
         "https://github.com/PROMLEE/Indoor_map/blob/main/Final_report_team7.pdf",
       hover: hover2,
@@ -148,6 +153,7 @@ export const Projects = () => {
       ref: ref3,
       isVisible: p3,
       // detail: "map2zero",
+      id: "map2-zero",
       hover: hover3,
       sethover: setHover3,
     },
@@ -174,6 +180,7 @@ export const Projects = () => {
       ref: ref4,
       isVisible: p4,
       // detail: "issue-station",
+      id: "이슈역",
       hover: hover4,
       sethover: setHover4,
     },
@@ -186,7 +193,7 @@ export const Projects = () => {
           title ? "opacity-100" : "opacity-25"
         }`}
       >
-        <h1>💻 Contribute to</h1>
+        <h1 id="contribute-to">💻 Contribute to</h1>
         <hr />
       </div>
       {projects.map((project, index) => {
@@ -203,7 +210,7 @@ export const Projects = () => {
             onMouseLeave={() => project.sethover && project.sethover(false)}
           >
             <div className="flex items-center justify-between">
-              <h2>{project.name}</h2>
+              <h2 id={project.id}>{project.name}</h2>
               {project.detail && (
                 <div
                   className={`mt-7 flex h-7 w-28 ${project.hover && "md:w-28"} scale-100 items-center justify-center overflow-hidden whitespace-nowrap rounded-md bg-foreground text-xs duration-1000 hover:bg-blue-300 hover:text-white hover:dark:bg-blue-600 md:w-10`}

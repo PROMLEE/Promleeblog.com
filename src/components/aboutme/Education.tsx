@@ -21,7 +21,7 @@ const educations: ExprienceType[] = [
 export const Education = () => {
   return (
     <div className="w-full">
-      <h1>🎓 Education</h1>
+      <h1 id="education">🎓 Education</h1>
       <hr />
       {educations.map((edu, idx) => (
         <div key={idx}>

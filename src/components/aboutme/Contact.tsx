@@ -30,7 +30,7 @@ const items: ContactProps[] = [
 export const Contact = () => {
   return (
     <div className="w-3/5">
-      <h2>📱 Contact &amp; Channels</h2>
+      <h2 id="contact--channels">📱 Contact &amp; Channels</h2>
       <hr />
       <ul>
         {items.map((item, index) => (
