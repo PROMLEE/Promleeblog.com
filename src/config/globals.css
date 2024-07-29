@@ -173,6 +173,9 @@ html {
   .leftsidebar-md {
     @apply fixed left-2 top-[15%] max-h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl p-3 shadow-inner;
   }
+  .text-underlined {
+    @apply inline text-text-foreground underline decoration-yellow-800 decoration-wavy underline-offset-[0.2rem] dark:decoration-yellow-400;
+  }
   .text-overflow {
     text-overflow: ellipsis;
     overflow: hidden;
@@ -198,4 +201,11 @@ html {
   @media (max-width: 767px) {
     font-size: 62.5%;
   }
+}
+.swiper-pagination-bullet {
+  background-color: #fff !important;
+  /* opacity: 1 !important; */
+}
+.swiper-pagination-bullet-active {
+  background-color: #fff !important;
 }
