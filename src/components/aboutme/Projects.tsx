@@ -213,7 +213,7 @@ export const Projects = () => {
               <h2 id={project.id}>{project.name}</h2>
               {project.detail && (
                 <div
-                  className={`mt-7 flex h-7 w-28 ${project.hover && "md:w-28"} scale-100 items-center justify-center overflow-hidden whitespace-nowrap rounded-md bg-foreground text-xs duration-1000 hover:bg-blue-300 hover:text-white hover:dark:bg-blue-600 md:w-10`}
+                  className={`mt-7 flex h-7 w-28 ${project.hover && "md:w-28"} scale-100 items-center justify-center overflow-hidden whitespace-nowrap rounded-md text-xs duration-1000 hover:bg-blue-300 hover:text-white dark:bg-blue-600 hover:dark:bg-blue-300 md:w-10`}
                 >
                   <Link
                     href={project.detail}

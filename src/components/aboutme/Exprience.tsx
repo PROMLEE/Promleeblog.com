@@ -15,7 +15,7 @@ const expriences: ExprienceType[] = [
     date: "2023.09.07 ~",
     url: {
       name: "UMC",
-      url: "https://www.makeus.in/umc",
+      url: "https://www.instagram.com/uni_makeus_challenge/",
       desc: "앱&웹 서비스 런칭 대학생 IT 연합 동아리",
     },
     thumbnail: {
@@ -46,7 +46,7 @@ export const Exprience = () => {
               <br />
               {exprience.url && (
                 <a href={exprience.url.url} target="_blank" rel="noreferrer">
-                  {exprience.url.name} 홈페이지 ↗
+                  {exprience.url.name} 관련 페이지 ↗
                 </a>
               )}
               <p>{exprience.date}</p>
