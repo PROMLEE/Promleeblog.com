@@ -65,7 +65,7 @@ const skills: SkillType[] = [
 export const Skills = () => {
   return (
     <div className="w-full">
-      <h1>🛠 Skills</h1>
+      <h1 id="skills">🛠 Skills</h1>
       <hr />
       <div className="flex flex-col gap-16">
         {skills.map((skill, idx) => (

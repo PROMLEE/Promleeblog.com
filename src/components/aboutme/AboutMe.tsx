@@ -1,7 +1,7 @@
 export const AboutMe = () => {
   return (
     <div className="w-full">
-      <h1>👦 About Me</h1>
+      <h1 id="about-me">👦 About Me</h1>
       <hr />
       <ul>
         <li>

@@ -5,6 +5,7 @@ interface ExprienceType {
   url?: { name: string; url: string; desc: string };
   thumbnail?: { url: string; width: number; height: number };
   date: string;
+  id: string;
   contents: string[];
 }
 
@@ -22,6 +23,7 @@ const expriences: ExprienceType[] = [
       width: 100,
       height: 100,
     },
+    id: "umc-5th-6th",
     contents: [
       "5기 Web 파트(React) 참여",
       "5기 Map: 2 Zero 프로젝트 런칭",
@@ -33,11 +35,11 @@ const expriences: ExprienceType[] = [
 export const Exprience = () => {
   return (
     <div className="w-full">
-      <h1>🎈 Experiences</h1>
+      <h1 id="experience">🎈 Experiences</h1>
       <hr />
       {expriences.map((exprience, idx) => (
         <div key={idx}>
-          <h2>{exprience.name}</h2>
+          <h2 id={exprience.id}>{exprience.name}</h2>
           <div className="flex flex-row gap-4">
             <div className="w-2/3">
               <b>{exprience.url?.desc}</b>

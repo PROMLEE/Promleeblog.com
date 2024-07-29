@@ -10,12 +10,16 @@ import { Todown } from "@/components/buttons/Todown";
 import { useRef } from "react";
 import { useIsVisible } from "@/lib/useIsVisible";
 import { Education } from "@/components/aboutme/Education";
+import RightSidebarComp from "@/components/bars/RightSidebar";
 
 interface refs {
   ref: React.RefObject<HTMLDivElement>;
   isVisible: boolean;
   component: React.FC;
 }
+
+const contents =
+  "## Contact & Channels\n## About Me\n## Skills\n## Contribute to\n### PromleeBlog\n### Wear_os Watchface\n### Indoor Map\n### Map:2 Zero\n### 이슈역\n## Experience\n### UMC 5th, 6th\n## Education";
 
 export default function App() {
   const ref1 = useRef<HTMLDivElement>(null);
@@ -73,6 +77,7 @@ export default function App() {
           );
         })}
       </div>
+      <RightSidebarComp content={contents} />
       <Todown />
     </>
   );
