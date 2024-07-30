@@ -73,7 +73,7 @@ export const Page1 = () => {
           alt="logo"
           width={300}
           height={100}
-          className="rounded-lg"
+          className="flex-[0.5] rounded-lg"
         />
       </div>
     </div>

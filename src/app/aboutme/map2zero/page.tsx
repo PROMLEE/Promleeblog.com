@@ -8,9 +8,25 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination } from "swiper/modules";
 // import "swiper/css/pagination";
-import { Page1, Page2, Page3 } from "@/components/aboutme/map2zero";
+import {
+  Page1,
+  Page2,
+  Page3,
+  Page4,
+  Page5,
+  Page6,
+  Page7,
+} from "@/components/aboutme/map2zero";
 
-const slideData = [<Page1 />, <Page2 />];
+const slideData = [
+  <Page1 />,
+  <Page2 />,
+  <Page3 />,
+  <Page4 />,
+  <Page5 />,
+  <Page6 />,
+  <Page7 />,
+];
 
 const page = () => {
   SwiperCore.use([Navigation, Scrollbar, Mousewheel]);
@@ -21,6 +37,7 @@ const page = () => {
       </h1>
       <Swiper
         scrollbar={{ draggable: true }}
+        spaceBetween={50}
         mousewheel={{
           invert: false,
         }}
@@ -30,7 +47,7 @@ const page = () => {
       >
         {slideData.map((slide, i) => (
           <SwiperSlide key={i}>
-            <div className="prose my-1 mt-10 flex w-full select-none justify-center rounded-xl p-5 dark:prose-invert xl:h-[40rem]">
+            <div className="prose my-1 mt-10 flex w-full select-none justify-center rounded-xl p-5 dark:prose-invert xl:h-[45rem]">
               {slide}
             </div>
           </SwiperSlide>
