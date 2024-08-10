@@ -129,62 +129,62 @@ export const Projects = () => {
       hover: hover2,
       sethover: setHover2,
     },
-    {
-      name: "Wear_os Watchface",
-      url: "https://github.com/PROMLEE/Wear_Os_WatchFace",
-      date: "2022.05 ~ 2022.12",
-      thumbnail: {
-        url: "https://cdn.promleeblog.com/posts/etc/watchface/watchface-logo.png",
-        width: 100,
-        height: 100,
-      },
-      contents: [
-        "Wear Os 기반의 안드로이드 웨어러블 기기의 배경화면 커스텀 제작 개인 프로젝트",
-        "시계바늘, 배경화면, 기능을 커스텀하여 사용자가 원하는 시계 화면을 제작할 수 있도록 지원",
-        "원하는 배경, 원하는 시계바늘, 워하는 기능 지원하는 컴플리케이션 8개 지원",
-        "개인 용도로 사용중",
-      ],
-      myrole: [
-        "시계 화면의 모양과 동작을 구성하는 XML 형식 파악",
-        "androidx.wear.watchface 라이브러리 사용",
-      ],
-      mystack: ["Kotlin", "Android Studio", "Wear Os"],
-      ref: ref1,
-      isVisible: p1,
-      id: "wear_os-watchface",
-      detail:
-        "https://github.com/PROMLEE/Wear_Os_WatchFace/blob/master/%EC%9B%8C%EC%B9%98%ED%8E%98%EC%9D%B4%EC%8A%A4%20%EA%B0%9C%EB%B0%9C.pdf",
-      hover: hover1,
-      sethover: setHover1,
-    },
-    {
-      name: "이슈역",
-      url: "https://github.com/PROMLEE/Issue-Station",
-      thumbnail: {
-        url: "https://cdn.promleeblog.com/posts/etc/issue-station/issue-station-logo.png",
-        width: 100,
-        height: 30,
-      },
-      date: "2024.05.01 ~ 2024.06.10",
-      contents: [
-        "프로젝트의 이슈를 등록하고, 이슈에 대한 댓글을 작성하며, 이슈의 상태를 변경할 수 있는 서비스 제작 Team Project",
-        "유저마다 허용된 권한에 따라 이슈를 등록하고, 이슈에 대한 댓글을 작성할 수 있으며, 이슈의 상태를 변경할 수 있는 서비스",
-      ],
-      myrole: [
-        "React 기반 서비스 웹페이지 제작",
-        "AWS S3 정적 페이지 호스팅",
-        "Spring Boot 기반 서버 API 제작(Project Management Part)",
-        "AWS EC2 서버 배포 및 관리",
-      ],
-      mystack: ["React", "Spring Boot", "MySQL", "AWS S3, EC2, RDS"],
-      ref: ref4,
-      isVisible: p4,
-      detail:
-        "https://github.com/PROMLEE/Issue-Station/blob/main/Issue-Station%20Document.pdf",
-      id: "이슈역",
-      hover: hover4,
-      sethover: setHover4,
-    },
+    // {
+    //   name: "Wear_os Watchface",
+    //   url: "https://github.com/PROMLEE/Wear_Os_WatchFace",
+    //   date: "2022.05 ~ 2022.12",
+    //   thumbnail: {
+    //     url: "https://cdn.promleeblog.com/posts/etc/watchface/watchface-logo.png",
+    //     width: 100,
+    //     height: 100,
+    //   },
+    //   contents: [
+    //     "Wear Os 기반의 안드로이드 웨어러블 기기의 배경화면 커스텀 제작 개인 프로젝트",
+    //     "시계바늘, 배경화면, 기능을 커스텀하여 사용자가 원하는 시계 화면을 제작할 수 있도록 지원",
+    //     "원하는 배경, 원하는 시계바늘, 워하는 기능 지원하는 컴플리케이션 8개 지원",
+    //     "개인 용도로 사용중",
+    //   ],
+    //   myrole: [
+    //     "시계 화면의 모양과 동작을 구성하는 XML 형식 파악",
+    //     "androidx.wear.watchface 라이브러리 사용",
+    //   ],
+    //   mystack: ["Kotlin", "Android Studio", "Wear Os"],
+    //   ref: ref1,
+    //   isVisible: p1,
+    //   id: "wear_os-watchface",
+    //   detail:
+    //     "https://github.com/PROMLEE/Wear_Os_WatchFace/blob/master/%EC%9B%8C%EC%B9%98%ED%8E%98%EC%9D%B4%EC%8A%A4%20%EA%B0%9C%EB%B0%9C.pdf",
+    //   hover: hover1,
+    //   sethover: setHover1,
+    // },
+    // {
+    //   name: "이슈역",
+    //   url: "https://github.com/PROMLEE/Issue-Station",
+    //   thumbnail: {
+    //     url: "https://cdn.promleeblog.com/posts/etc/issue-station/issue-station-logo.png",
+    //     width: 100,
+    //     height: 30,
+    //   },
+    //   date: "2024.05.01 ~ 2024.06.10",
+    //   contents: [
+    //     "프로젝트의 이슈를 등록하고, 이슈에 대한 댓글을 작성하며, 이슈의 상태를 변경할 수 있는 서비스 제작 Team Project",
+    //     "유저마다 허용된 권한에 따라 이슈를 등록하고, 이슈에 대한 댓글을 작성할 수 있으며, 이슈의 상태를 변경할 수 있는 서비스",
+    //   ],
+    //   myrole: [
+    //     "React 기반 서비스 웹페이지 제작",
+    //     "AWS S3 정적 페이지 호스팅",
+    //     "Spring Boot 기반 서버 API 제작(Project Management Part)",
+    //     "AWS EC2 서버 배포 및 관리",
+    //   ],
+    //   mystack: ["React", "Spring Boot", "MySQL", "AWS S3, EC2, RDS"],
+    //   ref: ref4,
+    //   isVisible: p4,
+    //   detail:
+    //     "https://github.com/PROMLEE/Issue-Station/blob/main/Issue-Station%20Document.pdf",
+    //   id: "이슈역",
+    //   hover: hover4,
+    //   sethover: setHover4,
+    // },
   ];
   return (
     <div className="w-full">
