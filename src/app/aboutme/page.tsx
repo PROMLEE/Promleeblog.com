@@ -52,9 +52,9 @@ export default function App() {
         <div className="w-full">
           <h2>👨‍💻안녕하세요, 도전을 두려워 않는 개발자 이동훈입니다</h2>
           <div className="flex flex-wrap gap-10">
-            <div className="relative mb-10 mt-[2em] h-[10rem] w-[10rem]">
+            <div className="relative mb-10 mt-[2em] h-[13rem] w-[10rem]">
               <Image
-                src="https://avatars.githubusercontent.com/u/80230701?v=4?s=400"
+                src="https://cdn.promleeblog.com/profile.jpg"
                 alt="profile_image"
                 fill
                 className="m-0 w-full rounded-lg border border-foreground"
