@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npx ncu && concurrently \"next dev\" \"tsx ./watcher.ts\" --kill-others",
+    "dev": "concurrently \"next dev\" \"tsx ./watcher.ts\" --kill-others",
     "next-dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -90,3 +90,4 @@
     "ws": "^8.17.0"
   }
 }
+
