@@ -29,6 +29,7 @@ export const Navbar = () => {
   const [list, setList]: any[] = useState([
     { nameko: "개발", Subject: [] },
     { nameko: "개인학습", Subject: [] },
+    { nameko: "기타", Subject: [] },
   ]);
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`)
@@ -57,7 +58,7 @@ export const Navbar = () => {
             return (
               <Menubar
                 key={index}
-                className={"hidden border-none bg-transparent md:block "}
+                className={"hidden border-none bg-transparent md:block"}
               >
                 <MenubarMenu>
                   <MenubarTrigger
@@ -119,3 +120,4 @@ export const Navbar = () => {
     </>
   );
 };
+
