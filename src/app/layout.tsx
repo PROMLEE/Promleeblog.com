@@ -13,6 +13,7 @@ import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { Toaster } from "@/components/ui/toaster";
 import { Suspense } from "react";
 import { Loading } from "@/components/Loading";
+import { GoogleAdSense } from "@/components/gasnippit";
 
 export const metadata: Metadata = {
   title: "PromleeBlog",
@@ -59,8 +60,10 @@ export default function RootLayout({
           <GoogleTagManager
             gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER || ""}
           />
+          <GoogleAdSense />
         </body>
       </html>
     </AutoRefresh>
   );
 }
+
