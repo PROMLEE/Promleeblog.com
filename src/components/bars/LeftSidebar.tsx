@@ -12,6 +12,7 @@ const LeftSidebarComp = ({ menuclose }: { menuclose: any }) => {
   const [list, setList]: any[] = useState([
     { nameko: "개발", Subject: [] },
     { nameko: "개인학습", Subject: [] },
+    { nameko: "기타", Subject: [] },
   ]);
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`)
@@ -70,3 +71,4 @@ const LeftSidebarComp = ({ menuclose }: { menuclose: any }) => {
 };
 
 export default LeftSidebarComp;
+
