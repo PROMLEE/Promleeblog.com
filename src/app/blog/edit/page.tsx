@@ -52,8 +52,7 @@ const page = () => {
 
   const getpw = () => {
     if (typeof window !== "undefined") {
-      const pw = localStorage.getItem("promleeblogpostpw");
-      if (pw !== process.env.NEXT_PUBLIC_POST_PW) {
+      if ("development" !== process.env.NEXT_PUBLIC_NODE_ENV) {
         alert("관리자용 페이지입니다.");
         window.location.href = "/";
       }

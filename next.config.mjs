@@ -41,6 +41,10 @@ const nextConfig = {
         hostname: "cdn.promleeblog.com",
         pathname: "**",
       },
+      {
+        protocol: "https",
+        hostname: "**",
+      },
     ],
   },
   async headers() {
