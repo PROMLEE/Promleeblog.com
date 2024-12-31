@@ -55,7 +55,10 @@ export async function Img({
   width: string;
   bg: string;
 }) {
-  if (process.env.NEXT_PUBLIC_API_BASE_URL === "http://localhost:3000") {
+  if (
+    process.env.NEXT_PUBLIC_NODE_ENV === "development" ||
+    !src.startsWith("/")
+  ) {
     return (
       <div className="my-5 flex flex-col items-center">
         <Image
