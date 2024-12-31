@@ -20,7 +20,7 @@ const prisma = new PrismaClient();
  *            schema:
  *              type: object
  *              properties:
- *                category_id:
+ *                subject_id:
  *                  type: number
  *                  example: 999
  *                name:
@@ -32,7 +32,7 @@ const prisma = new PrismaClient();
  *                url:
  *                  type: string
  *                  example: "url-in-here"
- *                category_no:
+ *                subject_no:
  *                  type: number
  *                  example: 999
  *                caption:
