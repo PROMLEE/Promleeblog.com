@@ -43,6 +43,7 @@ const page = () => {
     <AddSeries subject_id={subject.id || 0} />,
     <AddPost series_id={series.id || 0} />,
   ];
+
   useEffect(() => {
     getpw();
     getList().then((data) => {
