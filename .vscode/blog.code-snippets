@@ -2,6 +2,11 @@
   "Post list": {
     "prefix": "posting",
     "body": [
+      "---",
+      "title_ko: ",
+      "title_en: ",
+      "desc: ",
+      "---",
       "## 들어가기 전에",
       "",
       "## 본문 1",
