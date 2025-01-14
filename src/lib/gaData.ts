@@ -1,10 +1,12 @@
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 
-const analyticsDataClient = new BetaAnalyticsDataClient();
+const analyticsDataClient = new BetaAnalyticsDataClient({
+  credentials: JSON.parse(process.env.NEXT_PUBLIC_GOOGLE_API_CREDENTIALS!),
+});
 
 export async function totalViews() {
   const [response] = await analyticsDataClient.runReport({
-    property: `properties/${process.env.NEXT_GOOGLE_API_PID}`,
+    property: `properties/${process.env.NEXT_PUBLIC_GOOGLE_API_PID}`,
     metrics: [{ name: "screenPageViews" }],
     dateRanges: [{ startDate: "2024-04-05", endDate: "today" }],
   });
@@ -13,7 +15,7 @@ export async function totalViews() {
 
 export async function todayViews() {
   const [response] = await analyticsDataClient.runReport({
-    property: `properties/${process.env.NEXT_GOOGLE_API_PID}`,
+    property: `properties/${process.env.NEXT_PUBLIC_GOOGLE_API_PID}`,
     metrics: [{ name: "screenPageViews" }],
     dateRanges: [{ startDate: "2daysAgo", endDate: "today" }],
   });
