@@ -12,7 +12,7 @@ import LeftSidebarComp from "@/components/bars/LeftSidebar";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import Indicator from "@/components/bars/Scrollindicator";
-import Image from "next/image";
+// import Image from "next/image";
 // import { supabase } from "@/lib/Supabase/supabase_client";
 
 // const getData = async () => {
@@ -114,10 +114,9 @@ export const Navbar = () => {
         </div>
       </div>
       <Indicator />
-      <div className={`${menu ? "visible" : "hidden"} xl:block`}>
+      <div className={`${menu ? "visible" : "hidden"} xl:hidden`}>
         <LeftSidebarComp menuclose={menuclose} />
       </div>
     </>
   );
 };
-
