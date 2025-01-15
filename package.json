@@ -13,6 +13,7 @@
     "vercel-deploy": "next build && next export"
   },
   "dependencies": {
+    "@google-analytics/data": "^4.12.0",
     "@hookform/resolvers": "^3.9.0",
     "@mdx-js/react": "^3.0.1",
     "@next/mdx": "^14.1.0",
@@ -90,4 +91,3 @@
     "ws": "^8.17.0"
   }
 }
-

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   Accordion,
@@ -6,8 +8,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useState, useEffect } from "react";
+import { ViewCheck } from "../ui/viewCheck";
 
-const LeftSidebarComp = ({ menuclose }: { menuclose: any }) => {
+const LeftSidebarComp = ({ menuclose }: { menuclose?: any }) => {
   const [value, setValue] = useState("");
   const [list, setList]: any[] = useState([
     { nameko: "개발", Subject: [] },
@@ -22,7 +25,7 @@ const LeftSidebarComp = ({ menuclose }: { menuclose: any }) => {
       });
   }, []);
   return (
-    <div className="related leftsidebar xl:leftsidebar-md md:hidden xl:block">
+    <div className="related leftsidebar block md:hidden xl:block">
       <Accordion collapsible type="single" data-state value={value}>
         {list.map((category: any, index: number) => {
           return (
@@ -71,4 +74,3 @@ const LeftSidebarComp = ({ menuclose }: { menuclose: any }) => {
 };
 
 export default LeftSidebarComp;
-

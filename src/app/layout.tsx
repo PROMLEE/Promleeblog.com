@@ -14,6 +14,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Suspense } from "react";
 import { Loading } from "@/components/Loading";
 import { GoogleAdSense } from "@/components/gasnippit";
+import LeftSidebarComp from "@/components/bars/LeftSidebar";
+import XlLeftSidebar from "@/components/bars/xlLeftSidebar";
 
 export const metadata: Metadata = {
   title: "PromleeBlog",
@@ -42,6 +44,7 @@ export default function RootLayout({
         <body>
           <Theme>
             <Navbar />
+            <XlLeftSidebar />
             <div
               className={
                 "min-h-[100vh] w-full scroll-smooth bg-background px-10 focus:scroll-auto md:w-5/6 xl:w-3/5"
@@ -66,4 +69,3 @@ export default function RootLayout({
     </AutoRefresh>
   );
 }
-

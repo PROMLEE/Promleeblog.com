@@ -1,4 +1,4 @@
-export default function App() {
+const Page = () => {
   return (
     <div>
       <div className={"my-10 text-4xl font-bold"}>{" 🖐️ Hi, There"}</div>
@@ -6,4 +6,6 @@ export default function App() {
       <br /> This blog is optimized for desktop and dark mode
     </div>
   );
-}
+};
+
+export default Page;
