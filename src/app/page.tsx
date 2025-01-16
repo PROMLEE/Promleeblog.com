@@ -44,8 +44,8 @@ const Page = async () => {
   }
   return (
     <div>
-      <div className={"my-10 text-4xl font-bold"}>{" 🖐️ Hi, There"}</div>
-      <br />이 블로그는 현재 데스크톱과 다크 모드에 최적화되어있습니다
+      <div className={"mb-5 mt-20 text-4xl font-bold"}>{" 🖐️ Hi, There"}</div>이
+      블로그는 현재 데스크톱과 다크 모드에 최적화되어있습니다
       <br /> This blog is optimized for desktop and dark mode
       <div className={"mb-5 mt-10 text-4xl font-bold"}>
         {" 📰 Recent Posts"}
@@ -58,7 +58,10 @@ const Page = async () => {
       >
         <CarouselContent>
           {recentPosts.map((post: any) => (
-            <CarouselItem key={post.id} className="md:basis-1/3 lg:basis-1/4">
+            <CarouselItem
+              key={post.id}
+              className="basis-1/3 md:basis-1/4 lg:basis-1/5"
+            >
               <Card>
                 <CardContent className="flex aspect-square select-none flex-col justify-between rounded-lg bg-primary p-5">
                   <Link
@@ -88,8 +91,8 @@ const Page = async () => {
                       # {post.Series.nameko}
                     </Link>
                   </div>
-                  <div className="h-2 text-right text-[0.5rem] text-gray-400">
-                    🗓️ {dayjs(post.init_date).locale("ko").format("YYYY/MM/DD")}
+                  <div className="h-2 text-right text-[0.7rem] text-gray-400">
+                    {dayjs(post.init_date).locale("ko").format("YYYY-MM-DD")}
                   </div>
                 </CardContent>
               </Card>
