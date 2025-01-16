@@ -3,7 +3,14 @@ export const Footer = () => {
     <footer id={"bottom"} className="w-full bg-foreground">
       <div className="mx-auto w-full max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
         <span className="text-sm text-gray-500 dark:text-gray-400 sm:text-center">
-          © 2024 Promlee . All Rights Reserved. ㅎ
+          © 2025 Promlee . All Rights Reserved | Built with{" "}
+          <a href="https://nextjs.org/" className="hover:underline">
+            Next.js
+          </a>{" "}
+          and{" "}
+          <a href="https://supabase.io/" className="hover:underline">
+            supabase
+          </a>
         </span>
         <ul className="mt-3 flex flex-wrap items-center text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
           <li>

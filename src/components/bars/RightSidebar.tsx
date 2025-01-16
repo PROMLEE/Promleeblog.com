@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 const parseToc = (content: string) => {
@@ -71,34 +72,34 @@ const RightSidebarComp = ({ content }: { content: string }) => {
         if (item.indent === 1) {
           return (
             <div key={idx} className={`sidebar`}>
-              <a
+              <Link
                 href={item.link}
-                className={`sidebar mt-3 indent-[-5px] text-sm font-bold text-text  ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
+                className={`sidebar mt-3 indent-[-5px] text-sm font-bold text-text ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
               >
                 💡 {item.text.split("(")[0]}
-              </a>
+              </Link>
             </div>
           );
         } else if (item.indent === 2) {
           return (
             <div key={idx} className={`sidebar`}>
-              <a
+              <Link
                 href={item.link}
-                className={`sidebar ml-8 indent-[-20px] text-xs  ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
+                className={`sidebar ml-8 indent-[-20px] text-xs ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
               >
                 🚀 {item.text.split("(")[0]}
-              </a>
+              </Link>
             </div>
           );
         } else if (item.indent === 3) {
           return (
             <div key={idx} className={`sidebar`}>
-              <a
+              <Link
                 href={item.link}
                 className={`sidebar ml-10 indent-[-20px] text-xs text-text ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
               >
                 ✅ {item.text.split("(")[0]}
-              </a>
+              </Link>
             </div>
           );
         }
