@@ -1,6 +1,6 @@
 import React from "react";
 import LeftSidebarComp from "./LeftSidebar";
-import { ViewCheck } from "../ui/viewCheck";
+import { ViewCheck } from "./viewCheck";
 
 const XlLeftSidebar = () => {
   return (

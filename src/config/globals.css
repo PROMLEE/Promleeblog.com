@@ -11,7 +11,7 @@
     --text-foreground: 0, 0, 0;
 
     --button: 71, 85, 105;
-    --button-foreground: 255, 255, 255;
+    --button-foreground: 205, 205, 205;
 
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
@@ -209,3 +209,4 @@ html {
 .swiper-pagination-bullet-active {
   background-color: #fff !important;
 }
+

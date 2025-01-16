@@ -8,7 +8,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useState, useEffect } from "react";
-import { ViewCheck } from "../ui/viewCheck";
+import { ViewCheck } from "./viewCheck";
 
 const LeftSidebarComp = ({ menuclose }: { menuclose?: any }) => {
   const [value, setValue] = useState("");
