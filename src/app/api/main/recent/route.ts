@@ -64,6 +64,24 @@ async function getRecentPosts(take: number) {
       init_date: true,
       name: true,
       nameko: true,
+      Series: {
+        select: {
+          url: true,
+          nameko: true,
+          Subject: {
+            select: {
+              url: true,
+              nameko: true,
+              Category: {
+                select: {
+                  url: true,
+                  nameko: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
   return post;

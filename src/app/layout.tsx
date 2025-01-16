@@ -47,7 +47,7 @@ export default function RootLayout({
             <XlLeftSidebar />
             <div
               className={
-                "min-h-[100vh] w-full scroll-smooth bg-background px-10 focus:scroll-auto md:w-5/6 xl:w-3/5"
+                "min-h-[100vh] w-full scroll-smooth bg-background px-10 focus:scroll-smooth md:w-5/6 xl:w-3/5"
               }
             >
               <Providers>{children}</Providers>
