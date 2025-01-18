@@ -6,17 +6,20 @@ export const ViewCheck = () => {
   const totalView = totalViews();
   const todayView = todayViews();
   return (
-    <div className="my-4 flex gap-4">
-      <Link href="https://developers.google.com/analytics/devguides/reporting/data/v1?hl=ko">
-        <Badge className="flex h-10 flex-1 cursor-help items-center justify-center rounded-sm bg-button-foreground">
-          Total: {totalView}
-        </Badge>
-      </Link>
-      <Link href="https://developers.google.com/analytics/devguides/reporting/data/v1?hl=ko">
-        <Badge className="flex h-10 flex-1 cursor-help items-center justify-center rounded-sm bg-button-foreground">
-          Today: {todayView}
-        </Badge>
-      </Link>
+    <div className="flex w-full flex-col items-center border-b border-t border-secondary py-5 font-bold">
+      View📈
+      <div className="flex w-full justify-center gap-4">
+        <Link href="https://developers.google.com/analytics/devguides/reporting/data/v1?hl=ko">
+          <Badge className="flex h-10 flex-1 cursor-help items-center justify-center rounded-sm bg-transparent">
+            Total: {totalView}
+          </Badge>
+        </Link>
+        <Link href="https://developers.google.com/analytics/devguides/reporting/data/v1?hl=ko">
+          <Badge className="flex h-10 flex-1 cursor-help items-center justify-center rounded-sm bg-transparent">
+            Today: {todayView}
+          </Badge>
+        </Link>
+      </div>
     </div>
   );
 };
