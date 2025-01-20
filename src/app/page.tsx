@@ -45,7 +45,7 @@ const Page = async () => {
   return (
     <div>
       <div className={"mb-5 mt-20 text-4xl font-bold"}>{" 🖐️ Hi, There"}</div>이
-      블로그는 현재 데스크톱과 다크 모드에 최적화되어있습니다
+      블로그는 데스크톱과 다크 모드에 최적화되어있습니다
       <br /> This blog is optimized for desktop and dark mode
       <div className={"mb-5 mt-10 text-4xl font-bold"}>
         {" 📰 Recent Posts"}

@@ -42,13 +42,13 @@ const Cards = ({ post, idx }: { post: any; idx: number }) => {
     >
       <div className="absolute">{post.lock && "🔒"}</div>
       <div
-        className={`flex min-h-28 w-full justify-center rounded-md ${hover ? "bg-button" : "bg-third"}`}
+        className={`flex min-h-14 w-full justify-center rounded-md ${hover ? "bg-button" : "bg-third"}`}
       >
         <Image
           src={post.thumbnail_url || "/icons/android-chrome-512x512.png"}
           alt="thumbnail"
-          width={100}
-          height={100}
+          width={50}
+          height={50}
         />
       </div>
       <div className="flex text-xs">{dateString}</div>
@@ -94,38 +94,47 @@ const Subject = ({ params }: Props) => {
         {serieslist.nameko}
       </div>
       {serieslist.Series &&
-        serieslist.Series.map((series: any, idx: any) => (
-          <div key={idx}>
-            <h2 className="mb-3 mt-7 text-2xl font-bold" id={series.nameko}>
-              {series.caption && series.caption + " - "}
-              {series.nameko}
-            </h2>
-            <div className="flex w-full flex-wrap gap-3">
-              {series.Post.length
-                ? series.Post.map((post: any, idx: number) => {
-                    return post.lock ? (
-                      <div
-                        onClick={() => {
-                          SetUrl(`/blog/post/${post.id}-${post.url}`);
-                          Open();
-                        }}
-                        key={idx}
-                      >
-                        <Cards post={post} idx={idx} />
-                      </div>
-                    ) : (
-                      <Link
-                        href={`/blog/post/${post.id}-${post.url}`}
-                        key={idx}
-                      >
-                        <Cards post={post} idx={idx} />
-                      </Link>
-                    );
-                  })
-                : "no contents 😿"}
+        serieslist.Series.map((series: any, idx: any) => {
+          for (let i = 0; i < series.Post.length; i++) {
+            if (series.Post[i].lock === false) {
+              break;
+            }
+            if (i === series.Post.length - 1) {
+              return null;
+            }
+          }
+          return (
+            <div key={idx}>
+              <h2 className="mb-3 mt-7 text-2xl font-bold" id={series.nameko}>
+                {series.caption && series.caption + " - "}
+                {series.nameko}
+              </h2>
+              <div className="flex w-full flex-wrap gap-3">
+                {series.Post.length
+                  ? series.Post.map((post: any, idx: number) => {
+                      return post.lock ? null : (
+                        // <div
+                        //   onClick={() => {
+                        //     SetUrl(`/blog/post/${post.id}-${post.url}`);
+                        //     Open();
+                        //   }}
+                        //   key={idx}
+                        // >
+                        //   <Cards post={post} idx={idx} />
+                        // </div>
+                        <Link
+                          href={`/blog/post/${post.id}-${post.url}`}
+                          key={idx}
+                        >
+                          <Cards post={post} idx={idx} />
+                        </Link>
+                      );
+                    })
+                  : "no contents 😿"}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
     </Suspense>
   );
 };
