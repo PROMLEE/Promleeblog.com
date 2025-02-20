@@ -1,0 +1,324 @@
+---
+title_ko: Flutter 앱에서 언어 팩 만들어 다국어 지원하기(easy_localization)
+title_en: Make a language pack for a Flutter app to support multiple languages(easy_localization)
+desc: Flutter 앱에서 언어 팩을 만드는 방법을 알아보자. Make a language pack for a Flutter app to support multiple languages. (easy_localization)
+---
+## 들어가기 전에
+> 이 포스팅은 Flutter 3.24 버전 기준으로 작성되었습니다.
+기본적인 flutter 프로젝트가 생성되어있는 상태를 가정하고 진행합니다.
+
+앱을 제작할 때, 글로벌 사용자를 위한 다국어 지원이 필요한 경우가 있습니다. 이번 포스팅에서는 Flutter 앱에서 언어 팩을 만드는 방법을 알아보도록 하겠습니다.
+
+
+## 1. 라이브러리 설치
+프로젝트의 root 폴더에서 다음 명령어를 입력합니다.
+```bash
+flutter pub add easy_localization
+```
+그러면 `pubspec.yaml` 파일에 다음 코드가 추가됩니다.
+```yaml
+dependencies:
+  easy_localization: version
+```
+
+## 2. 언어 팩 만들기
+프로젝트 루트 폴더 내에 다음과 같이 언어 팩 파일을 json 파일 형태로 만듭니다. 필자는 영어와 한국어를 지원하기 위해 두 개의 파일을 만들었습니다. 이번에 사용할 파일 구조는 다음과 같습니다. 미리 생성해두시면 편해요!
+```
+📦 assets
+┣ 📂 translations
+┃ ┣ 📜 en_US.json
+┗ ┗ 📜 ko_KR.json
+📦 lib
+┣ 📜 home_page.dart
+┗ 📜 main.dart
+```
+파일 명은 언어 코드를 사용합니다. 예를 들어 영어는 `en_US.json`, 한국어는 `ko_KR.json` 파일을 만듭니다. 추가로, 지역 코드를 사용하는 경우 지역 코드를 파일 명에 포함시킵니다. 예를 들어 미국 영어는 `en_US.json` 파일을 만듭니다.
+확장자는 JSON,CSV,HTTP,XML,Yaml 등을 지원한다고 합니다. 자세한 내용은 [공식 문서 - Easy Localization Loader](https://github.com/aissat/easy_localization_loader)를 참고해 주세요.
+
+## 3. 추가 설정
+
+### 3.1. 언어 팩 파일 경로 설정
+`pubspec.yaml` 파일에 다음 코드를 추가합니다.
+```yaml
+assets:
+  - assets/translations/
+```
+
+### 3.2. IOS 설정
+ios/Runner/Info.plist 파일의 `<dict>` 태그 내에 다음 코드를 추가합니다.
+```xml
+...
+		<key>CFBundleLocalizations</key>
+		<array>
+			<string>en_US</string>
+			<string>ko_KR</string>
+		</array>
+...
+```
+
+<Bbox>안드로이드는 추가 설정이 필요 없습니다.</Bbox>
+
+## 4. 언어 팩 초기화 및 설정
+언어 팩을 사용하기 위해서는 언어 팩 초기화 및 설정이 필요합니다.
+```dart title="/lib/main.dart"
+import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:example_project/home_page.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized(); // 언어 팩 초기화
+
+  runApp(
+    EasyLocalization(
+        // 언어 팩 설정
+        supportedLocales: const [Locale('en', 'US'), Locale('ko', 'KR')],
+        path: 'assets/translations',
+        fallbackLocale: const Locale('en', 'US'), // 휴대폰 설정이 없을 시 기본 언어
+        child: const MyApp()),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        localizationsDelegates: context.localizationDelegates,
+        supportedLocales: context.supportedLocales,
+        locale: context.locale,
+        home: const HomePage());
+  }
+}
+
+```
+
+## 5. 언어 팩 사용하기
+### 5.1. 언어 팩에 데이터 추가
+언어 팩에 데이터를 추가하는 방법은 다음과 같습니다. 단순히 키와 값을 추가하면 됩니다.
+```json title="assets/translations/en_US.json"
+{
+	"hello": "Hello, world!"
+}
+```
+```json title="assets/translations/ko_KR.json"
+{
+	"hello": "안녕하세요!"
+}
+```
+
+### 5.2. 언어 팩 사용
+언어 팩의 데이터를 사용하는 방법은 context.tr() 메서드를 사용합니다. 다른 방법도 지원하지만 라이브러리 docs에서는 context.tr() 메서드를 사용하는 방법을 추천합니다.
+```dart title="/lib/home_page.dart"
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              context.tr('hello'), // 언어 팩 데이터 사용
+              style: const TextStyle(fontSize: 20),
+            ),
+            ElevatedButton( // 한국어 버튼
+              onPressed: () {
+                context.setLocale(const Locale('ko', 'KR'));
+              },
+              child: const Text('한국어'),
+            ),
+            ElevatedButton( // 영어 버튼
+              onPressed: () {
+                context.setLocale(const Locale('en', 'US'));
+              },
+              child: const Text('영어'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+<Img src="/posts/250219-175725.gif" width={300} alt="언어 팩 사용 예시"/>
+
+## 6. 추가 지원 기능
+### 6.1. 인수 삽입
+string 중간에 인수를 삽입하고 싶다면 두 가지 방법을 지원한다고 합니다.
+```json title="assets/translations/en_US.json"
+{
+	"hello": "Hello, {}!",
+	"hello_friends": "Hello, {}, {}!",
+	"hello_name": "Hello, {name}!",
+	"hello_name_age": "Hello, {name}! You are {age} years old.",
+	"hello_friends_name": "Hello, {}, {name}!",
+}
+```
+```dart title="/lib/home_page.dart"
+// ...
+context.tr('hello', args: ['John']);
+context.tr('hello_friends', args: ['John', 'Jane']);
+context.tr('hello_name', namedArgs: {'name': 'John'});
+context.tr('hello_name_age', namedArgs: {'name': 'John', 'age': 20});
+context.tr('hello_friends_name', args: ['John'], namedArgs: {'name': 'Jane'});
+// ...
+```
+
+### 6.2 성별 구분
+이 라이브러리는 특이하게도 성별 구분 또한 지원합니다. 개인적으로 이 기능을 많이 사용할 일은 없을 것 같네요...
+```json title="assets/translations/en_US.json"
+{
+	"gender":{
+		"male":"Hi man ;) {}",
+		"female":"Hello girl :) {}",
+		"other":"Hello {}"
+	}
+}
+```
+
+```dart title="/lib/home_page.dart"
+// ...
+context.tr("gender", gender: _gender ? "female" : "male");
+// ...
+```
+
+### 6.3 단/복수 구분
+이 라이브러리는 단/복수 구분 또한 지원합니다. 이건 좀 유용해 보이네요.
+```json title="assets/translations/en_US.json"
+{
+  "money": {
+    "zero": "You not have money",
+    "one": "You have {} dollar",
+    "many": "You have {} dollars",
+    "other": "You have {} dollars"
+  },
+	"money_named_args": { // 이름 지정
+    "zero": "{name} has no money",
+    "one": "{name} has {money} dollar",
+    "many": "{name} has {money} dollars",
+    "other": "{name} has {money} dollars"
+  }
+}
+```
+
+```dart title="/lib/home_page.dart"
+// ...
+context.plural('money', 0);
+context.plural('money', 1);
+context.plural('money', 2);
+context.plural('money_named_args', 10.23, namedArgs: {'name': 'Jane'}, name: 'money') // 이름 지정
+// ...
+```
+
+<Img src="/posts/250220-093343.png" width={300} alt="단/복수 구분 예시"/>
+
+### 6.4 계층화 지원
+이 라이브러리는 계층화 지원 또한 지원합니다. 제가 가장 많이 사용하는 기능입니다.
+사용법은 간단해요. 상위 계층의 key 뒤에 `.`을 붙이고 하위 계층의 key를 추가하면 됩니다. 또한 동일 계층에 있는 데이터를 사용하고 싶다면 언어 팩 안에서 `@:`을 사용하면 됩니다.
+```json title="assets/translations/en_US.json"
+{
+  "example": {
+    "hello": "Hello",
+    "world": "World!",
+    "helloWorld": "@:example.hello @:example.world" // 이렇게 사용합니다.
+  }
+}
+```
+
+```dart title="/lib/home_page.dart"
+// ...
+context.tr('example.hello'); // 결과: Hello
+context.tr('example.world'); // 결과: World!
+context.tr('example.helloWorld'); // 결과: Hello World!
+// ...
+```
+
+### 7. 앱 내 언어 설정 변경하기
+#### 7.1 언어 설정 초기화
+휴대폰에 기본으로 설정되어 있는 언어로 언어팩을 설정하고 싶다면 다음 코드를 사용합니다.
+```dart title="/lib/home_page.dart"
+// ...
+context.resetLocale();
+// ...
+```
+
+#### 7.2 언어 설정 확인
+언어 설정을 확인하고 싶다면 다음 코드를 사용합니다.
+```dart title="/lib/home_page.dart"
+// ...
+context.deviceLocale.toString() // 결과: en_US
+// ...
+```
+
+#### 7.3 언어 설정 변경
+위 코드에도 잠깐 나왔지만 언어 설정을 변경하고 싶다면 다음 코드를 사용합니다.
+```dart title="/lib/home_page.dart"
+// ...
+context.setLocale(Locale('ko', 'KR')); // 한국어로 설정
+// ...
+```
+
+## 문제 발생 및 해결
+### 설치 시 intl 버전 문제
+참고: https://github.com/aissat/easy_localization/issues/655
+```bash
+Note: intl is pinned to version 0.19.0 by flutter_localizations from the flutter SDK.
+See https://dart.dev/go/sdk-version-pinning for details.
+
+The current Dart SDK version is 3.5.4.
+
+Because easy_localization >=2.3.4-nullsafety <3.0.0-dev.0 depends on flutter_localizations from sdk and easy_localization >=3.0.0-dev.0 <3.0.0-nullsafety doesn't support null safety,
+  easy_localization >=2.3.4-nullsafety <3.0.0-nullsafety requires flutter_localizations from sdk.
+And because easy_localization <2.3.4-nullsafety doesn't support null safety, easy_localization <3.0.0-nullsafety requires flutter_localizations from sdk.
+And because easy_localization >=3.0.0-nullsafety depends on flutter_localizations from sdk which depends on intl 0.19.0, every version of easy_localization requires intl 0.19.0.
+So, because nftcam_flutter depends on both intl ^0.20.1 and easy_localization any, version solving failed.
+
+The lower bound of "sdk: '>=2.0.0-dev.68.0 <3.0.0'" must be 2.12.0 or higher to enable null safety.
+For details, see https://dart.dev/null-safety
+
+The lower bound of "sdk: '>=2.7.0 <3.0.0'" must be 2.12.0 or higher to enable null safety.
+For details, see https://dart.dev/null-safety
+```
+#### 해결 방법
+flutter 채널을 master로 변경하고 업그레이드 합니다.
+```bash
+flutter channel master
+flutter upgrade
+```
+### GetMaterialApp 사용 시 문제
+GetMaterialApp 사용 시 [언어 설정 변경 코드](#73-언어-설정-변경)가 제대로 작동하지 않습니다.
+#### 해결 방법
+이 문제는 다음과 같이 동기 코드로 변경하여 해결할 수 있습니다.
+```dart title="/lib/home_page.dart"
+// ...
+const newLocale = Locale('ko', 'KR');
+await context.setLocale(newLocale);
+Get.updateLocale(newLocale);
+// ...
+```
+
+## 결론
+앱을 글로벌 런칭해야 할 일이 있어 이 라이브러리를 사용해 봤습니다. 꽤 기능이 강력하고 쉽게 사용할 수 있네요. 또 서칭중에 발견한 [flutter_localizations_generator](https://pub.dev/packages/flutter_sheet_localization_generator) 라이브러리를 사용하면 구글 시트로 언어 팩을 관리할 수 있다고 해요.
+첫 기획에 글로벌화를 고려하지 않더라도 만일을 위해 언어 팩을 미리 적용해 두면 중간중간 문구를 수정할 때에도 좋을 것 같습니다. 이번에 꽤 볼륨이 있는 프로젝트에서 막바지에 언어 팩을 적용하느라 고생했네요...😂
+
+
+### 더 생각해 보기
+- 언어 팩을 구글 시트로 관리하면 어떻게????
+- 휴대폰 설정에 관계없이 앱의 기본 언어를 설정할 수 있을까? 
+	- main.dart에서 바로 setLocale 함수를 호출하면 되지 않을까?
+
+### 참고
+- [easy_localization](https://pub.dev/packages/easy_localization)
+- [flutter_sheet_localization_generator](https://pub.dev/packages/flutter_sheet_localization_generator)
+- [Flutter 공식 문서](https://docs.flutter.dev/)
+
