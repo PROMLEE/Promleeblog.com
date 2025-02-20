@@ -42,6 +42,7 @@ export async function GET() {
   try {
     return NextResponse.json(createResponse("Links found", await getLinks()));
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { error: error || "Links not Found" },
       { status: 405 },
@@ -98,3 +99,4 @@ async function getLinks() {
 
   return Links;
 }
+
