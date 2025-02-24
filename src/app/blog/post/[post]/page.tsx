@@ -77,7 +77,11 @@ const Post = async ({ params }: { params: { post: string } }) => {
       </Suspense>
       <Suspense fallback={<Loading />}>
         <MdxHeader
-          props={{ nameko: markdownsource.nameko, name: markdownsource.name }}
+          props={{
+            nameko: markdownsource.nameko,
+            name: markdownsource.name,
+            thumbnail_url: markdownsource.thumbnail_url,
+          }}
         />
         <div className={"ml-auto text-right"}>{"📅 " + dateString}</div>
         <div className="prose mt-10 min-h-[100vh] scroll-smooth dark:prose-invert focus:scroll-auto">
