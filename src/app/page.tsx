@@ -10,38 +10,90 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
+const postInit = [
+  {
+    id: "1",
+    url: "intro",
+    init_date: "2021-09-01T00:00:00.000Z",
+    name: "Network Intro",
+    nameko: "네트워크 도입부",
+    Series: {
+      url: "true",
+      nameko: "true",
+      Subject: {
+        url: "true",
+        nameko: "true",
+        Category: {
+          url: "true",
+          nameko: "true",
+        },
+      },
+    },
+  },
+];
+
 const Page = async () => {
   let recentPosts;
+  let hotPosts;
   try {
     recentPosts = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/main/recent?take=10`,
-      { next: { revalidate: 3600 } },
+      { next: { revalidate: 600 } },
     )
       .then((res) => res.json())
       .then((data) => data.data);
   } catch (e) {
-    recentPosts = [
-      {
-        id: "1",
-        url: "intro",
-        init_date: "2021-09-01T00:00:00.000Z",
-        name: "Network Intro",
-        nameko: "네트워크 도입부",
-        Series: {
-          url: "true",
-          nameko: "true",
-          Subject: {
-            url: "true",
-            nameko: "true",
-            Category: {
-              url: "true",
-              nameko: "true",
-            },
-          },
-        },
-      },
-    ];
+    recentPosts = postInit;
   }
+  try {
+    hotPosts = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/main/hot?take=10`,
+      { next: { revalidate: 600 } },
+    )
+      .then((res) => res.json())
+      .then((data) => data.data);
+  } catch (e) {
+    hotPosts = postInit;
+  }
+
+  const CardComponent = ({ post }: { post: any }) => {
+    return (
+      <Card>
+        <CardContent className="flex aspect-square select-none flex-col justify-between rounded-lg bg-primary p-5">
+          <Link
+            href={`/blog/post/${post.id}-${post.url}`}
+            key={post.id}
+            className="text-overflow hover:text-blue-300 hover:underline"
+          >
+            {post.nameko}
+          </Link>
+          <div className="my-2 flex flex-col gap-1">
+            <Link
+              href={`/blog/${post.Series.Subject.Category.url}`}
+              className="truncate text-xs text-gray-400 hover:text-blue-300 hover:underline"
+            >
+              # {post.Series.Subject.Category.nameko}
+            </Link>
+            <Link
+              href={`/blog/${post.Series.Subject.Category.url}/${post.Series.Subject.url}`}
+              className="truncate text-xs text-gray-400 hover:text-blue-300 hover:underline"
+            >
+              # {post.Series.Subject.nameko}
+            </Link>
+            <Link
+              href={`/blog/${post.Series.Subject.Category.url}/${post.Series.Subject.url}#${post.Series.nameko}`}
+              className="truncate text-xs text-gray-400 hover:text-blue-300 hover:underline"
+            >
+              # {post.Series.nameko}
+            </Link>
+          </div>
+          <div className="h-2 text-right text-[0.7rem] text-gray-400">
+            {dayjs(post.init_date).locale("ko").format("YYYY-MM-DD")}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
   return (
     <div>
       <div className={"mb-5 mt-20 text-4xl font-bold"}>{" 🖐️ Hi, There"}</div>이
@@ -62,40 +114,27 @@ const Page = async () => {
               key={post.id}
               className="basis-1/3 md:basis-1/4 lg:basis-1/5"
             >
-              <Card>
-                <CardContent className="flex aspect-square select-none flex-col justify-between rounded-lg bg-primary p-5">
-                  <Link
-                    href={`/blog/post/${post.id}-${post.url}`}
-                    key={post.id}
-                    className="text-overflow hover:text-blue-300 hover:underline"
-                  >
-                    {post.nameko}
-                  </Link>
-                  <div className="my-2 flex flex-col gap-1">
-                    <Link
-                      href={`/blog/${post.Series.Subject.Category.url}`}
-                      className="truncate text-xs text-gray-400 hover:text-blue-300 hover:underline"
-                    >
-                      # {post.Series.Subject.Category.nameko}
-                    </Link>
-                    <Link
-                      href={`/blog/${post.Series.Subject.Category.url}/${post.Series.Subject.url}`}
-                      className="truncate text-xs text-gray-400 hover:text-blue-300 hover:underline"
-                    >
-                      # {post.Series.Subject.nameko}
-                    </Link>
-                    <Link
-                      href={`/blog/${post.Series.Subject.Category.url}/${post.Series.Subject.url}#${post.Series.nameko}`}
-                      className="truncate text-xs text-gray-400 hover:text-blue-300 hover:underline"
-                    >
-                      # {post.Series.nameko}
-                    </Link>
-                  </div>
-                  <div className="h-2 text-right text-[0.7rem] text-gray-400">
-                    {dayjs(post.init_date).locale("ko").format("YYYY-MM-DD")}
-                  </div>
-                </CardContent>
-              </Card>
+              <CardComponent post={post} />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious />
+        <CarouselNext />
+      </Carousel>
+      <div className={"mb-5 mt-10 text-4xl font-bold"}>{" 🔥 Hot Posts"}</div>
+      <Carousel
+        opts={{
+          align: "start",
+        }}
+        className="w-full"
+      >
+        <CarouselContent>
+          {hotPosts.map((post: any) => (
+            <CarouselItem
+              key={post.id}
+              className="basis-1/3 md:basis-1/4 lg:basis-1/5"
+            >
+              <CardComponent post={post} />
             </CarouselItem>
           ))}
         </CarouselContent>
