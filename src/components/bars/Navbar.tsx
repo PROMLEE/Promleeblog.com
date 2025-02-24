@@ -88,6 +88,28 @@ export const Navbar = () => {
           })}
         </div>
         <div className="flex content-center items-center">
+          {process.env.NODE_ENV === "development" && (
+            <>
+              <Link
+                href={"/blog/edit"}
+                className="rounded-lg p-2 hover:bg-button hover:text-background"
+              >
+                edit
+              </Link>
+              <Link
+                href={"/test"}
+                className="rounded-lg p-2 hover:bg-button hover:text-background"
+              >
+                test
+              </Link>
+              <Link
+                href={"/api-doc"}
+                className="rounded-lg p-2 hover:bg-button hover:text-background"
+              >
+                api-doc
+              </Link>
+            </>
+          )}
           <Link
             href={"/sitemap"}
             className="rounded-lg p-2 hover:bg-button hover:text-background"

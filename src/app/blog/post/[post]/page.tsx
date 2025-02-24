@@ -57,6 +57,14 @@ const Post = async ({ params }: { params: { post: string } }) => {
       nameko: "Hello World",
     };
   }
+  try {
+    await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/view`, {
+      method: "PATCH",
+      body: JSON.stringify({ post_id: params.post.split("-")[0] }),
+    });
+  } catch (e) {
+    console.log(e);
+  }
   const dateString = dayjs(markdownsource.init_date)
     .locale("ko")
     .format("YYYY년 MM월 DD일");
