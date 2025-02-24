@@ -30,7 +30,7 @@
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-switch": "^1.1.0",
     "@radix-ui/react-toast": "^1.1.5",
-    "@supabase/ssr": "^0.4.0",
+    "@supabase/ssr": "^0.5.2",
     "@types/mdx": "^2.0.10",
     "autoprefixer": "^10.4.19",
     "chokidar": "^3.5.3",
