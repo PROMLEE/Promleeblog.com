@@ -9,6 +9,7 @@ import { GenerateMeta } from "@/lib/PostUtils/GenerateMeta";
 import { BreadCrumb } from "@/components/posts/BreadCrumb";
 import { Loading } from "@/components/Loading";
 import dayjs from "dayjs";
+import Giscus from "@/components/posts/Giscus";
 // import { createClient } from "@/lib/Supabase/supabase_server";
 
 // const getData = async ({ params }: { params: { post: string } }) => {
@@ -84,6 +85,7 @@ const Post = async ({ params }: { params: { post: string } }) => {
           <MdxBody content={markdownsource.posting} />
         </div>
       </Suspense>
+      <Giscus />
       <Todown />
     </>
   );
