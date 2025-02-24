@@ -38,7 +38,7 @@ const Page = async () => {
   try {
     recentPosts = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/main/recent?take=10`,
-      { next: { revalidate: 3600 } },
+      { next: { revalidate: 600 } },
     )
       .then((res) => res.json())
       .then((data) => data.data);
@@ -48,7 +48,7 @@ const Page = async () => {
   try {
     hotPosts = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/main/hot?take=10`,
-      { next: { revalidate: 3600 } },
+      { next: { revalidate: 600 } },
     )
       .then((res) => res.json())
       .then((data) => data.data);
