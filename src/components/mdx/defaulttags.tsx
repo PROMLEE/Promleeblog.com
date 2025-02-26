@@ -1,6 +1,7 @@
 import Image from "next/image";
 import "katex/dist/katex.min.css";
 import Link from "next/link";
+import { CopyButton } from "../buttons/CopyButton";
 // import path from "path";
 // import fs from "fs";
 // import { getPlaiceholder } from "plaiceholder";
@@ -262,5 +263,16 @@ export const atag = ({ id, children, href }: Props) => {
     >
       {children}↗
     </a>
+  );
+};
+
+export const codetag = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <code className="relative">
+      <span className="absolute right-0 top-0">
+        <CopyButton>{children}</CopyButton>
+      </span>
+      {children}
+    </code>
   );
 };

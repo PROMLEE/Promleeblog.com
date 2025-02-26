@@ -2,7 +2,7 @@ import Script from "next/script";
 import { FunctionComponent } from "react";
 
 export const GoogleAdSense: FunctionComponent = () => {
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NEXT_PUBLIC_NODE_ENV !== "production") {
     return null;
   }
   return (
