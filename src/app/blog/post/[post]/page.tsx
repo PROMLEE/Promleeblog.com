@@ -88,8 +88,8 @@ const Post = async ({ params }: { params: { post: string } }) => {
           <RightSidebarComp content={markdownsource.posting} />
           <MdxBody content={markdownsource.posting} />
         </div>
+        <Giscus />
       </Suspense>
-      <Giscus />
       <Todown />
     </>
   );

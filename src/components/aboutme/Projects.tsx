@@ -55,7 +55,7 @@ export const Projects = () => {
       contents: [
         "개인 블로그 제작",
         "Next.js 기반의 정적 블로그",
-        "SEO 최적화를 통한 일일 검색 노출 평균 15회",
+        "SEO 최적화를 통한 일일 검색 노출 평균 200회, CTR 4.3% 유지 중(2025.02.25 기준)",
       ],
       myrole: [
         "Next.js 기반 블로그 제작",
