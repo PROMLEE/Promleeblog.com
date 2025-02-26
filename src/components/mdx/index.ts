@@ -27,6 +27,7 @@ import {
   Gbox,
   Ybox,
   MathBox,
+  Toggle,
 } from "@/components/mdx/customtags";
 
 export const components = {
@@ -57,4 +58,5 @@ export const components = {
   Gbox,
   Ybox,
   MathBox,
+  Toggle,
 };

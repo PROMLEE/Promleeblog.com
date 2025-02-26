@@ -53,3 +53,15 @@ export function MathBox({ children }: any) {
     </div>
   );
 }
+
+export function Toggle({ children, title }: any) {
+  return (
+    <details className="my-3 py-2">
+      <summary className="cursor-pointer text-lg font-bold text-pink-500 hover:text-pink-600 dark:text-pink-400 dark:hover:text-pink-300">
+        {" "}
+        {title}
+      </summary>
+      {children}
+    </details>
+  );
+}
