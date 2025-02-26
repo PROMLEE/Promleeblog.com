@@ -18,6 +18,7 @@ import {
   // blockquotetag,
   atag,
   Img,
+  codetag,
 } from "@/components/mdx/defaulttags";
 import {
   Answer,
@@ -44,6 +45,7 @@ export const components = {
   strong: btag,
   b: btag,
   p: ptag,
+  code: codetag,
   // code: codetag,
   // span: spantag,
   // blockquote: blockquotetag,

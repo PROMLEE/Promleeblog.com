@@ -63,8 +63,8 @@ export default function RootLayout({
           <GoogleTagManager
             gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER || ""}
           />
-          <GoogleAdSense />
         </body>
+        <GoogleAdSense />
       </html>
     </AutoRefresh>
   );
