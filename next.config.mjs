@@ -8,41 +8,6 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "avatars.githubusercontent.com",
-        pathname: "**",
-      },
-      {
-        protocol: "https",
-        hostname: "github.com",
-        pathname: "**",
-      },
-      {
-        protocol: "https",
-        hostname: "img.shields.io",
-        pathname: "**",
-      },
-      {
-        protocol: "https",
-        hostname: "upload.wikimedia.org",
-        pathname: "**",
-      },
-      {
-        protocol: "https",
-        hostname: "xzufpdanhnlfveztpqvm.supabase.co",
-        pathname: "**",
-      },
-      {
-        protocol: "https",
-        hostname: "www.promleeblog.com",
-        pathname: "**",
-      },
-      {
-        protocol: "https",
-        hostname: "cdn.promleeblog.com",
-        pathname: "**",
-      },
-      {
-        protocol: "https",
         hostname: "**",
       },
     ],

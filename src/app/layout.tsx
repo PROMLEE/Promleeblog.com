@@ -6,15 +6,10 @@ import { Theme } from "@/components/Theme";
 import AutoRefresh from "./AutoRefresh";
 import { Navbar } from "@/components/bars/Navbar";
 import { Footer } from "@/components/bars/Footer";
-// import { Analytics } from "@vercel/analytics/react";
-// import { SpeedInsights } from "@vercel/speed-insights/next";
 import Providers from "@/components/bars/Progressbar";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { Toaster } from "@/components/ui/toaster";
-import { Suspense } from "react";
-import { Loading } from "@/components/Loading";
 import { GoogleAdSense } from "@/components/gasnippit";
-import LeftSidebarComp from "@/components/bars/LeftSidebar";
 import XlLeftSidebar from "@/components/bars/xlLeftSidebar";
 
 export const metadata: Metadata = {
@@ -55,8 +50,6 @@ export default function RootLayout({
             <Footer />
           </Theme>
           <Toaster />
-          {/* <SpeedInsights />
-            <Analytics /> */}
           <GoogleAnalytics
             gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS || ""}
           />
