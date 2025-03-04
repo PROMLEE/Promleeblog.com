@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 
-let AutoRefresh = ({ children }: { children: any }) => children;
+let AutoRefresh = ({ children }: { children: ReactNode }) => children;
 
 if (process.env.NODE_ENV === "development") {
   AutoRefresh = ({ children }) => {

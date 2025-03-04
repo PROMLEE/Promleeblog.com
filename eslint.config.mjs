@@ -17,8 +17,8 @@ const eslintConfig = [
       "@next/next/no-img-element": "off",
       "@typescript-eslint/no-namespace": "off",
     },
+    parser: "@typescript-eslint/parser",
   }),
 ];
 
 export default eslintConfig;
-
