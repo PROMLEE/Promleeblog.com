@@ -2,7 +2,7 @@ import React from "react";
 import LeftSidebarComp from "./LeftSidebar";
 import { ViewCheck } from "./viewCheck";
 import { CalendarDemo } from "../Calander";
-import { EditService } from "@/config/apis/service/edit";
+// import { EditService } from "@/config/apis/service/edit";
 
 const XlLeftSidebar = async () => {
   // const tags = await EditService().getTags();

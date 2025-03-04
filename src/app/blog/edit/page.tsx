@@ -1,20 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Link } from "@/config/types/apis";
 import {
   AddCategory,
   AddSubject,
   AddSeries,
   AddPost,
 } from "@/components/editpost";
-
-const getList = async () => {
-  return await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`, {
-    next: { revalidate: 3600 },
-  })
-    .then((res) => res.json())
-    .then((data) => data.data);
-};
+import { PostService } from "@/config/apis";
 
 interface names {
   url: string;
@@ -22,8 +14,8 @@ interface names {
   name: string;
 }
 
-const page = () => {
-  const [Links, setLinks] = useState<Link[]>([]);
+const Page = () => {
+  const [Links, setLinks] = useState<PostResponse.GetLinks["data"]>([]);
   const [addnum, setAddnum] = useState(0);
   const [category, setCategory] = useState<names>({
     url: "",
@@ -38,17 +30,19 @@ const page = () => {
   const [series, setSeries] = useState<names>({ url: "", id: null, name: "" });
   const [post, setPost] = useState<names>({ url: "", id: null, name: "" });
   const comps = [
-    <AddCategory />,
-    <AddSubject category_id={category.id || 0} />,
-    <AddSeries subject_id={subject.id || 0} />,
-    <AddPost series_id={series.id || 0} />,
+    <AddCategory key={"addcategory"} />,
+    <AddSubject category_id={category.id || 0} key={"addsubject"} />,
+    <AddSeries subject_id={subject.id || 0} key={"addseries"} />,
+    <AddPost series_id={series.id || 0} key={"addpost"} />,
   ];
 
   useEffect(() => {
     getpw();
-    getList().then((data) => {
-      setLinks(data);
-    });
+    PostService()
+      .getLinks()
+      .then((res) => {
+        setLinks(res);
+      });
   }, []);
 
   const getpw = () => {
@@ -215,4 +209,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

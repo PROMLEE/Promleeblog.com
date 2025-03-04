@@ -9,57 +9,16 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-
-const postInit = [
-  {
-    id: "1",
-    url: "intro",
-    init_date: "2021-09-01T00:00:00.000Z",
-    name: "Network Intro",
-    nameko: "네트워크 도입부",
-    Series: {
-      url: "true",
-      nameko: "true",
-      Subject: {
-        url: "true",
-        nameko: "true",
-        Category: {
-          url: "true",
-          nameko: "true",
-        },
-      },
-    },
-  },
-];
+import { MainService } from "@/config/apis";
 
 const Page = async () => {
-  let recentPosts;
-  let hotPosts;
-  try {
-    recentPosts = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/main/recent?take=10`,
-      { next: { revalidate: 600 } },
-    )
-      .then((res) => res.json())
-      .then((data) => data.data);
-  } catch {
-    recentPosts = postInit;
-  }
-  try {
-    hotPosts = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/main/hot?take=10`,
-      { next: { revalidate: 600 } },
-    )
-      .then((res) => res.json())
-      .then((data) => data.data);
-  } catch {
-    hotPosts = postInit;
-  }
+  const recentPosts = await MainService().getRecent({ take: 10 });
+  const hotPosts = await MainService().getHot({ take: 10 });
 
-  const CardComponent = ({ post }: { post: any }) => {
+  const CardComponent = ({ post }: { post: MainResponse.PostType }) => {
     return (
       <Card>
-        <CardContent className="bg-primary flex aspect-square flex-col justify-between rounded-lg p-5 select-none">
+        <CardContent className="flex aspect-square select-none flex-col justify-between rounded-lg bg-primary p-5">
           <Link
             href={`/blog/post/${post.id}-${post.url}`}
             key={post.id}
@@ -96,10 +55,10 @@ const Page = async () => {
   };
   return (
     <div>
-      <div className={"mt-20 mb-5 text-4xl font-bold"}>{" 🖐️ Hi, There"}</div>이
+      <div className={"mb-5 mt-20 text-4xl font-bold"}>{" 🖐️ Hi, There"}</div>이
       블로그는 데스크톱과 다크 모드에 최적화되어있습니다
       <br /> This blog is optimized for desktop and dark mode
-      <div className={"mt-10 mb-5 text-4xl font-bold"}>
+      <div className={"mb-5 mt-10 text-4xl font-bold"}>
         {" 📰 Recent Posts"}
       </div>
       <Carousel
@@ -109,7 +68,7 @@ const Page = async () => {
         className="w-full"
       >
         <CarouselContent>
-          {recentPosts.map((post: any) => (
+          {recentPosts.map((post: MainResponse.PostType) => (
             <CarouselItem
               key={post.id}
               className="basis-1/3 md:basis-1/4 lg:basis-1/5"
@@ -121,7 +80,7 @@ const Page = async () => {
         <CarouselPrevious />
         <CarouselNext />
       </Carousel>
-      <div className={"mt-10 mb-5 text-4xl font-bold"}>{" 🔥 Hot Posts"}</div>
+      <div className={"mb-5 mt-10 text-4xl font-bold"}>{" 🔥 Hot Posts"}</div>
       <Carousel
         opts={{
           align: "start",
@@ -129,7 +88,7 @@ const Page = async () => {
         className="w-full"
       >
         <CarouselContent>
-          {hotPosts.map((post: any) => (
+          {hotPosts.map((post: MainResponse.PostType) => (
             <CarouselItem
               key={post.id}
               className="basis-1/3 md:basis-1/4 lg:basis-1/5"

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Metadata } from "next";
 import { GenerateMeta } from "@/lib/PostUtils/GenerateMeta_category";
 import { MdxMeta } from "@/config/types/types";
+import { PostService } from "@/config/apis";
 
 type Props = {
   params: {
@@ -29,30 +30,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const Category = async ({ params }: Props) => {
-  let subjectlist;
-  try {
-    subjectlist = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/subjectlist?categoryurl=${params.category}`,
-      { next: { revalidate: 60 } },
-    )
-      .then((res) => res.json())
-      .then((data) => data.data);
-  } catch (e) {
-    subjectlist = { Subject: [], nameko: "" };
-  }
+  const subjectlist = await PostService().getSubjectList({
+    categoryurl: params.category,
+  });
   return (
     <div>
       <div className={"category"}>{subjectlist.nameko}</div>
       {subjectlist.Subject &&
-        subjectlist.Subject.map((subject: any, idx: number) => (
-          <Link
-            key={idx}
-            href={`/blog/${params.category}/${subject.url}`}
-            className={"subject hover:subject text-white"}
-          >
-            {subject.nameko}
-          </Link>
-        ))}
+        subjectlist.Subject.map(
+          (
+            subject: PostResponse.GetSubjectList["data"]["Subject"][0],
+            idx: number,
+          ) => (
+            <Link
+              key={idx}
+              href={`/blog/${params.category}/${subject.url}`}
+              className={"subject hover:subject text-white"}
+            >
+              {subject.nameko}
+            </Link>
+          ),
+        )}
     </div>
   );
 };

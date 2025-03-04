@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-export async function generateMetadata({}: {}): Promise<Metadata> {
+export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = "https://promleeblog.com";
   const flattenedPath = "sitemap";
   const thumbnail = "icons/android-chrome-512x512.png";

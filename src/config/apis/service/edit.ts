@@ -9,7 +9,7 @@ export const EditService = () => {
    */
   const getTags = async () => {
     const response = (await API.get(`${url}/gettags`)) as EditResponse.GetTags;
-    return response;
+    return response.data;
   };
 
   return {

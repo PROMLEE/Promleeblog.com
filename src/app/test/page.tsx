@@ -26,7 +26,7 @@ const Post = async () => {
   // const jsondata = JSON.stringify(data, null, 2);
   // return <div>{jsondata}</div>;
   // console.log(jsondata);
-  const markdownsource: any = await getPostDetail({});
+  const markdownsource = await getPostDetail({});
   return (
     <>
       <Toup />

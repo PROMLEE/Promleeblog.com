@@ -1,11 +1,11 @@
 export const dynamic = "force-dynamic";
-const { PrismaClient } = require("@prisma/client");
+import { PrismaClient } from "@prisma/client";
 import { createResponse } from "@/config/apiResponse";
 import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-(BigInt.prototype as any).toJSON = function () {
+(BigInt.prototype as unknown as { toJSON: () => string }).toJSON = function () {
   return this.toString();
 };
 

@@ -49,11 +49,11 @@ API.interceptors.request.use(
 
 API.interceptors.response.use(
   (response: AxiosResponse) => {
-    console.log({
-      status: response.status,
-      statusText: response.statusText,
-      data: response.data,
-    });
+    // console.log({
+    //   status: response.status,
+    //   statusText: response.statusText,
+    //   data: response.data,
+    // });
     return response.data; // 서버에서 받는 데이터가 data 속성에 들어있는 경우
     // return response.data.data;	// 서버에서 받는 데이터가 data.data 속성에 들어있는 경우
   },
@@ -70,9 +70,6 @@ API.interceptors.response.use(
         data: error.config?.data,
       },
     });
-    const errorData: Shared.ErrorResponse = error.response
-      ?.data as Shared.ErrorResponse;
-    console.log(`${errorData.error.code}: ${errorData.error.message}`);
     return Promise.reject(error);
   },
 );

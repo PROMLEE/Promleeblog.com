@@ -16,7 +16,7 @@ export const GenerateMeta = ({
     meta.nameko,
     meta.name,
     meta.desc,
-    meta.url,
+    meta.url || "",
   ];
   const thumbnail = meta.thumbnail_url || "icons/android-chrome-512x512.png";
   const flattenedPath = `blog/post/${param}`;

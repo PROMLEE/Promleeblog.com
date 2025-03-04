@@ -1,4 +1,4 @@
-export function Answer({ children }: any) {
+export function Answer({ children }: { children: React.ReactNode }) {
   return (
     <ol type="a" className="font-normal">
       <li>{children}</li>
@@ -6,7 +6,7 @@ export function Answer({ children }: any) {
   );
 }
 
-export function Math({ children }: any) {
+export function Math({ children }: { children: React.ReactNode }) {
   return (
     <div className="w-full overflow-scroll rounded-2xl border-2 border-third bg-foreground px-10">
       {children}
@@ -14,7 +14,7 @@ export function Math({ children }: any) {
   );
 }
 
-export function Bbox({ children }: any) {
+export function Bbox({ children }: { children: React.ReactNode }) {
   return (
     <div className="my-3 flex w-full items-center rounded-md bg-blue-100 p-3 dark:bg-blue-700">
       <div className="mx-3">👨‍💻</div>
@@ -22,7 +22,7 @@ export function Bbox({ children }: any) {
     </div>
   );
 }
-export function Rbox({ children }: any) {
+export function Rbox({ children }: { children: React.ReactNode }) {
   return (
     <div className="my-3 flex w-full items-center rounded-md bg-red-100 p-3 dark:bg-red-700">
       <div className="mx-3">🖐️</div>
@@ -30,7 +30,7 @@ export function Rbox({ children }: any) {
     </div>
   );
 }
-export function Gbox({ children }: any) {
+export function Gbox({ children }: { children: React.ReactNode }) {
   return (
     <div className="my-3 flex w-full items-center rounded-md bg-green-100 p-3 dark:bg-green-700">
       <div className="mx-3">👍</div>
@@ -38,7 +38,7 @@ export function Gbox({ children }: any) {
     </div>
   );
 }
-export function Ybox({ children }: any) {
+export function Ybox({ children }: { children: React.ReactNode }) {
   return (
     <div className="my-3 flex w-full items-center rounded-md bg-yellow-100 p-3 dark:bg-yellow-800">
       <div className="mx-3">👍</div>
@@ -46,7 +46,7 @@ export function Ybox({ children }: any) {
     </div>
   );
 }
-export function MathBox({ children }: any) {
+export function MathBox({ children }: { children: React.ReactNode }) {
   return (
     <div id="box" className="inline rounded-md bg-foreground px-1 py-2">
       {children}
@@ -54,7 +54,13 @@ export function MathBox({ children }: any) {
   );
 }
 
-export function Toggle({ children, title }: any) {
+export function Toggle({
+  children,
+  title,
+}: {
+  children: React.ReactNode;
+  title: string;
+}) {
   return (
     <details className="my-3 py-2">
       <summary className="cursor-pointer text-lg font-bold text-pink-500 hover:text-pink-600 dark:text-pink-400 dark:hover:text-pink-300">

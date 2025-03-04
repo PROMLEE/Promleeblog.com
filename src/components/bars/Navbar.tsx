@@ -12,6 +12,7 @@ import LeftSidebarComp from "@/components/bars/LeftSidebar";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import Indicator from "@/components/bars/Scrollindicator";
+import { PostService } from "@/config/apis";
 // import Image from "next/image";
 // import { supabase } from "@/lib/Supabase/supabase_client";
 
@@ -26,16 +27,12 @@ import Indicator from "@/components/bars/Scrollindicator";
 
 export const Navbar = () => {
   const [menu, setMenu] = useState(false);
-  const [list, setList]: any[] = useState([
-    { nameko: "개발", Subject: [] },
-    { nameko: "개인학습", Subject: [] },
-    { nameko: "기타", Subject: [] },
-  ]);
+  const [list, setList] = useState<PostResponse.GetLinks["data"]>([]);
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`)
-      .then((res) => res.json())
+    PostService()
+      .getLinks()
       .then((data) => {
-        setList(data.data);
+        setList(data);
       });
   }, []);
 
@@ -54,7 +51,7 @@ export const Navbar = () => {
           PromleeBlog
         </Link>
         <div className="flex items-center gap-2">
-          {list.map((category: any, index: any) => {
+          {list.map((category, index) => {
             return (
               <Menubar
                 key={index}
@@ -69,7 +66,7 @@ export const Navbar = () => {
                     {category.nameko}
                   </MenubarTrigger>
                   <MenubarContent>
-                    {category.Subject.map((subject: any, index: any) => {
+                    {category.Subject.map((subject, index) => {
                       return (
                         <Link
                           href={`/blog/${category.url}/${subject.url}`}

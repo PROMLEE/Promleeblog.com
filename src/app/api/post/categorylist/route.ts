@@ -1,14 +1,13 @@
 export const dynamic = "force-dynamic";
-const { PrismaClient } = require("@prisma/client");
+import { PrismaClient } from "@prisma/client";
 import { createResponse } from "@/config/apiResponse";
 import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-(BigInt.prototype as any).toJSON = function () {
+(BigInt.prototype as unknown as { toJSON: () => string }).toJSON = function () {
   return this.toString();
 };
-
 /**
  * @swagger
  * /api/post/categorylist:
@@ -41,10 +40,7 @@ export async function GET() {
       createResponse("Category List found", await getCategoryList()),
     );
   } catch (error) {
-    return NextResponse.json(
-      { error: "Category List not found" },
-      { status: 405 },
-    );
+    return NextResponse.json({ error }, { status: 405 });
   }
 }
 

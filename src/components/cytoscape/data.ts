@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export default async function getList() {
   const nodeSize1 = 20;
   const nodeSize2 = 17;
   const nodeSize3 = 10;
-  const nodeSize4 = 10;
+  // const nodeSize4 = 10;
   const fontSize1 = 7;
   const fontSize2 = 6;
   const fontSize3 = 4;
-  const fontSize4 = 4;
+  // const fontSize4 = 4;
   const nodes: any[] = [];
   const edges: any[] = [];
   const Links = await fetch(
