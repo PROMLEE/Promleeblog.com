@@ -5,32 +5,32 @@ import axios, {
 } from "axios";
 
 export const API = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_SERVER_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL + "/api",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-export const AuthStorage = {
-  async setToken(accessToken: string) {
-    await localStorage.setItem("accessToken", accessToken);
-  },
+// export const AuthStorage = {
+//   async setToken(accessToken: string) {
+//     await localStorage.setItem("accessToken", accessToken);
+//   },
 
-  async getToken(): Promise<string | null> {
-    return await localStorage.getItem("accessToken");
-  },
+//   async getToken(): Promise<string | null> {
+//     return await localStorage.getItem("accessToken");
+//   },
 
-  async clear() {
-    await localStorage.removeItem("accessToken");
-  },
-};
+//   async clear() {
+//     await localStorage.removeItem("accessToken");
+//   },
+// };
 
 API.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    const token = await AuthStorage.getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    // const token = await AuthStorage.getToken();
+    // if (token) {
+    //   config.headers.Authorization = `Bearer ${token}`;
+    // }
     console.log({
       headers: config.headers,
       method: config.method,
@@ -72,8 +72,7 @@ API.interceptors.response.use(
     });
     const errorData: Shared.ErrorResponse = error.response
       ?.data as Shared.ErrorResponse;
-    alert(`${errorData.error.code}: ${errorData.error.message}`);
+    console.log(`${errorData.error.code}: ${errorData.error.message}`);
     return Promise.reject(error);
   },
 );
-
