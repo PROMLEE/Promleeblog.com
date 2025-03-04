@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import cytoscape from "cytoscape";
 import CytoscapeComponent from "react-cytoscapejs";
 import getList from "@/components/cytoscape/data";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import coseBilkent from "cytoscape-cose-bilkent";
 import { useTheme } from "next-themes";
@@ -24,7 +26,7 @@ export default function CytoscapeGraph() {
   const { theme } = useTheme();
   const fontActiveSize = 7;
   const edgeWidth = "3px";
-  var edgeActiveWidth = "4px";
+  const edgeActiveWidth = "4px";
   const arrowScale = 0.8;
   const arrowActiveScale = 1.2;
   const dimColor = "#dfe4ea";
@@ -159,6 +161,7 @@ export default function CytoscapeGraph() {
           boxSelectionEnabled={true}
           wheelSensitivity={0.1}
           layout={layout}
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           stylesheet={styleSheet}
           cy={(cy: any) => {

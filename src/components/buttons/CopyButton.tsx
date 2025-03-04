@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useState, ReactNode } from "react";
+import { ReactNode } from "react";
 
 /** React 노드에서 텍스트 추출 (줄바꿈 포함) */
 const extractText = (node: ReactNode): string => {
@@ -30,7 +30,7 @@ const isWrappedWithSpan = (children: ReactNode): boolean => {
 };
 
 export const CopyButton = ({ children }: { children: ReactNode }) => {
-  const [copied, setCopied] = useState(false);
+  // const [copied, setCopied] = useState(false);
 
   // 모든 children이 <span> 태그 또는 문자열("\n")이면 버튼 표시
   if (!isWrappedWithSpan(children)) {
@@ -42,8 +42,8 @@ export const CopyButton = ({ children }: { children: ReactNode }) => {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(textToCopy);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1000);
+    // setCopied(true);
+    // setTimeout(() => setCopied(false), 1000);
   };
 
   return (

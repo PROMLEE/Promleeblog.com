@@ -25,21 +25,21 @@ export const Projects = () => {
     query: "(max-width: 768px)",
   });
   const ref = useRef<HTMLDivElement>(null);
-  const ref1 = useRef<HTMLDivElement>(null);
+  // const ref1 = useRef<HTMLDivElement>(null);
   const ref2 = useRef<HTMLDivElement>(null);
   const ref3 = useRef<HTMLDivElement>(null);
-  const ref4 = useRef<HTMLDivElement>(null);
+  // const ref4 = useRef<HTMLDivElement>(null);
   const ref5 = useRef<HTMLDivElement>(null);
   const title = useIsVisible(ref);
-  const p1 = useIsVisible(ref1);
+  // const p1 = useIsVisible(ref1);
   const p2 = useIsVisible(ref2);
   const p3 = useIsVisible(ref3);
-  const p4 = useIsVisible(ref4);
+  // const p4 = useIsVisible(ref4);
   const p5 = useIsVisible(ref5);
-  const [hover1, setHover1] = useState<boolean>(false);
+  // const [hover1, setHover1] = useState<boolean>(false);
   const [hover2, setHover2] = useState<boolean>(false);
   const [hover3, setHover3] = useState<boolean>(false);
-  const [hover4, setHover4] = useState<boolean>(false);
+  // const [hover4, setHover4] = useState<boolean>(false);
   const [hover5, setHover5] = useState<boolean>(false);
 
   const projects: ProjectType[] = [

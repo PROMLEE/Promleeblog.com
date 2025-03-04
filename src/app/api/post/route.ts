@@ -1,12 +1,11 @@
 export const dynamic = "force-dynamic";
-const { PrismaClient } = require("@prisma/client");
+import { PrismaClient } from "@prisma/client";
 import { createResponse } from "@/config/apiResponse";
 import { NextResponse, NextRequest } from "next/server";
 
-(BigInt.prototype as any).toJSON = function () {
+(BigInt.prototype as unknown as { toJSON: () => string }).toJSON = function () {
   return this.toString();
 };
-
 const prisma = new PrismaClient();
 /**
  * @swagger
@@ -44,9 +43,9 @@ const prisma = new PrismaClient();
  *         description: Post not found
  */
 export async function GET(req: NextRequest) {
-  const id = req.nextUrl.searchParams.get("id")?.split("-")[0];
+  const id = req.nextUrl.searchParams.get("post_id")?.split("-")[0];
   const rest = req.nextUrl.searchParams
-    .get("id")
+    .get("post_id")
     ?.split("-")
     .slice(1)
     .join("-");
@@ -60,7 +59,7 @@ export async function GET(req: NextRequest) {
     }
     return NextResponse.json(createResponse("Post found", post));
   } catch (error) {
-    return NextResponse.json({ error: "Post not found" }, { status: 405 });
+    return NextResponse.json({ error }, { status: 405 });
   }
 }
 

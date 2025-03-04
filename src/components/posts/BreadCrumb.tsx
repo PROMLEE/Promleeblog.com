@@ -6,13 +6,17 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import dayjs from "dayjs";
+// import dayjs from "dayjs";
 import Link from "next/link";
 
-export const BreadCrumb = ({ params }: { params: any }) => {
-  const dateString = dayjs(params.init_date)
-    .locale("ko")
-    .format("YYYY년 MM월 DD일");
+export const BreadCrumb = ({
+  params,
+}: {
+  params: PostResponse.GetPost["data"];
+}) => {
+  // const dateString = dayjs(params.init_date)
+  //   .locale("ko")
+  //   .format("YYYY년 MM월 DD일");
   return (
     <Breadcrumb>
       <BreadcrumbList>

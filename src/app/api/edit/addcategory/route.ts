@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-(BigInt.prototype as any).toJSON = function () {
+(BigInt.prototype as unknown as { toJSON: () => string }).toJSON = function () {
   return this.toString();
 };
 /**
@@ -55,6 +55,6 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json(createResponse("Category List found"));
   } catch (error) {
-    return NextResponse.json({ error: "Post not found" }, { status: 405 });
+    return NextResponse.json({ error }, { status: 405 });
   }
 }

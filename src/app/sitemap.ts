@@ -1,25 +1,10 @@
+import { PostService } from "@/config/apis";
 import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const basePath = "https://www.promleeblog.com/blog/";
-  let Links: any;
-  try {
-    Links = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`,
-      { next: { revalidate: 3600 } },
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === 200) {
-          return data.data;
-        } else {
-          throw new Error("Links not found");
-        }
-      });
-  } catch (e) {
-    Links = [];
-  }
-  const putmap: any = (url: string) => {
+  const Links = await PostService().getLinks();
+  const putmap = (url: string) => {
     return {
       url: basePath + url,
       lastModified: new Date(),
@@ -27,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       // priority: 0.8,
     };
   };
-  var list: any[] = [
+  const list = [
     {
       url: "https://www.promleeblog.com",
       lastModified: new Date(),
@@ -53,13 +38,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
     },
   ];
-  Links.map((category: any) => {
+  Links.map((category) => {
     list.push(putmap(category.url));
-    category.Subject.map((sub: any) => {
+    category.Subject.map((sub) => {
       list.push(putmap(category.url + "/" + sub.url));
-      sub.Series.map((series: any) => {
-        series.Post.map((post: any) => {
-          post.lock || list.push(putmap("post/" + post.id + "-" + post.url));
+      sub.Series.map((series) => {
+        series.Post.map((post) => {
+          if (!post.lock) {
+            list.push(putmap("post/" + post.id + "-" + post.url));
+          }
         });
       });
     });

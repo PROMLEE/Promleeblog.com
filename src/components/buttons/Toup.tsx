@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useTheme } from "next-themes";
 
 export const Toup = () => {
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   return (
     <Link href="#">
       <svg

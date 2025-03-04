@@ -1,7 +1,13 @@
 import React from "react";
 import Image from "next/image";
 
-export const MdxHeader = ({ props }: { props: any }) => {
+interface HeaderProps {
+  thumbnail_url: string;
+  nameko: string;
+  name: string;
+}
+
+export const MdxHeader = ({ props }: { props: HeaderProps }) => {
   return (
     <div>
       <h1 className="relative z-10 mt-36 w-full text-center text-4xl font-bold text-text-foreground">

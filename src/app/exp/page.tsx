@@ -1,12 +1,12 @@
 "use client";
 
-import { TestService } from "@/config/apis";
-import { useEffect, useState } from "react";
+// import { TestService } from "@/config/apis";
+// import { useEffect, useState } from "react";
 
 export default function TestPage() {
-  const [posts, setPosts] = useState<TestResponse.GetPosts>();
-  const [getAllPosts, setGetAllPosts] = useState<TestResponse.GetPosts[]>();
-  const [postPosts, setPostPosts] = useState<TestResponse.GetPosts>();
+  // const [posts, setPosts] = useState<TestResponse.GetPosts>();
+  // const [getAllPosts, setGetAllPosts] = useState<TestResponse.GetPosts[]>();
+  // const [postPosts, setPostPosts] = useState<TestResponse.GetPosts>();
 
   // useEffect(() => {
   //   const fetchPosts = async () => {
@@ -38,10 +38,10 @@ export default function TestPage() {
 
   return (
     <div>
-      <h1>Test</h1>
+      {/* <h1>Test</h1>
       <div>{posts?.title}</div>
       {getAllPosts?.map((post) => <div key={post.id}>{post.title}</div>)}
-      <div>{postPosts?.title}</div>
+      <div>{postPosts?.title}</div> */}
     </div>
   );
 }

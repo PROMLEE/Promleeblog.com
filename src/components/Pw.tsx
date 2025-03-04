@@ -27,8 +27,8 @@ export function Pw({
   edit,
 }: {
   isOpen: boolean;
-  Close: any;
-  url: any;
+  Close: () => void;
+  url: string;
   edit?: boolean;
 }) {
   const [value, setValue] = React.useState("");
@@ -47,7 +47,7 @@ export function Pw({
     if (value.length === 4) {
       const PW = process.env.NEXT_PUBLIC_POST_PW;
       if (value === PW) {
-        edit || router.push(url);
+        if (!edit) router.push(url);
         localStorage.setItem("promleeblogpostpw", PW);
         Close();
       } else {

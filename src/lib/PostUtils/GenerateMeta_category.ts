@@ -21,7 +21,7 @@ export const GenerateMeta = ({
     "PromleeBlog.com",
     meta.nameko,
     meta.name,
-    meta.url,
+    meta.url || "",
   ];
   const thumbnail = meta.thumbnail_url || "icons/android-chrome-512x512.png";
   const flattenedPath = params.subject

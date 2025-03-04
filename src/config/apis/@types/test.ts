@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 declare namespace TestRequest {
   export interface GetPostsParams {
     id: number;

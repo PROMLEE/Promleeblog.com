@@ -8,26 +8,23 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useState, useEffect } from "react";
-import { ViewCheck } from "./viewCheck";
+import { PostService } from "@/config/apis";
+// import { ViewCheck } from "./viewCheck";
 
-const LeftSidebarComp = ({ menuclose }: { menuclose?: any }) => {
+const LeftSidebarComp = ({ menuclose }: { menuclose?: () => void }) => {
   const [value, setValue] = useState("");
-  const [list, setList]: any[] = useState([
-    { nameko: "개발", Subject: [] },
-    { nameko: "개인학습", Subject: [] },
-    { nameko: "기타", Subject: [] },
-  ]);
+  const [list, setList] = useState<PostResponse.GetLinks["data"]>([]);
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/links`)
-      .then((res) => res.json())
+    PostService()
+      .getLinks()
       .then((data) => {
-        setList(data.data);
+        setList(data);
       });
   }, []);
   return (
     <div className="related leftsidebar block md:hidden xl:block">
       <Accordion collapsible type="single" data-state value={value}>
-        {list.map((category: any, index: number) => {
+        {list.map((category, index) => {
           return (
             <AccordionItem
               value={category.nameko}
@@ -36,22 +33,26 @@ const LeftSidebarComp = ({ menuclose }: { menuclose?: any }) => {
             >
               <AccordionTrigger
                 onClick={() => {
-                  value === category.nameko
-                    ? setValue("")
-                    : setValue(category.nameko);
+                  if (value === category.nameko) {
+                    setValue("");
+                  } else {
+                    setValue(category.nameko);
+                  }
                 }}
               >
                 {category.nameko}
               </AccordionTrigger>
               <AccordionContent className="p-0">
-                {category.Subject.map((subject: any, index: any) => {
+                {category.Subject.map((subject, index) => {
                   return (
                     <Link
                       href={`/blog/${category.url}/${subject.url}`}
                       key={index}
                       onClick={() => {
                         setValue("");
-                        menuclose();
+                        if (menuclose) {
+                          menuclose();
+                        }
                       }}
                     >
                       <AccordionItem

@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 const parseToc = (content: string) => {
   const regex = /^(#|##|###) (.*$)/gim;
   const headingList = content.match(regex);
-  let toc: string[] = [];
+  const toc: string[] = [];
   return (
     headingList?.map((heading: string) => {
       let link =

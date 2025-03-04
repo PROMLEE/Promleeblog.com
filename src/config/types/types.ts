@@ -5,7 +5,7 @@ export interface MdxMeta {
   thumbnail_url: string;
   init_date: string;
   mod_date: string;
-  url: string;
+  url?: string;
 }
 export interface urlParams {
   post: string;

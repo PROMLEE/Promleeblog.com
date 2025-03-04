@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 interface value {
-  name: "name" | "nameko" | "url" | "ord" | "desc";
+  name: EditRequest.PostAddCategoryColumnName;
   type?: boolean;
   formlabel: string;
 }
@@ -43,13 +43,7 @@ const values: value[] = [
     formlabel: "Description",
   },
 ];
-interface Category {
-  name: string;
-  nameko: string;
-  ord: number;
-  url: string;
-  desc: string;
-}
+
 const FormSchema = z.object({
   name: z.string().min(2, {
     message: "Name(eng) must be at least 2 characters.",
@@ -64,7 +58,7 @@ const FormSchema = z.object({
   desc: z.string(),
 });
 
-const joinApi = async ({ body }: { body: Category }) => {
+const joinApi = async ({ body }: { body: EditRequest.PostAddCategory }) => {
   await fetch("/api/edit/addcategory", {
     method: "POST",
     body: JSON.stringify(body),
@@ -89,7 +83,7 @@ export const AddCategory = () => {
   function onSubmit(data: z.infer<typeof FormSchema>) {
     const confirmtext = `Category Name(Eng): ${data.name}\nCategory Name(Kor): ${data.nameko}\nCategory URL: ${data.url}\nOrder: ${data.ord}\nDescription: ${data.desc}`;
     if (window.confirm("Do you want to add this Category?\n" + confirmtext)) {
-      joinApi({ body: data });
+      joinApi({ body: data as EditRequest.PostAddCategory });
       window.location.reload();
     }
   }

@@ -19,16 +19,16 @@ import {
 } from "@/components/aboutme/map2zero";
 
 const slideData = [
-  <Page1 />,
-  <Page2 />,
-  <Page3 />,
-  <Page4 />,
-  <Page5 />,
-  <Page6 />,
-  <Page7 />,
+  <Page1 key={"map2zero-page1"} />,
+  <Page2 key={"map2zero-page2"} />,
+  <Page3 key={"map2zero-page3"} />,
+  <Page4 key={"map2zero-page4"} />,
+  <Page5 key={"map2zero-page5"} />,
+  <Page6 key={"map2zero-page6"} />,
+  <Page7 key={"map2zero-page7"} />,
 ];
 
-const page = () => {
+const Page = () => {
   SwiperCore.use([Navigation, Scrollbar, Mousewheel]);
   return (
     <div className="my-10">
@@ -57,4 +57,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
