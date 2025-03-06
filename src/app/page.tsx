@@ -22,7 +22,7 @@ const Page = async () => {
           <Link
             href={`/blog/post/${post.id}-${post.url}`}
             key={post.id}
-            className="text-overflow hover:text-blue-300 hover:underline"
+            className="text-overflow text-xs hover:text-blue-300 hover:underline"
           >
             {post.nameko}
           </Link>
