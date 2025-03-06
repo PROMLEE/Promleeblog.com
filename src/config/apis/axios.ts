@@ -6,6 +6,8 @@ import axios, {
 
 export const API = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL + "/api",
+  adapter: "fetch",
+  fetchOptions: { next: { revalidate: 3600 } },
   headers: {
     "Content-Type": "application/json",
   },
@@ -31,14 +33,14 @@ API.interceptors.request.use(
     // if (token) {
     //   config.headers.Authorization = `Bearer ${token}`;
     // }
-    console.log({
-      headers: config.headers,
-      method: config.method,
-      url: config.url,
-      baseUrl: config.baseURL,
-      data: config.data,
-      params: config.params,
-    });
+    // console.log({
+    //   headers: config.headers,
+    //   method: config.method,
+    //   url: config.url,
+    //   baseUrl: config.baseURL,
+    //   data: config.data,
+    //   params: config.params,
+    // });
     return config;
   },
   (error: AxiosError) => {
@@ -58,18 +60,18 @@ API.interceptors.response.use(
     // return response.data.data;	// 서버에서 받는 데이터가 data.data 속성에 들어있는 경우
   },
   async (error: AxiosError) => {
-    console.warn(error.config?.url + " API response error", {
-      response_data: error.response?.data,
-      status: error.response?.status,
-      request_info: {
-        method: error.config?.method,
-        url: error.config?.url,
-        baseUrl: error.config?.baseURL,
-        headers: error.config?.headers,
-        params: error.config?.params,
-        data: error.config?.data,
-      },
-    });
+    // console.warn(error.config?.url + " API response error", {
+    //   response_data: error.response?.data,
+    //   status: error.response?.status,
+    //   request_info: {
+    //     method: error.config?.method,
+    //     url: error.config?.url,
+    //     baseUrl: error.config?.baseURL,
+    //     headers: error.config?.headers,
+    //     params: error.config?.params,
+    //     data: error.config?.data,
+    //   },
+    // });
     return Promise.reject(error);
   },
 );
