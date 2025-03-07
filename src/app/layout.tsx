@@ -11,6 +11,7 @@ import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { Toaster } from "@/components/ui/toaster";
 import { GoogleAdSense } from "@/components/gasnippit";
 import XlLeftSidebar from "@/components/bars/xlLeftSidebar";
+import TagList from "@/components/bars/TagList";
 
 export const metadata: Metadata = {
   title: "PromleeBlog",
@@ -42,11 +43,12 @@ export default function RootLayout({
             <XlLeftSidebar />
             <div
               className={
-                "min-h-[100vh] w-full scroll-smooth bg-background px-10 focus:scroll-smooth md:w-5/6 xl:w-3/5"
+                "w-full scroll-smooth bg-background px-10 focus:scroll-smooth md:min-h-[100vh] md:w-5/6 xl:w-3/5"
               }
             >
               <Providers>{children}</Providers>
             </div>
+            <TagList />
             <Footer />
           </Theme>
           <Toaster />

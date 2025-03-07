@@ -36,10 +36,18 @@ export const TagsService = () => {
     return response.data;
   };
 
+  const getPostLink = async (params: TagsRequest.GetPostLink) => {
+    const response = (await API.get(`${url}/postlink`, {
+      params,
+    })) as TagsResponse.GetPostLink;
+    return response.data;
+  };
+
   return {
     getTags,
     postTags,
     deleteTags,
     addTags,
+    getPostLink,
   };
 };
