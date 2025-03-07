@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import { PrismaClient } from "@prisma/client";
 import { createResponse } from "@/config/apiResponse";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
 const prisma = new PrismaClient();
 
@@ -11,9 +11,12 @@ const prisma = new PrismaClient();
 
 /**
  * @swagger
- * /api/edit/gettags:
+ * /api/tags:
  *   get:
  *     description: Returns tag list
+ *     parameters:
+ *        - in: query
+ *          name: sort
  *     responses:
  *       200:
  *         description: Returns tag list
@@ -34,26 +37,54 @@ const prisma = new PrismaClient();
  *       405:
  *         description: Tags not found
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const sort = req.nextUrl.searchParams.get("sort");
   try {
-    return NextResponse.json(createResponse("Tag List found", await getTags()));
+    return NextResponse.json(
+      createResponse("Tag List found", await getTags(sort || "id")),
+    );
   } catch (error) {
     return NextResponse.json({ error }, { status: 405 });
   }
 }
 
-async function getTags() {
-  const tags = await prisma.tag
-    .findMany({
+async function getTags(sort?: string) {
+  if (sort === "count") {
+    const tagsCount = await prisma.post_Tag.groupBy({
+      by: ["tag_id"],
+      _count: {
+        _all: true,
+      },
+    });
+
+    const tags = await prisma.tag.findMany({
       select: {
         id: true,
         name: true,
         nameko: true,
         is_primary: true,
       },
-    })
-    .catch((error) => {
-      console.error(error);
     });
-  return tags;
+
+    tagsCount.sort((a, b) => b._count._all - a._count._all);
+
+    const result = tagsCount.map((tag) => {
+      const isExist = tags.find((t) => t.id === tag.tag_id);
+      return {
+        name: isExist?.name,
+        nameko: isExist?.nameko,
+        id: tag.tag_id,
+        is_primary: isExist?.is_primary,
+        count: tag._count._all,
+      };
+    });
+
+    return result;
+  } else {
+    return prisma.tag.findMany({
+      orderBy: {
+        id: "asc",
+      },
+    });
+  }
 }

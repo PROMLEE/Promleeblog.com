@@ -24,6 +24,7 @@ model Post {
   lock          Boolean?   @default(false)
   posting       String?    @default("")
   url           String     @unique @default("")
+  metatag       String[]
   Series        Series     @relation(fields: [series_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   Post_Tag      Post_Tag[]
 }

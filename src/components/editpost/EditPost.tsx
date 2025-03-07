@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
-import { EditService } from "@/config/apis";
+import { EditService, PostService } from "@/config/apis";
 import { TagsService } from "@/config/apis/service/tags";
 import { Badge } from "../ui/badge";
 
@@ -72,7 +72,18 @@ const values: value[] = [
     type: "text",
   },
 ];
-
+interface series {
+  series_id: number;
+  name: string;
+  nameko: string;
+  url: string;
+  series_no: number;
+  desc: string;
+  thumbnail_url: string;
+  lock: boolean;
+  posting: string;
+  metatag: string[];
+}
 const FormSchema = z.object({
   series_id: z.string().transform((v) => Number(v) || 0),
   name: z.string().min(2, {
@@ -94,21 +105,18 @@ const FormSchema = z.object({
     message: "Posting must be at least 2 characters.",
   }),
   metatag: z.array(z.string()),
-  tags: z.array(z.number()),
 });
 
-export const AddPost = ({ series_id }: { series_id: number }) => {
-  const [tags, setTags] = useState<TagsResponse.GetTags["data"]>([]);
-
-  useEffect(() => {
-    TagsService()
-      .getTags({
-        sort: "id",
-      })
-      .then((res) => {
-        setTags(res);
-      });
-  }, []);
+export const EditPost = ({
+  series_id,
+  post_id,
+  post_url,
+}: {
+  series_id: number;
+  post_id?: number;
+  post_url?: string;
+}) => {
+  const [tags, setTags] = useState<TagsResponse.GetPostTags["data"]>([]);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -123,16 +131,34 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
       lock: false,
       posting: "",
       metatag: [],
-      tags: [],
     },
   });
 
+  useEffect(() => {
+    if (post_id) {
+      PostService()
+        .getPost({ post_id: `${post_id.toString()}-${post_url}` })
+        .then((res) => {
+          form.reset(res);
+        });
+      TagsService()
+        .postTags(post_id.toString())
+        .then((res) => {
+          setTags(res);
+        });
+    }
+  }, [post_id]);
+
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     const confirmtext = `Name: ${data.name}\nName(ko): ${data.nameko}\nURL: ${data.url}\nSeries_no: ${data.series_no}\nDescription: ${data.desc}\nThumbnail URL: ${data.thumbnail_url}\nLock: ${data.lock}\nPosting: ${data.posting.slice(0, 20) + "..."}`;
-    console.log(data.tags);
     if (window.confirm("Do you want to add this Post?\n" + confirmtext)) {
-      await EditService().postPost(data);
-      window.location.reload();
+      if (post_id && post_url) {
+        await EditService().patchPost(data, post_id);
+        window.location.reload();
+      } else {
+        await EditService().postPost({ ...data, tags: [] });
+        window.location.reload();
+      }
     }
   }
 
@@ -195,9 +221,9 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
                     <Input
                       placeholder="Metatag"
                       onChange={(e) => {
-                        field.onChange(e.target.value.split(", "));
+                        field.onChange(e.target.value.split(","));
                       }}
-                      value={field.value.join(", ")}
+                      value={field.value.join(",")}
                       type="text"
                       className="border-third"
                     />
@@ -234,20 +260,35 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
           {tags.map((tag) => (
             <Badge
               key={tag.id}
-              className={`cursor-pointer p-3 text-base hover:bg-transparent ${
-                form.watch("tags").includes(parseInt(tag.id))
-                  ? "bg-secondary"
-                  : "bg-primary"
-              }`}
+              className={`cursor-pointer p-3 text-base hover:bg-transparent ${tag.isExist ? "bg-secondary" : "bg-primary"}`}
               onClick={async () => {
-                const tags = form.getValues("tags");
-                if (tags.includes(parseInt(tag.id))) {
-                  await form.setValue(
-                    "tags",
-                    tags.filter((t) => t !== parseInt(tag.id)),
-                  );
+                if (post_id === undefined) return;
+                if (tag.isExist) {
+                  await TagsService()
+                    .deleteTags({
+                      post_id: post_id,
+                      tag_id: parseInt(tag.id),
+                    })
+                    .then(() => {
+                      setTags(
+                        tags.map((t) =>
+                          t.id === tag.id ? { ...t, isExist: false } : t,
+                        ),
+                      );
+                    });
                 } else {
-                  await form.setValue("tags", [...tags, parseInt(tag.id)]);
+                  await TagsService()
+                    .addTags({
+                      post_id: post_id,
+                      tag_id: parseInt(tag.id),
+                    })
+                    .then(() => {
+                      setTags(
+                        tags.map((t) =>
+                          t.id === tag.id ? { ...t, isExist: true } : t,
+                        ),
+                      );
+                    });
                 }
               }}
             >
@@ -255,6 +296,21 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
             </Badge>
           ))}
         </div>
+        <div
+          className="mt-10 h-full w-1/4 cursor-pointer text-2xl hover:text-white active:text-pink-400"
+          onClick={() => {
+            navigator.clipboard.writeText(
+              `https://www.promleeblog.com/blog/post/${post_id}-${post_url}`,
+            );
+          }}
+        >
+          Copy
+        </div>
+        <a
+          className="h-full cursor-pointer break-words hover:text-white active:text-pink-400"
+          href={`https://www.promleeblog.com/blog/post/${post_id}-${post_url}`}
+          target="_blank"
+        >{`https://www.promleeblog.com/blog/post/${post_id}-${post_url}`}</a>
       </div>
     </div>
   );
