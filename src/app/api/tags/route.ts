@@ -52,6 +52,11 @@ async function getTags(sort?: string) {
   if (sort === "count") {
     const tagsCount = await prisma.post_Tag.groupBy({
       by: ["tag_id"],
+      where: {
+        Post: {
+          lock: false,
+        },
+      },
       _count: {
         _all: true,
       },

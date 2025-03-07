@@ -18,6 +18,12 @@ namespace TagsResponse {
       count: number;
     }[];
   }
+
+  export interface GetPostLink extends Shared.SuccessResponse {
+    data: {
+      Post: PostResponse.PostView;
+    }[];
+  }
 }
 
 namespace TagsRequest {
@@ -28,5 +34,9 @@ namespace TagsRequest {
 
   export interface GetTags {
     sort: "id" | "count";
+  }
+
+  export interface GetPostLink {
+    tag_id: number;
   }
 }
