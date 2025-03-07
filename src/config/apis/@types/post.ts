@@ -20,23 +20,27 @@ namespace PostResponse {
         url: string;
         subject_no: number;
         caption: string;
-        Post: {
-          id: number;
-          series_no: number;
-          name: string;
-          nameko: string;
-          desc: string;
-          init_date: string;
-          thumbnail_url: string;
-          view: number;
-          like: number;
-          series_id: number;
-          mod_date: string;
-          lock: boolean;
-          posting: string;
-        }[];
+        Post: PostView[];
       }[];
     };
+  }
+
+  export interface PostView {
+    id: number;
+    series_no: number;
+    name: string;
+    nameko: string;
+    desc: string;
+    init_date: string;
+    thumbnail_url: string;
+    view: number;
+    like: number;
+    series_id: number;
+    mod_date: string;
+    lock: boolean;
+    posting: string;
+    url: string;
+    metatag: string[];
   }
 
   export interface GetSubjectList extends Shared.SuccessResponse {
@@ -120,7 +124,7 @@ namespace PostRequest {
     categoryurl: string;
   }
   export interface GetSeriesList {
-    subject_no: number;
+    subjecturl: string;
   }
   export interface PatchView {
     post_id: string;

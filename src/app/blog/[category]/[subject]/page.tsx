@@ -4,8 +4,9 @@ import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { Loading } from "@/components/Loading";
 import Image from "next/image";
-import { Pw } from "@/components/Pw";
+// import { Pw } from "@/components/Pw";
 import dayjs from "dayjs";
+import { PostService } from "@/config/apis";
 
 type Props = {
   params: params;
@@ -16,21 +17,7 @@ interface params {
   subject: string;
 }
 
-// function contentList(params: params) {
-//   const fs = require("fs");
-//   const path = `${process.cwd()}/src/posts/${params.category}/${params.subject}`;
-//   return fs.readdirSync(path);
-// }
-const getSource = async (params: params) => {
-  return await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/serieslist?subjecturl=${params.subject}`,
-    { next: { revalidate: 3600 } },
-  )
-    .then((res) => res.json())
-    .then((data) => data.data);
-};
-
-const Cards = ({ post, idx }: { post: any; idx: number }) => {
+const Cards = ({ post, idx }: { post: PostResponse.PostView; idx: number }) => {
   const [hover, setHover] = useState(false);
 
   const dateString = dayjs(post.init_date).format("YYYY-MM-DD");
@@ -42,13 +29,16 @@ const Cards = ({ post, idx }: { post: any; idx: number }) => {
     >
       <div className="absolute">{post.lock && "🔒"}</div>
       <div
-        className={`flex min-h-14 w-full justify-center rounded-md ${hover ? "bg-button" : "bg-third"}`}
+        className={`flex max-h-14 min-h-14 w-full justify-center rounded-md ${hover ? "bg-button" : "bg-third"}`}
       >
-        <Image
-          src={post.thumbnail_url || "/icons/android-chrome-512x512.png"}
+        <img
+          src={
+            post.thumbnail_url.startsWith("/")
+              ? `https://cdn.promleeblog.com/posts${post.thumbnail_url}`
+              : post.thumbnail_url || "/icons/android-chrome-512x512.png"
+          }
           alt="thumbnail"
-          width={50}
-          height={50}
+          className="max-h-14 rounded-t-md object-contain"
         />
       </div>
       <div className="flex text-xs">{dateString}</div>
@@ -62,28 +52,24 @@ const Cards = ({ post, idx }: { post: any; idx: number }) => {
 };
 
 const Subject = ({ params }: Props) => {
-  const [serieslist, setSerieslist] = useState<any>({ Series: [], nameko: "" });
-  const [isopen, setIsOpen] = useState(false);
-  const [url, setUrl] = useState("");
-  const Close = () => {
-    setIsOpen(false);
-  };
-  const Open = () => {
-    setIsOpen(true);
-  };
-  const SetUrl = (url: string) => {
-    setUrl(url);
-  };
+  const [serieslist, setSerieslist] = useState<
+    PostResponse.GetSeriesList["data"]
+  >({ Series: [], nameko: "" });
+  // const [isopen, setIsOpen] = useState(false);
+  // const Close = () => {
+  //   setIsOpen(false);
+  // };
 
   useEffect(() => {
-    const source = getSource(params);
-    source.then((data) => {
-      setSerieslist(data);
-    });
+    PostService()
+      .getSeriesList({ subjecturl: params.subject })
+      .then((data) => {
+        setSerieslist(data);
+      });
   }, [params]);
   return (
     <Suspense fallback={<Loading />}>
-      <Pw isOpen={isopen} Close={Close} url={url} />
+      {/* <Pw isOpen={isopen} Close={Close} url={url} /> */}
       {/* <Link className={"category"} href={`/blog/${params.category}`}>
         {params.category}
       </Link> */}
@@ -94,7 +80,7 @@ const Subject = ({ params }: Props) => {
         {serieslist.nameko}
       </div>
       {serieslist.Series &&
-        serieslist.Series.map((series: any, idx: any) => {
+        serieslist.Series.map((series, idx) => {
           for (let i = 0; i < series.Post.length; i++) {
             if (series.Post[i].lock === false) {
               break;
@@ -111,14 +97,14 @@ const Subject = ({ params }: Props) => {
               </h2>
               <div className="flex w-full flex-wrap gap-3">
                 {series.Post.length
-                  ? series.Post.map((post: any, idx: number) => {
+                  ? series.Post.map((post, idx) => {
                       return post.lock ? null : (
                         // <div
                         //   onClick={() => {
                         //     SetUrl(`/blog/post/${post.id}-${post.url}`);
                         //     Open();
                         //   }}
-                        //   key={idx}
+                        //   key={idx}a
                         // >
                         //   <Cards post={post} idx={idx} />
                         // </div>
