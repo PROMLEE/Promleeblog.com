@@ -14,7 +14,11 @@ export const MdxHeader = ({ props }: { props: HeaderProps }) => {
         <div className="absolute -top-20 flex w-full flex-col items-center">
           <Image
             className="z-[-1] opacity-20"
-            src={props.thumbnail_url}
+            src={
+              props.thumbnail_url.startsWith("/")
+                ? `https://cdn.promleeblog.com/posts${props.thumbnail_url}`
+                : props.thumbnail_url
+            }
             alt={""}
             height="0"
             width="300"
