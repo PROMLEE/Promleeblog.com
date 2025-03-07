@@ -129,8 +129,9 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     const confirmtext = `Name: ${data.name}\nName(ko): ${data.nameko}\nURL: ${data.url}\nSeries_no: ${data.series_no}\nDescription: ${data.desc}\nThumbnail URL: ${data.thumbnail_url}\nLock: ${data.lock}\nPosting: ${data.posting.slice(0, 20) + "..."}`;
+    console.log(data.tags);
     if (window.confirm("Do you want to add this Post?\n" + confirmtext)) {
-      await EditService().postPost({ ...data, tags: [] });
+      await EditService().postPost(data);
       window.location.reload();
     }
   }
@@ -194,9 +195,9 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
                     <Input
                       placeholder="Metatag"
                       onChange={(e) => {
-                        field.onChange(e.target.value.split(","));
+                        field.onChange(e.target.value.split(", "));
                       }}
-                      value={field.value.join(",")}
+                      value={field.value.join(", ")}
                       type="text"
                       className="border-third"
                     />

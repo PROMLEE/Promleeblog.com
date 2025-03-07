@@ -61,15 +61,28 @@ const prisma = new PrismaClient();
  */
 export async function POST(req: NextRequest) {
   const body = (await req.json()) as EditRequest.PostAddPost;
+  const tags = body.tags;
+  const data = {
+    series_id: body.series_id,
+    name: body.name,
+    nameko: body.nameko,
+    url: body.url,
+    series_no: body.series_no,
+    desc: body.desc,
+    thumbnail_url: body.thumbnail_url,
+    lock: body.lock,
+    posting: body.posting,
+    metatag: body.metatag,
+  };
   try {
     const req = await prisma.post.create({
-      data: body,
+      data: data,
     });
-    for (let i = 0; i < body.tags.length; i++) {
+    for (let i = 0; i < tags.length; i++) {
       await prisma.post_Tag.create({
         data: {
           post_id: req.id,
-          tag_id: body.tags[i],
+          tag_id: tags[i],
         },
       });
     }
