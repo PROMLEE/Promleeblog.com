@@ -7,7 +7,7 @@ import axios, {
 export const API = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL + "/api",
   adapter: "fetch",
-  fetchOptions: { cache: "no-store" },
+  fetchOptions: { next: { revalidate: 3600 } },
   headers: {
     "Content-Type": "application/json",
   },
