@@ -47,6 +47,9 @@ async function getTagLinks(id: number) {
   return await prisma.post_Tag.findMany({
     where: {
       tag_id: id,
+      Post: {
+        lock: false,
+      },
     },
     orderBy: {
       post_id: "asc",
