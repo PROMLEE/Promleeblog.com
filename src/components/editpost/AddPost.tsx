@@ -102,7 +102,9 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
 
   useEffect(() => {
     TagsService()
-      .getTags()
+      .getTags({
+        sort: "id",
+      })
       .then((res) => {
         setTags(res);
       });

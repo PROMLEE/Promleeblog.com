@@ -7,8 +7,10 @@ export const TagsService = () => {
    * 태그 전체 조회
    * @api-doc: https://github.com/PROMLEE/Promleeblog.com/blob/test/src/app/api/edit/gettags/route.ts
    */
-  const getTags = async () => {
-    const response = (await API.get(`${url}`)) as TagsResponse.GetTags;
+  const getTags = async (params: TagsRequest.GetTags) => {
+    const response = (await API.get(`${url}`, {
+      params,
+    })) as TagsResponse.GetTags;
     return response.data;
   };
 

@@ -25,4 +25,8 @@ namespace TagsRequest {
     post_id: number;
     tag_id: number;
   }
+
+  export interface GetTags {
+    sort: "id" | "count";
+  }
 }
