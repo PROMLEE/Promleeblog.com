@@ -11,7 +11,7 @@ const prisma = new PrismaClient();
 
 /**
  * @swagger
- * /api/edit/gettags:
+ * /api/tags:
  *   get:
  *     description: Returns tag list
  *     responses:
@@ -43,17 +43,46 @@ export async function GET() {
 }
 
 async function getTags() {
-  const tags = await prisma.tag
-    .findMany({
-      select: {
-        id: true,
-        name: true,
-        nameko: true,
-        is_primary: true,
-      },
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-  return tags;
+  // const tags = await prisma.tag
+  //   .findMany({
+  //     select: {
+  //       id: true,
+  //       name: true,
+  //       nameko: true,
+  //       is_primary: true,
+  //     },
+  //   })
+  //   .catch((error) => {
+  //     console.error(error);
+  //   });
+  const tagsCount = await prisma.post_Tag.groupBy({
+    by: ["tag_id"],
+    _count: {
+      _all: true,
+    },
+  });
+
+  const tags = await prisma.tag.findMany({
+    select: {
+      id: true,
+      name: true,
+      nameko: true,
+      is_primary: true,
+    },
+  });
+
+  tagsCount.sort((a, b) => b._count._all - a._count._all);
+
+  const result = tagsCount.map((tag) => {
+    const isExist = tags.find((t) => t.id === tag.tag_id);
+    return {
+      name: isExist?.name,
+      nameko: isExist?.nameko,
+      id: tag.tag_id,
+      is_primary: isExist?.is_primary,
+      count: tag._count._all,
+    };
+  });
+
+  return result;
 }

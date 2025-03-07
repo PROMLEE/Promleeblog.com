@@ -5,6 +5,7 @@ import {
   AddSubject,
   AddSeries,
   AddPost,
+  EditPost,
 } from "@/components/editpost";
 import { PostService } from "@/config/apis";
 
@@ -34,6 +35,12 @@ const Page = () => {
     <AddSubject category_id={category.id || 0} key={"addsubject"} />,
     <AddSeries subject_id={subject.id || 0} key={"addseries"} />,
     <AddPost series_id={series.id || 0} key={"addpost"} />,
+    <EditPost
+      series_id={series.id || 0}
+      key={"editpost"}
+      post_id={post.id || undefined}
+      post_url={post.url || undefined}
+    />,
   ];
 
   useEffect(() => {
@@ -193,9 +200,20 @@ const Page = () => {
                 className={`${item.id === post.id && "bg-third dark:bg-slate-600"} rounded-md p-2`}
               >
                 <p
-                  onClick={() =>
-                    setPost({ url: item.url, id: item.id, name: item.nameko })
-                  }
+                  onClick={async () => {
+                    if (item.id === post.id) {
+                      await setPost({ url: "", id: null, name: "" });
+                      setAddnum(3);
+                      return;
+                    } else {
+                      await setPost({
+                        url: item.url,
+                        id: item.id,
+                        name: item.nameko,
+                      });
+                      setAddnum(4);
+                    }
+                  }}
                   className={pstyle}
                 >
                   {item.series_no}. {item.nameko}

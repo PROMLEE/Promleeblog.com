@@ -70,6 +70,7 @@ namespace PostResponse {
       mod_date: string;
       lock: boolean;
       posting: string;
+      metatag: string[];
       Series: {
         url: string;
         nameko: string;

@@ -10,9 +10,9 @@ const prisma = new PrismaClient();
 };
 /**
  * @swagger
- * /api/edit/addpost:
- *    post:
- *      description: Add Post
+ * /api/edit/update:
+ *    patch:
+ *      description: Update Post
  *      requestBody:
  *        required: true
  *        content:
@@ -59,21 +59,15 @@ const prisma = new PrismaClient();
  *                    type: int
  *                    example: 200
  */
-export async function POST(req: NextRequest) {
-  const body = (await req.json()) as EditRequest.PostAddPost;
+export async function PATCH(req: NextRequest) {
+  const body = await req.json();
+  const id = req.nextUrl.searchParams.get("post_id");
   try {
-    const req = await prisma.post.create({
+    await prisma.post.update({
+      where: { id: Number(id) },
       data: body,
     });
-    for (let i = 0; i < body.tags.length; i++) {
-      await prisma.post_Tag.create({
-        data: {
-          post_id: req.id,
-          tag_id: body.tags[i],
-        },
-      });
-    }
-    return NextResponse.json(createResponse("Post insert complete"));
+    return NextResponse.json(createResponse("Post update complete"));
   } catch (error) {
     console.log(error);
     return NextResponse.json({ error: error }, { status: 405 });

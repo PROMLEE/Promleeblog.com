@@ -1,14 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-namespace EditResponse {
-  export interface GetTags extends Shared.SuccessResponse {
-    data: {
-      id: string;
-      name: string;
-      nameko: string;
-      is_primary: boolean;
-    }[];
-  }
-}
+namespace EditResponse {}
 
 namespace EditRequest {
   export interface PostAddCategory {
@@ -29,6 +20,21 @@ namespace EditRequest {
     thumbnail_url: string;
     lock: boolean;
     posting: string;
+    metatag: string[];
+    tags: number[];
+  }
+
+  export interface PostPatchPost {
+    series_id: number;
+    name: string;
+    nameko: string;
+    url: string;
+    series_no: number;
+    desc: string;
+    thumbnail_url: string;
+    lock: boolean;
+    posting: string;
+    metatag: string[];
   }
 
   export interface PostAddSeries {
