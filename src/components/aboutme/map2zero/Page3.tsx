@@ -48,7 +48,7 @@ export const Page3 = () => {
           </ol>
         </div>
         <Image
-          src="https://cdn.promleeblog.com/posts/etc/map2zero/2.png"
+          src="https://cdn.promleeblog.com/etc/map2zero/2.png"
           alt="logo"
           width={250}
           height={50}

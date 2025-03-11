@@ -16,7 +16,7 @@ export const MdxHeader = ({ props }: { props: HeaderProps }) => {
             className="z-[-1] opacity-20"
             src={
               props.thumbnail_url.startsWith("/")
-                ? `https://cdn.promleeblog.com/posts${props.thumbnail_url}`
+                ? `https://cdn.promleeblog.com${props.thumbnail_url}`
                 : props.thumbnail_url
             }
             alt={""}

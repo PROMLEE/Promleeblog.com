@@ -39,7 +39,7 @@ export const Page7 = () => {
           </ul>
         </div>
         <Image
-          src="https://cdn.promleeblog.com/posts/etc/map2zero/13.png"
+          src="https://cdn.promleeblog.com/etc/map2zero/13.png"
           alt="logo"
           width={300}
           height={50}

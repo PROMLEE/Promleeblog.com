@@ -45,7 +45,7 @@ export const Page2 = () => {
           <h2></h2>
         </div>
         <Image
-          src="https://cdn.promleeblog.com/posts/etc/map2zero/12.png"
+          src="https://cdn.promleeblog.com/etc/map2zero/12.png"
           alt="logo"
           width={300}
           height={250}

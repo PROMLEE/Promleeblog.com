@@ -54,7 +54,7 @@ export default function App() {
           <div className="flex flex-wrap gap-10">
             <div className="relative mb-10 mt-[2em] h-[13rem] w-[10rem]">
               <Image
-                src="https://cdn.promleeblog.com/profile.jpg"
+                src="https://cdn.promleeblog.com/profile.jpeg"
                 alt="profile_image"
                 fill
                 className="m-0 w-full rounded-lg border border-foreground"
