@@ -69,7 +69,7 @@ export const Page1 = () => {
           </div>
         </div>
         <Image
-          src="https://cdn.promleeblog.com/posts/etc/map2zero/1.png"
+          src="https://cdn.promleeblog.com/etc/map2zero/1.png"
           alt="logo"
           width={300}
           height={100}

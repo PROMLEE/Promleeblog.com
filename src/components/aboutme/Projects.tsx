@@ -134,7 +134,7 @@ export const Projects = () => {
     //   url: "https://github.com/PROMLEE/Wear_Os_WatchFace",
     //   date: "2022.05 ~ 2022.12",
     //   thumbnail: {
-    //     url: "https://cdn.promleeblog.com/posts/etc/watchface/watchface-logo.png",
+    //     url: "https://cdn.promleeblog.com/etc/watchface/watchface-logo.png",
     //     width: 100,
     //     height: 100,
     //   },
@@ -161,7 +161,7 @@ export const Projects = () => {
     //   name: "이슈역",
     //   url: "https://github.com/PROMLEE/Issue-Station",
     //   thumbnail: {
-    //     url: "https://cdn.promleeblog.com/posts/etc/issue-station/issue-station-logo.png",
+    //     url: "https://cdn.promleeblog.com/etc/issue-station/issue-station-logo.png",
     //     width: 100,
     //     height: 30,
     //   },

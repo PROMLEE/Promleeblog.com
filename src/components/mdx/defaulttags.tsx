@@ -76,7 +76,7 @@ export async function Img({
   return (
     <div className="my-5 flex flex-col items-center">
       <Image
-        src={`https://cdn.promleeblog.com/posts${src}`}
+        src={`https://cdn.promleeblog.com${src}`}
         alt={alt || "image"}
         className={`m-0 my-5 bg-${bg || "white"}`}
         width={Number(width) ? Number(width) : 500}

@@ -25,7 +25,7 @@ export const Cards = ({
         <img
           src={
             post.thumbnail_url.startsWith("/")
-              ? `https://cdn.promleeblog.com/posts${post.thumbnail_url}`
+              ? `https://cdn.promleeblog.com${post.thumbnail_url}`
               : post.thumbnail_url || "/icons/android-chrome-512x512.png"
           }
           alt="thumbnail"
