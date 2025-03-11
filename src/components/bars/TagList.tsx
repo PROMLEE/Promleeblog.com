@@ -22,7 +22,7 @@ const TagList = () => {
       });
   }, []);
 
-  if (pathname.startsWith("/blog/post")) {
+  if (pathname.startsWith("/blog/post") || pathname.startsWith("/aboutme")) {
     return null;
   }
   return (
