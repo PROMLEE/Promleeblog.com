@@ -6,6 +6,7 @@ export interface MdxMeta {
   init_date: string;
   mod_date: string;
   url?: string;
+  metatag?: string[];
 }
 export interface urlParams {
   post: string;

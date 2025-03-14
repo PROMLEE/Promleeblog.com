@@ -7,7 +7,7 @@ export const GenerateMeta = ({
   meta: MdxMeta;
   param: string;
 }) => {
-  const title = `PromleeBlog | ${meta.nameko}`;
+  const title = `${meta.nameko} | PromleeBlog`;
   const description = meta.desc;
   const tags: string[] = [
     "PromleeBlog",
@@ -17,6 +17,7 @@ export const GenerateMeta = ({
     meta.name,
     meta.desc,
     meta.url || "",
+    ...(meta.metatag?.map((tag) => tag) || []),
   ];
   const thumbnail = meta.thumbnail_url || "icons/android-chrome-512x512.png";
   const flattenedPath = `blog/post/${param}`;
