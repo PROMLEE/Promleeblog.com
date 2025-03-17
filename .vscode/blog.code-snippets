@@ -21,9 +21,14 @@
       "",
       "### 더 생각해 보기",
       "",
-      "### 참고",
+      "### 참고"
     ],
-    "description": "Generate Post list",
+    "description": "Generate Post list"
+  },
+  "newImg": {
+    "prefix": "newimg",
+    "body": ["<Img src=\"/posts/.webp\" width={300} alt=\"\"/>"],
+    "description": "Generate new image tag"
   },
   "Make Api": {
     "prefix": "api",
@@ -45,7 +50,7 @@
       "  } catch (error) {",
       "    return NextResponse.json({ error: 'Post not found' }, { status: 405 });",
       "  }",
-      "}",
-    ],
-  },
+      "}"
+    ]
+  }
 }
