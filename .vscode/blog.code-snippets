@@ -21,14 +21,37 @@
       "",
       "### 더 생각해 보기",
       "",
-      "### 참고"
+      "### 참고",
     ],
-    "description": "Generate Post list"
+    "description": "Generate Post list",
+  },
+  "boj": {
+    "prefix": "boj",
+    "body": [
+      "---",
+      "title_ko: ",
+      "title_en: ",
+      "desc: ",
+      "thumbnail_url: ",
+      "metatag: ",
+      "---",
+      ">",
+      "## 알고리즘 분류",
+      "",
+      "## 풀이",
+      "",
+      "## 코드 - Python",
+      "",
+      "## 문제 발생 및 해결",
+      "",
+      "## 핵심",
+    ],
+    "description": "Generate Post list",
   },
   "newImg": {
     "prefix": "newimg",
     "body": ["<Img src=\"/posts/.webp\" width={300} alt=\"\"/>"],
-    "description": "Generate new image tag"
+    "description": "Generate new image tag",
   },
   "Make Api": {
     "prefix": "api",
@@ -50,7 +73,7 @@
       "  } catch (error) {",
       "    return NextResponse.json({ error: 'Post not found' }, { status: 405 });",
       "  }",
-      "}"
-    ]
-  }
+      "}",
+    ],
+  },
 }
