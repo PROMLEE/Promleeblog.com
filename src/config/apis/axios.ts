@@ -1,77 +1,92 @@
-import axios, {
-  AxiosError,
-  AxiosResponse,
-  InternalAxiosRequestConfig,
-} from "axios";
+import returnFetch, {
+  FetchArgs,
+  ReturnFetchDefaultOptions,
+} from "return-fetch";
 
-export const API = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL + "/api",
-  adapter: "fetch",
-  fetchOptions: { cache: "no-store" },
-  headers: {
-    "Content-Type": "application/json",
+// Use as a replacer of `RequestInit`
+type JsonRequestInit = Omit<NonNullable<FetchArgs[1]>, "body"> & {
+  body?: object;
+};
+
+// Use as a replacer of `Response`
+export type ResponseGenericBody<T> = Omit<
+  Awaited<ReturnType<typeof fetch>>,
+  keyof Body | "clone"
+> & {
+  body: T;
+};
+
+export type JsonResponse<T> = T extends object
+  ? ResponseGenericBody<T>
+  : ResponseGenericBody<unknown>;
+
+// this resembles the default behavior of axios json parser
+// https://github.com/axios/axios/blob/21a5ad34c4a5956d81d338059ac0dd34a19ed094/lib/defaults/index.js#L25
+const parseJsonSafely = (text: string): object | string => {
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    if ((e as Error).name !== "SyntaxError") {
+      throw e;
+    }
+
+    return text.trim();
+  }
+};
+
+const returnFetchJson = (
+  args?: ReturnFetchDefaultOptions,
+  params?: Record<string, string>,
+) => {
+  const fetch = returnFetch(args);
+  const baseUrl = args?.baseUrl ? String(args.baseUrl) : "";
+  var query = "";
+  if (params) {
+    query = "?" + new URLSearchParams(params).toString();
+  }
+
+  return async <T>(
+    url: FetchArgs[0],
+    init?: JsonRequestInit,
+  ): Promise<JsonResponse<T>> => {
+    const response = await fetch(baseUrl + url + query, {
+      ...init,
+      next: { revalidate: 3600 },
+      body: init?.body && JSON.stringify(init.body),
+    });
+
+    const body = parseJsonSafely(await response.text()) as T;
+
+    return {
+      headers: response.headers,
+      ok: response.ok,
+      redirected: response.redirected,
+      status: response.status,
+      statusText: response.statusText,
+      type: response.type,
+      url: response.url,
+      body,
+    } as JsonResponse<T>;
+  };
+};
+
+export const getParams = (params: Record<string, any>) => {
+  return "?" + new URLSearchParams(params).toString();
+};
+
+export const CustomFetch = returnFetchJson({
+  baseUrl: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api`,
+  headers: { Accept: "application/json" },
+
+  interceptors: {
+    request: async (args) => {
+      return args;
+    },
+    response: async (response, requestArgs) => {
+      if (response.status >= 400) {
+        throw await response.text().then(Error);
+      }
+      return response;
+    },
   },
 });
-
-// export const AuthStorage = {
-//   async setToken(accessToken: string) {
-//     await localStorage.setItem("accessToken", accessToken);
-//   },
-
-//   async getToken(): Promise<string | null> {
-//     return await localStorage.getItem("accessToken");
-//   },
-
-//   async clear() {
-//     await localStorage.removeItem("accessToken");
-//   },
-// };
-
-API.interceptors.request.use(
-  async (config: InternalAxiosRequestConfig) => {
-    // const token = await AuthStorage.getToken();
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
-    // console.log({
-    //   headers: config.headers,
-    //   method: config.method,
-    //   url: config.url,
-    //   baseUrl: config.baseURL,
-    //   data: config.data,
-    //   params: config.params,
-    // });
-    return config;
-  },
-  (error: AxiosError) => {
-    console.log("API request error", error.config);
-    return Promise.reject(error);
-  },
-);
-
-API.interceptors.response.use(
-  (response: AxiosResponse) => {
-    // console.log({
-    //   status: response.status,
-    //   statusText: response.statusText,
-    //   data: response.data,
-    // });
-    return response.data; // 서버에서 받는 데이터가 data 속성에 들어있는 경우
-    // return response.data.data;	// 서버에서 받는 데이터가 data.data 속성에 들어있는 경우
-  },
-  async (error: AxiosError) => {
-    console.warn(error.config?.url + " API response error", {
-      response_data: error.response?.data,
-      status: error.response?.status,
-      request_info: {
-        method: error.config?.method,
-        url: error.config?.url,
-        baseUrl: error.config?.baseURL,
-        headers: error.config?.headers,
-        params: error.config?.params,
-        data: error.config?.data,
-      },
-    });
-    return Promise.reject(error);
-  },
-);

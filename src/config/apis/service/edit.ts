@@ -1,4 +1,4 @@
-import { API } from "../axios";
+import { CustomFetch, getParams } from "../axios";
 
 export const EditService = () => {
   const url = "/edit";
@@ -7,11 +7,10 @@ export const EditService = () => {
    * 카테고리 추가
    * @api-doc: https://github.com/PROMLEE/Promleeblog.com/blob/test/src/app/api/edit/addcategory/route.ts
    */
-  const postCategory = async (data: EditRequest.PostAddCategory) => {
-    const response = (await API.post(
-      `${url}/addcategory`,
-      data,
-    )) as Shared.SuccessResponse;
+  const postCategory = async (body: EditRequest.PostAddCategory) => {
+    const response = (
+      await CustomFetch(`${url}/addcategory`, { method: "POST", body })
+    ).body as Shared.SuccessResponse;
     return response.data;
   };
 
@@ -19,11 +18,10 @@ export const EditService = () => {
    * 포스트 추가
    * @api-doc: https://github.com/PROMLEE/Promleeblog.com/blob/test/src/app/api/edit/addpost/route.ts
    */
-  const postPost = async (data: EditRequest.PostAddPost) => {
-    const response = (await API.post(
-      `${url}/addpost`,
-      data,
-    )) as Shared.SuccessResponse;
+  const postPost = async (body: EditRequest.PostAddPost) => {
+    const response = (
+      await CustomFetch(`${url}/addpost`, { method: "POST", body })
+    ).body as Shared.SuccessResponse;
     return response.data;
   };
 
@@ -31,11 +29,10 @@ export const EditService = () => {
    * 시리즈 추가
    * @api-doc: https://github.com/PROMLEE/Promleeblog.com/blob/test/src/app/api/edit/addseries/route.ts
    */
-  const postSeries = async (data: EditRequest.PostAddSeries) => {
-    const response = (await API.post(
-      `${url}/addseries`,
-      data,
-    )) as Shared.SuccessResponse;
+  const postSeries = async (body: EditRequest.PostAddSeries) => {
+    const response = (
+      await CustomFetch(`${url}/addseries`, { method: "POST", body })
+    ).body as Shared.SuccessResponse;
     return response.data;
   };
 
@@ -43,11 +40,10 @@ export const EditService = () => {
    * 서브젝트 추가
    * @api-doc: https://github.com/PROMLEE/Promleeblog.com/blob/test/src/app/api/edit/addsubject/route.ts
    */
-  const postSubject = async (data: EditRequest.PostAddSubject) => {
-    const response = (await API.post(
-      `${url}/addsubject`,
-      data,
-    )) as Shared.SuccessResponse;
+  const postSubject = async (body: EditRequest.PostAddSubject) => {
+    const response = (
+      await CustomFetch(`${url}/addsubject`, { method: "POST", body })
+    ).body as Shared.SuccessResponse;
     return response.data;
   };
 
@@ -55,11 +51,16 @@ export const EditService = () => {
    * 포스트 수정
    * @api-doc: https://github.com/PROMLEE/Promleeblog.com/blob/test/src/app/api/edit/updatepost/route.ts
    */
-  const patchPost = async (data: EditRequest.PostPatchPost, id: number) => {
-    const response = (await API.patch(
-      `${url}/updatepost?post_id=${id}`,
-      data,
-    )) as Shared.SuccessResponse;
+  const patchPost = async (
+    body: EditRequest.PostPatchPost,
+    post_id: number,
+  ) => {
+    const response = (
+      await CustomFetch(`${url}/updatepost${getParams({ post_id })}`, {
+        method: "PATCH",
+        body,
+      })
+    ).body as Shared.SuccessResponse;
     return response.data;
   };
 
