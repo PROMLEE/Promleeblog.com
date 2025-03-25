@@ -12,6 +12,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { GoogleAdSense } from "@/components/gasnippit";
 import XlLeftSidebar from "@/components/bars/xlLeftSidebar";
 import TagList from "@/components/bars/TagList";
+import { Head } from "next/document";
 
 export const metadata: Metadata = {
   title: "PromleeBlog",
@@ -35,32 +36,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <AutoRefresh>
-      <html className={`${noto.className} `} suppressHydrationWarning>
-        <body>
-          <Theme>
-            <Navbar />
-            <XlLeftSidebar />
-            <div
-              className={
-                "w-full scroll-smooth bg-background px-10 focus:scroll-smooth md:min-h-[100vh] md:w-5/6 xl:w-3/5"
-              }
-            >
-              <Providers>{children}</Providers>
-            </div>
-            <TagList />
-            <Footer />
-          </Theme>
-          <Toaster />
-          <GoogleAnalytics
-            gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS || ""}
-          />
-          <GoogleTagManager
-            gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER || ""}
-          />
-        </body>
+    <html className={`${noto.className} `} suppressHydrationWarning>
+      <head>
         <GoogleAdSense />
-      </html>
-    </AutoRefresh>
+      </head>
+      <body>
+        <Theme>
+          <Navbar />
+          <XlLeftSidebar />
+          <div
+            className={
+              "w-full scroll-smooth bg-background px-10 focus:scroll-smooth md:min-h-[100vh] md:w-5/6 xl:w-3/5"
+            }
+          >
+            <AutoRefresh>
+              <Providers>{children}</Providers>
+            </AutoRefresh>
+          </div>
+          <TagList />
+          <Footer />
+        </Theme>
+        <Toaster />
+        <GoogleAnalytics
+          gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS || ""}
+        />
+        <GoogleTagManager
+          gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER || ""}
+        />
+      </body>
+    </html>
   );
 }
