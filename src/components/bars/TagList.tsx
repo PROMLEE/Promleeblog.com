@@ -46,7 +46,7 @@ const TagList = () => {
                 </Link>
               </div>
             ))
-          : "no contents 😿"}
+          : ""}
       </div>
     </div>
   );
