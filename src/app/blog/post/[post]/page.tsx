@@ -12,15 +12,17 @@ import dayjs from "dayjs";
 import Giscus from "@/components/posts/Giscus";
 import { PostService } from "@/config/apis";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { post: string };
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ post: string }>;
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   const markdownsource = await PostService().getPost({ post_id: params.post });
   return GenerateMeta({ meta: markdownsource, param: params.post });
 }
-const Post = async ({ params }: { params: { post: string } }) => {
+const Post = async (props0: { params: Promise<{ post: string }> }) => {
+  const params = await props0.params;
   const markdownsource = await PostService().getPost({ post_id: params.post });
   await PostService().viewIncrement({ post_id: params.post.split("-")[0] });
 

@@ -37,7 +37,7 @@ const parseToc = (content: string) => {
 };
 
 const RightSidebarComp = ({ content }: { content: string }) => {
-  const observer = useRef<IntersectionObserver>();
+  const observer = useRef<IntersectionObserver>(undefined);
   const [tocs, setTocs] = useState<string[]>([]);
   const [activeToc, setActiveToc] = useState("");
   useEffect(() => {

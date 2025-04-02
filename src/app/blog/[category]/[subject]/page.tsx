@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, use } from "react";
 import { Loading } from "@/components/Loading";
 // import { Pw } from "@/components/Pw";
 import { PostService } from "@/config/apis";
@@ -16,7 +16,8 @@ interface params {
   subject: string;
 }
 
-const Subject = ({ params }: Props) => {
+const Subject = (props: Props) => {
+  const params = use(props.params);
   const [serieslist, setSerieslist] = useState<
     PostResponse.GetSeriesList["data"]
   >({ Series: [], nameko: "" });
@@ -73,12 +74,12 @@ const Subject = ({ params }: Props) => {
                         // >
                         //   <Cards post={post} idx={idx} />
                         // </div>
-                        <Link
+                        (<Link
                           href={`/blog/post/${post.id}-${post.url}`}
                           key={idx}
                         >
                           <Cards post={post} idx={idx} />
-                        </Link>
+                        </Link>)
                       );
                     })
                   : "no contents 😿"}

@@ -12,7 +12,7 @@ interface ProjectType {
   contents: string[];
   myrole: string[];
   mystack: string[];
-  ref: React.RefObject<HTMLDivElement>;
+  ref: React.RefObject<HTMLDivElement | null>;
   isVisible: boolean;
   id: string;
   detail?: string;

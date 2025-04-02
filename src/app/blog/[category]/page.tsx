@@ -5,12 +5,13 @@ import { MdxMeta } from "@/config/types/types";
 import { PostService } from "@/config/apis";
 
 type Props = {
-  params: {
+  params: Promise<{
     category: string;
-  };
+  }>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const subjectlist = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/subjectlist?categoryurl=${params.category}`,
     { next: { revalidate: 3600 } },
@@ -29,7 +30,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return GenerateMeta({ meta: source, params });
 }
 
-const Category = async ({ params }: Props) => {
+const Category = async (props: Props) => {
+  const params = await props.params;
   const subjectlist = await PostService().getSubjectList({
     categoryurl: params.category,
   });
