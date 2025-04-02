@@ -214,7 +214,7 @@ export const Projects = () => {
               <h2 id={project.id}>{project.name}</h2>
               {project.detail && (
                 <div
-                  className={`mt-7 flex h-7 w-28 ${project.hover && "md:w-28"} scale-100 items-center justify-center overflow-hidden whitespace-nowrap rounded-md text-xs duration-1000 hover:bg-blue-300 hover:text-white dark:bg-blue-600 hover:dark:bg-blue-300 md:w-10`}
+                  className={`mt-7 flex h-7 w-28 ${project.hover && "md:w-28"} scale-100 items-center justify-center overflow-hidden whitespace-nowrap rounded-md text-xs duration-1000 hover:bg-blue-300 hover:text-white dark:bg-blue-600 dark:hover:bg-blue-300 md:w-10`}
                 >
                   <Link
                     href={project.detail}
@@ -256,7 +256,7 @@ export const Projects = () => {
               </div>
               <div className="w-2/3">
                 <ul className="m-0">
-                  <li className="text-text-foreground marker:text-black marker:dark:text-white">
+                  <li className="text-text-foreground marker:text-black dark:marker:text-white">
                     Contents and Results
                     <ul>
                       {project.contents.map((content, index) => {
@@ -264,7 +264,7 @@ export const Projects = () => {
                       })}
                     </ul>
                   </li>
-                  <li className="text-text-foreground marker:text-black marker:dark:text-white">
+                  <li className="text-text-foreground marker:text-black dark:marker:text-white">
                     My Role
                     <ul>
                       {project.myrole.map((role, index) => {
@@ -272,7 +272,7 @@ export const Projects = () => {
                       })}
                     </ul>
                   </li>
-                  <li className="text-text-foreground marker:text-black marker:dark:text-white">
+                  <li className="text-text-foreground marker:text-black dark:marker:text-white">
                     My Stack
                     <ul>
                       {project.mystack.map((stack, index) => {
