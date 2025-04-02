@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @config '../../tailwind.config.ts';
 
@@ -21,7 +21,7 @@
 }
 
 @utility topbar {
-  @apply flex h-12 w-full items-center justify-between bg-foreground;
+  @apply bg-foreground flex h-12 w-full items-center justify-between;
 }
 @utility category {
   @apply my-14 block text-4xl font-bold text-blue-500 no-underline;
@@ -36,16 +36,16 @@
   @apply mb-1 block rounded-md no-underline hover:bg-amber-200 dark:hover:bg-amber-800;
 }
 @utility sidebar-md {
-  @apply fixed right-0 top-[15%] max-h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl p-3 shadow-inner;
+  @apply fixed top-[15%] right-0 max-h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl p-3 shadow-inner;
 }
 @utility leftsidebar {
   @apply mb-1 block rounded-md no-underline;
 }
 @utility leftsidebar-md {
-  @apply fixed left-2 top-[15%] max-h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl p-3 shadow-inner;
+  @apply fixed top-[15%] left-2 max-h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl p-3 shadow-inner;
 }
 @utility text-underlined {
-  @apply inline text-text-foreground underline decoration-yellow-800 decoration-wavy underline-offset-[0.2rem] dark:decoration-yellow-400;
+  @apply text-text-foreground inline underline decoration-yellow-800 decoration-wavy underline-offset-[0.2rem] dark:decoration-yellow-400;
 }
 @utility text-overflow {
   text-overflow: ellipsis;
@@ -134,7 +134,7 @@
     @apply border-border text-text;
   }
   body {
-    @apply flex w-full flex-col bg-background xl:items-center;
+    @apply bg-background flex w-full flex-col xl:items-center;
   }
   div > span > span > span {
     @apply text-left font-mono leading-loose;
@@ -194,7 +194,7 @@
 
   /* inline code block style */
   .prose :not(pre) > code {
-    @apply rounded border border-primary bg-foreground px-1 py-0.5 align-middle font-mono text-sm font-normal text-text;
+    @apply border-primary bg-foreground text-text rounded border px-1 py-0.5 align-middle font-mono text-sm font-normal;
   }
 }
 @layer utilities {
@@ -227,4 +227,12 @@ html {
 }
 .swiper-pagination-bullet-active {
   background-color: #fff !important;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply m-0;
 }

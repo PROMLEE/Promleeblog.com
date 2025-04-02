@@ -1,0 +1,164 @@
+---
+
+title_ko: Tailwind CSS v4로 업그레이드하기
+title_en: Upgrading to Tailwind CSS v4
+desc: Tailwind CSS v4로의 업그레이드 과정을 자세히 안내합니다.
+thumbnail_url: https://tailwindcss.com/_next/static/media/tailwindcss-logotype.128b6e12b2c0b3b3c6e5c6e4b5e3a6a9.svg
+metatag: Tailwind CSS, 업그레이드 가이드, v4, 프런트엔드 개발
+
+---
+
+## 들어가기 전에
+
+안녕하세요! 오늘은 **Tailwind CSS**를 최신 버전인 v4로 업그레이드하는 방법에 대해 알아보겠습니다. Tailwind CSS는 웹 개발에서 스타일링을 더욱 효율적으로 할 수 있도록 도와주는 도구입니다. 새로운 버전으로의 업그레이드는 성능 향상과 최신 기능을 활용하기 위해 중요합니다. 함께 천천히 따라가 보아요.
+
+## Tailwind CSS v4의 주요 변경 사항
+
+### 브라우저 지원 변경
+
+새로운 Tailwind CSS v4는 최신 브라우저를 대상으로 설계되었습니다. 지원되는 최소 브라우저 버전은 다음과 같습니다:
+
+- **Chrome**: 111 이상
+- **Safari**: 16.4 이상
+- **Firefox**: 128 이상
+
+만약 이전 버전의 브라우저를 지원해야 한다면, v3.4 버전을 계속 사용하는 것이 좋습니다. citeturn0search0
+
+### 새로운 기능과 개선점
+
+v4에서는 여러 새로운 기능이 추가되었어요. 예를 들어:
+
+- **컨테이너 쿼리**: 요소의 컨테이너 크기에 따라 스타일을 적용할 수 있는 기능입니다.
+- **3D 변환 유틸리티**: 요소를 3D 공간에서 변환할 수 있어 더욱 다양한 디자인이 가능합니다.
+- **확장된 그라디언트 API**: 원형 및 원뿔형 그라디언트를 지원하여 더욱 풍부한 배경 효과를 만들 수 있습니다.
+- **`@starting-style` 지원**: JavaScript 없이도 진입 및 종료 전환을 만들 수 있는 새로운 변형입니다.
+- **`not-*` 변형**: 특정 변형이나 선택자와 일치하지 않는 요소에 스타일을 적용할 수 있습니다. citeturn0search1
+
+## 업그레이드 도구 사용하기
+
+업그레이드를 쉽게 하기 위해 Tailwind CSS에서는 자동화된 업그레이드 도구를 제공합니다. 이 도구를 사용하면 대부분의 작업을 자동으로 처리할 수 있습니다.
+
+1. **Node.js 20 이상 설치 확인**: 이 도구는 Node.js 20 버전 이상에서 작동하므로, 먼저 버전을 확인하고 필요하다면 업데이트해주세요.
+
+2. **업그레이드 도구 실행**: 터미널에서 다음 명령어를 입력하여 도구를 실행합니다.
+
+    ```bash
+    npx @tailwindcss/upgrade
+    ```
+
+    이 명령어는 현재 프로젝트를 v4로 업그레이드합니다.
+
+3. **변경 사항 검토**: 도구 실행 후, 변경된 파일들을 확인하고 프로젝트가 정상적으로 작동하는지 테스트합니다. 복잡한 프로젝트의 경우 수동으로 조정이 필요할 수 있으니 주의 깊게 살펴보세요. citeturn0search0
+
+## 수동으로 업그레이드하기
+
+자동 도구를 사용하지 않고 직접 업그레이드하고 싶다면 다음 단계를 따라주세요.
+
+### 패키지 업데이트
+
+먼저, `tailwindcss` 패키지를 최신 버전으로 업데이트해야 합니다. 프로젝트에서 사용하는 패키지 관리 도구에 따라 다음 명령어 중 하나를 실행하세요.
+
+- **npm 사용 시**:
+
+    ```bash
+    npm install tailwindcss@latest
+    ```
+
+- **yarn 사용 시**:
+
+    ```bash
+    yarn add tailwindcss@latest
+    ```
+
+### PostCSS 플러그인 변경
+
+v4에서는 PostCSS 플러그인이 별도의 패키지로 분리되었습니다. 기존의 `tailwindcss` 플러그인을 `@tailwindcss/postcss`로 변경해야 합니다.
+
+**변경 전 `postcss.config.js`:**
+
+```javascript
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+```
+
+**변경 후 `postcss.config.js`:**
+
+```javascript
+module.exports = {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
+}
+```
+
+또한, v4에서는 `postcss-import`와 `autoprefixer`가 내장되어 있으므로, 별도로 설치할 필요가 없습니다. citeturn0search0
+
+### Vite 플러그인 사용
+
+만약 Vite를 사용하고 있다면, 새로운 Vite 플러그인을 활용하여 성능과 개발 경험을 향상시킬 수 있습니다.
+
+**`vite.config.js` 설정 예시:**
+
+```javascript
+import { defineConfig } from 'vite';
+import tailwindcss from '@tailwindcss/vite';
+
+export default defineConfig({
+  plugins: [
+    tailwindcss(),
+    // 다른 플러그인들...
+  ],
+});
+```
+
+이렇게 설정하면 Vite와 Tailwind CSS를 더욱 원활하게 연동할 수 있습니다. citeturn0search0
+
+## 주요 변경 사항에 대한 대응
+
+업그레이드 시 알아두어야 할 몇 가지 중요한 변경 사항이 있습니다.
+
+### `@tailwind` 지시어 제거
+
+이전 버전에서는 CSS 파일에서 `@tailwind base;`, `@tailwind components;`, `@tailwind utilities;`와 같은 지시어를 사용했지만, v4에서는 일반적인 CSS `@import` 문을 사용합니다.
+
+**변경 전:**
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+**변경 후:**
+
+```css
+@import 'tailwindcss';
+```
+
+이렇게 함으로써 CSS 파일이 더욱 간결해집니다. citeturn0search0
+
+### 사용되지 않는 유틸리티 제거
+
+v4에서는 이전에 사용되던 일부 유틸리티 클래스가 제거되었으며, 새로운 방식으로 대체되었습니다. 예를 들어, `bg-opacity-*` 클래스는 `bg-black/50`과 같은 투명도 수정자로 대체되었습니다. 기존 코드를 검토하여 이러한 변경 사항에 맞게 수정해야 합니다.
+
+**변경 전:**
+
+```html
+<div class="bg-blue-500 bg-opacity-50">
+  내용
+</div>
+```
+
+**변경 후:**
+
+```html
+<div class="bg-blue-500/50">
+  내용
+</div>
+```
+
+이러한 변경을 통해 코드의 가독성과 유지보수성이 향상됩니다. citeturn0search0 

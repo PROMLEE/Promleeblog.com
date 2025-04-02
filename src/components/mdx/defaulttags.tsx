@@ -105,9 +105,9 @@ export function h1tag({ id, children }: Props) {
   return (
     <>
       <hr
-        className={"mx-auto my-10 w-full rounded border-2 border-foreground"}
+        className={"border-foreground mx-auto my-10 w-full rounded border-2"}
       />
-      <div className="mb-5 ml-[-15px] mt-14 flex gap-2 text-3xl">
+      <div className="mt-14 mb-5 ml-[-15px] flex gap-2 text-3xl">
         💡{" "}
         <h1 id={id} className="m-0 text-3xl font-bold">
           {children}
@@ -119,10 +119,10 @@ export function h1tag({ id, children }: Props) {
 export function h2tag({ id, children }: Props) {
   return (
     <>
-      <hr className={"border-1 w-full rounded border-foreground"} />
-      <div className="mb-3 ml-[-10px] mt-5 flex gap-2 text-2xl">
-        🚀{" "}
-        <h2 id={id} className="m-0 text-2xl font-bold">
+      <hr className={"border-foreground w-full rounded border-1"} />
+      <div className="mt-5 mb-3 ml-[-10px] flex gap-2 text-2xl">
+        <div>🚀 </div>
+        <h2 id={id} className="m-0 font-bold">
           {children}
         </h2>
       </div>
@@ -131,7 +131,7 @@ export function h2tag({ id, children }: Props) {
 }
 export function h3tag({ id, children }: Props) {
   return (
-    <div className="mb-2 ml-[-10px] mt-7 flex gap-2 text-xl font-bold">
+    <div className="mt-7 mb-2 ml-[-10px] flex gap-2 text-xl font-bold">
       ✅{" "}
       <h3 id={id} className="m-0 text-xl font-bold">
         {children}
@@ -141,7 +141,7 @@ export function h3tag({ id, children }: Props) {
 }
 export function h4tag({ id, children }: Props) {
   return (
-    <div className="mb-1 ml-[-8px] mt-7 flex gap-2">
+    <div className="mt-7 mb-1 ml-[-8px] flex gap-2">
       ➡️{" "}
       <h4 id={id} className="m-0 text-lg font-bold">
         {children}
@@ -184,7 +184,7 @@ export const thtag = ({ children }: Props) => {
   return (
     <th
       className={
-        "border border-third bg-foreground p-1 font-normal text-text-foreground"
+        "border-third bg-foreground text-text-foreground border p-1 font-normal"
       }
     >
       {children}
@@ -193,7 +193,7 @@ export const thtag = ({ children }: Props) => {
 };
 export const tdtag = ({ children }: Props) => {
   return (
-    <th className={"border border-third text-center font-normal"}>
+    <th className={"border-third border text-center font-normal"}>
       {children}
     </th>
   );
@@ -203,7 +203,7 @@ export const tdtag = ({ children }: Props) => {
 // };
 export const btag = ({ children }: Props) => {
   return (
-    <div className="inline font-bold text-text-foreground">{children}</div>
+    <div className="text-text-foreground inline font-bold">{children}</div>
   );
 };
 
@@ -211,7 +211,7 @@ export function emtag({ children }: Props) {
   return (
     <div
       className={
-        "inline text-text-foreground underline decoration-yellow-800 decoration-wavy underline-offset-[0.2rem] dark:decoration-yellow-400"
+        "text-text-foreground inline underline decoration-yellow-800 decoration-wavy underline-offset-[0.2rem] dark:decoration-yellow-400"
       }
     >
       {children}
@@ -269,7 +269,7 @@ export const atag = ({ id, children, href }: Props) => {
 export const codetag = ({ children }: { children: React.ReactNode }) => {
   return (
     <code className="relative">
-      <span className="absolute right-0 top-0">
+      <span className="absolute top-0 right-0">
         <CopyButton>{children}</CopyButton>
       </span>
       {children}
