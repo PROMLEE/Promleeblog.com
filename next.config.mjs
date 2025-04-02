@@ -12,6 +12,7 @@ const nextConfig = {
       },
     ],
   },
+  transpilePackages: ["next-mdx-remote"],
   async headers() {
     return [
       {

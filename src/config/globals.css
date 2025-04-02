@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @layer base {
   :root {
@@ -76,38 +74,47 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
   }
+
   * {
-    @apply border-border text-text;
+    @apply border-[--border]/100 text-[--text];
   }
+
   body {
-    @apply flex w-full flex-col bg-background xl:items-center;
+    @apply flex w-full flex-col bg-[--background] xl:items-center;
   }
+
   div > span > span > span {
     @apply text-left font-mono leading-loose;
   }
+
   div > span > span > span > span {
     @apply my-1 text-center;
   }
+
   div > span > span > span > span > span {
     @apply m-0;
   }
+
   .prose blockquote {
-    @apply border-text bg-muted py-2 pr-1;
+    @apply border-[--text] bg-[--muted] py-2 pr-1;
   }
+
   .prose ul > li > ul {
     @apply list-["৹__"];
   }
+
   .prose ul > li > ul > li > ul {
     @apply list-["▪__"];
   }
+
   .prose pre > code {
     display: grid;
   }
+
   .prose pre span[data-line] {
     @apply inline-block px-4 py-0.5 leading-snug;
   }
 
-  /* Fenced Code block - line number style */
   .prose code[data-line-numbers] {
     counter-reset: line;
   }
@@ -121,61 +128,67 @@
     text-align: right;
     color: gray;
   }
-  /* Fenced Code block - line hightlight */
+
   .prose code span[data-highlighted-line] {
-    @apply border-y-0 border-l-2 border-blue-400 border-transparent bg-indigo-400 bg-opacity-10 pl-[calc(1rem-2px)] dark:border-blue-500 dark:bg-slate-700;
+    @apply border-y-0 border-l-2 border-blue-400 border-transparent bg-indigo-400/10 pl-[calc(1rem-2px)] dark:border-blue-500 dark:bg-slate-700;
   }
-  /* Fenced Code block - with title style*/
+
   .prose figcaption[data-rehype-pretty-code-title] {
     @apply rounded-t-lg border border-b-0 border-gray-200 bg-gray-200 px-5 py-3 font-mono text-sm font-bold text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200;
   }
+
   .prose figcaption[data-rehype-pretty-code-title] + pre {
     @apply mt-0 rounded-t-none;
   }
-  /* Inline code block backtick display: none */
+
   .prose :not(pre) > code::before,
   .prose :not(pre) > code::after {
     display: none;
   }
 
-  /* inline code block style */
   .prose :not(pre) > code {
-    @apply rounded border border-primary bg-foreground px-1 py-0.5 align-middle font-mono text-sm font-normal text-text;
+    @apply rounded border-[--primary] bg-[--foreground] px-1 py-0.5 align-middle font-mono text-sm font-normal text-[--text];
   }
 }
-* {
-  --scroll-behavior: smooth !important;
-  scroll-behavior: smooth !important;
-}
+
 /* custom styles */
 @layer components {
   .topbar {
-    @apply flex h-12 w-full items-center justify-between bg-foreground;
+    @apply flex h-12 w-full items-center justify-between bg-[--foreground];
   }
+
   .category {
     @apply my-14 block text-4xl font-bold text-blue-500 no-underline;
   }
+
   .subject {
     @apply my-10 block text-3xl font-bold text-yellow-500 no-underline;
   }
+
   .content {
     @apply block font-bold no-underline;
   }
+
   .sidebar {
     @apply mb-1 block rounded-md no-underline hover:bg-amber-200 dark:hover:bg-amber-800;
   }
+
   .sidebar-md {
     @apply fixed right-0 top-[15%] max-h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl p-3 shadow-inner;
   }
+
   .leftsidebar {
     @apply mb-1 block rounded-md no-underline;
   }
+
   .leftsidebar-md {
     @apply fixed left-2 top-[15%] max-h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl p-3 shadow-inner;
   }
+
   .text-underlined {
-    @apply inline text-text-foreground underline decoration-yellow-800 decoration-wavy underline-offset-[0.2rem] dark:decoration-yellow-400;
+    @apply inline underline decoration-yellow-800 decoration-wavy underline-offset-[0.2rem] dark:decoration-yellow-400 text-[--text-foreground];
   }
+
   .text-overflow {
     text-overflow: ellipsis;
     overflow: hidden;
@@ -185,27 +198,32 @@
     -webkit-box-orient: vertical;
   }
 }
-/* body > div {
-  -ms-overflow-style: none;
-} */
+
+/* 스크롤바 숨기기 */
 html ::-webkit-scrollbar {
   display: none;
 }
+
+/* 반응형 폰트 사이즈 */
 html {
   @media (max-width: 1500px) {
     font-size: 87.5%;
   }
+
   @media (max-width: 1023px) {
     font-size: 75%;
   }
+
   @media (max-width: 767px) {
     font-size: 62.5%;
   }
 }
+
+/* Swiper bullet 스타일 */
 .swiper-pagination-bullet {
   background-color: #fff !important;
-  /* opacity: 1 !important; */
 }
+
 .swiper-pagination-bullet-active {
   background-color: #fff !important;
 }

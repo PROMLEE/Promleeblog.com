@@ -108,7 +108,7 @@ export const Navbar = () => {
             </>
           )}
           <Link
-            href={"/sitemap"}
+            href={"/sitemap-tree"}
             className="rounded-lg p-2 hover:bg-button hover:text-background"
           >
             sitemap

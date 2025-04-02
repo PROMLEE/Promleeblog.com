@@ -34,7 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
     },
     {
-      url: "https://www.promleeblog.com/sitemap",
+      url: "https://www.promleeblog.com/sitemap-tree",
       lastModified: new Date(),
     },
   ];
