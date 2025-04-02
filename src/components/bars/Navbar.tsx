@@ -45,7 +45,7 @@ export const Navbar = () => {
         <Link
           href={"/"}
           className={
-            "ml-2 rounded-lg p-1 text-2xl font-bold hover:cursor-pointer hover:bg-button hover:text-background"
+            "hover:bg-button hover:text-background ml-2 rounded-lg p-1 text-2xl font-bold hover:cursor-pointer"
           }
         >
           PromleeBlog
@@ -60,7 +60,7 @@ export const Navbar = () => {
                 <MenubarMenu>
                   <MenubarTrigger
                     className={
-                      "rounded-md font-bold hover:cursor-pointer hover:bg-button hover:text-background focus:bg-button focus:text-background data-[state=open]:bg-button data-[state=open]:text-background"
+                      "hover:bg-button hover:text-background focus:bg-button focus:text-background data-[state=open]:bg-button data-[state=open]:text-background rounded-md font-bold hover:cursor-pointer"
                     }
                   >
                     {category.nameko}
@@ -72,7 +72,7 @@ export const Navbar = () => {
                           href={`/blog/${category.url}/${subject.url}`}
                           key={index}
                         >
-                          <MenubarItem className="cursor-pointer text-text">
+                          <MenubarItem className="text-text cursor-pointer">
                             {subject.nameko}
                           </MenubarItem>
                         </Link>
@@ -89,33 +89,33 @@ export const Navbar = () => {
             <>
               <Link
                 href={"/blog/edit"}
-                className="rounded-lg p-2 hover:bg-button hover:text-background"
+                className="hover:bg-button hover:text-background rounded-lg p-2"
               >
                 edit
               </Link>
               <Link
                 href={"/test"}
-                className="rounded-lg p-2 hover:bg-button hover:text-background"
+                className="hover:bg-button hover:text-background rounded-lg p-2"
               >
                 test
               </Link>
               <Link
                 href={"/api-doc"}
-                className="rounded-lg p-2 hover:bg-button hover:text-background"
+                className="hover:bg-button hover:text-background rounded-lg p-2"
               >
                 api-doc
               </Link>
             </>
           )}
           <Link
-            href={"/sitemap"}
-            className="rounded-lg p-2 hover:bg-button hover:text-background"
+            href={"/sitemap-tree"}
+            className="hover:bg-button hover:text-background rounded-lg p-2"
           >
             sitemap
           </Link>
           <Link
             href={"/aboutme"}
-            className="ml-2 rounded-lg p-2 hover:bg-button hover:text-background"
+            className="hover:bg-button hover:text-background ml-2 rounded-lg p-2"
           >
             aboutMe
           </Link>
@@ -124,7 +124,7 @@ export const Navbar = () => {
               setMenu(!menu);
             }}
             className={
-              "ml-2 bg-button text-button-foreground hover:bg-button-foreground hover:text-button md:hidden"
+              "bg-button text-button-foreground hover:bg-button-foreground hover:text-button ml-2 md:hidden"
             }
           >
             Menu
