@@ -1,31 +1,18 @@
 import Link from "next/link";
 import { Metadata } from "next";
 import { GenerateMeta } from "@/lib/PostUtils/GenerateMeta_category";
-import { MdxMeta } from "@/config/types/types";
 import { PostService } from "@/config/apis";
 
-type Props = {
-  params: Promise<{
-    category: string;
-  }>;
-};
+type Props = { params: Promise<{ category: string }> };
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params;
-  const subjectlist = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/post/subjectlist?categoryurl=${params.category}`,
-    { next: { revalidate: 3600 } },
-  )
-    .then((res) => res.json())
-    .then((data) => data.data);
-  const source: MdxMeta = {
-    name: subjectlist.name,
+  const subjectlist = await PostService().getSubjectList({
+    categoryurl: params.category,
+  });
+  const source: PostResponse.GetSeriesList["data"] = {
     nameko: subjectlist.nameko,
-    desc: subjectlist.desc,
-    url: "",
-    thumbnail_url: "",
-    mod_date: "",
-    init_date: "",
+    Series: [],
   };
   return GenerateMeta({ meta: source, params });
 }

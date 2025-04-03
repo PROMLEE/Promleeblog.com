@@ -1,18 +1,11 @@
 import Link from "next/link";
-import { Metadata } from "next";
 import { GenerateMeta } from "@/lib/PostUtils/GenerateMeta_category";
-import { MdxMeta } from "@/config/types/types";
 import { PostService } from "@/config/apis";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const source: MdxMeta = {
-    name: "Category list",
-    nameko: "카테고리 리스트",
-    desc: "카테고리 리스트",
-    url: "",
-    thumbnail_url: "",
-    mod_date: "",
-    init_date: "",
+export async function generateMetadata() {
+  const source: PostResponse.GetSeriesList["data"] = {
+    nameko: "All Categories",
+    Series: [],
   };
   return GenerateMeta({ meta: source, params: { category: "" } });
 }

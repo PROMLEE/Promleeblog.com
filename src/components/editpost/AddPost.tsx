@@ -35,64 +35,33 @@ interface value {
 }
 
 const values: value[] = [
-  {
-    name: "series_id",
-    formlabel: "Series ID",
-    disabled: true,
-    type: "number",
-  },
-  {
-    name: "name",
-    formlabel: "Series Name(Eng)",
-    type: "text",
-  },
-  {
-    name: "nameko",
-    formlabel: "Series Name(Kor)",
-    type: "text",
-  },
-  {
-    name: "url",
-    formlabel: "Series URL",
-    type: "text",
-  },
-  {
-    name: "series_no",
-    formlabel: "series_no",
-    type: "number",
-  },
-  {
-    name: "desc",
-    formlabel: "Description",
-    type: "text",
-  },
-  {
-    name: "thumbnail_url",
-    formlabel: "Thumbnail URL",
-    type: "text",
-  },
+  { name: "series_id", formlabel: "Series ID", disabled: true, type: "number" },
+  { name: "name", formlabel: "Series Name(Eng)", type: "text" },
+  { name: "nameko", formlabel: "Series Name(Kor)", type: "text" },
+  { name: "url", formlabel: "Series URL", type: "text" },
+  { name: "series_no", formlabel: "series_no", type: "number" },
+  { name: "desc", formlabel: "Description", type: "text" },
+  { name: "thumbnail_url", formlabel: "Thumbnail URL", type: "text" },
 ];
 
 const FormSchema = z.object({
-  series_id: z.string().transform((v) => Number(v) || 0),
-  name: z.string().min(2, {
-    message: "Name(eng) must be at least 2 characters.",
-  }),
-  nameko: z.string().min(2, {
-    message: "Name(ko) must be at least 2 characters.",
-  }),
-  url: z.string().min(2, {
-    message: "URL must be at least 2 characters.",
-  }),
-  series_no: z.string().transform((v) => Number(v) || 0),
-  desc: z.string().min(2, {
-    message: "Description must be at least 2 characters.",
-  }),
+  series_id: z.number(),
+  name: z
+    .string()
+    .min(2, { message: "Name(eng) must be at least 2 characters." }),
+  nameko: z
+    .string()
+    .min(2, { message: "Name(ko) must be at least 2 characters." }),
+  url: z.string().min(2, { message: "URL must be at least 2 characters." }),
+  series_no: z.number(),
+  desc: z
+    .string()
+    .min(2, { message: "Description must be at least 2 characters." }),
   thumbnail_url: z.string(),
-  lock: z.boolean().default(false),
-  posting: z.string().min(2, {
-    message: "Posting must be at least 2 characters.",
-  }),
+  lock: z.boolean(),
+  posting: z
+    .string()
+    .min(2, { message: "Posting must be at least 2 characters." }),
   metatag: z.array(z.string()),
   tags: z.array(z.number()),
 });
@@ -102,12 +71,8 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
 
   useEffect(() => {
     TagsService()
-      .getTags({
-        sort: "id",
-      })
-      .then((res) => {
-        setTags(res);
-      });
+      .getTags({ sort: "id" })
+      .then((res) => setTags(res));
   }, []);
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -128,7 +93,7 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    const confirmtext = `Name: ${data.name}\nName(ko): ${data.nameko}\nURL: ${data.url}\nSeries_no: ${data.series_no}\nDescription: ${data.desc}\nThumbnail URL: ${data.thumbnail_url}\nLock: ${data.lock}\nPosting: ${data.posting.slice(0, 20) + "..."}`;
+    const confirmtext = `Name: ${data.name}\nName(ko): ${data.nameko}\nURL: ${data.url}\nSeries_no: ${data.series_no}\nDescription: ${data.desc}\nThumbnail URL: ${data.thumbnail_url}\nLock: ${data.lock}\nPosting: ${data.posting.slice(0, 20)}...`;
     console.log(data.tags);
     if (window.confirm("Do you want to add this Post?\n" + confirmtext)) {
       await EditService().postPost(data);
@@ -157,8 +122,13 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
                       <Input
                         placeholder={value.formlabel}
                         disabled={value.disabled}
-                        {...field}
                         type={value.type}
+                        {...field}
+                        onChange={
+                          value.type === "number"
+                            ? (e) => field.onChange(Number(e.target.value))
+                            : field.onChange
+                        }
                         className="border-third"
                       />
                     </FormControl>
@@ -169,7 +139,6 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
             ))}
             <FormField
               control={form.control}
-              key="lock"
               name="lock"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border border-third p-4">
@@ -186,7 +155,6 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
             />
             <FormField
               control={form.control}
-              key="metatag"
               name="metatag"
               render={({ field }) => (
                 <FormItem>
@@ -194,12 +162,12 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
                   <FormControl>
                     <Input
                       placeholder="Metatag"
-                      onChange={(e) => {
-                        field.onChange(e.target.value.split(", "));
-                      }}
-                      value={field.value.join(", ")}
                       type="text"
                       className="border-third"
+                      value={field.value.join(", ")}
+                      onChange={(e) =>
+                        field.onChange(e.target.value.split(", "))
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -208,7 +176,6 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
             />
             <FormField
               control={form.control}
-              key="posting"
               name="posting"
               render={({ field }) => (
                 <FormItem>
@@ -239,16 +206,15 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
                   ? "bg-secondary"
                   : "bg-primary"
               }`}
-              onClick={async () => {
-                const tags = form.getValues("tags");
-                if (tags.includes(parseInt(tag.id))) {
-                  await form.setValue(
-                    "tags",
-                    tags.filter((t) => t !== parseInt(tag.id)),
-                  );
-                } else {
-                  await form.setValue("tags", [...tags, parseInt(tag.id)]);
-                }
+              onClick={() => {
+                const selected = form.getValues("tags");
+                const id = parseInt(tag.id);
+                form.setValue(
+                  "tags",
+                  selected.includes(id)
+                    ? selected.filter((t) => t !== id)
+                    : [...selected, id],
+                );
               }}
             >
               {tag.name}

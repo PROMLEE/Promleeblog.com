@@ -22,33 +22,12 @@ interface value {
 }
 
 const values: value[] = [
-  {
-    name: "subject_id",
-    formlabel: "Subject ID",
-    disabled: true,
-    type: true,
-  },
-  {
-    name: "name",
-    formlabel: "Subject Name(Eng)",
-  },
-  {
-    name: "nameko",
-    formlabel: "Subject Name(Kor)",
-  },
-  {
-    name: "url",
-    formlabel: "Subject URL",
-  },
-  {
-    name: "subject_no",
-    formlabel: "Subject_no",
-    type: true,
-  },
-  {
-    name: "caption",
-    formlabel: "Caption",
-  },
+  { name: "subject_id", formlabel: "Subject ID", disabled: true, type: true },
+  { name: "name", formlabel: "Subject Name(Eng)" },
+  { name: "nameko", formlabel: "Subject Name(Kor)" },
+  { name: "url", formlabel: "Subject URL" },
+  { name: "subject_no", formlabel: "Subject_no", type: true },
+  { name: "caption", formlabel: "Caption" },
 ];
 interface Subject {
   subject_id: number;
@@ -59,17 +38,15 @@ interface Subject {
   caption: string;
 }
 const FormSchema = z.object({
-  subject_id: z.string().transform((v) => Number(v) || 0),
-  name: z.string().min(2, {
-    message: "Name(eng) must be at least 2 characters.",
-  }),
-  nameko: z.string().min(2, {
-    message: "Name(ko) must be at least 2 characters.",
-  }),
-  url: z.string().min(2, {
-    message: "URL must be at least 2 characters.",
-  }),
-  subject_no: z.string().transform((v) => Number(v) || 0),
+  subject_id: z.number(),
+  name: z
+    .string()
+    .min(2, { message: "Name(eng) must be at least 2 characters." }),
+  nameko: z
+    .string()
+    .min(2, { message: "Name(ko) must be at least 2 characters." }),
+  url: z.string().min(2, { message: "URL must be at least 2 characters." }),
+  subject_no: z.number(),
   caption: z.string(),
 });
 
@@ -77,9 +54,7 @@ const joinApi = async ({ body }: { body: Subject }) => {
   await fetch("/api/edit/addseries", {
     method: "POST",
     body: JSON.stringify(body),
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
   });
 };
 
@@ -121,6 +96,11 @@ export const AddSeries = ({ subject_id }: { subject_id: number }) => {
                     placeholder={value.formlabel}
                     disabled={value.disabled}
                     {...field}
+                    onChange={
+                      value.type
+                        ? (e) => field.onChange(Number(e.target.value))
+                        : field.onChange
+                    }
                     type={value.type ? "number" : "text"}
                     className="border-third"
                   />
@@ -135,3 +115,4 @@ export const AddSeries = ({ subject_id }: { subject_id: number }) => {
     </Form>
   );
 };
+
