@@ -12,9 +12,7 @@ type JsonRequestInit = Omit<NonNullable<FetchArgs[1]>, "body"> & {
 export type ResponseGenericBody<T> = Omit<
   Awaited<ReturnType<typeof fetch>>,
   keyof Body | "clone"
-> & {
-  body: T;
-};
+> & { body: T };
 
 export type JsonResponse<T> = T extends object
   ? ResponseGenericBody<T>
@@ -40,7 +38,7 @@ const returnFetchJson = (
 ) => {
   const fetch = returnFetch(args);
   const baseUrl = args?.baseUrl ? String(args.baseUrl) : "";
-  var query = "";
+  let query = "";
   if (params) {
     query = "?" + new URLSearchParams(params).toString();
   }
@@ -70,6 +68,7 @@ const returnFetchJson = (
   };
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getParams = (params: Record<string, any>) => {
   return "?" + new URLSearchParams(params).toString();
 };
@@ -82,7 +81,7 @@ export const CustomFetch = returnFetchJson({
     request: async (args) => {
       return args;
     },
-    response: async (response, requestArgs) => {
+    response: async (response) => {
       if (response.status >= 400) {
         throw await response.text().then(Error);
       }

@@ -107,6 +107,7 @@ export const EditPost = ({
         .postTags(post_id.toString())
         .then((res) => setTags(res));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post_id]);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {

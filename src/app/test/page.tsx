@@ -7,7 +7,7 @@ import { getPostDetail } from "@/lib/PostUtils/GetPost";
 import AutoRefresh from "../AutoRefresh";
 
 const Post = async () => {
-  const markdownsource = await getPostDetail({});
+  const markdownsource = await getPostDetail();
   return (
     <>
       <Toup />

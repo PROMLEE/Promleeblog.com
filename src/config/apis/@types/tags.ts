@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 namespace TagsResponse {
   export interface GetPostTags extends Shared.SuccessResponse {
     data: {
@@ -20,9 +22,7 @@ namespace TagsResponse {
   }
 
   export interface GetPostLink extends Shared.SuccessResponse {
-    data: {
-      Post: PostResponse.PostView;
-    }[];
+    data: { Post: PostResponse.PostView }[];
   }
 }
 
@@ -40,3 +40,4 @@ namespace TagsRequest {
     tag_id: number;
   }
 }
+
