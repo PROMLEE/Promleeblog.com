@@ -3,7 +3,6 @@ import "../config/globals.css";
 import React from "react";
 import { Gothic_A1 } from "next/font/google";
 import { Theme } from "@/components/Theme";
-import AutoRefresh from "./AutoRefresh";
 import { Navbar } from "@/components/bars/Navbar";
 import { Footer } from "@/components/bars/Footer";
 import Providers from "@/components/bars/Progressbar";
@@ -41,9 +40,7 @@ export default function RootLayout({
               "w-full scroll-smooth bg-background px-10 focus:scroll-smooth md:min-h-[100vh] md:w-5/6 xl:w-3/5"
             }
           >
-            <AutoRefresh>
-              <Providers>{children}</Providers>
-            </AutoRefresh>
+            <Providers>{children}</Providers>
           </div>
           <TagList />
           <Footer />
@@ -59,4 +56,3 @@ export default function RootLayout({
     </html>
   );
 }
-

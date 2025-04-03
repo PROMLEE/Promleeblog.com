@@ -7,8 +7,15 @@ import { ReactNode } from "react";
 const extractText = (node: ReactNode): string => {
   if (typeof node === "string") return node;
   if (Array.isArray(node)) return node.map(extractText).join(""); // 공백 없이 그대로 유지
-  if (typeof node === "object" && node && "props" in node)
-    return extractText(node.props.children);
+  if (React.isValidElement(node)) {
+    if (
+      node.props &&
+      typeof node.props === "object" &&
+      "children" in node.props
+    ) {
+      return extractText(node.props.children as ReactNode);
+    }
+  }
   return "";
 };
 

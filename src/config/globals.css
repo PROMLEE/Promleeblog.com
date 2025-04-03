@@ -177,7 +177,7 @@
   }
   /* Fenced Code block - line hightlight */
   .prose code span[data-highlighted-line] {
-    @apply border-y-0 border-l-2 border-blue-400 bg-indigo-400/10 pl-[calc(1rem-2px)] dark:border-blue-500 dark:bg-slate-700;
+    @apply border-y-0 border-l-2 border-blue-400 bg-indigo-400/90 pl-[calc(1rem-2px)] dark:border-blue-500 dark:bg-slate-700;
   }
   /* Fenced Code block - with title style*/
   .prose figcaption[data-rehype-pretty-code-title] {

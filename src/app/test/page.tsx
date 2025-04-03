@@ -4,28 +4,9 @@ import { Toup } from "@/components/buttons/Toup";
 import { Todown } from "@/components/buttons/Todown";
 import { MdxBody } from "@/components/posts/MdxBody";
 import { getPostDetail } from "@/lib/PostUtils/GetPost";
-// import { createClient } from "@/lib/Supabase/supabase_server";
+import AutoRefresh from "../AutoRefresh";
 
 const Post = async () => {
-  // const supabase = createClient();
-  // const { data } = await supabase.from("Category").select(`
-  //   name,
-  //   Subject (
-  //     name,
-  //     Series (
-  //       name,
-  //       Subject (
-  //         name
-  //       ),
-  //       Post (
-  //         name
-  //       )
-  //     )
-  //   )
-  // `);
-  // const jsondata = JSON.stringify(data, null, 2);
-  // return <div>{jsondata}</div>;
-  // console.log(jsondata);
   const markdownsource = await getPostDetail({});
   return (
     <>
@@ -33,8 +14,9 @@ const Post = async () => {
       <div className="prose mt-10 min-h-[100vh] scroll-smooth dark:prose-invert focus:scroll-auto">
         <RightSidebarComp content={markdownsource.content} />
         <Suspense fallback={<div>Loading...</div>}>
-          {/* <MdxHeader props={markdownsource.nameko} /> */}
-          <MdxBody content={markdownsource.content} />
+          <AutoRefresh>
+            <MdxBody content={markdownsource.content} />
+          </AutoRefresh>
         </Suspense>
       </div>
       <Todown />

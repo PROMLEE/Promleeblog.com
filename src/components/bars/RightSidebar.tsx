@@ -56,9 +56,7 @@ const RightSidebarComp = ({ content }: { content: string }) => {
           }
         });
       },
-      {
-        rootMargin: "10px 0px 0px 0px",
-      },
+      { rootMargin: "10px 0px 0px 0px" },
     );
     const headingElements = document.querySelectorAll("h1, h2, h3");
     headingElements.forEach((element) => observer.current?.observe(element));
@@ -74,7 +72,7 @@ const RightSidebarComp = ({ content }: { content: string }) => {
             <div key={idx} className={`sidebar`}>
               <Link
                 href={item.link}
-                className={`sidebar mt-3 indent-[-5px] text-sm font-bold text-text ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
+                className={`sidebar mt-3 indent-[-5px] text-sm font-bold text-text-foreground ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
               >
                 💡 {item.text.split("(")[0]}
               </Link>
@@ -85,7 +83,7 @@ const RightSidebarComp = ({ content }: { content: string }) => {
             <div key={idx} className={`sidebar`}>
               <Link
                 href={item.link}
-                className={`sidebar ml-8 indent-[-20px] text-xs ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
+                className={`sidebar ml-8 indent-[-20px] text-xs text-text-foreground ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
               >
                 🚀 {item.text.split("(")[0]}
               </Link>
