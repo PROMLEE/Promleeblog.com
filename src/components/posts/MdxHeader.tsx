@@ -10,7 +10,7 @@ export const MdxHeader = ({ props }: { props: HeaderProps }) => {
   return (
     <div className="my-28">
       <h1 className="relative z-10 mt-36 w-full text-center text-4xl font-bold text-text-foreground">
-        <div className="absolute -top-20 flex w-full flex-col items-center md:max-h-20">
+        <div className="absolute -top-10 flex w-full flex-col items-center md:max-h-20">
           <img
             className="z-[-1] h-40 opacity-20 md:h-60"
             src={
