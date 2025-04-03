@@ -35,75 +35,33 @@ interface value {
 }
 
 const values: value[] = [
-  {
-    name: "series_id",
-    formlabel: "Series ID",
-    disabled: true,
-    type: "number",
-  },
-  {
-    name: "name",
-    formlabel: "Series Name(Eng)",
-    type: "text",
-  },
-  {
-    name: "nameko",
-    formlabel: "Series Name(Kor)",
-    type: "text",
-  },
-  {
-    name: "url",
-    formlabel: "Series URL",
-    type: "text",
-  },
-  {
-    name: "series_no",
-    formlabel: "series_no",
-    type: "number",
-  },
-  {
-    name: "desc",
-    formlabel: "Description",
-    type: "text",
-  },
-  {
-    name: "thumbnail_url",
-    formlabel: "Thumbnail URL",
-    type: "text",
-  },
+  { name: "series_id", formlabel: "Series ID", disabled: true, type: "number" },
+  { name: "name", formlabel: "Series Name(Eng)", type: "text" },
+  { name: "nameko", formlabel: "Series Name(Kor)", type: "text" },
+  { name: "url", formlabel: "Series URL", type: "text" },
+  { name: "series_no", formlabel: "Series No", type: "number" },
+  { name: "desc", formlabel: "Description", type: "text" },
+  { name: "thumbnail_url", formlabel: "Thumbnail URL", type: "text" },
 ];
-interface series {
-  series_id: number;
-  name: string;
-  nameko: string;
-  url: string;
-  series_no: number;
-  desc: string;
-  thumbnail_url: string;
-  lock: boolean;
-  posting: string;
-  metatag: string[];
-}
+
 const FormSchema = z.object({
-  series_id: z.string().transform((v) => Number(v) || 0),
-  name: z.string().min(2, {
-    message: "Name(eng) must be at least 2 characters.",
-  }),
-  nameko: z.string().min(2, {
-    message: "Name(ko) must be at least 2 characters.",
-  }),
-  url: z.string().min(2, {
-    message: "URL must be at least 2 characters.",
-  }),
-  series_no: z.string().transform((v) => Number(v) || 0),
-  desc: z.string().min(2, {
-    message: "Description must be at least 2 characters.",
-  }),
+  series_id: z.number(),
+  name: z
+    .string()
+    .min(2, { message: "Name(eng) must be at least 2 characters." }),
+  nameko: z
+    .string()
+    .min(2, { message: "Name(ko) must be at least 2 characters." }),
+  url: z.string().min(2, { message: "URL must be at least 2 characters." }),
+  series_no: z.number(),
+  desc: z
+    .string()
+    .min(2, { message: "Description must be at least 2 characters." }),
   thumbnail_url: z.string(),
-  lock: z.boolean().default(false),
-  posting: z.string().min(2, {
-    message: "Posting must be at least 2 characters.",
-  }),
+  lock: z.boolean(),
+  posting: z
+    .string()
+    .min(2, { message: "Posting must be at least 2 characters." }),
   metatag: z.array(z.string()),
 });
 
@@ -137,28 +95,29 @@ export const EditPost = ({
   useEffect(() => {
     if (post_id) {
       PostService()
-        .getPost({ post_id: `${post_id.toString()}-${post_url}` })
+        .getPost({ post_id: `${post_id}-${post_url}` })
         .then((res) => {
-          form.reset(res);
+          form.reset({
+            ...res,
+            series_id: Number(res.series_id),
+            series_no: Number(res.series_no),
+          });
         });
       TagsService()
         .postTags(post_id.toString())
-        .then((res) => {
-          setTags(res);
-        });
+        .then((res) => setTags(res));
     }
   }, [post_id]);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    const confirmtext = `Name: ${data.name}\nName(ko): ${data.nameko}\nURL: ${data.url}\nSeries_no: ${data.series_no}\nDescription: ${data.desc}\nThumbnail URL: ${data.thumbnail_url}\nLock: ${data.lock}\nPosting: ${data.posting.slice(0, 20) + "..."}`;
+    const confirmtext = `Name: ${data.name}\nName(ko): ${data.nameko}\nURL: ${data.url}\nSeries_no: ${data.series_no}\nDescription: ${data.desc}\nThumbnail URL: ${data.thumbnail_url}\nLock: ${data.lock}\nPosting: ${data.posting.slice(0, 20)}...`;
     if (window.confirm("Do you want to add this Post?\n" + confirmtext)) {
       if (post_id && post_url) {
         await EditService().patchPost(data, post_id);
-        window.location.reload();
       } else {
         await EditService().postPost({ ...data, tags: [] });
-        window.location.reload();
       }
+      window.location.reload();
     }
   }
 
@@ -173,8 +132,8 @@ export const EditPost = ({
           >
             {values.map((value) => (
               <FormField
-                control={form.control}
                 key={value.name}
+                control={form.control}
                 name={value.name}
                 render={({ field }) => (
                   <FormItem>
@@ -183,8 +142,13 @@ export const EditPost = ({
                       <Input
                         placeholder={value.formlabel}
                         disabled={value.disabled}
-                        {...field}
                         type={value.type}
+                        {...field}
+                        onChange={
+                          value.type === "number"
+                            ? (e) => field.onChange(e.target.valueAsNumber)
+                            : field.onChange
+                        }
                         className="border-third"
                       />
                     </FormControl>
@@ -195,7 +159,6 @@ export const EditPost = ({
             ))}
             <FormField
               control={form.control}
-              key="lock"
               name="lock"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border border-third p-4">
@@ -212,7 +175,6 @@ export const EditPost = ({
             />
             <FormField
               control={form.control}
-              key="metatag"
               name="metatag"
               render={({ field }) => (
                 <FormItem>
@@ -220,11 +182,10 @@ export const EditPost = ({
                   <FormControl>
                     <Input
                       placeholder="Metatag"
-                      onChange={(e) => {
-                        field.onChange(e.target.value.split(","));
-                      }}
                       value={field.value.join(",")}
-                      type="text"
+                      onChange={(e) =>
+                        field.onChange(e.target.value.split(","))
+                      }
                       className="border-third"
                     />
                   </FormControl>
@@ -234,7 +195,6 @@ export const EditPost = ({
             />
             <FormField
               control={form.control}
-              key="posting"
               name="posting"
               render={({ field }) => (
                 <FormItem>
@@ -262,34 +222,23 @@ export const EditPost = ({
               key={tag.id}
               className={`cursor-pointer p-3 text-base hover:bg-transparent ${tag.isExist ? "bg-secondary" : "bg-primary"}`}
               onClick={async () => {
-                if (post_id === undefined) return;
-                if (tag.isExist) {
-                  await TagsService()
-                    .deleteTags({
-                      post_id: post_id,
+                if (!post_id) return;
+                const toggle = tag.isExist
+                  ? TagsService().deleteTags({
+                      post_id,
                       tag_id: parseInt(tag.id),
                     })
-                    .then(() => {
-                      setTags(
-                        tags.map((t) =>
-                          t.id === tag.id ? { ...t, isExist: false } : t,
-                        ),
-                      );
-                    });
-                } else {
-                  await TagsService()
-                    .addTags({
-                      post_id: post_id,
+                  : TagsService().addTags({
+                      post_id,
                       tag_id: parseInt(tag.id),
-                    })
-                    .then(() => {
-                      setTags(
-                        tags.map((t) =>
-                          t.id === tag.id ? { ...t, isExist: true } : t,
-                        ),
-                      );
                     });
-                }
+
+                await toggle;
+                setTags((prev) =>
+                  prev.map((t) =>
+                    t.id === tag.id ? { ...t, isExist: !tag.isExist } : t,
+                  ),
+                );
               }}
             >
               {tag.name}
@@ -298,11 +247,11 @@ export const EditPost = ({
         </div>
         <div
           className="mt-10 h-full w-1/4 cursor-pointer text-2xl hover:text-white active:text-pink-400"
-          onClick={() => {
+          onClick={() =>
             navigator.clipboard.writeText(
               `https://www.promleeblog.com/blog/post/${post_id}-${post_url}`,
-            );
-          }}
+            )
+          }
         >
           Copy
         </div>

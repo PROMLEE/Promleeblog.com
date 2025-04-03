@@ -8,15 +8,17 @@ interface HeaderProps {
 
 export const MdxHeader = ({ props }: { props: HeaderProps }) => {
   return (
-    <div>
+    <div className="my-28">
       <h1 className="relative z-10 mt-36 w-full text-center text-4xl font-bold text-text-foreground">
         <div className="absolute -top-20 flex w-full flex-col items-center md:max-h-20">
           <img
             className="z-[-1] h-40 opacity-20 md:h-60"
             src={
-              props.thumbnail_url.startsWith("/")
-                ? `https://cdn.promleeblog.com${props.thumbnail_url}`
-                : props.thumbnail_url
+              props.thumbnail_url
+                ? props.thumbnail_url.startsWith("/")
+                  ? `https://cdn.promleeblog.com${props.thumbnail_url}`
+                  : props.thumbnail_url
+                : "/icons/android-chrome-512x512.png"
             }
             alt={"posting thumbnail"}
           />

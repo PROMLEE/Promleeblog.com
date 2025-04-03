@@ -2,12 +2,6 @@ import Link from "next/link";
 import { TagsService } from "@/config/apis/service/tags";
 import { Cards } from "@/components/posts/Cards";
 
-type Props = {
-  params: {
-    id: string;
-  };
-};
-
 const getTags = async (params: { id: string }) => {
   const postList = await TagsService().getPostLink({
     tag_id: parseInt(params.id.split("-")[0]),
@@ -36,3 +30,4 @@ const Tags = async ({ params }: { params: Promise<{ id: string }> }) => {
   );
 };
 export default Tags;
+

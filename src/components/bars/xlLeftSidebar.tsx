@@ -1,7 +1,7 @@
 import React from "react";
 import LeftSidebarComp from "./LeftSidebar";
 import { ViewCheck } from "./viewCheck";
-import { CalendarDemo } from "../Calander";
+// import { CalendarDemo } from "../Calander";
 // import { EditService } from "@/config/apis/service/edit";
 
 const XlLeftSidebar = async () => {
@@ -14,7 +14,7 @@ const XlLeftSidebar = async () => {
         Menu
       </div>
       <LeftSidebarComp />
-      <CalendarDemo />
+      {/* <CalendarDemo /> */}
       {/* {tags.data.map((tag) => (
         <div key={tag.id}>{tag.name}</div>
       ))} */}
