@@ -13,32 +13,25 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { EditService } from "@/config/apis";
 
 interface value {
-  name: "subject_id" | "name" | "nameko" | "url" | "subject_no" | "caption";
+  name: "name" | "nameko" | "url" | "subject_no" | "caption";
   type?: boolean;
   disabled?: boolean;
   formlabel: string;
 }
 
 const values: value[] = [
-  { name: "subject_id", formlabel: "Subject ID", disabled: true, type: true },
+  // { name: "subject_id", formlabel: "Subject ID", disabled: true, type: true },
   { name: "name", formlabel: "Subject Name(Eng)" },
   { name: "nameko", formlabel: "Subject Name(Kor)" },
   { name: "url", formlabel: "Subject URL" },
   { name: "subject_no", formlabel: "Subject_no", type: true },
   { name: "caption", formlabel: "Caption" },
 ];
-interface Subject {
-  subject_id: number;
-  name: string;
-  nameko: string;
-  url: string;
-  subject_no: number;
-  caption: string;
-}
 const FormSchema = z.object({
-  subject_id: z.number(),
+  // subject_id: z.number(),
   name: z
     .string()
     .min(2, { message: "Name(eng) must be at least 2 characters." }),
@@ -50,19 +43,11 @@ const FormSchema = z.object({
   caption: z.string(),
 });
 
-const joinApi = async ({ body }: { body: Subject }) => {
-  await fetch("/api/edit/addseries", {
-    method: "POST",
-    body: JSON.stringify(body),
-    headers: { "Content-Type": "application/json" },
-  });
-};
-
 export const AddSeries = ({ subject_id }: { subject_id: number }) => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      subject_id,
+      // subject_id,
       name: "",
       nameko: "",
       url: "",
@@ -72,9 +57,10 @@ export const AddSeries = ({ subject_id }: { subject_id: number }) => {
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    const confirmtext = `Subject ID: ${data.subject_id}\nSeries Name(Eng): ${data.name}\nSeries Name(Kor): ${data.nameko}\nSeries URL: ${data.url}\nSubject_no: ${data.subject_no}\nDescription: ${data.caption}`;
+    const confirmtext = `Subject ID: ${data.name}\nSeries Name(Kor): ${data.nameko}\nSeries URL: ${data.url}\nSubject_no: ${data.subject_no}\nDescription: ${data.caption}`;
     if (window.confirm("Do you want to add this Series?\n" + confirmtext)) {
-      joinApi({ body: data });
+      // joinApi({ body: data });
+      EditService().postSeries({ ...data, subject_id });
       window.location.reload();
     }
   }
@@ -115,4 +101,3 @@ export const AddSeries = ({ subject_id }: { subject_id: number }) => {
     </Form>
   );
 };
-

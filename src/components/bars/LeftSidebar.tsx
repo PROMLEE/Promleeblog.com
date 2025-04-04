@@ -29,7 +29,7 @@ const LeftSidebarComp = ({ menuclose }: { menuclose?: () => void }) => {
             <AccordionItem
               value={category.nameko}
               key={index}
-              className="border-foreground p-2 hover:bg-primary"
+              className="border-foreground hover:bg-primary p-2"
             >
               <AccordionTrigger
                 onClick={() => {
@@ -39,10 +39,11 @@ const LeftSidebarComp = ({ menuclose }: { menuclose?: () => void }) => {
                     setValue(category.nameko);
                   }
                 }}
+                className="hover:bg-primary cursor-pointer text-lg font-bold"
               >
                 {category.nameko}
               </AccordionTrigger>
-              <AccordionContent className="p-0">
+              <AccordionContent className="cursor-pointer p-0">
                 {category.Subject.map((subject, index) => {
                   return (
                     <Link
@@ -58,7 +59,7 @@ const LeftSidebarComp = ({ menuclose }: { menuclose?: () => void }) => {
                       <AccordionItem
                         value={subject.nameko}
                         key={index}
-                        className="m-0 p-2 pb-0 hover:bg-secondary"
+                        className="hover:bg-secondary m-0 cursor-pointer p-2 pb-0"
                       >
                         {subject.nameko}
                       </AccordionItem>

@@ -22,21 +22,22 @@ const TagList = () => {
       });
   }, []);
 
-  if (pathname.startsWith("/blog/post") || pathname.startsWith("/aboutme")) {
+  if (
+    pathname.startsWith("/blog/post") ||
+    pathname.startsWith("/test") ||
+    pathname.startsWith("/aboutme")
+  ) {
     return null;
   }
   return (
     <div>
-      <h2 className="mb-3 mt-7 text-2xl font-bold">
-        {/* {series.caption && series.caption + " - "}
-        {series.nameko} */}
-      </h2>
+      <h2 className="mt-7 mb-3 text-2xl font-bold"></h2>
       <div className="related md:sidebar-md mb-10 border-y-2 px-3 py-3 md:mb-0 md:border-none xl:right-5">
         {tagList.length
           ? tagList.map((tag, idx) => (
               <div
                 key={idx}
-                className={`flex flex-col gap-2 text-text hover:text-blue-500 hover:underline`}
+                className={`text-text flex flex-col gap-2 hover:text-blue-500 hover:underline`}
               >
                 <Link
                   href={`/tags/${tag.id}-${tag.name}`}

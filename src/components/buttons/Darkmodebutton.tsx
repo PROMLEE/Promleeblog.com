@@ -36,15 +36,15 @@ export const DarkmodeButton = () => {
       onClick={() => {
         setTheme(value);
       }}
-      className="flex items-center gap-2"
+      className="flex cursor-pointer items-center gap-2"
     >
       {label} {value}
     </DropdownMenuItem>
   );
   return (
-    <div className="ml-3 mr-10 flex h-full content-center items-center">
+    <div className="mr-10 ml-3 flex h-full content-center items-center">
       <DropdownMenu>
-        <DropdownMenuTrigger className="outline-hidden h-full text-lg">
+        <DropdownMenuTrigger className="h-full cursor-pointer text-lg outline-hidden">
           {theme === "light" ? "☀️" : theme === "dark" ? "🌙" : "🖥️"}
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-3">
@@ -58,4 +58,3 @@ export const DarkmodeButton = () => {
     </div>
   );
 };
-
