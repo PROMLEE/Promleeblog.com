@@ -2,8 +2,12 @@ const NAVER = "https://searchadvisor.naver.com/indexnow";
 const BING = "https://www.bing.com/indexnow";
 const KEY = "eb4a5adcc0b340c39ccab6ffb1ecb8b0";
 
-export async function sendUrlsToIndexNow(urls: string[]) {
-  await fetch(BING, {
+export async function sendUrlsToIndexNow(
+  urls: string[],
+  IndexHost: "NAVER" | "BING",
+) {
+  const HOST = IndexHost === "BING" ? BING : NAVER;
+  await fetch(HOST, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -28,8 +32,12 @@ export async function sendUrlsToIndexNow(urls: string[]) {
     });
 }
 
-export async function sendUrlToIndexNow(url: string) {
-  await fetch(`${BING}/indexnow?url=${url}&key=${KEY}`, {
+export async function sendUrlToIndexNow(
+  url: string,
+  IndexHost: "NAVER" | "BING",
+) {
+  const HOST = IndexHost === "BING" ? BING : NAVER;
+  await fetch(`${HOST}/indexnow?url=${url}&key=${KEY}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
