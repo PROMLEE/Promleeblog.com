@@ -8,6 +8,8 @@ import {
   EditPost,
 } from "@/components/editpost";
 import { PostService } from "@/config/apis";
+import { Button } from "@/components/ui/button";
+import { sendUrlsToIndexNow } from "@/config/apis/service/indexnow";
 
 interface names {
   url: string;
@@ -51,6 +53,31 @@ const Page = () => {
         setLinks(res);
       });
   }, []);
+  const sendIndexNow = async () => {
+    const basePath = "https://www.promleeblog.com/blog/";
+    const Links = await PostService().getLinks();
+
+    const list = [
+      "https://www.promleeblog.com",
+      "https://www.promleeblog.com/aboutme",
+      "https://www.promleeblog.com/blog",
+      "https://www.promleeblog.com/sitemap-tree",
+    ];
+    Links.map((category) => {
+      list.push(basePath + category.url);
+      category.Subject.map((sub) => {
+        list.push(basePath + category.url + "/" + sub.url);
+        sub.Series.map((series) => {
+          series.Post.map((post) => {
+            if (!post.lock) {
+              list.push(basePath + "post/" + post.id + "-" + post.url);
+            }
+          });
+        });
+      });
+    });
+    sendUrlsToIndexNow(list);
+  };
 
   const getpw = () => {
     if (typeof window !== "undefined") {
@@ -72,6 +99,9 @@ const Page = () => {
   const buttonstyle = "ml-5 rounded bg-primary-foreground px-1 w-5";
   return (
     <>
+      <Button variant={"secondary"} className="mb-5" onClick={sendIndexNow}>
+        <span className="text-primary">indexNow 요청 보내기</span>
+      </Button>
       <div className="flex min-h-64 w-full rounded-lg py-10">
         <div className={blockstyle}>
           <h2 className={titlestyle}>
