@@ -10,7 +10,7 @@ import {
 import { PostService } from "@/config/apis";
 import { Button } from "@/components/ui/button";
 import {
-  sendUrlsToIndexNow,
+  // sendUrlsToIndexNow,
   sendUrlToIndexNow,
 } from "@/config/apis/service/indexnow";
 
@@ -80,7 +80,8 @@ const Page = () => {
       });
     });
     // sendUrlsToIndexNow(list);
-    sendUrlToIndexNow(list[0]);
+    sendUrlToIndexNow(list[0], "BING");
+    sendUrlToIndexNow(list[1], "NAVER");
   };
 
   const getpw = () => {
