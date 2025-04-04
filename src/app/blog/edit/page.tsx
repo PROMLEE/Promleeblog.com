@@ -9,10 +9,7 @@ import {
 } from "@/components/editpost";
 import { PostService } from "@/config/apis";
 import { Button } from "@/components/ui/button";
-import {
-  // sendUrlsToIndexNow,
-  sendUrlToIndexNow,
-} from "@/config/apis/service/indexnow";
+import { IndexNowService } from "@/config/apis/service/indexnow";
 
 interface names {
   url: string;
@@ -79,9 +76,38 @@ const Page = () => {
         });
       });
     });
-    // sendUrlsToIndexNow(list);
-    sendUrlToIndexNow(list[0], "BING");
-    sendUrlToIndexNow(list[1], "NAVER");
+    IndexNowService()
+      .sendUrlList({
+        urlList: list,
+        indexHost: "NAVER",
+      })
+      .then((res) => {
+        if (res.status !== 200) {
+          alert("요청 실패");
+        } else {
+          alert("요청 성공");
+        }
+      })
+      .catch((error) => {
+        console.error("IndexNow API fetch error:", error);
+        alert("요청 실패");
+      });
+    IndexNowService()
+      .sendUrlList({
+        urlList: list,
+        indexHost: "BING",
+      })
+      .then((res) => {
+        if (res.status !== 200) {
+          alert("요청 실패");
+        } else {
+          alert("요청 성공");
+        }
+      })
+      .catch((error) => {
+        console.error("IndexNow API fetch error:", error);
+        alert("요청 실패");
+      });
   };
 
   const getpw = () => {
