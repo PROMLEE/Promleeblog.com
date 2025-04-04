@@ -1,11 +1,13 @@
-const INDEXNOW_API = "https://searchadvisor.naver.com/indexnow";
-const KEY = "c5e3ab7f-81d2-4f99-a0f2-a35efb9ca23a";
+const NAVER = "https://searchadvisor.naver.com/indexnow";
+const BING = "https://www.bing.com/indexnow";
+const KEY = "eb4a5adcc0b340c39ccab6ffb1ecb8b0";
 
 export async function sendUrlsToIndexNow(urls: string[]) {
-  await fetch(INDEXNOW_API, {
+  await fetch(BING, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      charset: "utf-8",
       cache: "no-store",
     },
     body: JSON.stringify({
@@ -27,7 +29,7 @@ export async function sendUrlsToIndexNow(urls: string[]) {
 }
 
 export async function sendUrlToIndexNow(url: string) {
-  await fetch(`${INDEXNOW_API}/indexnow?url=${url}&key=${KEY}`, {
+  await fetch(`${BING}/indexnow?url=${url}&key=${KEY}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

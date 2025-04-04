@@ -9,7 +9,10 @@ import {
 } from "@/components/editpost";
 import { PostService } from "@/config/apis";
 import { Button } from "@/components/ui/button";
-import { sendUrlsToIndexNow } from "@/config/apis/service/indexnow";
+import {
+  sendUrlsToIndexNow,
+  sendUrlToIndexNow,
+} from "@/config/apis/service/indexnow";
 
 interface names {
   url: string;
@@ -76,7 +79,8 @@ const Page = () => {
         });
       });
     });
-    sendUrlsToIndexNow(list);
+    // sendUrlsToIndexNow(list);
+    sendUrlToIndexNow(list[0]);
   };
 
   const getpw = () => {
