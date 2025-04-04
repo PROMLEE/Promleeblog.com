@@ -3,7 +3,7 @@ namespace EditResponse {}
 
 namespace EditRequest {
   export interface PostAddCategory {
-    name: PostAddCategoryColumnName;
+    name: string;
     nameko: string;
     ord: number;
     url: string;

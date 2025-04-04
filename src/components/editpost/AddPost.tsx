@@ -21,21 +21,15 @@ import { TagsService } from "@/config/apis/service/tags";
 import { Badge } from "../ui/badge";
 
 interface value {
-  name:
-    | "series_id"
-    | "name"
-    | "nameko"
-    | "url"
-    | "series_no"
-    | "desc"
-    | "thumbnail_url";
+  name: // | "series_id"
+  "name" | "nameko" | "url" | "series_no" | "desc" | "thumbnail_url";
   type: "text" | "number" | "checkbox";
   disabled?: boolean;
   formlabel: string;
 }
 
 const values: value[] = [
-  { name: "series_id", formlabel: "Series ID", disabled: true, type: "number" },
+  // { name: "series_id", formlabel: "Series ID", disabled: true, type: "number" },
   { name: "name", formlabel: "Series Name(Eng)", type: "text" },
   { name: "nameko", formlabel: "Series Name(Kor)", type: "text" },
   { name: "url", formlabel: "Series URL", type: "text" },
@@ -45,7 +39,7 @@ const values: value[] = [
 ];
 
 const FormSchema = z.object({
-  series_id: z.number(),
+  // series_id: z.number(),
   name: z
     .string()
     .min(2, { message: "Name(eng) must be at least 2 characters." }),
@@ -78,7 +72,7 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      series_id,
+      // series_id,
       name: "",
       nameko: "",
       url: "",
@@ -94,9 +88,8 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     const confirmtext = `Name: ${data.name}\nName(ko): ${data.nameko}\nURL: ${data.url}\nSeries_no: ${data.series_no}\nDescription: ${data.desc}\nThumbnail URL: ${data.thumbnail_url}\nLock: ${data.lock}\nPosting: ${data.posting.slice(0, 20)}...`;
-    console.log(data.tags);
     if (window.confirm("Do you want to add this Post?\n" + confirmtext)) {
-      await EditService().postPost(data);
+      await EditService().postPost({ ...data, series_id });
       window.location.reload();
     }
   }
@@ -141,7 +134,7 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
               control={form.control}
               name="lock"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-third p-4">
+                <FormItem className="border-third flex flex-row items-center justify-between rounded-lg border p-4">
                   <FormLabel>Lock</FormLabel>
                   <FormControl>
                     <Switch
@@ -183,7 +176,7 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
                   <FormControl>
                     <Textarea
                       placeholder="Posting"
-                      className="resize-none border-third"
+                      className="border-third resize-none"
                       {...field}
                     />
                   </FormControl>

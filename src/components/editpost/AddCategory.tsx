@@ -13,6 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { EditService } from "@/config/apis";
 
 interface value {
   name: EditRequest.PostAddCategoryColumnName;
@@ -40,14 +41,6 @@ const FormSchema = z.object({
   desc: z.string(),
 });
 
-const joinApi = async ({ body }: { body: EditRequest.PostAddCategory }) => {
-  await fetch("/api/edit/addcategory", {
-    method: "POST",
-    body: JSON.stringify(body),
-    headers: { "Content-Type": "application/json" },
-  });
-};
-
 export const AddCategory = () => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -57,7 +50,7 @@ export const AddCategory = () => {
   function onSubmit(data: z.infer<typeof FormSchema>) {
     const confirmtext = `Category Name(Eng): ${data.name}\nCategory Name(Kor): ${data.nameko}\nCategory URL: ${data.url}\nOrder: ${data.ord}\nDescription: ${data.desc}`;
     if (window.confirm("Do you want to add this Category?\n" + confirmtext)) {
-      joinApi({ body: data as EditRequest.PostAddCategory });
+      EditService().postCategory(data);
       window.location.reload();
     }
   }

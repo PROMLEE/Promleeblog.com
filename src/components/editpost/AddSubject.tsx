@@ -13,32 +13,25 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { EditService } from "@/config/apis";
 
 interface value {
-  name: "category_id" | "name" | "nameko" | "url" | "category_no" | "desc";
+  name: "name" | "nameko" | "url" | "category_no" | "desc";
   type?: boolean;
   disabled?: boolean;
   formlabel: string;
 }
 
 const values: value[] = [
-  { name: "category_id", formlabel: "Category ID", disabled: true, type: true },
+  // { name: "category_id", formlabel: "Category ID", disabled: true, type: true },
   { name: "name", formlabel: "Subject Name(Eng)" },
   { name: "nameko", formlabel: "Subject Name(Kor)" },
   { name: "url", formlabel: "Subject URL" },
   { name: "category_no", formlabel: "Category_no", type: true },
   { name: "desc", formlabel: "Description" },
 ];
-interface Subject {
-  category_id: number;
-  name: string;
-  nameko: string;
-  url: string;
-  category_no: number;
-  desc: string;
-}
 const FormSchema = z.object({
-  category_id: z.number(),
+  // category_id: z.number(),
   name: z
     .string()
     .min(2, { message: "Name(eng) must be at least 2 characters." }),
@@ -50,19 +43,11 @@ const FormSchema = z.object({
   desc: z.string(),
 });
 
-const joinApi = async ({ body }: { body: Subject }) => {
-  await fetch("/api/edit/addsubject", {
-    method: "POST",
-    body: JSON.stringify(body),
-    headers: { "Content-Type": "application/json" },
-  });
-};
-
 export const AddSubject = ({ category_id }: { category_id: number }) => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      category_id,
+      // category_id,
       name: "",
       nameko: "",
       url: "",
@@ -72,9 +57,10 @@ export const AddSubject = ({ category_id }: { category_id: number }) => {
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    const confirmtext = `Category ID: ${data.category_id}\nSubject Name(Eng): ${data.name}\nSubject Name(Kor): ${data.nameko}\nSubject URL: ${data.url}\nCategory_no: ${data.category_no}\nDescription: ${data.desc}`;
+    const confirmtext = `${data.name}\nSubject Name(Kor): ${data.nameko}\nSubject URL: ${data.url}\nCategory_no: ${data.category_no}\nDescription: ${data.desc}`;
     if (window.confirm("Do you want to add this Subject?\n" + confirmtext)) {
-      joinApi({ body: data });
+      // joinApi({ body: data });
+      EditService().postSubject({ ...data, category_id });
       window.location.reload();
     }
   }
@@ -115,4 +101,3 @@ export const AddSubject = ({ category_id }: { category_id: number }) => {
     </Form>
   );
 };
-

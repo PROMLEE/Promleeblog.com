@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { Loading } from "@/components/Loading";
-// import { Pw } from "@/components/Pw";
 import { PostService } from "@/config/apis";
 import { Cards } from "@/components/posts/Cards";
 import { useParams } from "next/navigation";
@@ -15,10 +14,6 @@ const Subject = () => {
   const [serieslist, setSerieslist] = useState<
     PostResponse.GetSeriesList["data"]
   >({ Series: [], nameko: "" });
-  // const [isopen, setIsOpen] = useState(false);
-  // const Close = () => {
-  //   setIsOpen(false);
-  // };
 
   useEffect(() => {
     PostService()
@@ -29,16 +24,7 @@ const Subject = () => {
   }, [subject]);
   return (
     <Suspense fallback={<Loading />}>
-      {/* <Pw isOpen={isopen} Close={Close} url={url} /> */}
-      {/* <Link className={"category"} href={`/blog/${category}`}>
-        {category}
-      </Link> */}
-      <div
-        className={"subject"}
-        // href={`/blog/${category}/${subject}`}
-      >
-        {serieslist.nameko}
-      </div>
+      <div className={"subject"}>{serieslist.nameko}</div>
       {serieslist.Series &&
         serieslist.Series.map((series, idx) => {
           for (let i = 0; i < series.Post.length; i++) {
@@ -51,7 +37,7 @@ const Subject = () => {
           }
           return (
             <div key={idx}>
-              <h2 className="mb-3 mt-7 text-2xl font-bold" id={series.nameko}>
+              <h2 className="mt-7 mb-3 text-2xl font-bold" id={series.nameko}>
                 {series.caption && series.caption + " - "}
                 {series.nameko}
               </h2>
@@ -59,15 +45,6 @@ const Subject = () => {
                 {series.Post.length
                   ? series.Post.map((post, idx) => {
                       return post.lock ? null : (
-                        // <div
-                        //   onClick={() => {
-                        //     SetUrl(`/blog/post/${post.id}-${post.url}`);
-                        //     Open();
-                        //   }}
-                        //   key={idx}a
-                        // >
-                        //   <Cards post={post} idx={idx} />
-                        // </div>
                         <Link
                           href={`/blog/post/${post.id}-${post.url}`}
                           key={idx}
