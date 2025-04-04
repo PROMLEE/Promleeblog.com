@@ -1,8 +1,8 @@
-import { PostParams, MdxMeta, urlParams } from "@/config/types/types";
+import { PostParams, MdxMeta } from "@/config/types/types";
 import fs from "fs";
 import matter from "gray-matter";
 
-const getPostDetail = async (params: any) => {
+const getPostDetail = async () => {
   const filePath = `public/posts/contents.mdx`;
   const detail = await parsePost(filePath);
   return detail;
@@ -16,9 +16,7 @@ const parsePostDetail = async (postPath: string) => {
 };
 const parsePost = async (postPath: string): Promise<PostParams> => {
   const postDetail = await parsePostDetail(postPath);
-  return {
-    ...postDetail,
-  };
+  return { ...postDetail };
 };
 
 export { getPostDetail };

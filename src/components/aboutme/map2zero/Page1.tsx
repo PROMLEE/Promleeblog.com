@@ -42,7 +42,6 @@ export const Page1 = () => {
             {skills.map((s, idx) => (
               <div key={idx} className="m-0 mb-2 marker:text-text">
                 {
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={`https://img.shields.io/badge/${s.name}-${s.bg}?style=for-the-badge&logo=${s.logo}&logoColor=${s.logocolor}`}
                     alt="ho"
@@ -57,7 +56,6 @@ export const Page1 = () => {
             {tools.map((s, idx) => (
               <div key={idx} className="m-0 mb-2 marker:text-text">
                 {
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={`https://img.shields.io/badge/${s.name}-${s.bg}?style=for-the-badge&logo=${s.logo}&logoColor=${s.logocolor}`}
                     alt="ho"

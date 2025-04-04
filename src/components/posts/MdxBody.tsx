@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React from "react";
 import { components } from "@/components/mdx";
 import { MDXRemote } from "next-mdx-remote/rsc";
@@ -15,20 +14,14 @@ export const MdxBody = ({ content }: { content: string }) => {
   return (
     <MDXRemote
       source={content === "" ? "no contents 😿" : content}
-      //@ts-ignore
       components={components}
       options={{
         parseFrontmatter: true,
         mdxOptions: {
           remarkPlugins: [remarkGfm, remarkBreaks, remarkMath],
           rehypePlugins: [
+            [rehypePrettyCode],
             [
-              // 이슈 존재 https://github.com/hashicorp/next-mdx-remote/issues/86
-              //@ts-ignore
-              rehypePrettyCode,
-            ],
-            [
-              //@ts-ignore
               rehypeKatex,
               {
                 colorIsTextColor: true,
@@ -44,9 +37,7 @@ export const MdxBody = ({ content }: { content: string }) => {
               rehypeAutolinkHeadings,
               {
                 behavior: "append",
-                properties: {
-                  className: ["anchor"],
-                },
+                properties: { className: ["anchor"] },
                 content: {
                   type: "element",
                   tagName: "span",
@@ -61,3 +52,4 @@ export const MdxBody = ({ content }: { content: string }) => {
     />
   );
 };
+

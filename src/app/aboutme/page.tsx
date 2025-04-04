@@ -13,7 +13,7 @@ import { Education } from "@/components/aboutme/Education";
 import RightSidebarComp from "@/components/bars/RightSidebar";
 
 interface refs {
-  ref: React.RefObject<HTMLDivElement>;
+  ref: React.RefObject<HTMLDivElement | null>;
   isVisible: boolean;
   component: React.FC;
 }

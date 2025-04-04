@@ -31,7 +31,6 @@ export const DarkmodeButton = () => {
    * @param {string} title - 책의 제목
    * @param {string} author - 책의 저자
    */
-  function Book(title: string, author: string) {}
   const Item = ({ label, value }: { label: string; value: string }) => (
     <DropdownMenuItem
       onClick={() => {
@@ -45,7 +44,7 @@ export const DarkmodeButton = () => {
   return (
     <div className="ml-3 mr-10 flex h-full content-center items-center">
       <DropdownMenu>
-        <DropdownMenuTrigger className="h-full text-lg outline-none">
+        <DropdownMenuTrigger className="outline-hidden h-full text-lg">
           {theme === "light" ? "☀️" : theme === "dark" ? "🌙" : "🖥️"}
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-3">
@@ -59,3 +58,4 @@ export const DarkmodeButton = () => {
     </div>
   );
 };
+

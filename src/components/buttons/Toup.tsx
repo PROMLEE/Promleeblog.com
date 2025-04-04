@@ -2,10 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 
 export const Toup = () => {
-  const { theme } = useTheme();
   return (
     <Link href="#">
       <svg
@@ -18,7 +16,7 @@ export const Toup = () => {
         viewBox="0 0 24 24"
       >
         <path
-          stroke={theme === "dark" ? "#202124" : "white"}
+          stroke={"white"}
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth="2"

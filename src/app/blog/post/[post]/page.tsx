@@ -8,33 +8,33 @@ import { Metadata } from "next";
 import { GenerateMeta } from "@/lib/PostUtils/GenerateMeta";
 import { BreadCrumb } from "@/components/posts/BreadCrumb";
 import { Loading } from "@/components/Loading";
-import dayjs from "dayjs";
 import Giscus from "@/components/posts/Giscus";
 import { PostService } from "@/config/apis";
+import { LocalizedDate } from "@/components/LocalizeDate";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { post: string };
+export async function generateMetadata(props: {
+  params: Promise<{ post: string }>;
 }): Promise<Metadata> {
-  const markdownsource = await PostService().getPost({ post_id: params.post });
+  const params = await props.params;
+  const markdownsource = await PostService().getPostMeta({
+    post_id: params.post,
+  });
   return GenerateMeta({ meta: markdownsource, param: params.post });
 }
-const Post = async ({ params }: { params: { post: string } }) => {
-  const markdownsource = await PostService().getPost({ post_id: params.post });
-  await PostService().viewIncrement({ post_id: params.post.split("-")[0] });
 
-  const dateString = dayjs(markdownsource.init_date)
-    .locale("ko")
-    .format("YYYY년 MM월 DD일");
+const Post = async ({ params }: { params: Promise<{ post: string }> }) => {
+  const { post } = await params;
+
+  const [markdownsource] = await Promise.all([
+    PostService().getPost({ post_id: post }),
+    PostService().viewIncrement({ post_id: post.split("-")[0] }),
+  ]);
 
   return (
     <>
       <Toup />
       <Suspense fallback={<Loading />}>
         <BreadCrumb params={markdownsource} />
-      </Suspense>
-      <Suspense fallback={<Loading />}>
         <MdxHeader
           props={{
             nameko: markdownsource.nameko,
@@ -42,15 +42,19 @@ const Post = async ({ params }: { params: { post: string } }) => {
             thumbnail_url: markdownsource.thumbnail_url,
           }}
         />
-        <div className={"ml-auto text-right"}>{"📅 " + dateString}</div>
-        <div className="prose mt-10 min-h-[100vh] scroll-smooth dark:prose-invert focus:scroll-auto">
-          <RightSidebarComp content={markdownsource.posting} />
-          <MdxBody content={markdownsource.posting} />
+        <div className="ml-auto text-right">
+          📅 <LocalizedDate isoString={markdownsource.init_date} />
         </div>
+        <div className="prose dark:prose-invert mt-10 min-h-[100vh] scroll-smooth focus:scroll-auto">
+          <MdxBody content={markdownsource.posting} />
+          <RightSidebarComp content={markdownsource.posting} />
+        </div>
+
         <Giscus />
       </Suspense>
       <Todown />
     </>
   );
 };
+
 export default Post;

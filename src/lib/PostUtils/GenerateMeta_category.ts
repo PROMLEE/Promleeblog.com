@@ -1,4 +1,3 @@
-import { MdxMeta } from "@/config/types/types";
 const baseUrl = "https://promleeblog.com";
 
 interface params {
@@ -10,20 +9,19 @@ export const GenerateMeta = ({
   meta,
   params,
 }: {
-  meta: MdxMeta;
+  meta: PostResponse.GetSeriesList["data"];
   params: params;
 }) => {
   const title = `PromleeBlog | ${meta.nameko}`;
-  const description = meta.desc;
+  const description = `${meta.nameko} 시리즈에 대한 포스트 목록입니다.`;
   const tags: string[] = [
     "PromleeBlog",
     "Promlee",
     "PromleeBlog.com",
     meta.nameko,
-    meta.name,
-    meta.url || "",
+    ...meta.Series.map((item) => item.nameko),
   ];
-  const thumbnail = meta.thumbnail_url || "icons/android-chrome-512x512.png";
+  const thumbnail = "icons/android-chrome-512x512.png";
   const flattenedPath = params.subject
     ? `blog/${params.category}/${params.subject}`
     : `blog/${params.category}`;
@@ -36,10 +34,7 @@ export const GenerateMeta = ({
       description,
       url: `${baseUrl}/${flattenedPath}`,
       siteName: "PromleeBlog",
-      images: {
-        url: `${baseUrl}/${thumbnail}`,
-        alt: "Post Image",
-      },
+      images: { url: `${baseUrl}/${thumbnail}`, alt: "Post Image" },
       locale: "ko_KR",
       type: "article",
       tags,
@@ -49,10 +44,7 @@ export const GenerateMeta = ({
       creator: "PromleeBlog",
       title,
       description,
-      images: {
-        url: `${baseUrl}/${thumbnail}`,
-        alt: "Post Image",
-      },
+      images: { url: `${baseUrl}/${thumbnail}`, alt: "Post Image" },
     },
   };
 };

@@ -21,40 +21,22 @@ interface value {
 }
 
 const values: value[] = [
-  {
-    name: "name",
-    formlabel: "Category Name(Eng)",
-  },
-  {
-    name: "nameko",
-    formlabel: "Category Name(Kor)",
-  },
-  {
-    name: "url",
-    formlabel: "Category URL",
-  },
-  {
-    name: "ord",
-    formlabel: "Order",
-    type: true,
-  },
-  {
-    name: "desc",
-    formlabel: "Description",
-  },
+  { name: "name", formlabel: "Category Name(Eng)" },
+  { name: "nameko", formlabel: "Category Name(Kor)" },
+  { name: "url", formlabel: "Category URL" },
+  { name: "ord", formlabel: "Order", type: true },
+  { name: "desc", formlabel: "Description" },
 ];
 
 const FormSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name(eng) must be at least 2 characters.",
-  }),
-  nameko: z.string().min(2, {
-    message: "Name(ko) must be at least 2 characters.",
-  }),
-  url: z.string().min(2, {
-    message: "URL must be at least 2 characters.",
-  }),
-  ord: z.string().transform((v) => Number(v) || 0),
+  name: z
+    .string()
+    .min(2, { message: "Name(eng) must be at least 2 characters." }),
+  nameko: z
+    .string()
+    .min(2, { message: "Name(ko) must be at least 2 characters." }),
+  url: z.string().min(2, { message: "URL must be at least 2 characters." }),
+  ord: z.number(),
   desc: z.string(),
 });
 
@@ -62,22 +44,14 @@ const joinApi = async ({ body }: { body: EditRequest.PostAddCategory }) => {
   await fetch("/api/edit/addcategory", {
     method: "POST",
     body: JSON.stringify(body),
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
   });
 };
 
 export const AddCategory = () => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {
-      name: "",
-      nameko: "",
-      url: "",
-      ord: 0,
-      desc: "",
-    },
+    defaultValues: { name: "", nameko: "", url: "", ord: 0, desc: "" },
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -105,6 +79,11 @@ export const AddCategory = () => {
                     placeholder={value.formlabel}
                     {...field}
                     type={value.type ? "number" : "text"}
+                    onChange={
+                      value.type
+                        ? (e) => field.onChange(Number(e.target.value))
+                        : field.onChange
+                    }
                     className="border-third"
                   />
                 </FormControl>

@@ -99,16 +99,10 @@ export const Navbar = () => {
               >
                 test
               </Link>
-              <Link
-                href={"/api-doc"}
-                className="rounded-lg p-2 hover:bg-button hover:text-background"
-              >
-                api-doc
-              </Link>
             </>
           )}
           <Link
-            href={"/sitemap"}
+            href={"/sitemap-tree"}
             className="rounded-lg p-2 hover:bg-button hover:text-background"
           >
             sitemap
@@ -139,3 +133,4 @@ export const Navbar = () => {
     </>
   );
 };
+

@@ -109,7 +109,10 @@ export function h1tag({ id, children }: Props) {
       />
       <div className="mb-5 ml-[-15px] mt-14 flex gap-2 text-3xl">
         💡{" "}
-        <h1 id={id} className="m-0 text-3xl font-bold">
+        <h1
+          id={id}
+          className="not-prose m-0 text-3xl font-bold text-text-foreground"
+        >
           {children}
         </h1>
       </div>
@@ -121,8 +124,11 @@ export function h2tag({ id, children }: Props) {
     <>
       <hr className={"border-1 w-full rounded border-foreground"} />
       <div className="mb-3 ml-[-10px] mt-5 flex gap-2 text-2xl">
-        🚀{" "}
-        <h2 id={id} className="m-0 text-2xl font-bold">
+        <div>🚀 </div>
+        <h2
+          id={id}
+          className="not-prose m-0 text-2xl font-bold text-text-foreground"
+        >
           {children}
         </h2>
       </div>
@@ -133,7 +139,10 @@ export function h3tag({ id, children }: Props) {
   return (
     <div className="mb-2 ml-[-10px] mt-7 flex gap-2 text-xl font-bold">
       ✅{" "}
-      <h3 id={id} className="m-0 text-xl font-bold">
+      <h3
+        id={id}
+        className="not-prose m-0 text-xl font-bold text-text-foreground"
+      >
         {children}
       </h3>
     </div>
@@ -143,7 +152,10 @@ export function h4tag({ id, children }: Props) {
   return (
     <div className="mb-1 ml-[-8px] mt-7 flex gap-2">
       ➡️{" "}
-      <h4 id={id} className="m-0 text-lg font-bold">
+      <h4
+        id={id}
+        className="not-prose m-0 text-lg font-bold text-text-foreground"
+      >
         {children}
       </h4>
     </div>
@@ -152,7 +164,7 @@ export function h4tag({ id, children }: Props) {
 export function h5tag({ id, children }: Props) {
   return (
     <div className="flex gap-2">
-      <h5 id={id} className="m-0 font-bold">
+      <h5 id={id} className="not-prose m-0 font-bold text-text-foreground">
         {children}
       </h5>
     </div>
@@ -161,7 +173,7 @@ export function h5tag({ id, children }: Props) {
 export function h6tag({ id, children }: Props) {
   return (
     <div className="flex gap-2">
-      <h6 id={id} className="m-0 font-bold">
+      <h6 id={id} className="not-prose m-0 font-bold text-text-foreground">
         {children}
       </h6>
     </div>
@@ -199,7 +211,7 @@ export const tdtag = ({ children }: Props) => {
   );
 };
 // export const codetag = ({ children,  }: Props) => {
-//   return <code className={"dark:text-white "}>{children}</code>;
+//   return <code className={"dark:text-white dark:text-black "}>{children}</code>;
 // };
 export const btag = ({ children }: Props) => {
   return (
@@ -244,7 +256,7 @@ export const atag = ({ id, children, href }: Props) => {
         href={href}
         id={id}
         className={
-          "font-bold text-yellow-700 no-underline hover:text-blue-700 dark:font-normal dark:text-yellow-500 hover:dark:text-blue-300"
+          "font-bold text-yellow-700 no-underline hover:text-blue-700 dark:font-normal dark:text-yellow-500 dark:hover:text-blue-300"
         }
       >
         {children}
@@ -256,7 +268,7 @@ export const atag = ({ id, children, href }: Props) => {
     <a
       id={id}
       className={
-        "font-bold text-yellow-700 no-underline hover:text-blue-700 dark:font-normal dark:text-yellow-500 hover:dark:text-blue-300"
+        "font-bold text-yellow-700 no-underline hover:text-blue-700 dark:font-normal dark:text-yellow-500 dark:hover:text-blue-300"
       }
       href={href}
       target="_blank"
@@ -268,7 +280,7 @@ export const atag = ({ id, children, href }: Props) => {
 
 export const codetag = ({ children }: { children: React.ReactNode }) => {
   return (
-    <code className="relative">
+    <code className="relative font-extralight text-text">
       <span className="absolute right-0 top-0">
         <CopyButton>{children}</CopyButton>
       </span>

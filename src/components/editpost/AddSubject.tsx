@@ -22,33 +22,12 @@ interface value {
 }
 
 const values: value[] = [
-  {
-    name: "category_id",
-    formlabel: "Category ID",
-    disabled: true,
-    type: true,
-  },
-  {
-    name: "name",
-    formlabel: "Subject Name(Eng)",
-  },
-  {
-    name: "nameko",
-    formlabel: "Subject Name(Kor)",
-  },
-  {
-    name: "url",
-    formlabel: "Subject URL",
-  },
-  {
-    name: "category_no",
-    formlabel: "Category_no",
-    type: true,
-  },
-  {
-    name: "desc",
-    formlabel: "Description",
-  },
+  { name: "category_id", formlabel: "Category ID", disabled: true, type: true },
+  { name: "name", formlabel: "Subject Name(Eng)" },
+  { name: "nameko", formlabel: "Subject Name(Kor)" },
+  { name: "url", formlabel: "Subject URL" },
+  { name: "category_no", formlabel: "Category_no", type: true },
+  { name: "desc", formlabel: "Description" },
 ];
 interface Subject {
   category_id: number;
@@ -59,17 +38,15 @@ interface Subject {
   desc: string;
 }
 const FormSchema = z.object({
-  category_id: z.string().transform((v) => Number(v) || 0),
-  name: z.string().min(2, {
-    message: "Name(eng) must be at least 2 characters.",
-  }),
-  nameko: z.string().min(2, {
-    message: "Name(ko) must be at least 2 characters.",
-  }),
-  url: z.string().min(2, {
-    message: "URL must be at least 2 characters.",
-  }),
-  category_no: z.string().transform((v) => Number(v) || 0),
+  category_id: z.number(),
+  name: z
+    .string()
+    .min(2, { message: "Name(eng) must be at least 2 characters." }),
+  nameko: z
+    .string()
+    .min(2, { message: "Name(ko) must be at least 2 characters." }),
+  url: z.string().min(2, { message: "URL must be at least 2 characters." }),
+  category_no: z.number(),
   desc: z.string(),
 });
 
@@ -77,9 +54,7 @@ const joinApi = async ({ body }: { body: Subject }) => {
   await fetch("/api/edit/addsubject", {
     method: "POST",
     body: JSON.stringify(body),
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
   });
 };
 
@@ -121,6 +96,11 @@ export const AddSubject = ({ category_id }: { category_id: number }) => {
                     placeholder={value.formlabel}
                     disabled={value.disabled}
                     {...field}
+                    onChange={
+                      value.type
+                        ? (e) => field.onChange(Number(e.target.value))
+                        : field.onChange
+                    }
                     type={value.type ? "number" : "text"}
                     className="border-third"
                   />
@@ -135,3 +115,4 @@ export const AddSubject = ({ category_id }: { category_id: number }) => {
     </Form>
   );
 };
+

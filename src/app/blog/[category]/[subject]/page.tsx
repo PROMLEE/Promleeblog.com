@@ -6,17 +6,12 @@ import { Loading } from "@/components/Loading";
 // import { Pw } from "@/components/Pw";
 import { PostService } from "@/config/apis";
 import { Cards } from "@/components/posts/Cards";
+import { useParams } from "next/navigation";
 
-type Props = {
-  params: params;
-};
+type Params = { category: string; subject: string };
 
-interface params {
-  category: string;
-  subject: string;
-}
-
-const Subject = ({ params }: Props) => {
+const Subject = () => {
+  const { subject } = useParams<Params>();
   const [serieslist, setSerieslist] = useState<
     PostResponse.GetSeriesList["data"]
   >({ Series: [], nameko: "" });
@@ -27,20 +22,20 @@ const Subject = ({ params }: Props) => {
 
   useEffect(() => {
     PostService()
-      .getSeriesList({ subjecturl: params.subject })
+      .getSeriesList({ subjecturl: subject })
       .then((data) => {
         setSerieslist(data);
       });
-  }, [params]);
+  }, [subject]);
   return (
     <Suspense fallback={<Loading />}>
       {/* <Pw isOpen={isopen} Close={Close} url={url} /> */}
-      {/* <Link className={"category"} href={`/blog/${params.category}`}>
-        {params.category}
+      {/* <Link className={"category"} href={`/blog/${category}`}>
+        {category}
       </Link> */}
       <div
         className={"subject"}
-        // href={`/blog/${params.category}/${params.subject}`}
+        // href={`/blog/${category}/${subject}`}
       >
         {serieslist.nameko}
       </div>
