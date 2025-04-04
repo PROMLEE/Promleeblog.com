@@ -1,5 +1,5 @@
 import { CustomFetch, getParams } from "../axios";
-
+import { MdxMeta } from "@/config/types/types";
 export const PostService = () => {
   const url = "/post";
 
@@ -79,7 +79,18 @@ export const PostService = () => {
     ).body as PostResponse.GetPost;
     return response.data;
   };
-
+  /**
+   * Post meta 조회
+   * @api-doc: https://github.com/PROMLEE/Promleeblog.com/blob/test/src/app/api/post/route.ts
+   */
+  const getPostMeta = async (params: PostRequest.PatchView) => {
+    const response = (
+      await CustomFetch(`${url}/meta${getParams(params)}`, {
+        method: "GET",
+      })
+    ).body as { data: MdxMeta };
+    return response.data;
+  };
   return {
     getCategoryList,
     getSubjectList,
@@ -87,5 +98,6 @@ export const PostService = () => {
     getLinks,
     viewIncrement,
     getPost,
+    getPostMeta,
   };
 };

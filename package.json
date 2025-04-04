@@ -2,6 +2,7 @@
   "name": "promleeblog",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "concurrently \"next dev --turbopack\" \"tsx ./watcher.ts\" --kill-others",
     "next-dev": "next dev",
@@ -101,3 +102,4 @@
     "@types/react-dom": "19.1.1"
   }
 }
+
