@@ -43,6 +43,7 @@
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "embla-carousel-react": "^8.5.2",
+    "googleapis": "^148.0.0",
     "gray-matter": "^4.0.3",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.487.0",
@@ -102,4 +103,3 @@
     "@types/react-dom": "19.1.1"
   }
 }
-
