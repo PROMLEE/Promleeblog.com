@@ -11,6 +11,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { GoogleAdSense } from "@/components/gasnippit";
 import XlLeftSidebar from "@/components/bars/xlLeftSidebar";
 import TagList from "@/components/bars/TagList";
+// import { AppProgressProvider as ProgressProvider } from '@bprogress/next';
 
 export const metadata: Metadata = {
   title: "PromleeBlog",
@@ -33,17 +34,19 @@ export default function RootLayout({
       </head>
       <body>
         <Theme>
-          <Navbar />
-          <XlLeftSidebar />
-          <div
-            className={
-              "w-full scroll-smooth bg-background px-10 focus:scroll-smooth md:min-h-[100vh] md:w-5/6 xl:w-3/5"
-            }
-          >
-            <Providers>{children}</Providers>
-          </div>
-          <TagList />
-          <Footer />
+          <Providers>
+            <Navbar />
+            <XlLeftSidebar />
+            <div
+              className={
+                "bg-background w-full scroll-smooth px-10 focus:scroll-smooth md:min-h-[100vh] md:w-5/6 xl:w-3/5"
+              }
+            >
+              {children}
+            </div>
+            <TagList />
+            <Footer />
+          </Providers>
         </Theme>
         <Toaster />
         <GoogleAnalytics

@@ -14,6 +14,7 @@
     "vercel-deploy": "next build && next export"
   },
   "dependencies": {
+    "@bprogress/next": "^3.2.10",
     "@google-analytics/data": "^5.1.0",
     "@hookform/resolvers": "^5.0.1",
     "@mdx-js/react": "^3.1.0",
@@ -50,6 +51,7 @@
     "@radix-ui/react-toggle-group": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.8",
     "@supabase/ssr": "^0.6.1",
+    "@supabase/supabase-js": "^2.49.4",
     "@types/mdx": "^2.0.13",
     "autoprefixer": "^10.4.21",
     "chokidar": "^4.0.3",
@@ -58,7 +60,7 @@
     "cmdk": "^1.1.1",
     "cytoscape": "^3.31.2",
     "cytoscape-cose-bilkent": "^4.1.0",
-    "date-fns": "^4.1.0",
+    "date-fns": "^3.0.0",
     "dayjs": "^1.11.13",
     "embla-carousel-react": "^8.6.0",
     "googleapis": "^148.0.0",
