@@ -6,6 +6,5 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
     },
     sitemap: "https://promleeblog.com/sitemap.xml",
-    host: "https://promleeblog.com",
   };
 }

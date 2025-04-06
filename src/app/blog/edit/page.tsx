@@ -9,10 +9,7 @@ import {
 } from "@/components/editpost";
 import { PostService } from "@/config/apis";
 import { Button } from "@/components/ui/button";
-import {
-  // sendUrlsToIndexNow,
-  sendUrlToIndexNow,
-} from "@/config/apis/service/indexnow";
+import { IndexNowService } from "@/config/apis/service/indexnow";
 
 interface names {
   url: string;
@@ -79,9 +76,59 @@ const Page = () => {
         });
       });
     });
-    // sendUrlsToIndexNow(list);
-    sendUrlToIndexNow(list[0], "BING");
-    sendUrlToIndexNow(list[1], "NAVER");
+    IndexNowService()
+      .sendUrlList({
+        urlList: list,
+        indexHost: "NAVER",
+      })
+      .then((res) => {
+        if (res.status !== 200) {
+          alert("요청 실패");
+        } else {
+          alert("요청 성공");
+        }
+      })
+      .catch((error) => {
+        console.error("IndexNow API fetch error:", error);
+        alert("요청 실패");
+      });
+    IndexNowService()
+      .sendUrlList({
+        urlList: list,
+        indexHost: "BING",
+      })
+      .then((res) => {
+        if (res.status !== 200) {
+          alert("요청 실패");
+        } else {
+          alert("요청 성공");
+        }
+      })
+      .catch((error) => {
+        console.error("IndexNow API fetch error:", error);
+        alert("요청 실패");
+      });
+    await fetch(`/api/indexnow/google`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        urlList: list,
+      }),
+    });
+  };
+
+  const checkGoogleIndexing = async () => {
+    await fetch(
+      `/api/indexnow/google?url=https://www.promleeblog.com/blog/post/${post.id}-${post.url}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
   };
 
   const getpw = () => {
@@ -104,8 +151,15 @@ const Page = () => {
   const buttonstyle = "ml-5 rounded bg-primary-foreground px-1 w-5";
   return (
     <>
-      <Button variant={"secondary"} className="mb-5" onClick={sendIndexNow}>
-        <span className="text-primary">indexNow 요청 보내기</span>
+      <Button variant={"secondary"} className="m-5" onClick={sendIndexNow}>
+        <span>indexNow 요청 보내기</span>
+      </Button>
+      <Button
+        variant={"secondary"}
+        className="m-5"
+        onClick={checkGoogleIndexing}
+      >
+        <span>Google Indexing API 확인</span>
       </Button>
       <div className="flex min-h-64 w-full rounded-lg py-10">
         <div className={blockstyle}>

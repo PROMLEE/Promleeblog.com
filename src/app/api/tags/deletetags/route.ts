@@ -9,25 +9,6 @@ const prisma = new PrismaClient();
   return this.toString();
 };
 
-/**
- * @swagger
- * /api/tags/deletetags:
- *   delete:
- *     description: delete tag
- *     requestBody:
- *        required: true
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              properties:
- *                post_id:
- *                  type: number
- *                  example: 999
- *                tag_id:
- *                  type: number
- *                  example: 999
- */
 export async function DELETE(req: NextRequest) {
   const body = await req.json();
   try {
