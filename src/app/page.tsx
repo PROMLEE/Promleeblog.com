@@ -17,12 +17,12 @@ const Page = async () => {
 
   const CardComponent = ({ post }: { post: MainResponse.PostType }) => {
     return (
-      <Card>
-        <CardContent className="flex aspect-square select-none flex-col justify-between rounded-lg bg-primary p-5">
+      <Card className="p-0">
+        <CardContent className="bg-primary flex aspect-square flex-col justify-between rounded-lg p-5 select-none">
           <Link
             href={`/blog/post/${post.id}-${post.url}`}
             key={post.id}
-            className="text-overflow hover:text-blue-300 hover:underline"
+            className="text-overflow text-sm hover:text-blue-300 hover:underline"
           >
             {post.nameko}
           </Link>
@@ -55,10 +55,10 @@ const Page = async () => {
   };
   return (
     <div>
-      <div className={"mb-5 mt-20 text-4xl font-bold"}>{" 🖐️ Hi, There"}</div>이
+      <div className={"mt-20 mb-5 text-4xl font-bold"}>{" 🖐️ Hi, There"}</div>이
       블로그는 데스크톱과 다크 모드에 최적화되어있습니다
       <br /> This blog is optimized for desktop and dark mode
-      <div className={"mb-5 mt-10 text-4xl font-bold"}>
+      <div className={"mt-10 mb-5 text-4xl font-bold"}>
         {" 📰 Recent Posts"}
       </div>
       <Carousel
@@ -80,13 +80,8 @@ const Page = async () => {
         <CarouselPrevious />
         <CarouselNext />
       </Carousel>
-      <div className={"mb-5 mt-10 text-4xl font-bold"}>{" 🔥 Hot Posts"}</div>
-      <Carousel
-        opts={{
-          align: "start",
-        }}
-        className="w-full"
-      >
+      <div className={"mt-10 mb-5 text-4xl font-bold"}>{" 🔥 Hot Posts"}</div>
+      <Carousel>
         <CarouselContent>
           {hotPosts.map((post: MainResponse.PostType) => (
             <CarouselItem

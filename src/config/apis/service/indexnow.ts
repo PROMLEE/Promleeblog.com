@@ -1,5 +1,4 @@
 import { CustomFetch, getParams } from "../axios";
-
 export const IndexNowService = () => {
   const url = "/indexnow";
 
