@@ -1,6 +1,6 @@
 import React from "react";
 import LeftSidebarComp from "./LeftSidebar";
-import { ViewCheck } from "./viewCheck";
+import { ViewStats } from "./viewCheck";
 // import { CalendarDemo } from "../Calander";
 // import { EditService } from "@/config/apis/service/edit";
 
@@ -9,8 +9,8 @@ const XlLeftSidebar = async () => {
 
   return (
     <div className="leftsidebar-md hidden xl:block">
-      <ViewCheck />
-      <div className="w-full border-t border-foreground pt-2 text-center text-lg font-bold">
+      <ViewStats />
+      <div className="border-foreground w-full border-t pt-2 text-center text-lg font-bold">
         Menu
       </div>
       <LeftSidebarComp />

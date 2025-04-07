@@ -11,40 +11,27 @@ import { Loading } from "@/components/Loading";
 import Giscus from "@/components/posts/Giscus";
 import { PostService } from "@/config/apis";
 import { LocalizedDate } from "@/components/LocalizeDate";
+import ViewIncrement from "@/components/mdx/viewIncrement";
 
-// // Next.js will invalidate the cache when a
-// // request comes in, at most once every 60 seconds.
-// export const revalidate = 60;
+export const revalidate = 172800; // 2 days
+export const dynamicParams = true;
 
-// // We'll prerender only the params from `generateStaticParams` at build time.
-// // If a request comes in for a path that hasn't been generated,
-// // Next.js will server-render the page on-demand.
-// export const dynamicParams = true; // or false, to 404 on unknown paths
-
-// export async function generateStaticParams() {
-//   try {
-//     const Links = await PostService().getLinks();
-//     const posts: string[] = [];
-//     Links.map((category) => {
-//       category.Subject.map((sub) => {
-//         sub.Series.map((series) => {
-//           series.Post.map((post) => {
-//             posts.push(post.id + "-" + post.url);
-//           });
-//         });
-//       });
-//     });
-
-//     console.log(`Generating static params for ${posts.length} posts`);
-//     return posts.map((post) => ({
-//       post: post,
-//     }));
-//   } catch (error) {
-//     console.error("Error in generateStaticParams:", error);
-//     // 에러가 발생해도 빌드가 중단되지 않도록 빈 배열 반환
-//     return [];
-//   }
-// }
+export async function generateStaticParams() {
+  const Links = await PostService().getLinks();
+  const posts: string[] = [];
+  Links.map((category) => {
+    category.Subject.map((sub) => {
+      sub.Series.map((series) => {
+        series.Post.map((post) => {
+          posts.push(post.id + "-" + post.url);
+        });
+      });
+    });
+  });
+  return posts.map((post) => ({
+    post: post,
+  }));
+}
 
 export async function generateMetadata(props: {
   params: Promise<{ post: string }>;
@@ -59,13 +46,13 @@ export async function generateMetadata(props: {
 const Post = async ({ params }: { params: Promise<{ post: string }> }) => {
   const { post } = await params;
 
-  const [markdownsource] = await Promise.all([
-    PostService().getPost({ post_id: post.split("-")[0] }),
-    PostService().viewIncrement({ post_id: post.split("-")[0] }),
-  ]);
+  const markdownsource = await PostService().getPost({
+    post_id: post.split("-")[0],
+  });
 
   return (
     <>
+      <ViewIncrement postId={post.split("-")[0]} />
       <Toup />
       <Suspense fallback={<Loading />}>
         <BreadCrumb params={markdownsource} />
@@ -83,7 +70,6 @@ const Post = async ({ params }: { params: Promise<{ post: string }> }) => {
           <MdxBody content={markdownsource.posting} />
           <RightSidebarComp content={markdownsource.posting} />
         </div>
-
         <Giscus />
       </Suspense>
       <Todown />

@@ -41,6 +41,14 @@ const nextConfig = {
       },
     ];
   },
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
+  experimental: {
+    workerThreads: false, // 비활성화하여 빌드 중 동시 요청 제한
+  },
 };
 
 export default nextConfig;
