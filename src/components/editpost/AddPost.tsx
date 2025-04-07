@@ -87,13 +87,11 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    // const confirmtext = `Name: ${data.name}\nName(ko): ${data.nameko}\nURL: ${data.url}\nSeries_no: ${data.series_no}\nDescription: ${data.desc}\nThumbnail URL: ${data.thumbnail_url}\nLock: ${data.lock}\nPosting: ${data.posting.slice(0, 20)}...`;
-    // if (window.confirm("Do you want to add this Post?\n" + confirmtext)) {
-    const res = await EditService().postPost({ ...data, series_id });
-    console.log(res);
-    // if (res.status === 200) {
-    //   window.location.reload();
-    // }
+    const confirmtext = `Name: ${data.name}\nName(ko): ${data.nameko}\nURL: ${data.url}\nSeries_no: ${data.series_no}\nDescription: ${data.desc}\nThumbnail URL: ${data.thumbnail_url}\nLock: ${data.lock}\nPosting: ${data.posting.slice(0, 20)}...`;
+    if (window.confirm("Do you want to add this Post?\n" + confirmtext)) {
+      await EditService().postPost({ ...data, series_id });
+      window.location.reload();
+    }
     // }
   }
 
