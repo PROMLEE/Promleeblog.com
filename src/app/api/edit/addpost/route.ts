@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       });
     }
     const query = `?url=https://www.promleeblog.com/blog/post/${req.id}-${req.url}&key=${KEY}`;
-
+    console.log({ query });
     await fetch(`${NAVER}${query}`, {
       method: "GET",
       headers: {
@@ -50,7 +50,8 @@ export async function POST(req: NextRequest) {
         cache: "no-store",
       },
     }).then((res) => {
-      console.log(res.json());
+      console.log("NAVER : " + res.status);
+      // return res.json();
     });
 
     await fetch(`${BING}${query}`, {
@@ -60,7 +61,8 @@ export async function POST(req: NextRequest) {
         cache: "no-store",
       },
     }).then((res) => {
-      console.log(res.json());
+      console.log("BING : " + res.status);
+      // return res.json();
     });
 
     const key = JSON.parse(process.env.NEXT_PUBLIC_GOOGLE_API_CREDENTIALS!);
@@ -96,10 +98,12 @@ export async function POST(req: NextRequest) {
         }),
       },
     );
-    console.log("google index api: " + response.json());
+    const googleData = await response.json();
+    console.log("Google success : " + googleData.urlNotificationMetadata.url);
     return NextResponse.json(createResponse("Post insert complete"));
   } catch (error) {
     console.log(error);
     return NextResponse.json({ error: error }, { status: 405 });
   }
 }
+
