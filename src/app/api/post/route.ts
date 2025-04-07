@@ -7,62 +7,31 @@ import { NextResponse, NextRequest } from "next/server";
   return this.toString();
 };
 const prisma = new PrismaClient();
-/**
- * @swagger
- * /api/post:
- *   get:
- *     description: Returns Post Detail from URL
- *     parameters:
- *        - in: query
- *          name: id
- *     responses:
- *       200:
- *         description: Returns Post Detail from URL
- *         content:
- *           /:
- *             example:
- *               status: 200
- *               success: true
- *               data:  {
- *                        "id": "3",
- *                        "series_no": "8",
- *                        "name": "Connection-Oriented Transport: TCP",
- *                        "nameko": "연결 지향 통신: TCP",
- *                        "desc": "연결 지향 통신에 대한 설명",
- *                        "init_date": "2024-06-14T07:14:57.104Z",
- *                        "thumbnail_url": "",
- *                        "view": 0,
- *                        "like": 0,
- *                        "series_id": "2",
- *                        "mod_date": "2024-06-14T07:14:57.104Z",
- *                        "lock": true,
- *                        "posting": "hihihi"
- *                     }
- *               message: "Post found"
- *       405:
- *         description: Post not found
- */
+
 export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get("post_id")?.split("-")[0];
-  const rest = req.nextUrl.searchParams
-    .get("post_id")
-    ?.split("-")
-    .slice(1)
-    .join("-");
-  if (!id || !rest) {
-    return NextResponse.json(
-      { error: `Post ID: ${id} not found, rest: ${rest}` },
-      { status: 404 },
-    );
-  }
+  // const rest = req.nextUrl.searchParams
+  //   .get("post_id")
+  //   ?.split("-")
+  //   .slice(1)
+  //   .join("-");
+  // if (!id || !rest) {
+  //   return NextResponse.json(
+  //     { error: `Post ID: ${id} not found, rest: ${rest}` },
+  //     { status: 404 },
+  //   );
+  // }
   try {
-    const post = await findPostById(id);
-    if (post.url !== rest) {
-      return NextResponse.json(
-        { error: `URL mismatch: expected ${rest}, got ${post.url}` },
-        { status: 405 },
-      );
+    const post = await findPostById(id ?? "0");
+    if (!post) {
+      return NextResponse.json({ error: `Post not found` }, { status: 404 });
     }
+    // if (post.url !== rest) {
+    //   return NextResponse.json(
+    //     { error: `URL mismatch: expected ${rest}, got ${post.url}` },
+    //     { status: 405 },
+    //   );
+    // }
     return NextResponse.json(createResponse("Post found", post));
   } catch (error) {
     return NextResponse.json({ error }, { status: 405 });
