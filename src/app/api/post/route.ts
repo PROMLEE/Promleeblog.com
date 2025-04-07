@@ -50,12 +50,18 @@ export async function GET(req: NextRequest) {
     .slice(1)
     .join("-");
   if (!id || !rest) {
-    return NextResponse.json({ error: "Post id Error" }, { status: 404 });
+    return NextResponse.json(
+      { error: `Post ID: ${id} not found, rest: ${rest}` },
+      { status: 404 },
+    );
   }
   try {
     const post = await findPostById(id);
     if (post.url !== rest) {
-      return NextResponse.json({ error: "url error" }, { status: 405 });
+      return NextResponse.json(
+        { error: `URL mismatch: expected ${rest}, got ${post.url}` },
+        { status: 405 },
+      );
     }
     return NextResponse.json(createResponse("Post found", post));
   } catch (error) {
