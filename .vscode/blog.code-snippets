@@ -52,7 +52,7 @@
   },
   "newImg": {
     "prefix": "newimg",
-    "body": ["<Img src=\"/posts/.webp\" width={300} alt=\"\"/>"],
+    "body": ["<Img src=\"/.webp\" width={300} alt=\"\"/>"],
     "description": "Generate new image tag",
   },
   "Make Api": {
@@ -79,3 +79,4 @@
     ],
   },
 }
+

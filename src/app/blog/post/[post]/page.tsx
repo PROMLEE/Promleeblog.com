@@ -11,6 +11,27 @@ import { Loading } from "@/components/Loading";
 import Giscus from "@/components/posts/Giscus";
 import { PostService } from "@/config/apis";
 import { LocalizedDate } from "@/components/LocalizeDate";
+import ViewIncrement from "@/components/mdx/viewIncrement";
+
+export const revalidate = 172800; // 2 days
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const Links = await PostService().getLinks();
+  const posts: string[] = [];
+  Links.map((category) => {
+    category.Subject.map((sub) => {
+      sub.Series.map((series) => {
+        series.Post.map((post) => {
+          posts.push(post.id + "-" + post.url);
+        });
+      });
+    });
+  });
+  return posts.map((post) => ({
+    post: post,
+  }));
+}
 
 export async function generateMetadata(props: {
   params: Promise<{ post: string }>;
@@ -25,13 +46,13 @@ export async function generateMetadata(props: {
 const Post = async ({ params }: { params: Promise<{ post: string }> }) => {
   const { post } = await params;
 
-  const [markdownsource] = await Promise.all([
-    PostService().getPost({ post_id: post }),
-    PostService().viewIncrement({ post_id: post.split("-")[0] }),
-  ]);
+  const markdownsource = await PostService().getPost({
+    post_id: post.split("-")[0],
+  });
 
   return (
     <>
+      <ViewIncrement postId={post.split("-")[0]} />
       <Toup />
       <Suspense fallback={<Loading />}>
         <BreadCrumb params={markdownsource} />
@@ -49,7 +70,6 @@ const Post = async ({ params }: { params: Promise<{ post: string }> }) => {
           <MdxBody content={markdownsource.posting} />
           <RightSidebarComp content={markdownsource.posting} />
         </div>
-
         <Giscus />
       </Suspense>
       <Todown />

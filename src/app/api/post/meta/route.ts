@@ -16,7 +16,10 @@ export async function GET(req: NextRequest) {
     .slice(1)
     .join("-");
   if (!id || !rest) {
-    return NextResponse.json({ error: "Post id Error" }, { status: 404 });
+    return NextResponse.json(
+      { error: `Post id Error id: ${id} rest: ${rest}` },
+      { status: 404 },
+    );
   }
   try {
     const post = await findPostById(id);

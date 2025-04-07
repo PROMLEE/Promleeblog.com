@@ -4,14 +4,20 @@
   "pasteImage.path": "${projectRoot}/Promleeblog.com/public/posts",
   "pasteImage.forceUnixStyleSeparator": true,
   // "pasteImage.insertPattern": "![${imageFileNameWithoutExt}](${imageFilePath})",
-  "pasteImage.insertPattern": "<Img src=\"/posts/${imageFileNameWithoutExt}.png\" width={500} alt=\"\"/>",
+  "pasteImage.insertPattern": "<Img src=\"/${imageFileNameWithoutExt}.webp\" width={300} alt=\"\"/>",
   "pasteImage.prefix": "/",
-
   "emojisense.languages": {
     "markdown_latex_combined": true,
     "markdown": true,
     "plaintext": false,
     "json": true,
     "scminput": true // language used in the source control commit message box
-  }
+  },
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+  "mdx-preview.preview.useVscodeMarkdownStyles": true,
+  "mdx-preview.preview.useWhiteBackground": false,
+  "mdx-preview.preview.security": "disabled",
+  "mdx-preview.build.useSucraseTranspiler": false
 }
+
