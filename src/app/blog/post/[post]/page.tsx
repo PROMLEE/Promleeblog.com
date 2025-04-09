@@ -78,3 +78,4 @@ const Post = async ({ params }: { params: Promise<{ post: string }> }) => {
 };
 
 export default Post;
+
