@@ -4,7 +4,8 @@
 const nextConfig = {
   images: {
     dangerouslyAllowSVG: true,
-    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 31536000, // 1년
+    formats: ["image/webp"],
     remotePatterns: [
       {
         protocol: "https",
