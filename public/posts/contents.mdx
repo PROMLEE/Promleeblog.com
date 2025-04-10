@@ -1,0 +1,111 @@
+---
+title_ko: React Native에서 Picker 컴포넌트 사용하기
+title_en: How to Use Picker in React Native
+desc: react-native-picker/picker 라이브러리를 설치하고 iOS, Android, Windows, macOS 환경에서 설정하고 사용하는 방법을 예제 중심으로 설명합니다.
+thumbnail_url: /react-native-picker-thumbnail.webp
+metatag: react-native, picker, react-native-picker, iOS, Android, macOS, Windows, UI 컴포넌트, 드롭다운, 리액트 네이티브, 라이브러리 사용법
+---
+## 들어가기 전에
+React Native에서 드롭다운 형태의 선택 UI를 구현하려면 `@react-native-picker/picker` 라이브러리를 사용하는 것이 일반적입니다. 이 라이브러리는 기본적으로 Android, iOS, Windows, macOS를 모두 지원하며, 다양한 설정과 커스터마이징이 가능하여 널리 사용되고 있습니다.
+이번 포스팅에서는 이 라이브러리를 설치하고 환경별 설정을 적용한 뒤, 실제로 Picker를 구현하는 과정을 하나하나 자세히 설명드리겠습니다.
+## 설치 및 환경 설정
+### 설치 방법
+먼저 아래 명령어 중 하나를 실행하여 라이브러리를 설치합니다.
+```bash
+npm install @react-native-picker/picker --save
+ # 또는
+yarn add @react-native-picker/picker
+```
+React Native 0.60 이상을 사용하는 경우에는 자동 연결(autolinking)을 지원하므로 별도의 linking 작업은 필요하지 않습니다.
+0.60 미만의 버전을 사용하는 경우에는 [React Native Autolinking](https://github.com/react-native-picker/picker/blob/master/README.md#manual-installation) 문서를 참고하여 설정해주세요.
+### iOS 설정
+iOS에서는 CocoaPods 설정이 필요합니다. 아래 명령어를 실행해 주세요.
+```bash
+npx pod-install
+```
+### Android 설정
+Android는 별도의 설정 없이 바로 사용할 수 있습니다. 다만, RTL(Right-to-Left) 지원을 위해 `AndroidManifest.xml`에 다음 항목을 추가할 수 있습니다.
+만약 앱이 오른쪽에서 왼쪽으로 렌더링되는 경우(예: 아랍어 등)에는 이 설정이 필요합니다.
+```xml
+<application
+  android:supportsRtl="true"
+  ...>
+```
+## 기본 사용법 살펴보기
+이제 Picker 컴포넌트를 실제로 사용하는 방법을 알아보겠습니다. 아래는 타입스크립트를 사용한 간단한 예제입니다.
+```tsx
+import React, { useRef, useState } from "react";
+import { Picker } from "@react-native-picker/picker";
+
+const App = () => {
+  const pickerRef = useRef<any>();
+  const [selected, setSelected] = useState<string>();
+
+  return (
+    <Picker
+      ref={pickerRef}
+      selectedValue={selected}
+      onValueChange={(itemValue) => setSelected(itemValue)}
+    >
+      <Picker.Item label="Java" value="java" />
+      <Picker.Item label="JavaScript" value="js" />
+      <Picker.Item label="Python" value="python" />
+      <Picker.Item label="C#" value="c#" />
+    </Picker>
+  );
+};
+
+export default App;
+```
+<Img src="/250410-175802.webp" width={300} alt=""/>
+
+이처럼 간단한 코드로도 사용이 가능하며, 선택된 값은 `selectedValue` 속성으로 설정되고, 변경 이벤트는 `onValueChange`로 감지할 수 있습니다.
+## 고급 기능: 포커스 제어 및 스타일링
+Android에서는 Picker를 프로그래밍적으로 열거나 닫을 수도 있습니다. 아래는 `useRef`를 활용한 예제입니다.
+```tsx
+import React, { useRef, useState } from "react";
+import { Picker } from "@react-native-picker/picker";
+import { Button } from "react-native";
+
+const App = () => {
+  const pickerRef = useRef<any>();
+  const [selected, setSelected] = useState<string>();
+  const open = () => pickerRef.current?.focus();
+  const close = () => pickerRef.current?.blur();
+  return (
+    <>
+      <Picker
+        ref={pickerRef}
+        selectedValue={selected}
+        onValueChange={(itemValue) => setSelected(itemValue)}
+      >
+        <Picker.Item label="Java" value="java" />
+        <Picker.Item label="JavaScript" value="js" />
+      </Picker>
+      <Button title="Open" onPress={open} />
+      <Button title="Close" onPress={close} />
+    </>
+  );
+};
+
+export default App;
+```
+또한 각 `Picker.Item`에는 `label`, `value`, `enabled`, `color` 등의 속성을 지정할 수 있어 다양한 스타일링과 접근성 설정이 가능합니다.
+## 자주 사용하는 속성들 정리
+| 속성명 | 설명 | 플랫폼 |
+|--------|------|--------|
+| selectedValue | 선택된 값 | 전체 |
+| onValueChange | 값 변경 이벤트 | 전체 |
+| mode | 'dialog' 또는 'dropdown' (Android 전용) | Android |
+| itemStyle | 아이템 스타일 지정 | iOS, Windows |
+| enabled | 선택 비활성화 여부 | Android, Web, Windows |
+| dropdownIconColor | 드롭다운 화살표 색상 | Android |
+| selectionColor | 선택 텍스트 색상 | iOS |
+
+이 외에도 테스트용 `testID`, 접근성용 `contentDescription`, 스타일링용 `style`, 여러 줄 제한용 `numberOfLines` 등의 속성도 사용할 수 있습니다.
+## 결론
+`@react-native-picker/picker`는 React Native에서 플랫폼 간 호환이 뛰어난 드롭다운 UI를 구현할 수 있는 매우 유용한 라이브러리입니다. 간단한 설치와 다양한 설정 옵션 덕분에 초보자도 쉽게 사용할 수 있으며, 프로젝트 요구 사항에 따라 고급 기능까지 확장하여 사용할 수 있습니다.
+이번 포스팅이 Picker 컴포넌트를 도입하고자 하는 분들께 도움이 되었기를 바랍니다.
+### 참고
+- 공식 문서: https://github.com/react-native-picker/picker
+- React Native Autolinking: https://reactnative.dev/blog/2019/07/03/version-60
