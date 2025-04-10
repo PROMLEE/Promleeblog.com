@@ -14,8 +14,10 @@ import { MainService } from "@/config/apis";
 import { ImageUrl } from "@/lib/PostUtils/getImageUrl";
 
 const Page = async () => {
-  const recentPosts = await MainService().getRecent({ take: 10 });
-  const hotPosts = await MainService().getHot({ take: 10 });
+  const [recentPosts, hotPosts] = await Promise.all([
+    MainService().getRecent({ take: 10 }),
+    MainService().getHot({ take: 10 }),
+  ]);
 
   const CardComponent = ({ post }: { post: MainResponse.PostType }) => {
     return (
