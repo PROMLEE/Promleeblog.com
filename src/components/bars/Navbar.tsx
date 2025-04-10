@@ -9,7 +9,7 @@ import {
 import Link from "next/link";
 import { DarkmodeButton } from "@/components/buttons/Darkmodebutton";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Indicator from "@/components/bars/Scrollindicator";
 import { PostService } from "@/config/apis";
 import {
@@ -23,6 +23,8 @@ export const Navbar = () => {
   const [value, setValue] = useState("");
   const [menu, setMenu] = useState(false);
   const [list, setList] = useState<PostResponse.GetLinks["data"]>([]);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     PostService()
@@ -32,8 +34,30 @@ export const Navbar = () => {
       });
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // 메뉴가 열려있고, 클릭된 요소가 메뉴 영역이나 메뉴 버튼이 아닐 때만 메뉴를 닫음
+      if (
+        menu &&
+        menuRef.current &&
+        buttonRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setMenu(false);
+        setValue("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menu]);
+
   const menuclose = () => {
     setMenu(false);
+    setValue("");
   };
 
   return (
@@ -111,6 +135,7 @@ export const Navbar = () => {
             aboutMe
           </Link>
           <Button
+            ref={buttonRef}
             onClick={() => {
               setMenu(!menu);
             }}
@@ -125,7 +150,10 @@ export const Navbar = () => {
       </div>
       <Indicator />
       {menu && (
-        <div className="bg-background/95 supports-[backdrop-filter]:bg-background/60 fixed inset-x-0 top-[33px] z-50 max-h-[calc(100vh-64px)] overflow-y-auto border-t backdrop-blur md:hidden">
+        <div
+          ref={menuRef}
+          className="bg-background/95 supports-[backdrop-filter]:bg-background/60 fixed inset-x-0 top-[33px] z-50 max-h-[calc(100vh-64px)] overflow-y-auto border-t backdrop-blur md:hidden"
+        >
           <Accordion type="single" collapsible value={value}>
             {list.map((category, index) => (
               <AccordionItem key={index} value={category.nameko}>
