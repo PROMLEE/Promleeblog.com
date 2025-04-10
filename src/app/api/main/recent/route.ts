@@ -8,36 +8,7 @@ const prisma = new PrismaClient();
 (BigInt.prototype as unknown as { toJSON: () => string }).toJSON = function () {
   return this.toString();
 };
-/**
- * @swagger
- * /api/main/recent:
- *   get:
- *     description: Returns recent posts
- *     parameters:
- *        - in: query
- *          name: take
- *     responses:
- *       200:
- *         description: Returns recent posts
- *         content:
- *           /:
- *             example:
- *               status: 200
- *               success: true
- *               data: [
- *                       {
- *                          "id": "1",
- *                          "title": "Network Intro",
- *                          "url": "intro",
- *                          "init_date": "2021-09-01T00:00:00.000Z",
- *                          "name": "Network Intro",
- *                          "nameko": "네트워크 도입부",
- *                        }
- *                      ]
- *               message: "Recent Post List found"
- *       405:
- *         description: Post not found
- */
+
 export async function GET(req: NextRequest) {
   const take = req.nextUrl.searchParams.get("take");
   if (!take)
@@ -63,6 +34,7 @@ async function getRecentPosts(take: number) {
       init_date: true,
       name: true,
       nameko: true,
+      thumbnail_url: true,
       Series: {
         select: {
           url: true,

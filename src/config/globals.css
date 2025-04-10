@@ -20,6 +20,8 @@
   }
 }
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @utility topbar {
   @apply bg-foreground flex h-12 w-full items-center justify-between;
 }
@@ -36,13 +38,13 @@
   @apply mb-1 block rounded-md no-underline hover:bg-amber-200 dark:hover:bg-amber-800;
 }
 @utility sidebar-md {
-  @apply fixed top-[15%] right-0 max-h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl p-3 shadow-inner;
+  @apply fixed top-[8%] right-0 max-h-[80%] w-[16%] scroll-mb-2 overflow-scroll p-3;
 }
 @utility leftsidebar {
   @apply mb-1 block rounded-md no-underline;
 }
 @utility leftsidebar-md {
-  @apply fixed top-[15%] left-2 max-h-[70%] w-[16%] scroll-mb-2 overflow-scroll rounded-xl p-3 shadow-inner;
+  @apply fixed top-[8%] left-2 max-h-[80%] w-[20%] scroll-mb-2 overflow-scroll p-3;
 }
 @utility text-underlined {
   @apply text-text-foreground inline underline decoration-yellow-800 decoration-wavy underline-offset-[0.2rem] dark:decoration-yellow-400;

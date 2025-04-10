@@ -1,76 +1,78 @@
 "use client";
 
-import Link from "next/link";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { useState, useEffect } from "react";
-import { PostService } from "@/config/apis";
-// import { ViewCheck } from "./viewCheck";
+import { MainService } from "@/config/apis";
+import { usePathname } from "next/navigation";
+import { PostLink } from "./PostLink";
 
-const LeftSidebarComp = ({ menuclose }: { menuclose?: () => void }) => {
-  const [value, setValue] = useState("");
-  const [list, setList] = useState<PostResponse.GetLinks["data"]>([]);
+const LeftSidebarComp = () => {
+  const pathname = usePathname();
+  const [recommend, setRecommend] = useState<MainResponse.GetRecommend["data"]>(
+    [],
+  );
+  const [series, setSeries] =
+    useState<MainResponse.GetSeriesFromPostId["data"]>();
+
   useEffect(() => {
-    PostService()
-      .getLinks()
+    MainService()
+      .getRecommend({ take: 10 })
       .then((data) => {
-        setList(data);
+        setRecommend(data);
       });
   }, []);
+
+  useEffect(() => {
+    if (pathname.startsWith("/blog/post")) {
+      MainService()
+        .getSeriesFromPostId({
+          postid: pathname.split("/")[3].split("-")[0],
+        })
+        .then((data) => {
+          setSeries(data);
+        });
+    } else {
+      MainService()
+        .getSeriesFromPostId({
+          postid: "112",
+        })
+        .then((data) => {
+          setSeries(data);
+        });
+    }
+  }, [pathname]);
+
   return (
     <div className="related leftsidebar block md:hidden xl:block">
-      <Accordion collapsible type="single" data-state value={value}>
-        {list.map((category, index) => {
-          return (
-            <AccordionItem
-              value={category.nameko}
+      {series && series.Post.length > 0 && (
+        <div className="mt-4 w-full px-2">
+          <h2 className="text-text-foreground mb-3 text-sm">{series.nameko}</h2>
+          <div className="flex w-full flex-col">
+            {series.Post.map((post, index) => (
+              <PostLink
+                key={index}
+                id={post.id}
+                url={post.url}
+                nameko={post.nameko}
+                index={index}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="mt-4 w-full px-2">
+        <h2 className="text-text-foreground mb-3 text-sm">추천 포스트</h2>
+        <div className="flex w-full flex-col">
+          {recommend.map((post, index) => (
+            <PostLink
               key={index}
-              className="border-foreground hover:bg-primary p-2"
-            >
-              <AccordionTrigger
-                onClick={() => {
-                  if (value === category.nameko) {
-                    setValue("");
-                  } else {
-                    setValue(category.nameko);
-                  }
-                }}
-                className="hover:bg-primary cursor-pointer text-lg font-bold"
-              >
-                {category.nameko}
-              </AccordionTrigger>
-              <AccordionContent className="cursor-pointer p-0">
-                {category.Subject.map((subject, index) => {
-                  return (
-                    <Link
-                      href={`/blog/${category.url}/${subject.url}`}
-                      key={index}
-                      onClick={() => {
-                        setValue("");
-                        if (menuclose) {
-                          menuclose();
-                        }
-                      }}
-                    >
-                      <AccordionItem
-                        value={subject.nameko}
-                        key={index}
-                        className="hover:bg-secondary m-0 cursor-pointer p-2 pb-0"
-                      >
-                        {subject.nameko}
-                      </AccordionItem>
-                    </Link>
-                  );
-                })}
-              </AccordionContent>
-            </AccordionItem>
-          );
-        })}
-      </Accordion>
+              id={post.id}
+              url={post.url}
+              nameko={post.nameko}
+              index={index}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
