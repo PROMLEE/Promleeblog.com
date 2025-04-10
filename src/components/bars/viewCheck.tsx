@@ -60,8 +60,8 @@ export const ViewStats = () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Badge className="bg-blue-50 text-blue-700 transition-colors duration-150 hover:bg-blue-100 dark:bg-blue-900/10 dark:text-blue-200 dark:hover:bg-blue-800/20">
-              Total: {views?.total ?? "-"}
+            <Badge className="bg-transparent text-blue-700 transition-colors duration-150 dark:text-blue-200">
+              Total: {(views?.total ?? "-").toLocaleString("ko-KR")}
             </Badge>
           </Link>
           <Link
@@ -69,8 +69,8 @@ export const ViewStats = () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Badge className="bg-blue-50 text-blue-700 transition-colors duration-150 hover:bg-blue-100 dark:bg-blue-900/10 dark:text-blue-200 dark:hover:bg-blue-800/20">
-              Today: {views?.today ?? "-"}
+            <Badge className="bg-transparent text-blue-700 transition-colors duration-150 dark:text-blue-200">
+              Today: {(views?.today ?? "-").toLocaleString("ko-KR")}
             </Badge>
           </Link>
         </div>
