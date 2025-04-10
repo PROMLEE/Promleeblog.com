@@ -14,8 +14,10 @@ import { MainService } from "@/config/apis";
 import { ImageUrl } from "@/lib/PostUtils/getImageUrl";
 
 const Page = async () => {
-  const recentPosts = await MainService().getRecent({ take: 10 });
-  const hotPosts = await MainService().getHot({ take: 10 });
+  const [recentPosts, hotPosts] = await Promise.all([
+    MainService().getRecent({ take: 10 }),
+    MainService().getHot({ take: 10 }),
+  ]);
 
   const CardComponent = ({ post }: { post: MainResponse.PostType }) => {
     return (
@@ -36,7 +38,7 @@ const Page = async () => {
           <Link
             href={`/blog/post/${post.id}-${post.url}`}
             key={post.id}
-            className="line-clamp-2 text-sm font-medium text-gray-800 transition-colors duration-200 hover:text-gray-900 hover:underline dark:text-slate-300/90 dark:hover:text-slate-200"
+            className="text-text-foreground line-clamp-2 text-sm font-medium transition-colors duration-200 hover:text-gray-900 hover:underline dark:hover:text-slate-200"
           >
             {post.nameko}
           </Link>
