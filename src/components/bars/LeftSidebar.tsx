@@ -45,7 +45,7 @@ const LeftSidebarComp = () => {
     <div className="related leftsidebar block md:hidden xl:block">
       {series && series.Post.length > 0 && (
         <div className="mt-4 w-full px-2">
-          <h2 className="mb-3 text-sm">{series.nameko}</h2>
+          <h2 className="text-text-foreground mb-3 text-sm">{series.nameko}</h2>
           <div className="flex w-full flex-col">
             {series.Post.map((post, index) => (
               <PostLink
@@ -60,7 +60,7 @@ const LeftSidebarComp = () => {
         </div>
       )}
       <div className="mt-4 w-full px-2">
-        <h2 className="mb-3 text-sm">추천 포스트</h2>
+        <h2 className="text-text-foreground mb-3 text-sm">추천 포스트</h2>
         <div className="flex w-full flex-col">
           {recommend.map((post, index) => (
             <PostLink
