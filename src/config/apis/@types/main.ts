@@ -12,6 +12,13 @@ namespace MainResponse {
     data: SimplePostType[];
   }
 
+  export interface GetSeriesFromPostId extends Shared.SuccessResponse {
+    data: {
+      nameko: string;
+      Post: SimplePostType[];
+    };
+  }
+
   export interface PostType {
     id: string;
     url: string;
@@ -50,5 +57,8 @@ namespace MainRequest {
   }
   export interface GetRecommend {
     take: number;
+  }
+  export interface GetSeriesFromPostId {
+    postid: string;
   }
 }
