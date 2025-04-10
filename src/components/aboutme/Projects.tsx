@@ -25,21 +25,15 @@ export const Projects = () => {
     query: "(max-width: 768px)",
   });
   const ref = useRef<HTMLDivElement>(null);
-  // const ref1 = useRef<HTMLDivElement>(null);
   const ref2 = useRef<HTMLDivElement>(null);
   const ref3 = useRef<HTMLDivElement>(null);
-  // const ref4 = useRef<HTMLDivElement>(null);
   const ref5 = useRef<HTMLDivElement>(null);
   const title = useIsVisible(ref);
-  // const p1 = useIsVisible(ref1);
   const p2 = useIsVisible(ref2);
   const p3 = useIsVisible(ref3);
-  // const p4 = useIsVisible(ref4);
   const p5 = useIsVisible(ref5);
-  // const [hover1, setHover1] = useState<boolean>(false);
   const [hover2, setHover2] = useState<boolean>(false);
   const [hover3, setHover3] = useState<boolean>(false);
-  // const [hover4, setHover4] = useState<boolean>(false);
   const [hover5, setHover5] = useState<boolean>(false);
 
   const projects: ProjectType[] = [
@@ -187,105 +181,146 @@ export const Projects = () => {
     // },
   ];
   return (
-    <div className="w-full">
-      <div
-        ref={ref}
-        className={`w-full duration-1000 ease-in ${
-          title ? "opacity-100" : "opacity-25"
-        }`}
-      >
-        <h1 id="contribute-to">💻 Contribute to</h1>
-        <hr />
-      </div>
-      {projects.map((project, index) => {
-        return (
-          <div
-            key={index}
-            ref={project.ref}
-            className={`w-full duration-1000 ease-in ${
-              project.isVisible
-                ? "scale-100 opacity-100"
-                : "scale-105 opacity-25"
-            }`}
-            onMouseEnter={() => project.sethover && project.sethover(true)}
-            onMouseLeave={() => project.sethover && project.sethover(false)}
+    <div className="w-full transform transition-all duration-500 hover:scale-[1.02]">
+      <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 p-8 shadow-lg dark:from-gray-800 dark:to-gray-900">
+        <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-blue-100 opacity-20 dark:bg-blue-900"></div>
+        <div
+          ref={ref}
+          className={`w-full duration-1000 ease-in ${
+            title ? "opacity-100" : "opacity-25"
+          }`}
+        >
+          <h1
+            id="contribute-to"
+            className="mb-6 flex items-center gap-3 text-3xl font-bold text-gray-800 dark:text-white"
           >
-            <div className="flex items-center justify-between">
-              <h2 id={project.id}>{project.name}</h2>
-              {project.detail && (
-                <div
-                  className={`mt-7 flex h-7 w-28 ${project.hover && "md:w-28"} scale-100 items-center justify-center overflow-hidden whitespace-nowrap rounded-md text-xs duration-1000 hover:bg-blue-300 hover:text-white dark:bg-blue-600 dark:hover:bg-blue-300 md:w-10`}
-                >
-                  <Link
-                    href={project.detail}
-                    className="flex h-full w-full items-center justify-center no-underline"
-                  >
-                    {project.hover || isMobile ? ">> Veiw Detail" : ">>"}
-                  </Link>
-                </div>
-              )}
-            </div>
-            <div className="flex flex-row gap-4">
-              <div className="w-2/3">
-                <a
-                  href={project.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex w-60 items-center gap-1 hover:text-blue-400"
-                >
-                  <div className="relative h-5 w-5">
-                    <Image
-                      src="https://github.com/fluidicon.png"
-                      alt="git"
-                      fill
-                      className={`m-0`}
-                    />
+            <span className="animate-pulse">💻</span>
+            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Contribute to
+            </span>
+          </h1>
+          <div className="h-1 w-20 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+        </div>
+        <div className="mt-8 flex flex-col gap-12">
+          {projects.map((project, index) => {
+            return (
+              <div
+                key={index}
+                ref={project.ref}
+                className={`group relative w-full overflow-hidden rounded-lg bg-white/50 p-6 transition-all duration-500 hover:bg-white/80 dark:bg-gray-800/50 dark:hover:bg-gray-800/80 ${
+                  project.isVisible
+                    ? "scale-100 opacity-100"
+                    : "scale-105 opacity-25"
+                }`}
+                onMouseEnter={() => project.sethover && project.sethover(true)}
+                onMouseLeave={() => project.sethover && project.sethover(false)}
+              >
+                <div className="absolute -top-20 -right-20 h-40 w-40 rounded-full bg-blue-100/50 opacity-0 transition-all duration-300 group-hover:opacity-100 dark:bg-blue-900/30"></div>
+                <div className="flex flex-col gap-6">
+                  <div className="flex items-center justify-between">
+                    <h2
+                      id={project.id}
+                      className="text-2xl font-bold text-gray-800 dark:text-white"
+                    >
+                      {project.name}
+                    </h2>
+                    {project.detail && (
+                      <div
+                        className={`relative flex h-8 transform items-center justify-center overflow-hidden rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300 hover:scale-105 ${
+                          project.hover || isMobile ? "w-32" : "w-12"
+                        }`}
+                      >
+                        <Link
+                          href={project.detail}
+                          className="flex h-full w-full items-center justify-center px-3 text-sm text-white no-underline transition-all duration-300 hover:bg-white/10"
+                        >
+                          {project.hover || isMobile ? "View Detail" : "→"}
+                        </Link>
+                      </div>
+                    )}
                   </div>
-                  {project.name} ↗
-                </a>
-                <p>{project.date}</p>
-                {project.thumbnail && (
-                  <Image
-                    src={project.thumbnail.url}
-                    alt={project.name}
-                    width={project.thumbnail.width}
-                    height={project.thumbnail.height}
-                    className={`m-0 rounded-md`}
-                  />
-                )}
+                  <div className="flex flex-col gap-6 md:flex-row">
+                    <div className="w-full space-y-4 md:w-2/3">
+                      <a
+                        href={project.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 text-blue-600 transition-all duration-300 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        <img
+                          src="https://github.com/fluidicon.png"
+                          alt="git"
+                          className="mt-0 mb-0 h-5 w-5 transform rounded-sm transition-all duration-300 group-hover:scale-110"
+                        />
+                        <span className="transition-all duration-300 group-hover:translate-x-1">
+                          {project.name} ↗
+                        </span>
+                      </a>
+                      <div className="text-gray-600 dark:text-gray-400">
+                        {project.date}
+                      </div>
+                      {project.thumbnail && (
+                        <div className="relative overflow-hidden rounded-lg transition-transform duration-300 hover:scale-[1.02]">
+                          <Image
+                            src={project.thumbnail.url}
+                            alt={project.name}
+                            width={project.thumbnail.width}
+                            height={project.thumbnail.height}
+                            className="m-0"
+                          />
+                        </div>
+                      )}
+                      <div className="space-y-2">
+                        {project.contents.map((content, idx) => (
+                          <p
+                            key={idx}
+                            className="text-gray-700 dark:text-gray-300"
+                          >
+                            {content}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="w-full space-y-6 md:w-2/3">
+                      <div>
+                        <h3 className="mb-2 font-bold text-gray-800 dark:text-white">
+                          My Role
+                        </h3>
+                        <ul className="m-0 space-y-2">
+                          {project.myrole.map((role, idx) => (
+                            <li
+                              key={idx}
+                              className="flex items-center gap-2 text-gray-700 transition-all duration-300 hover:translate-x-2 dark:text-gray-300"
+                            >
+                              <span className="text-blue-500">▹</span>
+                              {role}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <h3 className="mb-2 font-bold text-gray-800 dark:text-white">
+                          Tech Stack
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {project.mystack.map((stack, idx) => (
+                            <span
+                              key={idx}
+                              className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800 transition-all duration-300 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-800/50"
+                            >
+                              {stack}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="w-2/3">
-                <ul className="m-0">
-                  <li className="text-text-foreground marker:text-black dark:marker:text-white">
-                    Contents and Results
-                    <ul>
-                      {project.contents.map((content, index) => {
-                        return <li key={index}>{content}</li>;
-                      })}
-                    </ul>
-                  </li>
-                  <li className="text-text-foreground marker:text-black dark:marker:text-white">
-                    My Role
-                    <ul>
-                      {project.myrole.map((role, index) => {
-                        return <li key={index}>{role}</li>;
-                      })}
-                    </ul>
-                  </li>
-                  <li className="text-text-foreground marker:text-black dark:marker:text-white">
-                    My Stack
-                    <ul>
-                      {project.mystack.map((stack, index) => {
-                        return <li key={index}>{stack}</li>;
-                      })}
-                    </ul>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        );
-      })}
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };
