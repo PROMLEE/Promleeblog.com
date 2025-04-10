@@ -44,7 +44,7 @@
   @apply mb-1 block rounded-md no-underline;
 }
 @utility leftsidebar-md {
-  @apply fixed top-[10%] left-2 max-h-[80%] w-[16%] scroll-mb-2 overflow-scroll p-3;
+  @apply fixed top-[10%] left-2 max-h-[80%] w-[20%] scroll-mb-2 overflow-scroll p-3;
 }
 @utility text-underlined {
   @apply text-text-foreground inline underline decoration-yellow-800 decoration-wavy underline-offset-[0.2rem] dark:decoration-yellow-400;
