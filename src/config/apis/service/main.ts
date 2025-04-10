@@ -25,8 +25,21 @@ export const MainService = () => {
     return response.data;
   };
 
+  /**
+   * Recommend Post 조회
+   * @api-doc:
+   */
+  const getRecommend = async (params: MainRequest.GetRecommend) => {
+    const response = (
+      await CustomFetch(`${url}/recommend${getParams(params)}`, {
+        method: "GET",
+      })
+    ).body as MainResponse.GetRecommend;
+    return response.data;
+  };
   return {
     getHot,
     getRecent,
+    getRecommend,
   };
 };

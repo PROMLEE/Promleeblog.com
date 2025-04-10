@@ -10,23 +10,24 @@ datasource db {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Post {
-  id            BigInt     @id @unique @default(autoincrement())
-  series_no     BigInt
-  name          String     @default("")
-  nameko        String     @default("")
-  desc          String?    @default("")
-  init_date     DateTime   @default(now()) @db.Timestamptz(6)
-  thumbnail_url String?    @default("")
-  view          BigInt?    @default(0)
-  like          BigInt?    @default(0)
-  series_id     BigInt
-  mod_date      DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
-  lock          Boolean?   @default(false)
-  posting       String?    @default("")
-  url           String     @unique @default("")
-  metatag       String[]
-  Series        Series     @relation(fields: [series_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  Post_Tag      Post_Tag[]
+  id             BigInt     @id @unique @default(autoincrement())
+  series_no      BigInt
+  name           String     @default("")
+  nameko         String     @default("")
+  desc           String?    @default("")
+  init_date      DateTime   @default(now()) @db.Timestamptz(6)
+  thumbnail_url  String?    @default("")
+  view           BigInt?    @default(0)
+  like           BigInt?    @default(0)
+  series_id      BigInt
+  mod_date       DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
+  lock           Boolean?   @default(false)
+  posting        String?    @default("")
+  url            String     @unique @default("")
+  metatag        String[]
+  recommendation Boolean    @default(false)
+  Series         Series     @relation(fields: [series_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Post_Tag       Post_Tag[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
