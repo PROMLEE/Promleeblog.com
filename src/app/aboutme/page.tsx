@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+
 import { Contact } from "@/components/aboutme/Contact";
 import { AboutMe } from "@/components/aboutme/AboutMe";
 import { Skills } from "@/components/aboutme/Skills";
@@ -46,20 +46,17 @@ export default function App() {
       <Toup />
       <div
         className={
-          "prose my-10 flex flex-col items-center gap-20 dark:prose-invert md:px-20"
+          "prose dark:prose-invert my-10 flex flex-col items-center gap-10 md:px-20"
         }
       >
         <div className="w-full">
           <h2>👨‍💻안녕하세요, 도전을 두려워 않는 개발자 이동훈입니다</h2>
           <div className="flex flex-wrap gap-10">
-            <div className="relative mb-10 mt-[2em] h-[13rem] w-[10rem]">
-              <Image
-                src="https://cdn.promleeblog.com/profile.jpeg"
-                alt="profile_image"
-                fill
-                className="m-0 w-full rounded-lg border border-foreground"
-              />
-            </div>
+            <img
+              src="https://cdn.promleeblog.com/profile.jpeg"
+              alt="profile_image"
+              className="border-foreground m-0 mt-[2em] mb-10 h-[13rem] w-[10rem] rounded-lg border"
+            />
             <Contact />
           </div>
         </div>
