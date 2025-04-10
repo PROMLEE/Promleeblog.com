@@ -10,9 +10,9 @@ const XlLeftSidebar = async () => {
   return (
     <div className="leftsidebar-md hidden xl:block">
       <ViewStats />
-      <div className="border-foreground w-full border-t pt-2 text-center text-lg font-bold">
+      {/* <div className="border-foreground w-full border-t pt-2 text-center text-lg font-bold">
         Menu
-      </div>
+      </div> */}
       <LeftSidebarComp />
       {/* <CalendarDemo /> */}
       {/* {tags.data.map((tag) => (

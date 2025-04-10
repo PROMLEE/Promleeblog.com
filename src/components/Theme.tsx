@@ -11,4 +11,3 @@ export function Theme({ children, ...props }: ThemeProviderProps) {
     </NextThemesProvider>
   );
 }
-

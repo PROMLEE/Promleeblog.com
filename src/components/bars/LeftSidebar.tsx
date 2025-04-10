@@ -1,29 +1,41 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import {} from // Accordion,
+// AccordionContent,
+// AccordionItem,
+// AccordionTrigger,
+"@/components/ui/accordion";
 import { useState, useEffect } from "react";
-import { PostService } from "@/config/apis";
-// import { ViewCheck } from "./viewCheck";
+import { MainService } from "@/config/apis";
+// import { usePathname } from "next/navigation";
 
-const LeftSidebarComp = ({ menuclose }: { menuclose?: () => void }) => {
-  const [value, setValue] = useState("");
-  const [list, setList] = useState<PostResponse.GetLinks["data"]>([]);
+const LeftSidebarComp = () => {
+  // const [value, setValue] = useState("");
+  // const [list, setList] = useState<PostResponse.GetLinks["data"]>([]);
+  const [recommend, setRecommend] = useState<MainResponse.GetRecommend["data"]>(
+    [],
+  );
+  // const pathname = usePathname();
+  // useEffect(() => {
+  //   PostService()
+  //     .getLinks()
+  //     .then((data) => {
+  //       setList(data);
+  //     });
+  // }, []);
+
   useEffect(() => {
-    PostService()
-      .getLinks()
+    MainService()
+      .getRecommend({ take: 10 })
       .then((data) => {
-        setList(data);
+        setRecommend(data);
       });
   }, []);
+
   return (
     <div className="related leftsidebar block md:hidden xl:block">
-      <Accordion collapsible type="single" data-state value={value}>
+      {/* <Accordion collapsible type="single" data-state value={value}>
         {list.map((category, index) => {
           return (
             <AccordionItem
@@ -70,7 +82,30 @@ const LeftSidebarComp = ({ menuclose }: { menuclose?: () => void }) => {
             </AccordionItem>
           );
         })}
-      </Accordion>
+      </Accordion> */}
+      <div className="mt-4 px-2">
+        <h2 className="mb-3 text-lg font-bold text-gray-900 dark:text-white">
+          추천 포스트
+        </h2>
+        <div className="flex flex-col">
+          {recommend.map((post, index) => (
+            <Link
+              href={`/blog/post/${post.id}-${post.url}`}
+              key={index}
+              className="group relative rounded-lg p-2 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+            >
+              <div className="flex items-start gap-2">
+                <span className="flex h-6 w-6 items-center justify-center text-sm font-semibold text-gray-600 transition-colors group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-white">
+                  {index + 1}
+                </span>
+                <p className="line-clamp-2 text-xs text-gray-600 transition-colors group-hover:text-blue-600 dark:text-gray-400 dark:group-hover:text-blue-400">
+                  {post.nameko}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

@@ -25,12 +25,6 @@ export const DarkmodeButton = () => {
   }, []);
 
   if (!mounted) return null;
-  /**
-   * 책의 정보를 나타내는 함수입니다.
-   * @constructor
-   * @param {string} title - 책의 제목
-   * @param {string} author - 책의 저자
-   */
   const Item = ({ label, value }: { label: string; value: string }) => (
     <DropdownMenuItem
       onClick={() => {
