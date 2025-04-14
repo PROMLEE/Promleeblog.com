@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("NEW_DATABASE_URL")
+  directUrl = env("NEW_DIRECT_URL")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Post {
+  id             BigInt     @id @unique @default(autoincrement())
+  series_no      BigInt
+  name           String     @default("")
+  nameko         String     @default("")
+  desc           String?    @default("")
+  init_date      DateTime   @default(now()) @db.Timestamptz(6)
+  thumbnail_url  String?    @default("")
+  view           BigInt?    @default(0)
+  like           BigInt?    @default(0)
+  series_id      BigInt
+  mod_date       DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
+  lock           Boolean?   @default(false)
+  posting        String?    @default("")
+  url            String     @unique @default("")
+  metatag        String[]
+  recommendation Boolean    @default(false)
+  Series         Series     @relation(fields: [series_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Post_Tag       Post_Tag[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Category {
+  id      BigInt    @id @default(autoincrement())
+  name    String    @default("")
+  nameko  String    @default("")
+  url     String    @unique
+  ord     BigInt    @unique @default(autoincrement())
+  desc    String?   @default("")
+  Subject Subject[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Post_Tag {
+  post_id BigInt
+  tag_id  BigInt
+  id      BigInt @id @unique @default(autoincrement())
+  Post    Post   @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Tag     Tag    @relation(fields: [tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Series {
+  id         BigInt  @id @default(autoincrement())
+  subject_id BigInt
+  name       String  @default("")
+  nameko     String  @default("")
+  url        String
+  subject_no BigInt
+  caption    String? @default("")
+  Post       Post[]
+  Subject    Subject @relation(fields: [subject_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Subject {
+  id          BigInt   @id @default(autoincrement())
+  category_id BigInt
+  name        String   @default("")
+  nameko      String   @default("")
+  url         String   @unique
+  category_no BigInt
+  desc        String?  @default("")
+  Series      Series[]
+  Category    Category @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Tag {
+  id         BigInt     @id @unique @default(autoincrement())
+  name       String     @unique @default("")
+  nameko     String?    @default("")
+  is_primary Boolean    @default(false)
+  Post_Tag   Post_Tag[]
+}
