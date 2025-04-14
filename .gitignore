@@ -37,4 +37,5 @@ yarn-error.log*
 next-env.d.ts
 
 # mdx
-/public/posts
+# posts
+public/posts/
