@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { EditService, PostService } from "@/config/apis";
 import { TagsService } from "@/config/apis/service/tags";
 import { Badge } from "../ui/badge";
+import { moveFiles } from "@/lib/actions/moveFiles";
 
 interface value {
   name: // | "series_id"
@@ -59,6 +60,14 @@ const FormSchema = z.object({
   metatag: z.array(z.string()),
 });
 
+const handleMoveFiles = async () => {
+  try {
+    const result = await moveFiles();
+    console.log(result);
+  } catch {
+    console.log("error");
+  }
+};
 export const EditPost = ({
   series_id,
   post_id,
@@ -112,6 +121,7 @@ export const EditPost = ({
       } else {
         await EditService().postPost({ ...data, series_id, tags: [] });
       }
+      handleMoveFiles();
       window.location.reload();
     }
   }
@@ -259,3 +269,4 @@ export const EditPost = ({
     </div>
   );
 };
+

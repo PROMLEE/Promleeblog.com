@@ -11,11 +11,11 @@ const Post = async () => {
   return (
     <>
       <Toup />
-      <div className="prose mt-10 min-h-[100vh] scroll-smooth dark:prose-invert focus:scroll-auto">
+      <div className="prose dark:prose-invert mt-10 min-h-[100vh] scroll-smooth focus:scroll-auto">
         <RightSidebarComp content={markdownsource.content} />
         <Suspense fallback={<div>Loading...</div>}>
           <AutoRefresh>
-            <MdxBody content={markdownsource.content} />
+            <MdxBody content={markdownsource.content} isDev={true} />
           </AutoRefresh>
         </Suspense>
       </div>

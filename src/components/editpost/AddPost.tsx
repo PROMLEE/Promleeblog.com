@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { EditService } from "@/config/apis";
 import { TagsService } from "@/config/apis/service/tags";
 import { Badge } from "../ui/badge";
+import { moveFiles } from "@/lib/actions/moveFiles";
 
 interface value {
   name: // | "series_id"
@@ -60,6 +61,15 @@ const FormSchema = z.object({
   tags: z.array(z.number()),
 });
 
+const handleMoveFiles = async () => {
+  try {
+    const result = await moveFiles();
+    console.log(result);
+  } catch {
+    console.log("error");
+  }
+};
+
 export const AddPost = ({ series_id }: { series_id: number }) => {
   const [tags, setTags] = useState<TagsResponse.GetTags["data"]>([]);
 
@@ -90,6 +100,7 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
     const confirmtext = `Name: ${data.name}\nName(ko): ${data.nameko}\nURL: ${data.url}\nSeries_no: ${data.series_no}\nDescription: ${data.desc}\nThumbnail URL: ${data.thumbnail_url}\nLock: ${data.lock}\nPosting: ${data.posting.slice(0, 20)}...`;
     if (window.confirm("Do you want to add this Post?\n" + confirmtext)) {
       await EditService().postPost({ ...data, series_id });
+      handleMoveFiles();
       window.location.reload();
     }
     // }
@@ -219,3 +230,4 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
     </div>
   );
 };
+
