@@ -7,7 +7,7 @@ import { getPostDetail } from "@/lib/PostUtils/GetPost";
 import AutoRefresh from "../AutoRefresh";
 
 const Post = async () => {
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV !== "development") {
     return <div>Development</div>;
   }
   const markdownsource = await getPostDetail();
