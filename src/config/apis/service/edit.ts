@@ -30,6 +30,7 @@ export const EditService = () => {
    * @api-doc: https://github.com/PROMLEE/Promleeblog.com/blob/test/src/app/api/edit/addseries/route.ts
    */
   const postSeries = async (body: EditRequest.PostAddSeries) => {
+    console.log(body);
     const response = (
       await CustomFetch(`${url}/addseries`, { method: "POST", body })
     ).body as Shared.SuccessResponse;
@@ -41,6 +42,7 @@ export const EditService = () => {
    * @api-doc: https://github.com/PROMLEE/Promleeblog.com/blob/test/src/app/api/edit/addsubject/route.ts
    */
   const postSubject = async (body: EditRequest.PostAddSubject) => {
+    console.log(body);
     const response = (
       await CustomFetch(`${url}/addsubject`, { method: "POST", body })
     ).body as Shared.SuccessResponse;

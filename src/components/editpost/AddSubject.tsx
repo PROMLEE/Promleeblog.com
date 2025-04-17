@@ -61,7 +61,7 @@ export const AddSubject = ({ category_id }: { category_id: number }) => {
     if (window.confirm("Do you want to add this Subject?\n" + confirmtext)) {
       // joinApi({ body: data });
       EditService().postSubject({ ...data, category_id });
-      window.location.reload();
+      // window.location.reload();
     }
   }
 
