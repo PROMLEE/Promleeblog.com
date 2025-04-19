@@ -7,15 +7,18 @@ import { getPostDetail } from "@/lib/PostUtils/GetPost";
 import AutoRefresh from "../AutoRefresh";
 
 const Post = async () => {
+  if (process.env.NODE_ENV !== "development") {
+    return <div>Development</div>;
+  }
   const markdownsource = await getPostDetail();
   return (
     <>
       <Toup />
-      <div className="prose mt-10 min-h-[100vh] scroll-smooth dark:prose-invert focus:scroll-auto">
+      <div className="prose dark:prose-invert mt-10 min-h-[100vh] scroll-smooth focus:scroll-auto">
         <RightSidebarComp content={markdownsource.content} />
         <Suspense fallback={<div>Loading...</div>}>
           <AutoRefresh>
-            <MdxBody content={markdownsource.content} />
+            <MdxBody content={markdownsource.content} isDev={true} />
           </AutoRefresh>
         </Suspense>
       </div>

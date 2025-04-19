@@ -1,4 +1,6 @@
 import { MdxMeta } from "@/config/types/types";
+import { ImageUrl } from "./getImageUrl";
+
 const baseUrl = "https://promleeblog.com";
 export const GenerateMeta = ({
   meta,
@@ -19,7 +21,8 @@ export const GenerateMeta = ({
     meta.url || "",
     ...(meta.metatag?.map((tag) => tag) || []),
   ];
-  const thumbnail = meta.thumbnail_url || "icons/android-chrome-512x512.png";
+  const thumbnail =
+    ImageUrl(meta.thumbnail_url) || "icons/android-chrome-512x512.png";
   const flattenedPath = `blog/post/${param}`;
   return {
     title,

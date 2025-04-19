@@ -1,5 +1,5 @@
 import React from "react";
-import { components } from "@/components/mdx";
+import { Components } from "@/components/mdx";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
@@ -10,11 +10,17 @@ import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import "katex/dist/katex.min.css";
 
-export const MdxBody = ({ content }: { content: string }) => {
+export const MdxBody = ({
+  content,
+  isDev,
+}: {
+  content: string;
+  isDev?: boolean;
+}) => {
   return (
     <MDXRemote
       source={content === "" ? "no contents 😿" : content}
-      components={components}
+      components={Components(isDev)}
       options={{
         parseFrontmatter: true,
         mdxOptions: {
@@ -52,4 +58,3 @@ export const MdxBody = ({ content }: { content: string }) => {
     />
   );
 };
-

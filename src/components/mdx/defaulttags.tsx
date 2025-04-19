@@ -2,7 +2,7 @@ import Image from "next/image";
 import "katex/dist/katex.min.css";
 import Link from "next/link";
 import { CopyButton } from "../buttons/CopyButton";
-import { ImageUrl } from "@/lib/PostUtils/getImageUrl";
+import { DevImageUrl, ImageUrl } from "@/lib/PostUtils/getImageUrl";
 
 interface Props {
   id: string;
@@ -28,15 +28,41 @@ export async function Img({
       <Image
         src={ImageUrl(src)}
         alt={alt || "image"}
-        className={`m-0 my-5 bg-${bg || "white"}`}
+        className={`m-0 mt-0 mb-3 bg-${bg || "white"}`}
         width={Number(width) ? Number(width) : 500}
         height={Number(height) ? Number(height) : 500}
       />
-      <div className="mt-2 text-sm">{alt}</div>
+      <div className="text-sm">{alt}</div>
     </div>
   );
 }
 
+export async function DevImg({
+  src,
+  alt,
+  height,
+  width,
+  bg,
+}: {
+  src: string;
+  alt: string;
+  height: string;
+  width: string;
+  bg: string;
+}) {
+  return (
+    <div className="my-5 flex flex-col items-center">
+      <Image
+        src={await DevImageUrl(src)}
+        alt={alt || "image"}
+        className={`m-0 mt-0 mb-3 bg-${bg || "white"}`}
+        width={Number(width) ? Number(width) : 500}
+        height={Number(height) ? Number(height) : 500}
+      />
+      <div className="text-sm">{alt}</div>
+    </div>
+  );
+}
 export function h1tag({ id, children }: Props) {
   return (
     <>

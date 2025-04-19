@@ -149,6 +149,7 @@ const Page = () => {
   const pstyle =
     "block overflow-hidden text-ellipsis whitespace-nowrap text-xs hover:cursor-pointer";
   const buttonstyle = "ml-5 rounded bg-primary-foreground px-1 w-5";
+
   return (
     <>
       <Button variant={"secondary"} className="m-5" onClick={sendIndexNow}>

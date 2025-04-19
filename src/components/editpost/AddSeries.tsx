@@ -61,7 +61,7 @@ export const AddSeries = ({ subject_id }: { subject_id: number }) => {
     if (window.confirm("Do you want to add this Series?\n" + confirmtext)) {
       // joinApi({ body: data });
       EditService().postSeries({ ...data, subject_id });
-      window.location.reload();
+      // window.location.reload();
     }
   }
 
