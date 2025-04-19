@@ -28,11 +28,11 @@ export async function Img({
       <Image
         src={ImageUrl(src)}
         alt={alt || "image"}
-        className={`m-0 my-5 bg-${bg || "white"}`}
+        className={`m-0 mt-0 mb-3 bg-${bg || "white"}`}
         width={Number(width) ? Number(width) : 500}
         height={Number(height) ? Number(height) : 500}
       />
-      <div className="mt-2 text-sm">{alt}</div>
+      <div className="text-sm">{alt}</div>
     </div>
   );
 }
@@ -55,11 +55,11 @@ export async function DevImg({
       <Image
         src={await DevImageUrl(src)}
         alt={alt || "image"}
-        className={`m-0 my-5 bg-${bg || "white"}`}
+        className={`m-0 mt-0 mb-3 bg-${bg || "white"}`}
         width={Number(width) ? Number(width) : 500}
         height={Number(height) ? Number(height) : 500}
       />
-      <div className="mt-2 text-sm">{alt}</div>
+      <div className="text-sm">{alt}</div>
     </div>
   );
 }
@@ -250,4 +250,3 @@ export const codetag = ({ children }: { children: React.ReactNode }) => {
     </code>
   );
 };
-
