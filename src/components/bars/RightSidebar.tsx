@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import AdComponent from "../ads/rightsidebar";
 
 const parseToc = (content: string) => {
   const regex = /^(#|##|###) (.*$)/gim;
@@ -72,7 +73,7 @@ const RightSidebarComp = ({ content }: { content: string }) => {
             <div key={idx} className={`sidebar`}>
               <Link
                 href={item.link}
-                className={`sidebar mt-3 indent-[-5px] text-sm font-bold text-text-foreground ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
+                className={`sidebar text-text-foreground mt-3 indent-[-5px] text-sm font-bold ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
               >
                 💡 {item.text.split("(")[0]}
               </Link>
@@ -83,7 +84,7 @@ const RightSidebarComp = ({ content }: { content: string }) => {
             <div key={idx} className={`sidebar`}>
               <Link
                 href={item.link}
-                className={`sidebar ml-8 indent-[-20px] text-xs text-text-foreground ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
+                className={`sidebar text-text-foreground ml-8 indent-[-20px] text-xs ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
               >
                 🚀 {item.text.split("(")[0]}
               </Link>
@@ -94,7 +95,7 @@ const RightSidebarComp = ({ content }: { content: string }) => {
             <div key={idx} className={`sidebar`}>
               <Link
                 href={item.link}
-                className={`sidebar ml-10 indent-[-20px] text-xs text-text ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
+                className={`sidebar text-text ml-10 indent-[-20px] text-xs ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
               >
                 ✅ {item.text.split("(")[0]}
               </Link>
@@ -102,6 +103,8 @@ const RightSidebarComp = ({ content }: { content: string }) => {
           );
         }
       })}
+      <div className="h-10" />
+      <AdComponent adSlot="6339310501" adFormat="auto" />
     </div>
   );
 };
