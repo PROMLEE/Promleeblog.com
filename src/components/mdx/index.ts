@@ -23,6 +23,7 @@ import {
 } from "@/components/mdx/defaulttags";
 import {
   Answer,
+  Ads,
   Math,
   Bbox,
   Rbox,
@@ -63,5 +64,6 @@ export const Components = (isDev?: boolean) => {
     Ybox,
     MathBox,
     Toggle,
+    Ads,
   };
 };

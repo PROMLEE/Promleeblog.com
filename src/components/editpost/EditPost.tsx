@@ -122,10 +122,9 @@ export const EditPost = ({
         await EditService().postPost({ ...data, series_id, tags: [] });
       }
       handleMoveFiles();
-      window.location.reload();
+      // window.location.reload();
     }
   }
-
   return (
     <div className="flex w-full gap-10">
       <div className="w-3/4">
@@ -135,6 +134,7 @@ export const EditPost = ({
             onSubmit={form.handleSubmit(onSubmit)}
             className="w-full space-y-6"
           >
+            <Button type="submit">Submit</Button>
             {values.map((value) => (
               <FormField
                 key={value.name}
@@ -269,4 +269,3 @@ export const EditPost = ({
     </div>
   );
 };
-
