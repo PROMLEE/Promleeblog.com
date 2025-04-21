@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import AdComponent from "../ads/rightsidebar";
+import AdComponent from "../ads/adsense";
 
 const parseToc = (content: string) => {
   const regex = /^(#|##|###) (.*$)/gim;
@@ -104,6 +104,8 @@ const RightSidebarComp = ({ content }: { content: string }) => {
           );
         }
       })}
+      <div className="h-10" />
+      <AdComponent adSlot="6339310501" adFormat="auto" />
       <div className="h-10" />
       <AdComponent adSlot="6339310501" adFormat="auto" />
     </div>

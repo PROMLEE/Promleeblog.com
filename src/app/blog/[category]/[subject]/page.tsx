@@ -6,6 +6,7 @@ import { Loading } from "@/components/Loading";
 import { PostService } from "@/config/apis";
 import { Cards } from "@/components/posts/Cards";
 import { useParams } from "next/navigation";
+import AdComponent from "@/components/ads/adsense";
 
 type Params = { category: string; subject: string };
 
@@ -58,6 +59,8 @@ const Subject = () => {
             </div>
           );
         })}
+      <div className="h-10" />
+      <AdComponent adSlot="9354906951" adFormat="autorelaxed" />
     </Suspense>
   );
 };

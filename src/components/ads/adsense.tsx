@@ -9,6 +9,7 @@ interface AdComponentProps {
   adFormat?: string;
   adLayout?: string;
   layoutKey?: string;
+  style?: React.CSSProperties;
 }
 
 const AdComponent: React.FC<AdComponentProps> = ({
@@ -16,6 +17,7 @@ const AdComponent: React.FC<AdComponentProps> = ({
   adFormat = "auto",
   adLayout = "",
   layoutKey = "",
+  style,
 }) => {
   const pathname = usePathname();
   useEffect(() => {
@@ -31,8 +33,8 @@ const AdComponent: React.FC<AdComponentProps> = ({
     pathname.startsWith("/aboutme") ? null : (
     <ins
       className="adsbygoogle"
-      style={{ display: "block" }}
-      data-ad-client="ca-pub-3676142732860199"
+      style={{ display: "block", ...style }}
+      data-ad-client={"ca-pub-" + process.env.NEXT_PUBLIC_GAPID}
       data-ad-slot={adSlot}
       data-ad-format={adFormat}
       data-ad-layout={adLayout}

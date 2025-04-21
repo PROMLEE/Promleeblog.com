@@ -1,3 +1,5 @@
+import AdComponent from "../ads/adsense";
+
 export function Answer({ children }: { children: React.ReactNode }) {
   return (
     <ol type="a" className="font-normal">
@@ -8,7 +10,7 @@ export function Answer({ children }: { children: React.ReactNode }) {
 
 export function Math({ children }: { children: React.ReactNode }) {
   return (
-    <div className="w-full overflow-scroll rounded-2xl border-2 border-third bg-foreground px-10">
+    <div className="border-third bg-foreground w-full overflow-scroll rounded-2xl border-2 px-10">
       {children}
     </div>
   );
@@ -48,7 +50,7 @@ export function Ybox({ children }: { children: React.ReactNode }) {
 }
 export function MathBox({ children }: { children: React.ReactNode }) {
   return (
-    <div id="box" className="inline rounded-md bg-foreground px-1 py-2">
+    <div id="box" className="bg-foreground inline rounded-md px-1 py-2">
       {children}
     </div>
   );
@@ -71,3 +73,12 @@ export function Toggle({
     </details>
   );
 }
+
+export const Ads = () => {
+  <AdComponent
+    adSlot="2890712597"
+    adFormat="fluid"
+    adLayout="in-article"
+    style={{ textAlign: "center" }}
+  />;
+};
