@@ -1,3 +1,5 @@
+"use client";
+
 import AdComponent from "../ads/adsense";
 
 export function Answer({ children }: { children: React.ReactNode }) {
@@ -75,10 +77,12 @@ export function Toggle({
 }
 
 export const Ads = () => {
-  <AdComponent
-    adSlot="2890712597"
-    adFormat="fluid"
-    adLayout="in-article"
-    style={{ textAlign: "center" }}
-  />;
+  return (
+    <AdComponent
+      adSlot="2890712597"
+      adFormat="fluid"
+      adLayout="in-article"
+      style={{ textAlign: "center" }}
+    />
+  );
 };

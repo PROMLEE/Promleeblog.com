@@ -107,7 +107,7 @@ const RightSidebarComp = ({ content }: { content: string }) => {
       <div className="h-10" />
       <AdComponent adSlot="6339310501" adFormat="auto" />
       <div className="h-10" />
-      <AdComponent adSlot="6339310501" adFormat="auto" />
+      <AdComponent adSlot="4757186394" adFormat="auto" />
     </div>
   );
 };
