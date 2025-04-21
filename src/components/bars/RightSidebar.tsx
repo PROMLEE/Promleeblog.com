@@ -7,6 +7,7 @@ import AdComponent from "../ads/rightsidebar";
 const parseToc = (content: string) => {
   const regex = /^(#|##|###) (.*$)/gim;
   const headingList = content.match(regex);
+
   const toc: string[] = [];
   return (
     headingList?.map((heading: string) => {

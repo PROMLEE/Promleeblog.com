@@ -12,6 +12,7 @@ import Giscus from "@/components/posts/Giscus";
 import { PostService } from "@/config/apis";
 import { LocalizedDate } from "@/components/LocalizeDate";
 import ViewIncrement from "@/components/mdx/viewIncrement";
+import AdComponent from "@/components/ads/rightsidebar";
 
 export const revalidate = 172800; // 2 days
 export const dynamicParams = true;
@@ -63,6 +64,11 @@ const Post = async ({ params }: { params: Promise<{ post: string }> }) => {
             thumbnail_url: markdownsource.thumbnail_url,
           }}
         />
+        <AdComponent
+          adSlot="7985984960"
+          adFormat="fluid"
+          layoutKey="-fb+5w+4e-db+86"
+        />
         <div className="ml-auto text-right">
           📅 <LocalizedDate isoString={markdownsource.init_date} />
         </div>
@@ -78,4 +84,3 @@ const Post = async ({ params }: { params: Promise<{ post: string }> }) => {
 };
 
 export default Post;
-
