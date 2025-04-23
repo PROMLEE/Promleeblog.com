@@ -101,7 +101,7 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
     if (window.confirm("Do you want to add this Post?\n" + confirmtext)) {
       await EditService().postPost({ ...data, series_id });
       handleMoveFiles();
-      window.location.reload();
+      // window.location.reload();
     }
     // }
   }
@@ -115,6 +115,7 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
             onSubmit={form.handleSubmit(onSubmit)}
             className="w-full space-y-6"
           >
+            <Button type="submit">Submit</Button>
             {values.map((value) => (
               <FormField
                 control={form.control}
@@ -230,4 +231,3 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
     </div>
   );
 };
-
