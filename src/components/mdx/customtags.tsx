@@ -88,3 +88,13 @@ export const Ads = () => {
     </div>
   );
 };
+
+export const AdsDev = () => {
+  return (
+    <div className="mt-10 mb-4">
+      <div className="h-32 w-full animate-pulse rounded-md bg-gray-300">
+        광고 자리
+      </div>
+    </div>
+  );
+};

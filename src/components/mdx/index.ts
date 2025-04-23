@@ -24,6 +24,7 @@ import {
 import {
   Answer,
   Ads,
+  AdsDev,
   Math,
   Bbox,
   Rbox,
@@ -64,6 +65,6 @@ export const Components = (isDev?: boolean) => {
     Ybox,
     MathBox,
     Toggle,
-    Ads,
+    Ads: isDev ? AdsDev : Ads,
   };
 };

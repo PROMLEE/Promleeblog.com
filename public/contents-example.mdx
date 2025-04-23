@@ -9,152 +9,140 @@ https://reactnative.dev/img/header_logo.svg
 https://cdn.worldvectorlogo.com/logos/expo-go-app.svg
 https://upload.wikimedia.org/wikipedia/commons/8/8e/Nextjs-logo.svg
 
-
 ---
-title_ko: useState와 setState 내부 구조 깊이 파보기
-title_en: Inside useState and setState Mechanism
-desc: useState의 내부 구조와 setState의 상태 업데이트 흐름을 Hook Linked List, Update Queue, 우선순위 처리 등 자료구조 관점에서 해석해 봅니다.
-thumbnail_url: /react-usestate-setstate.webp
-metatag: React, useState, setState, 훅 구조, 업데이트 큐, 상태 관리, 연결 리스트, 리액트 렌더링, 함수형 업데이트, 우선순위 스케줄링
+title_ko: React 18 자동 배칭과 동시성 - React, 알고 쓰자 3일차
+title_en: React 18 Automatic Batching & Concurrency - React Explained Day 3
+desc: React 18의 핵심 기능인 자동 배칭과 동시성의 원리를 알아봅니다. React 17과의 차이점, Micro-task와의 관계, flushSync 사용법, startTransition API 활용법 등을 쉽게 설명합니다.
+thumbnail_url: /react-batching-concurrency-day3.webp
+metatag: React, React 18, Automatic Batching, 자동 배칭, Concurrency, 동시성, setState, flushSync, startTransition, Micro-task, 성능 최적화, 프론트엔드, 면접
 ---
 ## 들어가기 전에
+안녕하세요, React 개발 파헤치기기 세 번째 날입니다. 어제 우리는 useState와 setState가 어떻게 상태를 관리하고 업데이트 요청을 처리하는지 살펴보았습니다. 특히, React가 여러 setState 호출을 묶어서 처리하는 *배치(Batching)* 기능에 대해 잠깐 언급했었죠.
+오늘은 바로 이 '배치' 기능이 React 18에서 어떻게 더욱 강력해졌는지, 그리고 React가 더 부드럽고 반응성 좋은 사용자 인터페이스(UI)를 만들기 위해 도입한 *동시성(Concurrency)* 이라는 중요한 개념에 대해 깊이 알아볼 시간입니다.
 
-React를 사용하면서 가장 자주 접하는 기능 중 하나가 바로 `useState`입니다. 버튼을 누를 때 숫자가 올라가고, 입력창에 값을 넣으면 화면이 바로 바뀌는 마법 같은 경험 뒤에는, 사실 굉장히 정교한 내부 구조가 숨어 있습니다.
+## 자동 배칭 (Automatic Batching)
+배칭(Batching)은 여러 상태 업데이트를 하나의 그룹으로 묶어서, 단 한 번의 리렌더링으로 처리하는 React의 최적화 기법입니다. 불필요한 렌더링을 줄여 성능을 향상시키는 아주 중요한 역할이죠.
+### React 17 이전: 제한적인 배칭
+React 17 버전까지는 배칭이 주로 React 이벤트 핸들러 내에서만 자동으로 이루어졌습니다. 예를 들어 버튼 클릭 이벤트 핸들러 안에서 setState를 여러 번 호출하면, React는 이를 알아서 묶어 처리했습니다.
+하지만 setTimeout, setInterval, Promise의 콜백 함수, 또는 네이티브 이벤트 리스너 내부에서 setState를 호출하면 각각의 업데이트가 별도의 리렌더링을 유발했습니다.
+```typescript
+// React 17 이하 예시
+function handleClick() {
+  // 이벤트 핸들러 내: 자동으로 배칭됨 (리렌더링 1번)
+  setCount(c => c + 1);
+  setFlag(f => !f);
+}
+setTimeout(() => {
+  // setTimeout 콜백 내: 배칭 안 됨 (리렌더링 2번 발생)
+  setCount(c => c + 1); // 리렌더링 발생
+  setFlag(f => !f);      // 또 리렌더링 발생
+}, 1000);
+```
+### React 18 이후: 어디서든 자동 배칭!
+React 18부터는 *자동 배칭(Automatic Batching)* 기능이 도입되었습니다. 이제는 setTimeout, Promise, 네이티브 이벤트 핸들러 등 어디에서 setState를 호출하든 기본적으로 모든 업데이트를 자동으로 묶어서 처리합니다.
+```typescript
+// React 18 예시
+function handleClick() {
+  // 이벤트 핸들러 내: 당연히 자동 배칭 (리렌더링 1번)
+  setCount(c => c + 1);
+  setFlag(f => !f);
+}
+setTimeout(() => {
+  // setTimeout 콜백 내: 이제 자동으로 배칭 (리렌더링 1번)
+  setCount(c => c + 1);
+  setFlag(f => !f);
+  // 모든 업데이트가 모아져서 단 한 번의 리렌더링만 발생
+}, 1000);
+```
+이 변화 덕분에 개발자가 특별히 신경 쓰지 않아도 React가 알아서 불필요한 렌더링을 줄여주므로, 애플리케이션 성능이 전반적으로 향상되는 효과를 기대할 수 있습니다.
+<Img src="/250423-232344.png" width={500} alt="렌더링 방식 비교"/>
 
-오늘은 이 `useState`가 어떻게 상태를 저장하고 업데이트하며, React가 이를 어떤 방식으로 처리하는지를 **자료구조와 알고리즘의 관점**에서 하나하나 뜯어보며 알아보겠습니다.
+> Q: "React 18의 자동 배칭이란 무엇이고 이전 버전과 어떻게 다른가요?"
+A: "React 18부터는 이벤트 핸들러뿐만 아니라 setTimeout, Promise 등 비동기 작업 내에서도 여러 상태 업데이트를 자동으로 묶어 단일 리렌더링으로 처리하는 기능입니다. 이전 버전에서는 이벤트 핸들러 외부에서는 기본적으로 배칭이 적용되지 않았습니다."
 
-## 훅 호출 순서와 Hook Linked List 구조
+### 자동 배칭과 Micro-task의 관계
+자동 배칭이 어떻게 가능해졌을까요? React 18은 내부적으로 업데이트를 처리할 때 브라우저의 *마이크로태스크(Micro-task)* 큐를 활용합니다. 
+setState가 호출되면 즉시 렌더링을 예약하는 대신, 짧은 지연(주로 현재 실행 중인 코드 이후, 다음 마이크로태스크 처리 시점) 후에 렌더링을 수행하도록 일정을 잡습니다.
+이 짧은 지연 시간 동안 발생하는 추가적인 setState 호출들은 자연스럽게 동일한 배치에 포함될 수 있게 됩니다.
+#### 마이크로태스크(Micro-task)란?
+JavaScript 이벤트 루프에서 현재 실행 중인 스크립트가 완료된 직후, 다음 렌더링이나 다른 매크로태스크(Macro-task, 예: setTimeout 콜백)가 실행되기 전에 처리되는 작은 작업들의 대기열입니다. Promise의 *then/catch/finally* 콜백이 대표적인 마이크로태스크입니다.
+> **이미지 제안:** 간단한 이벤트 루프 다이어그램. Call Stack, Micro-task Queue, Macro-task Queue(Task Queue), Rendering 단계를 보여주고, setState 호출이 어떻게 Micro-task Queue를 거쳐 렌더링으로 이어지는지(React 18의 경우) 간략히 표현.
 
-React는 함수형 컴포넌트 안에서 훅을 호출할 때마다, 내부적으로 해당 훅을 **노드로 간주**하여 **연결 리스트(Singly Linked List)** 형태로 저장합니다. 이 구조를 *Hook Linked List*라고 부르며, 매우 중요한 이유가 있습니다.
+### 배칭을 깨야 할 때: flushSync
+대부분의 경우 자동 배칭은 좋은 기능이지만, 아주 드물게 상태 업데이트 직후 *즉시* DOM 변경사항을 확인하고 싶을 때가 있습니다. 예를 들어, 상태 업데이트로 인해 특정 입력 필드에 포커스를 옮겨야 하는 경우, React가 렌더링을 다음번으로 미루면 포커스 로직이 제대로 동작하지 않을 수 있습니다.
+이럴 때 사용하는 것이 flushSync API입니다. flushSync로 감싸진 함수 내에서 호출된 setState는 자동 배칭에서 제외되고, 해당 업데이트를 *동기적으로* 즉시 처리하여 DOM을 업데이트합니다.
+```typescript
+import { flushSync } from 'react-dom'; // react-dom에서 import
 
-### 왜 연결 리스트인가요?
-
-함수형 컴포넌트는 매 렌더링마다 새로 실행됩니다. 그런데도 상태를 유지하려면 **훅의 순서와 위치를 정확히 기억**해야 합니다. 배열처럼 인덱스로 접근하는 구조는 너무 고정적이고 유연하지 않기 때문에, **순서대로 탐색할 수 있는 연결 리스트**가 적합합니다.
-
-```tsx
-function Example() {
-  const [count, setCount] = useState(0); // 첫 번째 훅
-  const [text, setText] = useState('Hello'); // 두 번째 훅
+function handleClick() {
+  flushSync(() => {
+    setCount(c => c + 1); // 이 업데이트는 즉시 처리되어 DOM에 반영됨
+  });
+  // 여기서는 DOM 업데이트가 완료된 상태임
+  // (예: 업데이트된 DOM 요소에 접근하거나 포커스를 설정할 수 있음)
+  // setFlag(f => !f); // 이 업데이트는 flushSync 밖에 있으므로 다시 자동 배칭 규칙을 따름
 }
 ```
-
-이 컴포넌트는 내부적으로 다음과 같은 구조를 만듭니다:
-```
-FiberNode
- └─ hook1 (state: 0)
-     └─ hook2 (state: 'Hello')
-```
-
-> React는 첫 번째 훅부터 차례로 훅을 평가하며, 순서를 바꾸거나 조건문 안에 넣으면 오류가 발생하는 이유도 이 때문입니다.
-
-// [다이어그램 요청: 훅 호출 순서에 따라 hook 객체가 연결 리스트처럼 연결된 구조도]
-
+flushSync는 성능에 영향을 줄 수 있으므로 꼭 필요한 경우에만 신중하게 사용해야 합니다. 대부분의 경우에는 자동 배칭의 이점을 누리는 것이 좋습니다.
+<Img src="/250423-233404.png" width={300} alt="flushSync사용 시 렌더링 차이"/>
 <Ads/>
 
-## memoizedState와 Update Queue: 상태와 업데이트를 나누다
-
-각 훅 객체는 내부에 `memoizedState`라는 값을 가지고 있습니다. 이 값이 우리가 흔히 사용하는 상태(`count` 같은 변수)에 해당합니다.
-
-그러나 중요한 건, 상태가 바로 바뀌지 않는다는 점입니다. `setState`는 값을 **즉시 변경하는 것이 아니라, 업데이트를 예약**해 둡니다. 이 예약된 값은 **업데이트 객체**라는 형태로 만들어지고, 훅 내부의 **Update Queue(업데이트 큐)**에 저장됩니다.
-
-### Update Queue는 어떤 구조인가요?
-
-- **단일 연결 리스트(Singly Linked List)**입니다
-- 업데이트가 생길 때마다 새로운 노드를 뒤에 추가합니다
-- React는 렌더링 직전에 이 큐를 순회하며 최종 상태를 계산합니다
-
+## 동시성 (Concurrency)
+동시성(Concurrency)은 React 18의 또 다른 핵심 개념이자, Fiber 아키텍처가 궁극적으로 지향하는 목표 중 하나입니다. 동시성은 여러 상태 업데이트 작업을 *겹치거나 중단*하면서 처리할 수 있는 능력을 의미합니다.
+### 동시성이 왜 중요할까요?
+기존 React(Fiber 이전 또는 동시성 기능 비활성화 시)는 렌더링 작업을 시작하면 끝날 때까지 멈추지 않았습니다. 만약 렌더링 작업이 매우 크고 오래 걸린다면, 그동안 브라우저는 다른 중요한 작업(예: 사용자 입력 처리, 애니메이션)을 할 수 없어 화면이 멈추거나 버벅거리는 것처럼 보이게 됩니다.
+동시성을 활용하면 React는 긴 렌더링 작업을 작은 단위로 나누어 처리하다가, 더 급한 업데이트(예: 사용자가 입력 필드에 글자를 입력하는 것)가 발생하면 진행 중이던 렌더링을 잠시 멈추고 급한 업데이트를 먼저 처리할 수 있습니다. 이후 다시 원래 하던 렌더링 작업을 이어서 진행합니다.
+마치 여러 가지 일을 동시에 처리하는 멀티태스킹과 비슷하지만, 실제로는 작업을 잘게 쪼개고 우선순위에 따라 빠르게 전환하며 처리하는 방식에 가깝습니다. 이를 통해 복잡한 업데이트 중에도 UI의 반응성을 유지하여 사용자 경험을 크게 향상시킬 수 있습니다.
+### Transition API: 업데이트에 우선순위 부여하기
+React 18은 동시성을 개발자가 직접 활용할 수 있는 새로운 API들을 제공합니다. 그중 대표적인 것이 startTransition입니다.
+startTransition은 특정 상태 업데이트를 *긴급하지 않은 것(non-urgent)*으로 표시하는 방법입니다. 이렇게 표시된 업데이트는 다른 긴급한 업데이트(예: 사용자 입력)에 의해 중단될 수 있으며, 렌더링이 진행되는 동안에도 UI는 계속 반응성을 유지합니다.
 ```tsx
-setCount(prev => prev + 1);
-setCount(prev => prev + 1);
+import React, { useState, useTransition } from 'react';
+function SearchResults({ query }) {
+  // ... 데이터 로딩 및 결과 표시 로직 ...
+  return <div>{query} 검색 결과...</div>;
+}
+function App() {
+  const [inputValue, setInputValue] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isPending, startTransition] = useTransition(); // useTransition 훅 사용
+
+  const handleChange = (e) => {
+    // 1. 입력값 업데이트 (긴급)
+    setInputValue(e.target.value);
+    // 2. 검색 쿼리 업데이트 (긴급하지 않음 - Transition으로 감싸기)
+    startTransition(() => {
+      setSearchQuery(e.target.value);
+    });
+  };
+
+  return (
+    <div>
+      <input type="text" value={inputValue} onChange={handleChange} />
+      {isPending ? " 로딩 중..." : <SearchResults query={searchQuery} />}
+    </div>
+  );
+}
 ```
+위 예시에서 사용자가 입력 필드에 글자를 입력하면, setInputValue는 즉시 실행되어 입력 필드가 바로바로 업데이트됩니다 **(긴급)**. 
+반면, 검색 결과를 위한 setSearchQuery는 startTransition으로 감싸져 있어 우선순위가 낮습니다. 만약 검색 결과 렌더링이 오래 걸리더라도, 사용자의 입력(setInputValue) 처리를 방해하지 않습니다.
+useTransition 훅은 startTransition 함수와 함께 isPending이라는 불리언 상태를 반환합니다. 이 값을 사용하여 전환(Transition) 작업이 진행 중일 때 로딩 상태를 표시하는 등 UI를 개선할 수 있습니다.
+> **이미지 제안:** startTransition 사용 시 업데이트 처리 흐름도. 사용자 입력(높은 우선순위)은 즉시 처리되고, startTransition 내부의 업데이트(낮은 우선순위)는 잠시 지연되거나 중단될 수 있으며, isPending 상태 변화를 보여주는 모습.
 
-이 코드는 아래와 같은 큐를 만듭니다:
-```
-UpdateQueue
- └─ update1 (prev + 1)
-     └─ update2 (prev + 1)
-```
-
-> 큐에 쌓인 순서대로 계산되므로, 순차적이고 예측 가능한 상태 관리가 가능합니다.
-
-// [다이어그램 요청: memoizedState와 UpdateQueue 구조 연결도 — 상태 → 업데이트 노드들의 큐 형태]
-
-## 함수형 업데이트와 Automatic Batching
-
-React에서는 상태를 갱신할 때 직접 값을 넣을 수도 있고, 함수형으로 이전 상태를 기준으로 새 값을 만들 수도 있습니다. 특히 여러 번 연속해서 상태를 바꾸는 경우, **함수형 업데이트**가 안전하고 권장됩니다.
-
-```tsx
-setCount(prev => prev + 1);
-setCount(prev => prev + 1);
-```
-
-이 경우, 두 업데이트는 *각각의 이전 상태(prev)*를 기준으로 계산되며, 중간 값이 꼬이지 않습니다.
-
-### Automatic Batching이란?
-
-React 18부터는 여러 개의 상태 업데이트를 하나로 묶어, 렌더링을 **한 번만** 하도록 자동으로 처리해 줍니다. 이를 *Automatic Batching*이라 하며, 퍼포먼스 향상에 매우 중요합니다.
-
-> 이전엔 `setTimeout`이나 `fetch` 같은 비동기 환경에서는 배치가 깨졌지만, React 18에선 대부분 자동으로 묶입니다.
-
-// [다이어그램 요청: 함수형 업데이트와 Batching 처리 흐름 — 큐 안에서 연속 업데이트가 어떻게 순차 처리되는지 시각화]
-
+> Q: "React의 동시성이란 무엇이며, startTransition은 어떤 역할을 하나요?" 
+A: "동시성은 React가 여러 상태 업데이트를 중단 가능하게 처리하여 UI 반응성을 유지하는 능력입니다. startTransition은 특정 업데이트를 긴급하지 않다고 표시하여, 이 업데이트가 긴급한 다른 업데이트를 막지 않도록 우선순위를 낮추는 역할을 합니다."
 <Ads/>
-
-## 클래스형 setState와 함수형 setState 비교
-
-클래스 컴포넌트에서도 `this.setState()`를 통해 상태를 관리했지만, 함수형의 `useState`와는 작동 방식이 다릅니다.
-
-| 구분 | 클래스형 setState | 함수형 useState |
-|------|--------------------|------------------|
-| 병합 방식 | 객체 병합(merge) | 완전 덮어쓰기(replace) |
-| 큐 구조 | 객체 기반 큐 | 함수 기반 큐 |
-| 상태 단위 | 통합 상태 객체 | 훅 단위의 독립 상태 |
-
-```tsx
-// 클래스형 예시
-this.setState({ a: 1 });
-this.setState({ b: 2 }); // 최종: { a:1, b:2 }
-
-// 함수형 예시
-setState({ a: 1 });
-setState({ b: 2 }); // 최종: { b:2 }만 유지
-```
-
-> 클래스에서는 여러 속성을 병합하지만, 함수형에서는 덮어쓰는 방식이라 실수에 주의해야 합니다.
-
-## 초기 상태의 지연 계산: Lazy Initial State
-
-초기 상태가 복잡한 계산 결과라면 어떻게 할까요? 예를 들어, 무거운 연산 결과를 초기 상태로 써야 할 때 매 렌더링마다 그걸 다시 계산하면 낭비가 큽니다.
-
-```tsx
-const [heavy, setHeavy] = useState(() => expensiveCalc());
-```
-
-위처럼 *함수를 넣으면 처음 렌더링 시에만 계산*되고, 이후에는 캐싱된 값이 유지됩니다. 이를 *Lazy Initial State*라고 부릅니다.
-
-> 초기화는 렌더링 시점에 딱 한 번만 일어나므로, 성능 최적화에 유리합니다.
-
-// [다이어그램 요청: 일반 초기화 vs lazy 초기화 흐름 비교 — 함수 실행 시점을 시각화]
-
-## 우선순위와 React의 스케줄러
-
-React는 상태 업데이트에 **우선순위**를 부여하여 렌더링을 더 효율적으로 처리합니다.
-
-- 사용자 입력 → 높은 우선순위
-- 네트워크 응답 처리 → 중간
-- 애니메이션 → 낮음
-
-이 작업을 조율하는 것이 바로 **React Scheduler**이며, 상태 업데이트가 생기면 이 우선순위에 따라 렌더링을 *나중에 밀거나*, *지금 당장 실행*합니다.
-
-> Fiber 아키텍처 덕분에 작업을 나누고 재개하는 것이 가능해진 점, 기억해 주세요.
 
 ## 결론
-
-`useState`와 `setState`는 그저 상태를 저장하고 바꾸는 단순한 API가 아닙니다. 내부에는 연결 리스트, 업데이트 큐, 함수형 업데이트, 스케줄러 등 **자료구조적 사고와 알고리즘적 흐름**이 정교하게 녹아 있습니다.
-
-이 원리를 알고 사용하면 성능과 안정성 모두 챙길 수 있는 진짜 React 개발자가 될 수 있습니다. 단순히 코드를 작성하는 것에서 한 걸음 더 나아가, 구조를 이해하며 생각하는 습관을 가져보면 어떨까요?
-
+오늘은 React 18의 핵심 기능인 자동 배칭과 동시성에 대해 알아보았습니다.
+**자동 배칭**: React 18부터는 이벤트 핸들러, setTimeout, Promise 등 위치에 상관없이 여러 setState 호출이 기본적으로 하나의 리렌더링으로 묶여 처리됩니다. 이는 불필요한 렌더링을 줄여 성능을 향상시킵니다. (React 17 이전에는 제한적)
+**flushSync**: 자동 배칭을 의도적으로 깨고 상태 업데이트를 동기적으로 즉시 처리해야 할 때 사용하는 API입니다. 신중하게 사용해야 합니다.
+**동시성**: React가 긴 렌더링 작업을 중단하고 더 긴급한 업데이트를 먼저 처리할 수 있게 하여 UI 반응성을 높이는 기능입니다. Fiber 아키텍처의 주요 목표 중 하나입니다.
+**startTransition**: 특정 상태 업데이트를 긴급하지 않은 '전환'으로 표시하여, 해당 업데이트가 UI 반응성을 저해하지 않도록 우선순위를 낮추는 API입니다. useTransition 훅을 통해 전환 상태(isPending)도 알 수 있습니다.
+자동 배칭과 동시성은 React가 더 똑똑하고 사용자 친화적인 UI를 만들 수 있도록 돕는 강력한 도구입니다. 특히 동시성 기능은 앞으로 React가 데이터를 가져오거나 *코드 스플리팅*을 처리하는 방식에도 큰 영향을 미칠 중요한 개념입니다.
+> 다음 시간에는 React의 여러 훅들(useEffect, useLayoutEffect, useRef, useReducer 등)에 대해 더 깊이 탐구하고, 커스텀 훅을 통해 로직을 재사용하는 방법에 대해 알아보겠습니다.
 ### 참고
-- https://react.dev/reference/react/useState
-- https://react.dev/learn/state-a-components-memory
-- https://github.com/reactwg/react-18/discussions/21
+- React Blog - React v18.0 (Automatic Batching, Transitions 설명 포함): [https://reactjs.org/blog/2022/03/29/react-v18.html](https://reactjs.org/blog/2022/03/29/react-v18.html)
+- React 공식 문서 - flushSync: [https://reactjs.org/docs/react-dom.html#flushsync](https://reactjs.org/docs/react-dom.html#flushsync)
+- React 공식 문서 - useTransition: [https://reactjs.org/docs/hooks-reference.html#usetransition](https://reactjs.org/docs/hooks-reference.html#usetransition)
+- React Working Group - Concurrency Explained: [https://github.com/reactwg/react-18/discussions/46](https://github.com/reactwg/react-18/discussions/46)
