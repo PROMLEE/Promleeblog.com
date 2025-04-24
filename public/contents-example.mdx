@@ -10,139 +10,319 @@ https://cdn.worldvectorlogo.com/logos/expo-go-app.svg
 https://upload.wikimedia.org/wikipedia/commons/8/8e/Nextjs-logo.svg
 
 ---
-title_ko: React 18 자동 배칭과 동시성 - React, 알고 쓰자 3일차
-title_en: React 18 Automatic Batching & Concurrency - React Explained Day 3
-desc: React 18의 핵심 기능인 자동 배칭과 동시성의 원리를 알아봅니다. React 17과의 차이점, Micro-task와의 관계, flushSync 사용법, startTransition API 활용법 등을 쉽게 설명합니다.
-thumbnail_url: /react-batching-concurrency-day3.webp
-metatag: React, React 18, Automatic Batching, 자동 배칭, Concurrency, 동시성, setState, flushSync, startTransition, Micro-task, 성능 최적화, 프론트엔드, 면접
+title_ko: React Hooks 심층 탐구 (useEffect, useRef, useReducer) - React, 알고 쓰자 4일차
+title_en: Deep Dive into React Hooks (useEffect, useRef, useReducer) - React Explained Day 4
+desc: useEffect와 useLayoutEffect의 차이점, useRef의 다양한 활용법(DOM 참조, mutable container), useReducer의 상태 관리 방식, 커스텀 훅을 이용한 로직 재사용 예시를 알아봅니다.
+thumbnail_url: /react-hooks-deep-dive-day4.webp
+metatag: React, Hooks, useEffect, useLayoutEffect, useRef, useReducer, Custom Hooks, 커스텀 훅, 상태 관리, React Hooks, 프론트엔드, 면접
 ---
+
 ## 들어가기 전에
-안녕하세요, React 개발 파헤치기기 세 번째 날입니다. 어제 우리는 useState와 setState가 어떻게 상태를 관리하고 업데이트 요청을 처리하는지 살펴보았습니다. 특히, React가 여러 setState 호출을 묶어서 처리하는 *배치(Batching)* 기능에 대해 잠깐 언급했었죠.
-오늘은 바로 이 '배치' 기능이 React 18에서 어떻게 더욱 강력해졌는지, 그리고 React가 더 부드럽고 반응성 좋은 사용자 인터페이스(UI)를 만들기 위해 도입한 *동시성(Concurrency)* 이라는 중요한 개념에 대해 깊이 알아볼 시간입니다.
+우리는 지금까지 React가 어떻게 화면을 그리고(렌더링 파이프라인), 상태를 어떻게 기억하며 업데이트하는지(useState, 배칭, 동시성)에 대해 배웠습니다. 
+오늘은 React 함수형 컴포넌트의 강력함을 더해주는 다양한 훅(Hook)들을 좀 더 깊이 있게 살펴보려고 합니다.
+오늘은 그중에서도 자주 사용되지만 정확한 동작 방식이나 차이점을 헷갈리기 쉬운 useEffect, useLayoutEffect, useRef, useReducer에 대해 자세히 알아보고, 나아가 우리만의 커스텀 훅을 만드는 방법까지 함께 탐구해 보겠습니다.
 
-## 자동 배칭 (Automatic Batching)
-배칭(Batching)은 여러 상태 업데이트를 하나의 그룹으로 묶어서, 단 한 번의 리렌더링으로 처리하는 React의 최적화 기법입니다. 불필요한 렌더링을 줄여 성능을 향상시키는 아주 중요한 역할이죠.
-### React 17 이전: 제한적인 배칭
-React 17 버전까지는 배칭이 주로 React 이벤트 핸들러 내에서만 자동으로 이루어졌습니다. 예를 들어 버튼 클릭 이벤트 핸들러 안에서 setState를 여러 번 호출하면, React는 이를 알아서 묶어 처리했습니다.
-하지만 setTimeout, setInterval, Promise의 콜백 함수, 또는 네이티브 이벤트 리스너 내부에서 setState를 호출하면 각각의 업데이트가 별도의 리렌더링을 유발했습니다.
-```typescript
-// React 17 이하 예시
-function handleClick() {
-  // 이벤트 핸들러 내: 자동으로 배칭됨 (리렌더링 1번)
-  setCount(c => c + 1);
-  setFlag(f => !f);
-}
-setTimeout(() => {
-  // setTimeout 콜백 내: 배칭 안 됨 (리렌더링 2번 발생)
-  setCount(c => c + 1); // 리렌더링 발생
-  setFlag(f => !f);      // 또 리렌더링 발생
-}, 1000);
-```
-### React 18 이후: 어디서든 자동 배칭!
-React 18부터는 *자동 배칭(Automatic Batching)* 기능이 도입되었습니다. 이제는 setTimeout, Promise, 네이티브 이벤트 핸들러 등 어디에서 setState를 호출하든 기본적으로 모든 업데이트를 자동으로 묶어서 처리합니다.
-```typescript
-// React 18 예시
-function handleClick() {
-  // 이벤트 핸들러 내: 당연히 자동 배칭 (리렌더링 1번)
-  setCount(c => c + 1);
-  setFlag(f => !f);
-}
-setTimeout(() => {
-  // setTimeout 콜백 내: 이제 자동으로 배칭 (리렌더링 1번)
-  setCount(c => c + 1);
-  setFlag(f => !f);
-  // 모든 업데이트가 모아져서 단 한 번의 리렌더링만 발생
-}, 1000);
-```
-이 변화 덕분에 개발자가 특별히 신경 쓰지 않아도 React가 알아서 불필요한 렌더링을 줄여주므로, 애플리케이션 성능이 전반적으로 향상되는 효과를 기대할 수 있습니다.
-<Img src="/250423-232344.png" width={500} alt="렌더링 방식 비교"/>
+## useEffect vs useLayoutEffect
+useEffect와 useLayoutEffect는 모두 컴포넌트의 *부수 효과*(Side Effect)를 처리하기 위해 사용되는 훅입니다. 
+부수 효과란 컴포넌트 렌더링 과정 자체와는 별개로 수행되어야 하는 작업들을 의미합니다. 예를 들어, 데이터 가져오기(fetching), 구독(subscription) 설정, 또는 직접 DOM을 조작하는 것 등이 있죠.
+이 두 훅은 기능적으로 매우 유사하지만, 결정적인 차이점은 바로 *언제 실행되느냐* 하는 실행 타이밍에 있습니다.
 
-> Q: "React 18의 자동 배칭이란 무엇이고 이전 버전과 어떻게 다른가요?"
-A: "React 18부터는 이벤트 핸들러뿐만 아니라 setTimeout, Promise 등 비동기 작업 내에서도 여러 상태 업데이트를 자동으로 묶어 단일 리렌더링으로 처리하는 기능입니다. 이전 버전에서는 이벤트 핸들러 외부에서는 기본적으로 배칭이 적용되지 않았습니다."
+### 언제 실행될까요?
+#### useEffect
+이 훅은 컴포넌트 렌더링이 완료되고 브라우저가 화면을 그린 이후(after paint)에 *비동기적*으로 실행됩니다.
+즉, useEffect 내부의 코드가 실행되기 전에 사용자는 일단 업데이트된 화면을 먼저 보게 됩니다. 
+무거운 작업이 있더라도 UI 렌더링을 막지 않기 때문에 대부분의 부수 효과 처리에 적합합니다.
+#### useLayoutEffect
+이 훅은 컴포넌트 렌더링이 완료되었지만 브라우저가 화면을 그리기 전(before paint)에 *동기적*으로 실행됩니다.
+즉, useLayoutEffect 내부의 코드가 모두 실행될 때까지 브라우저는 화면 그리기를 기다립니다. 
+만약 이 훅 내부에서 시간이 오래 걸리는 작업을 하면 화면 깜빡임(flickering)은 막을 수 있지만, 전체적인 렌더링이 지연되어 사용자 경험을 해칠 수 있습니다.
 
-### 자동 배칭과 Micro-task의 관계
-자동 배칭이 어떻게 가능해졌을까요? React 18은 내부적으로 업데이트를 처리할 때 브라우저의 *마이크로태스크(Micro-task)* 큐를 활용합니다. 
-setState가 호출되면 즉시 렌더링을 예약하는 대신, 짧은 지연(주로 현재 실행 중인 코드 이후, 다음 마이크로태스크 처리 시점) 후에 렌더링을 수행하도록 일정을 잡습니다.
-이 짧은 지연 시간 동안 발생하는 추가적인 setState 호출들은 자연스럽게 동일한 배치에 포함될 수 있게 됩니다.
-#### 마이크로태스크(Micro-task)란?
-JavaScript 이벤트 루프에서 현재 실행 중인 스크립트가 완료된 직후, 다음 렌더링이나 다른 매크로태스크(Macro-task, 예: setTimeout 콜백)가 실행되기 전에 처리되는 작은 작업들의 대기열입니다. Promise의 *then/catch/finally* 콜백이 대표적인 마이크로태스크입니다.
-> **이미지 제안:** 간단한 이벤트 루프 다이어그램. Call Stack, Micro-task Queue, Macro-task Queue(Task Queue), Rendering 단계를 보여주고, setState 호출이 어떻게 Micro-task Queue를 거쳐 렌더링으로 이어지는지(React 18의 경우) 간략히 표현.
+<Img src="/250424-110604.webp" width={500} alt="렌더링부터 화면 표시까지의 타임라인"/>
 
-### 배칭을 깨야 할 때: flushSync
-대부분의 경우 자동 배칭은 좋은 기능이지만, 아주 드물게 상태 업데이트 직후 *즉시* DOM 변경사항을 확인하고 싶을 때가 있습니다. 예를 들어, 상태 업데이트로 인해 특정 입력 필드에 포커스를 옮겨야 하는 경우, React가 렌더링을 다음번으로 미루면 포커스 로직이 제대로 동작하지 않을 수 있습니다.
-이럴 때 사용하는 것이 flushSync API입니다. flushSync로 감싸진 함수 내에서 호출된 setState는 자동 배칭에서 제외되고, 해당 업데이트를 *동기적으로* 즉시 처리하여 DOM을 업데이트합니다.
-```typescript
-import { flushSync } from 'react-dom'; // react-dom에서 import
+### 어떤 것을 선택해야 할까요?
+결론부터 말씀드리면, *대부분의 경우 useEffect를 사용하는 것이 좋습니다.* UI 렌더링을 방해하지 않기 때문이죠.
+useLayoutEffect는 다음과 같은 특별한 경우에만 제한적으로 사용해야 합니다.
+1.  DOM을 직접 읽고 동기적으로 리렌더링을 유발해야 할 때
+  예를 들어, 렌더링 직후 특정 요소의 크기나 위치를 측정하고, 그 값에 따라 즉시 스타일을 변경하거나 다른 상태를 업데이트해야 해서 화면이 깜빡이는 것을 막아야 할 때 사용합니다. 
+  스크롤 위치를 조정하거나, 툴팁의 위치를 계산하는 등의 작업이 해당될 수 있습니다.
+2.  클래스 컴포넌트의 componentDidMount나 componentDidUpdate와 동일한 타이밍에 실행되어야 하는 로직이 있을 때
 
-function handleClick() {
-  flushSync(() => {
-    setCount(c => c + 1); // 이 업데이트는 즉시 처리되어 DOM에 반영됨
-  });
-  // 여기서는 DOM 업데이트가 완료된 상태임
-  // (예: 업데이트된 DOM 요소에 접근하거나 포커스를 설정할 수 있음)
-  // setFlag(f => !f); // 이 업데이트는 flushSync 밖에 있으므로 다시 자동 배칭 규칙을 따름
-}
-```
-flushSync는 성능에 영향을 줄 수 있으므로 꼭 필요한 경우에만 신중하게 사용해야 합니다. 대부분의 경우에는 자동 배칭의 이점을 누리는 것이 좋습니다.
-<Img src="/250423-233404.png" width={300} alt="flushSync사용 시 렌더링 차이"/>
-<Ads/>
+> Q: "useEffect와 useLayoutEffect의 차이점은 무엇인가요?"
+A: "둘 다 부수 효과를 처리하지만, 실행 시점이 다릅니다. useEffect는 화면이 그려진 후 비동기적으로 실행되고, useLayoutEffect는 화면이 그려지기 전 동기적으로 실행됩니다. 따라서 DOM 레이아웃을 읽고 동기적으로 UI를 업데이트해야 하는 경우가 아니라면 대부분 useEffect를 사용해야 합니다."
 
-## 동시성 (Concurrency)
-동시성(Concurrency)은 React 18의 또 다른 핵심 개념이자, Fiber 아키텍처가 궁극적으로 지향하는 목표 중 하나입니다. 동시성은 여러 상태 업데이트 작업을 *겹치거나 중단*하면서 처리할 수 있는 능력을 의미합니다.
-### 동시성이 왜 중요할까요?
-기존 React(Fiber 이전 또는 동시성 기능 비활성화 시)는 렌더링 작업을 시작하면 끝날 때까지 멈추지 않았습니다. 만약 렌더링 작업이 매우 크고 오래 걸린다면, 그동안 브라우저는 다른 중요한 작업(예: 사용자 입력 처리, 애니메이션)을 할 수 없어 화면이 멈추거나 버벅거리는 것처럼 보이게 됩니다.
-동시성을 활용하면 React는 긴 렌더링 작업을 작은 단위로 나누어 처리하다가, 더 급한 업데이트(예: 사용자가 입력 필드에 글자를 입력하는 것)가 발생하면 진행 중이던 렌더링을 잠시 멈추고 급한 업데이트를 먼저 처리할 수 있습니다. 이후 다시 원래 하던 렌더링 작업을 이어서 진행합니다.
-마치 여러 가지 일을 동시에 처리하는 멀티태스킹과 비슷하지만, 실제로는 작업을 잘게 쪼개고 우선순위에 따라 빠르게 전환하며 처리하는 방식에 가깝습니다. 이를 통해 복잡한 업데이트 중에도 UI의 반응성을 유지하여 사용자 경험을 크게 향상시킬 수 있습니다.
-### Transition API: 업데이트에 우선순위 부여하기
-React 18은 동시성을 개발자가 직접 활용할 수 있는 새로운 API들을 제공합니다. 그중 대표적인 것이 startTransition입니다.
-startTransition은 특정 상태 업데이트를 *긴급하지 않은 것(non-urgent)*으로 표시하는 방법입니다. 이렇게 표시된 업데이트는 다른 긴급한 업데이트(예: 사용자 입력)에 의해 중단될 수 있으며, 렌더링이 진행되는 동안에도 UI는 계속 반응성을 유지합니다.
+## useRef
+useRef 훅은 주로 특정 DOM 요소에 직접 접근해야 할 때 사용된다고 알려져 있습니다. 하지만 그 외에도 아주 유용한 기능이 숨어있답니다.
+
+### DOM 요소에 접근하기
+가장 기본적인 사용법은 JSX 요소의 ref 속성에 useRef로 생성한 객체를 연결하여 해당 DOM 노드에 접근하는 것입니다.
+예를 들어, 특정 입력 필드에 포커스를 주거나, 비디오 요소의 재생/정지를 제어하는 등의 작업에 활용될 수 있습니다.
 ```tsx
-import React, { useState, useTransition } from 'react';
-function SearchResults({ query }) {
-  // ... 데이터 로딩 및 결과 표시 로직 ...
-  return <div>{query} 검색 결과...</div>;
-}
-function App() {
-  const [inputValue, setInputValue] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isPending, startTransition] = useTransition(); // useTransition 훅 사용
+import React, { useRef, useEffect } from 'react';
 
-  const handleChange = (e) => {
-    // 1. 입력값 업데이트 (긴급)
-    setInputValue(e.target.value);
-    // 2. 검색 쿼리 업데이트 (긴급하지 않음 - Transition으로 감싸기)
-    startTransition(() => {
-      setSearchQuery(e.target.value);
-    });
+function TextInputWithFocusButton() {
+  // ref 객체 생성
+  const inputEl = useRef<HTMLInputElement>(null);
+
+  const onButtonClick = () => {
+    // .current 프로퍼티로 실제 DOM 요소에 접근하여 focus() 메서드 호출
+    inputEl.current?.focus();
   };
 
   return (
+    <>
+      <input ref={inputEl} type="text" />
+      <button onClick={onButtonClick}>Focus the input</button>
+    </>
+  );
+}
+```
+
+### 렌더링과 무관한 값 저장하기 (Mutable Container)
+useRef의 또 다른 중요한 용도는 *렌더링 사이클에 영향을 주지 않으면서 변경 가능한(mutable) 값을 유지*하는 것입니다. 
+useRef는 `.current` 프로퍼티를 가진 객체를 반환하는데, 이 .current 값을 변경해도 컴포넌트가 리렌더링되지 않습니다.
+그리고 컴포넌트가 리렌더링되더라도 .current에 저장된 값은 그대로 유지됩니다. 마치 컴포넌트 인스턴스 변수처럼 사용할 수 있는 것이죠. 이는 다음과 같은 경우에 유용합니다.
+
+- 이전 상태 값 저장: 이전 props나 state 값을 저장했다가 현재 값과 비교할 때.
+- 타이머 ID 저장: setTimeout이나 setInterval의 ID를 저장하고 나중에 clearTimeout, clearInterval 할 때.
+- 변경 가능하지만 리렌더링을 유발하지 않는 값 저장: 특정 계산 결과나 플래그 값 등.
+
+```tsx
+import React, { useState, useEffect, useRef } from 'react';
+
+function Timer() {
+  const [seconds, setSeconds] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null); // 타이머 ID 저장용 ref
+
+  useEffect(() => {
+    // 컴포넌트 마운트 시 타이머 시작
+    intervalRef.current = setInterval(() => {
+      setSeconds(prevSeconds => prevSeconds + 1);
+    }, 1000);
+
+    // 컴포넌트 언마운트 시 타이머 정리 (Cleanup 함수)
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []); // 빈 의존성 배열: 마운트 시 1회, 언마운트 시 1회 실행
+
+  return (
     <div>
-      <input type="text" value={inputValue} onChange={handleChange} />
-      {isPending ? " 로딩 중..." : <SearchResults query={searchQuery} />}
+      <p>타이머: {seconds}초</p>
+      <button onClick={() => clearInterval(intervalRef.current!)}>타이머 중지</button>
     </div>
   );
 }
 ```
-위 예시에서 사용자가 입력 필드에 글자를 입력하면, setInputValue는 즉시 실행되어 입력 필드가 바로바로 업데이트됩니다 **(긴급)**. 
-반면, 검색 결과를 위한 setSearchQuery는 startTransition으로 감싸져 있어 우선순위가 낮습니다. 만약 검색 결과 렌더링이 오래 걸리더라도, 사용자의 입력(setInputValue) 처리를 방해하지 않습니다.
-useTransition 훅은 startTransition 함수와 함께 isPending이라는 불리언 상태를 반환합니다. 이 값을 사용하여 전환(Transition) 작업이 진행 중일 때 로딩 상태를 표시하는 등 UI를 개선할 수 있습니다.
-> **이미지 제안:** startTransition 사용 시 업데이트 처리 흐름도. 사용자 입력(높은 우선순위)은 즉시 처리되고, startTransition 내부의 업데이트(낮은 우선순위)는 잠시 지연되거나 중단될 수 있으며, isPending 상태 변화를 보여주는 모습.
+useRef가 반환하는 객체의 .current 프로퍼티는 마치 C언어의 포인터나 다른 언어의 참조(Reference)처럼, 특정 값(DOM 노드 또는 다른 어떤 값)을 가리키고 그 값을 직접 변경할 수 있는 통로 역할을 합니다.
 
-> Q: "React의 동시성이란 무엇이며, startTransition은 어떤 역할을 하나요?" 
-A: "동시성은 React가 여러 상태 업데이트를 중단 가능하게 처리하여 UI 반응성을 유지하는 능력입니다. startTransition은 특정 업데이트를 긴급하지 않다고 표시하여, 이 업데이트가 긴급한 다른 업데이트를 막지 않도록 우선순위를 낮추는 역할을 합니다."
+### .current 속성
+
+useRef가 반환하는 객체는 `{ current: initialValue }` 형태입니다. 여기서 중요한 점은 .current 속성을 직접 변경해도 React에게 아무런 알림이 가지 않는다는 것입니다. 즉, .current 값을 바꾼다고 해서 *자동으로 리렌더링이 일어나지 않습니다.*
+이것이 useState와의 가장 큰 차이점입니다. 상태 변경이 렌더링으로 이어져야 한다면 useState를, 렌더링과 무관하게 값을 유지하고 싶다면 useRef를 사용해야 합니다.
+
+<Ads/>
+
+## useReducer: 복잡한 상태 관리
+useState만으로도 많은 상태 관리가 가능하지만, 컴포넌트의 상태 로직이 복잡해지면 useReducer가 더 나은 선택지가 될 수 있습니다. useReducer는 주로 다음과 같은 상황에서 useState보다 유리합니다.
+
+### useState보다 좋을 때는 언제일까요?
+1.  상태 로직이 복잡할 때
+  여러 하위 값으로 이루어진 복잡한 상태 객체를 다루거나, 다음 상태가 이전 상태와 특정 액션(action)에 따라 결정되는 경우.
+2.  여러 상태 업데이트가 하나의 액션과 관련될 때
+  하나의 사용자 행동(예: 폼 제출)이 여러 상태 값을 동시에 변경해야 할 때.
+3.  상태 업데이트 로직의 재사용 또는 테스트 용이성이 중요할 때
+  Reducer 함수는 컴포넌트로부터 분리된 순수 함수이므로 테스트하기 쉽고 다른 곳에서 재사용하기도 좋습니다.
+4.  성능 최적화
+  dispatch 함수는 컴포넌트 리렌더링 시에도 참조 동일성을 유지하는 경우가 많아, 콜백 함수를 자식 컴포넌트에 전달할 때 불필요한 리렌더링을 방지하는 데 도움이 될 수 있습니다. (특히 useCallback과 함께 사용될 때)
+
+### Reducer 함수와 Dispatch의 역할
+
+useReducer는 세 가지 주요 요소로 구성됩니다.
+
+- Reducer 함수: `(state, action) => newState` 형태의 순수 함수입니다. 현재 상태(state)와 어떤 행동을 나타내는 객체(action)를 받아서, 새로운 상태(newState)를 반환합니다. 모든 상태 변경 로직은 이 함수 안에 정의됩니다.
+- 초기 상태 (initialState): 상태의 초기값입니다.
+- Dispatch 함수: Reducer에게 '어떤 행동을 해주세요'라고 알리는 함수입니다. 이 함수에 action 객체를 전달하면, React는 Reducer 함수를 호출하여 상태 업데이트를 처리합니다.
+
+```tsx
+import React, { useReducer } from 'react';
+
+// 1. 액션 타입 정의 (TypeScript 사용 시)
+type Action = { type: 'INCREMENT' } | { type: 'DECREMENT' };
+
+// 2. 초기 상태 정의
+const initialState = { count: 0 };
+
+// 3. Reducer 함수 정의
+function reducer(state: typeof initialState, action: Action): typeof initialState {
+  switch (action.type) {
+    case 'INCREMENT':
+      return { count: state.count + 1 };
+    case 'DECREMENT':
+      return { count: state.count - 1 };
+    default:
+      throw new Error('Unhandled action type');
+  }
+}
+
+function Counter() {
+  // 4. useReducer 사용
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  return (
+    <div>
+      <p>Count: {state.count}</p>
+      {/* 5. Dispatch 함수로 액션 전달 */}
+      <button onClick={() => dispatch({ type: 'INCREMENT' })}>증가</button>
+      <button onClick={() => dispatch({ type: 'DECREMENT' })}>감소</button>
+    </div>
+  );
+}
+```
+
+dispatch 함수가 호출되면, React는 setState와 유사하게 업데이트를 예약합니다. 
+내부적으로는 전달된 action 객체를 포함한 Update 객체를 생성하고, 해당 훅의 Update Queue에 추가하는 방식으로 동작할 수 있습니다. 이후 렌더링 단계에서 Reducer 함수가 실행되어 새로운 상태를 계산합니다.
+> Q: "useState와 useReducer 중 어떤 것을 언제 사용해야 할까요?" 
+A: "간단한 상태(단일 값, 토글 등)는 useState가 편리하지만, 상태 로직이 복잡하거나 여러 값이 연관되어 있거나 상태 업데이트 로직의 테스트/재사용이 중요할 때는 useReducer가 더 적합합니다."
+
+## 커스텀 훅
+React 훅의 가장 강력한 기능 중 하나는 바로 개발자가 직접 *커스텀 훅(Custom Hook)*을 만들 수 있다는 점입니다. 커스텀 훅은 상태 관련 로직(Stateful Logic)을 컴포넌트로부터 분리하여 재사용 가능한 함수로 만드는 방법입니다.
+
+### 왜 커스텀 훅을 사용할까요?
+
+- 로직 재사용: 여러 컴포넌트에서 동일하거나 유사한 상태 관리 로직(예: 데이터 fetching, 폼 처리, 구독 관리)을 사용해야 할 때 코드를 반복해서 작성할 필요 없이 커스텀 훅을 호출하기만 하면 됩니다.
+- 코드 추상화 및 가독성: 복잡한 로직을 커스텀 훅으로 분리하면, 컴포넌트 코드는 해당 로직의 세부 구현에 신경 쓰지 않고 결과만 가져다 사용하면 되므로 훨씬 간결하고 읽기 쉬워집니다.
+- 독립적인 테스트: 커스텀 훅은 일반 JavaScript 함수처럼 독립적으로 테스트할 수 있습니다.
+
+커스텀 훅을 만드는 규칙은 간단합니다.
+
+1.  함수 이름은 반드시 use로 시작해야 합니다. (예: useFetch, useWindowScroll)
+2.  함수 내부에서 다른 내장 훅(useState, useEffect, useRef 등)이나 다른 커스텀 훅을 호출할 수 있습니다.
+
+### 예시 1: 폼 입력 관리 훅 (useFormInput)
+
+간단한 폼 입력 값을 관리하는 커스텀 훅 예시입니다.
+
+```typescript
+import { useState, useCallback } from 'react';
+
+// 커스텀 훅 정의
+function useFormInput(initialValue: string) {
+  const [value, setValue] = useState(initialValue);
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setValue(e.target.value);
+  }, []); // useCallback으로 함수 재생성 방지
+
+  const reset = useCallback(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  // 훅은 상태 값과 이벤트 핸들러, 리셋 함수를 반환
+  return {
+    value,
+    onChange: handleChange,
+    reset
+  };
+}
+
+// 컴포넌트에서 커스텀 훅 사용
+function MyForm() {
+  const nameInput = useFormInput('');
+  const emailInput = useFormInput('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Name:', nameInput.value);
+    console.log('Email:', emailInput.value);
+    nameInput.reset();
+    emailInput.reset();
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="text" placeholder="이름" {...nameInput} /> {/* 스프레드 연산자로 props 전달 */}
+      <input type="email" placeholder="이메일" {...emailInput} />
+      <button type="submit">제출</button>
+    </form>
+  );
+}
+```
+
+### 예시 2: 다크 모드 훅 (useDarkMode)
+
+시스템 설정이나 로컬 스토리지를 사용하여 다크 모드를 관리하는 훅 예시입니다.
+
+```typescript
+import { useState, useEffect, useCallback } from 'react';
+
+function useDarkMode(initialValue = false): [boolean, () => void] {
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    // 로컬 스토리지에서 값 읽어오거나 초기값 사용 (Lazy Initial State)
+    try {
+      const storedValue = window.localStorage.getItem('darkMode');
+      return storedValue ? JSON.parse(storedValue) : initialValue;
+    } catch (error) {
+      console.error("Error reading localStorage key 'darkMode':", error);
+      return initialValue;
+    }
+  });
+
+  // 다크 모드 상태 변경 시 로컬 스토리지 업데이트 및 body 클래스 변경
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
+      if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+    } catch (error) {
+       console.error("Error writing to localStorage key 'darkMode':", error);
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = useCallback(() => {
+    setIsDarkMode(prevMode => !prevMode);
+  }, []);
+
+  return [isDarkMode, toggleDarkMode];
+}
+
+// 컴포넌트에서 사용
+function Settings() {
+  const [isDark, toggleDark] = useDarkMode();
+
+  return (
+    <div>
+      <p>현재 모드: {isDark ? '다크 모드' : '라이트 모드'}</p>
+      <button onClick={toggleDark}>모드 전환</button>
+    </div>
+  );
+}
+```
+
+> 이미지 제안: 여러 컴포넌트(Component A, Component B)가 동일한 커스텀 훅(useCustomHook)을 각각 호출하여 로직을 공유하는 모습을 나타내는 다이어그램. 커스텀 훅은 내부적으로 useState, useEffect 등을 사용하는 모습을 보여줌.
+
 <Ads/>
 
 ## 결론
-오늘은 React 18의 핵심 기능인 자동 배칭과 동시성에 대해 알아보았습니다.
-**자동 배칭**: React 18부터는 이벤트 핸들러, setTimeout, Promise 등 위치에 상관없이 여러 setState 호출이 기본적으로 하나의 리렌더링으로 묶여 처리됩니다. 이는 불필요한 렌더링을 줄여 성능을 향상시킵니다. (React 17 이전에는 제한적)
-**flushSync**: 자동 배칭을 의도적으로 깨고 상태 업데이트를 동기적으로 즉시 처리해야 할 때 사용하는 API입니다. 신중하게 사용해야 합니다.
-**동시성**: React가 긴 렌더링 작업을 중단하고 더 긴급한 업데이트를 먼저 처리할 수 있게 하여 UI 반응성을 높이는 기능입니다. Fiber 아키텍처의 주요 목표 중 하나입니다.
-**startTransition**: 특정 상태 업데이트를 긴급하지 않은 '전환'으로 표시하여, 해당 업데이트가 UI 반응성을 저해하지 않도록 우선순위를 낮추는 API입니다. useTransition 훅을 통해 전환 상태(isPending)도 알 수 있습니다.
-자동 배칭과 동시성은 React가 더 똑똑하고 사용자 친화적인 UI를 만들 수 있도록 돕는 강력한 도구입니다. 특히 동시성 기능은 앞으로 React가 데이터를 가져오거나 *코드 스플리팅*을 처리하는 방식에도 큰 영향을 미칠 중요한 개념입니다.
-> 다음 시간에는 React의 여러 훅들(useEffect, useLayoutEffect, useRef, useReducer 등)에 대해 더 깊이 탐구하고, 커스텀 훅을 통해 로직을 재사용하는 방법에 대해 알아보겠습니다.
+
+오늘은 React의 주요 훅들인 useEffect, useLayoutEffect, useRef, useReducer에 대해 더 깊이 알아보았습니다.
+- useEffect와 useLayoutEffect는 부수 효과를 처리하지만, *실행 타이밍*(Paint 이후 비동기 vs Paint 이전 동기)이 다릅니다. 대부분 useEffect를 사용합니다.
+- useRef는 DOM 요소 참조뿐만 아니라, 렌더링과 무관하게 *변경 가능한 값을 저장*하는 컨테이너 역할도 합니다. .current 변경은 리렌더링을 유발하지 않습니다.
+- useReducer는 복잡한 상태 로직을 관리할 때 useState보다 유용하며, Reducer 함수와 dispatch를 통해 상태를 업데이트합니다.
+- *커스텀 훅*은 상태 관련 로직을 재사용 가능하게 만들고 코드를 더 깔끔하게 구성하는 강력한 방법입니다. 이름은 use로 시작해야 합니다.
+
+각 훅의 특징과 적절한 사용 시점을 이해하는 것은 React 애플리케이션의 성능, 유지보수성, 코드 품질을 높이는 데 매우 중요합니다. 오늘 배운 내용들을 바탕으로 실제 프로젝트에서 훅을 더욱 효과적으로 활용해보시길 바랍니다.
+
+> 다음 시간에는 애플리케이션 전역에서 상태를 관리하는 방법, 즉 *글로벌 상태 관리 패턴*에 대해 알아보겠습니다. Context API부터 Redux, Zustand, Recoil 같은 인기 라이브러리까지 다양한 방법들을 비교하고 최적화 전략을 살펴보겠습니다.
+
 ### 참고
-- React Blog - React v18.0 (Automatic Batching, Transitions 설명 포함): [https://reactjs.org/blog/2022/03/29/react-v18.html](https://reactjs.org/blog/2022/03/29/react-v18.html)
-- React 공식 문서 - flushSync: [https://reactjs.org/docs/react-dom.html#flushsync](https://reactjs.org/docs/react-dom.html#flushsync)
-- React 공식 문서 - useTransition: [https://reactjs.org/docs/hooks-reference.html#usetransition](https://reactjs.org/docs/hooks-reference.html#usetransition)
-- React Working Group - Concurrency Explained: [https://github.com/reactwg/react-18/discussions/46](https://github.com/reactwg/react-18/discussions/46)
+
+- React 공식 문서 - useEffect: [https://reactjs.org/docs/hooks-reference.html#useeffect](https://reactjs.org/docs/hooks-reference.html#useeffect)
+- React 공식 문서 - useLayoutEffect: [https://reactjs.org/docs/hooks-reference.html#uselayouteffect](https://reactjs.org/docs/hooks-reference.html#uselayouteffect)
+- React 공식 문서 - useRef: [https://reactjs.org/docs/hooks-reference.html#useref](https://reactjs.org/docs/hooks-reference.html#useref)
+- React 공식 문서 - useReducer: [https://reactjs.org/docs/hooks-reference.html#usereducer](https://reactjs.org/docs/hooks-reference.html#usereducer)
+- React 공식 문서 - Building Your Own Hooks: [https://reactjs.org/docs/hooks-custom.html](https://reactjs.org/docs/hooks-custom.html)
