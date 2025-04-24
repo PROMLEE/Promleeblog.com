@@ -50,6 +50,7 @@ const returnFetchJson = (
     const response = await fetch(baseUrl + url + query, {
       ...init,
       next: { revalidate: init?.next?.revalidate ?? 172800 }, // 2 days
+      cache: process.env.NODE_ENV === "development" ? "no-store" : init?.cache,
       body: init?.body && JSON.stringify(init.body),
     });
 
@@ -89,4 +90,3 @@ export const CustomFetch = returnFetchJson({
     },
   },
 });
-
