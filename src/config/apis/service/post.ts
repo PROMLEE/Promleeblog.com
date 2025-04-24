@@ -48,22 +48,13 @@ export const PostService = () => {
    * @api-doc: https://github.com/PROMLEE/Promleeblog.com/blob/test/src/app/api/post/links/route.ts
    */
   const getLinks = async () => {
-    const response = (await CustomFetch(`${url}/links`, { method: "GET" }))
-      .body as PostResponse.GetLinks;
-    return response.data;
-  };
-
-  /**
-   * Links 조회
-   * @api-doc: https://github.com/PROMLEE/Promleeblog.com/blob/test/src/app/api/post/links/route.ts
-   */
-  const getSitemap = async () => {
     const response = (
       await CustomFetch(`${url}/links`, {
         method: "GET",
-        cache: "no-store",
+        cache: "no-cache",
+        next: { revalidate: 0 },
       })
-    ).body as PostResponse.GetLinks;
+    ).body as PostResponse.GetLinks; // 0 seconds
     return response.data;
   };
 
@@ -112,7 +103,6 @@ export const PostService = () => {
     getLinks,
     viewIncrement,
     getPost,
-    getSitemap,
     getPostMeta,
   };
 };

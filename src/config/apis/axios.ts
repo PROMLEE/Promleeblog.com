@@ -49,7 +49,7 @@ const returnFetchJson = (
   ): Promise<JsonResponse<T>> => {
     const response = await fetch(baseUrl + url + query, {
       ...init,
-      next: { revalidate: 172800 }, // 2 days
+      next: { revalidate: init?.next?.revalidate ?? 172800 }, // 2 days
       body: init?.body && JSON.stringify(init.body),
     });
 
@@ -89,3 +89,4 @@ export const CustomFetch = returnFetchJson({
     },
   },
 });
+
