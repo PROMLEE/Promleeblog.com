@@ -3,7 +3,7 @@ import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const basePath = "https://www.promleeblog.com/blog/";
-  const Links = await PostService().getLinks();
+  const Links = await PostService().getSitemap();
   const putmap = (url: string) => {
     return {
       url: basePath + url,
@@ -53,3 +53,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
   return list;
 }
+
