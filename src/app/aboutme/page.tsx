@@ -1,5 +1,6 @@
 "use client";
 import { useState, useCallback, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import SkillsPT from "@/components/pt/Skills";
 import ProjectsPT from "@/components/pt/Projects";
 import ExperiencePT from "@/components/pt/Experience";
@@ -24,18 +25,21 @@ const slides = [
 
 export default function PTPage() {
   const [idx, setIdx] = useState(0);
+  const [prevIdx, setPrevIdx] = useState(0);
   const maxIdx = slides.length - 1;
 
   // 키보드 좌우 방향키로 슬라이드 이동
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "ArrowRight" || e.key === "PageDown") {
+        setPrevIdx(idx);
         setIdx((prev) => (prev < maxIdx ? prev + 1 : prev));
       } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        setPrevIdx(idx);
         setIdx((prev) => (prev > 0 ? prev - 1 : prev));
       }
     },
-    [maxIdx],
+    [idx, maxIdx],
   );
 
   useEffect(() => {
@@ -44,8 +48,14 @@ export default function PTPage() {
   }, [handleKeyDown]);
 
   // 클릭으로도 넘길 수 있게
-  const handleNext = () => setIdx((prev) => (prev < maxIdx ? prev + 1 : prev));
-  const handlePrev = () => setIdx((prev) => (prev > 0 ? prev - 1 : prev));
+  const handleNext = () => {
+    setPrevIdx(idx);
+    setIdx((prev) => (prev < maxIdx ? prev + 1 : prev));
+  };
+  const handlePrev = () => {
+    setPrevIdx(idx);
+    setIdx((prev) => (prev > 0 ? prev - 1 : prev));
+  };
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center px-2 py-4">
@@ -58,7 +68,18 @@ export default function PTPage() {
       </Link>
       <div className="relative flex w-full max-w-7xl items-center justify-center select-none">
         <div className="flex w-full items-center justify-center">
-          {slides[idx].component}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, x: idx > prevIdx ? 100 : -100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: idx < prevIdx ? 100 : -100 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="w-full"
+            >
+              {slides[idx].component}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
       {/* Prev/Next 버튼을 인디케이터 좌우로 배치 */}
@@ -94,3 +115,4 @@ export default function PTPage() {
     </div>
   );
 }
+
