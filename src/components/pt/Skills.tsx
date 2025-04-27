@@ -173,7 +173,7 @@ export default function SkillsPT() {
       <h2 className="animate-fadein mb-10 text-3xl font-extrabold text-gray-800 md:text-4xl dark:text-gray-100">
         기술 스택 & 강점
       </h2>
-      <div className="grid w-full max-w-7xl grid-cols-1 gap-12 md:grid-cols-2">
+      <div className="max-w-8xl grid w-full grid-cols-1 gap-12 md:grid-cols-2">
         {skillCategories.map((cat, idx) => (
           <div
             key={cat.name}

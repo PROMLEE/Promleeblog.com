@@ -40,7 +40,7 @@ export default function KeyAchievementsSlide() {
           </li>
         ))}
       </ul>
-      <div className="flex w-full max-w-3xl flex-col gap-8">
+      <div className="flex w-full max-w-6xl flex-col gap-8">
         {/* UMC 카드 */}
         <div className="animate-fadein2 flex flex-col gap-3 rounded-2xl bg-white/80 p-8 shadow-xl dark:bg-gray-900/80">
           <div className="mb-2 flex items-center gap-2">

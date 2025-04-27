@@ -37,7 +37,7 @@ export default function ExperiencePT() {
       <h2 className="animate-fadein mb-10 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-center text-3xl font-extrabold text-transparent md:text-4xl">
         경력
       </h2>
-      <div className="animate-fadein2 flex w-full max-w-3xl flex-col gap-6 rounded-2xl bg-white/80 p-8 shadow-xl dark:bg-gray-900/80">
+      <div className="animate-fadein2 flex w-full max-w-6xl flex-col gap-6 rounded-2xl bg-white/80 p-8 shadow-xl dark:bg-gray-900/80">
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div className="flex items-center gap-2 text-lg font-bold text-gray-800 dark:text-gray-100">
             <FaUserTie color="#3b82f6" size={22} /> {experience.name}

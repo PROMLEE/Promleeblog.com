@@ -90,7 +90,7 @@ export default function TeamProjectsSlide() {
       <h2 className="animate-fadein mb-4 text-3xl font-extrabold text-gray-800 md:text-4xl dark:text-gray-100">
         팀 프로젝트
       </h2>
-      <div className="animate-fadein2 flex w-full max-w-7xl flex-col gap-10">
+      <div className="animate-fadein2 max-w-8xl flex w-full flex-col gap-10">
         {projects.map((p, idx) => (
           <div
             key={p.name}
@@ -98,7 +98,7 @@ export default function TeamProjectsSlide() {
             style={{ animationDelay: `${0.2 * idx}s` }}
           >
             {/* 좌측: 프로젝트 정보 */}
-            <div className="flex max-w-[420px] min-w-[320px] flex-1 flex-col justify-between gap-4">
+            <div className="flex max-w-[600px] min-w-[220px] flex-1 flex-col justify-between gap-4">
               <div className="mb-2 flex items-center gap-3">
                 {p.iconUrl && (
                   <img

@@ -48,20 +48,16 @@ export default function PTPage() {
   const handlePrev = () => setIdx((prev) => (prev > 0 ? prev - 1 : prev));
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="flex min-h-screen w-full flex-col items-center justify-center px-2 py-4">
       {/* 좌측 상단 홈 버튼 */}
       <Link
         href="/"
-        className="absolute top-4 left-4 z-50 rounded-xl bg-white/80 px-4 py-2 text-base font-bold text-blue-600 shadow transition-colors hover:bg-blue-500 hover:text-white"
+        className="fixed top-4 left-4 z-50 rounded-xl bg-white/80 px-4 py-2 text-base font-bold text-blue-600 shadow transition-colors hover:bg-blue-500 hover:text-white"
       >
         홈으로
       </Link>
       <div className="relative flex w-full max-w-7xl items-center justify-center select-none">
-        <div
-          className="flex h-full w-full items-center justify-center"
-          // onClick={handleNext}
-          // style={{ cursor: idx < maxIdx ? "pointer" : "default" }}
-        >
+        <div className="flex w-full items-center justify-center">
           {slides[idx].component}
         </div>
       </div>
