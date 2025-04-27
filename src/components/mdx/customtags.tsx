@@ -78,13 +78,23 @@ export function Toggle({
 
 export const Ads = () => {
   return (
-    <div className="mt-10 mb-4">
+    <div className="mt-10 mb-4 flex w-full items-center justify-center">
       <AdComponent
         adSlot="2890712597"
         adFormat="fluid"
         adLayout="in-article"
         style={{ textAlign: "center" }}
       />
+    </div>
+  );
+};
+
+export const AdsDev = () => {
+  return (
+    <div className="mt-10 mb-4">
+      <div className="h-32 w-full animate-pulse rounded-md bg-gray-300">
+        광고 자리
+      </div>
     </div>
   );
 };

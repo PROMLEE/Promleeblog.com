@@ -1,81 +1,100 @@
 "use client";
+import { useState, useCallback, useEffect } from "react";
+import SkillsPT from "@/components/pt/Skills";
+import ProjectsPT from "@/components/pt/Projects";
+import ExperiencePT from "@/components/pt/Experience";
+import EducationPT from "@/components/pt/Education";
+import IntroSlide from "@/components/pt/slides/Intro";
+import KeyAchievementsSlide from "@/components/pt/slides/KeyAchievements";
+import PersonalProjectsSlide from "@/components/pt/slides/PersonalProjects";
+import TeamProjectsSlide from "@/components/pt/slides/TeamProjects";
+import Link from "next/link";
+// KeyAchievementsSlide import 예정
 
-import { Contact } from "@/components/aboutme/Contact";
-import { AboutMe } from "@/components/aboutme/AboutMe";
-import { Skills } from "@/components/aboutme/Skills";
-import { Projects } from "@/components/aboutme/Projects";
-import { Exprience } from "@/components/aboutme/Exprience";
-import { Toup } from "@/components/buttons/Toup";
-import { Todown } from "@/components/buttons/Todown";
-import { useRef } from "react";
-import { useIsVisible } from "@/lib/useIsVisible";
-import { Education } from "@/components/aboutme/Education";
-import RightSidebarComp from "@/components/bars/RightSidebar";
+const slides = [
+  { component: <IntroSlide /> },
+  { component: <KeyAchievementsSlide /> },
+  { component: <SkillsPT /> },
+  { component: <PersonalProjectsSlide /> },
+  { component: <TeamProjectsSlide /> },
+  { component: <ProjectsPT /> },
+  { component: <ExperiencePT /> },
+  { component: <EducationPT /> },
+];
 
-interface refs {
-  ref: React.RefObject<HTMLDivElement | null>;
-  isVisible: boolean;
-  component: React.FC;
-}
+export default function PTPage() {
+  const [idx, setIdx] = useState(0);
+  const maxIdx = slides.length - 1;
 
-const contents =
-  "## Contact & Channels\n## About Me\n## Skills\n## Contribute to\n### PromleeBlog\n### Map:2 Zero\n### Indoor Map\n## Experience\n### UMC 5th, 6th\n## Education";
+  // 키보드 좌우 방향키로 슬라이드 이동
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight" || e.key === "PageDown") {
+        setIdx((prev) => (prev < maxIdx ? prev + 1 : prev));
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        setIdx((prev) => (prev > 0 ? prev - 1 : prev));
+      }
+    },
+    [maxIdx],
+  );
 
-export default function App() {
-  const ref1 = useRef<HTMLDivElement>(null);
-  const ref2 = useRef<HTMLDivElement>(null);
-  const ref3 = useRef<HTMLDivElement>(null);
-  const ref4 = useRef<HTMLDivElement>(null);
-  const ref5 = useRef<HTMLDivElement>(null);
-  const aboutmeVisible = useIsVisible(ref1);
-  const skillsVisible = useIsVisible(ref2);
-  // const projectsVisible = useIsVisible(ref3);
-  const experienceVisible = useIsVisible(ref4);
-  const educationVisible = useIsVisible(ref5);
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
 
-  const reflist: refs[] = [
-    { ref: ref1, isVisible: aboutmeVisible, component: AboutMe },
-    { ref: ref2, isVisible: skillsVisible, component: Skills },
-    { ref: ref3, isVisible: true, component: Projects },
-    { ref: ref4, isVisible: experienceVisible, component: Exprience },
-    { ref: ref5, isVisible: educationVisible, component: Education },
-  ];
+  // 클릭으로도 넘길 수 있게
+  const handleNext = () => setIdx((prev) => (prev < maxIdx ? prev + 1 : prev));
+  const handlePrev = () => setIdx((prev) => (prev > 0 ? prev - 1 : prev));
 
   return (
-    <>
-      <Toup />
-      <div
-        className={
-          "prose dark:prose-invert my-10 flex flex-col items-center gap-10 md:px-20"
-        }
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      {/* 좌측 상단 홈 버튼 */}
+      <Link
+        href="/"
+        className="absolute top-4 left-4 z-50 rounded-xl bg-white/80 px-4 py-2 text-base font-bold text-blue-600 shadow transition-colors hover:bg-blue-500 hover:text-white"
       >
-        <div className="w-full">
-          <h2>👨‍💻안녕하세요, 도전을 두려워 않는 개발자 이동훈입니다</h2>
-          <div className="flex flex-wrap gap-10">
-            <img
-              src="https://cdn.promleeblog.com/profile.jpeg"
-              alt="profile_image"
-              className="border-foreground m-0 mt-[2em] mb-10 h-[13rem] w-[10rem] rounded-lg border"
-            />
-            <Contact />
-          </div>
+        홈으로
+      </Link>
+      <div className="relative flex w-full max-w-7xl items-center justify-center select-none">
+        <div
+          className="flex h-full w-full items-center justify-center"
+          // onClick={handleNext}
+          // style={{ cursor: idx < maxIdx ? "pointer" : "default" }}
+        >
+          {slides[idx].component}
         </div>
-        {reflist.map((ref, index) => {
-          return (
-            <div
-              key={index}
-              ref={ref.ref}
-              className={`w-full duration-1000 ease-in ${
-                ref.isVisible ? "scale-100 opacity-100" : "scale-105 opacity-25"
-              }`}
-            >
-              <ref.component />
-            </div>
-          );
-        })}
       </div>
-      <RightSidebarComp content={contents} />
-      <Todown />
-    </>
+      {/* Prev/Next 버튼을 인디케이터 좌우로 배치 */}
+      <div className="mt-6 flex flex-row items-center justify-center gap-4">
+        <button
+          onClick={handlePrev}
+          disabled={idx === 0}
+          className="text-4xl text-gray-400 hover:text-blue-500 disabled:opacity-30"
+          aria-label="이전 슬라이드"
+        >
+          &#8592;
+        </button>
+        <div className="flex gap-2">
+          {slides.map((_, i) => (
+            <div
+              key={i}
+              className={`h-3 w-3 rounded-full ${i === idx ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-700"}`}
+            />
+          ))}
+        </div>
+        <button
+          onClick={handleNext}
+          disabled={idx === maxIdx}
+          className="text-4xl text-gray-400 hover:text-blue-500 disabled:opacity-30"
+          aria-label="다음 슬라이드"
+        >
+          &#8594;
+        </button>
+      </div>
+      <div className="mt-2 text-sm text-gray-400">
+        ← → 방향키 또는 클릭으로 넘길 수 있습니다
+      </div>
+    </div>
   );
 }

@@ -48,8 +48,13 @@ export const PostService = () => {
    * @api-doc: https://github.com/PROMLEE/Promleeblog.com/blob/test/src/app/api/post/links/route.ts
    */
   const getLinks = async () => {
-    const response = (await CustomFetch(`${url}/links`, { method: "GET" }))
-      .body as PostResponse.GetLinks;
+    const response = (
+      await CustomFetch(`${url}/links`, {
+        method: "GET",
+        cache: "no-cache",
+        next: { revalidate: 0 },
+      })
+    ).body as PostResponse.GetLinks; // 0 seconds
     return response.data;
   };
 
