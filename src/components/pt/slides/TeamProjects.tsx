@@ -28,6 +28,26 @@ const highlight = (text: string) => {
 
 const projects = [
   {
+    name: "Map: 2 Zero (제로 웨이스트 매장 정보 제공 서비스)",
+    period: "2024.01.05 ~ 2024.02.25",
+    iconUrl: "",
+    tech: ["React"],
+    github: {
+      url: "https://github.com/PROMLEE/map2zero-frontend",
+      label: "소스코드 보기",
+    },
+    link: {
+      url: "https://www.promleeblog.com/aboutme/map2zero",
+      label: "상세보기",
+    },
+    desc: [
+      "제로 웨이스트 샵 정보 플랫폼, 프론트엔드 팀장 (FE 4, BE 4, PM 1, Design 1)",
+      "git-workflow/코드리뷰/팀 소통 주도, React 컴포넌트 모듈화, TypeScript로 타입 안정성 확보",
+      "50개+ 매장 데이터 시각화, 위치 기반 추천, 서울시 스마트서울맵 API 연동",
+      "비동기 예외처리로 위치 탐색 오류 제거, UMC 데모데이 출품, 100명+ 사용자 유치",
+    ],
+  },
+  {
     name: "PROTOTYNE (시제품 체험 플랫폼)",
     period: "2024.09.01 ~ 2024.12.15",
     iconUrl: "",
@@ -39,7 +59,7 @@ const projects = [
     desc: [
       "유저와 기업 모두 윈-윈하는 시제품 체험 플랫폼 개발 (BE 4, FE 4, PM 1)",
       "백엔드 팀장, 전체 아키텍처 설계/코드리뷰/CI/CD/이슈 관리 총괄",
-      "QueryDSL로 쿼리 30% 단축, Redis 캐싱으로 응답 200ms→50ms, Docker로 컨테이너 크기 70% 축소",
+      // "QueryDSL로 쿼리 30% 단축, Redis 캐싱으로 응답 200ms→50ms, Docker로 컨테이너 크기 70% 축소",
       "EC2/S3/Route53로 실서비스 배포, Github Actions+Docker로 자동화된 CI/CD 구축",
       "카카오 소셜 로그인, 20개+ 핵심 API, JWT 권한 분리, RESTful 설계, Notion 문서화",
       "UMC 데모데이 출품, 60명 사용자 유치",
@@ -60,26 +80,6 @@ const projects = [
       "설계-문서화-검증 전 과정 주도, 유스케이스/도메인모델/API스펙 직접 작성",
       "Web UI+GUI 클라이언트 이중화, RESTful 설계로 멀티 인터페이스 구조 검증",
       "구조적 사고와 설계 역량 강화 경험",
-    ],
-  },
-  {
-    name: "Map: 2 Zero (제로 웨이스트 매장 정보 제공 서비스)",
-    period: "2024.01.05 ~ 2024.02.25",
-    iconUrl: "",
-    tech: ["React"],
-    github: {
-      url: "https://github.com/PROMLEE/map2zero-frontend",
-      label: "소스코드 보기",
-    },
-    link: {
-      url: "https://www.promleeblog.com/aboutme/map2zero",
-      label: "상세보기",
-    },
-    desc: [
-      "제로 웨이스트 샵 정보 플랫폼, 프론트엔드 팀장 (FE 4, BE 4, PM 1, Design 1)",
-      "git-workflow/코드리뷰/팀 소통 주도, React 컴포넌트 모듈화, TypeScript로 타입 안정성 확보",
-      "50개+ 매장 데이터 시각화, 위치 기반 추천, 서울시 스마트서울맵 API 연동",
-      "비동기 예외처리로 위치 탐색 오류 제거, UMC 데모데이 출품, 100명+ 사용자 유치",
     ],
   },
 ];
