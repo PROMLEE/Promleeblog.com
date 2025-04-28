@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 
-export const Page2 = () => (
+const Page2 = () => (
   <div className="mx-auto w-full max-w-3xl">
     <h1 className="mb-8 text-center text-4xl font-extrabold text-blue-700 dark:text-blue-400">
       팀 & 주요 성과
@@ -55,3 +55,6 @@ export const Page2 = () => (
     </div>
   </div>
 );
+
+export default Page2;
+

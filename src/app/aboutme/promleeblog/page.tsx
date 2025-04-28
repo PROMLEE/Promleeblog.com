@@ -1,115 +1,63 @@
 "use client";
-import { useState, useCallback, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Page1 } from "@/components/aboutme/promleeblog/Page1";
-import { Page2 } from "@/components/aboutme/promleeblog/Page2";
-import { Page3 } from "@/components/aboutme/promleeblog/Page3";
-import { Page4 } from "@/components/aboutme/promleeblog/Page4";
-import { Page5 } from "@/components/aboutme/promleeblog/Page5";
-import { Page6 } from "@/components/aboutme/promleeblog/Page6";
-import { Page7 } from "@/components/aboutme/promleeblog/Page7";
-import Link from "next/link";
+import { lazy, Suspense } from "react";
+import SlideLayout from "@/components/common/SlideLayout";
 
-const slides = [
-  { component: <Page1 /> },
-  { component: <Page2 /> },
-  { component: <Page3 /> },
-  { component: <Page4 /> },
-  { component: <Page5 /> },
-  { component: <Page6 /> },
-  { component: <Page7 /> },
-];
+// 성능 최적화를 위한 동적 임포트
+const Page1 = lazy(() => import("@/components/aboutme/promleeblog/Page1"));
+const Page2 = lazy(() => import("@/components/aboutme/promleeblog/Page2"));
+const Page3 = lazy(() => import("@/components/aboutme/promleeblog/Page3"));
+const Page4 = lazy(() => import("@/components/aboutme/promleeblog/Page4"));
+const Page5 = lazy(() => import("@/components/aboutme/promleeblog/Page5"));
+const Page6 = lazy(() => import("@/components/aboutme/promleeblog/Page6"));
+const Page7 = lazy(() => import("@/components/aboutme/promleeblog/Page7"));
+
+// 로딩 상태 표시 컴포넌트
+const SlideLoader = () => (
+  <div className="flex h-[50vh] w-full items-center justify-center">
+    <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+  </div>
+);
 
 export default function PromleeblogPTPage() {
-  const [idx, setIdx] = useState(0);
-  const [prevIdx, setPrevIdx] = useState(0);
-  const maxIdx = slides.length - 1;
-
-  // 키보드 좌우 방향키로 슬라이드 이동
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight" || e.key === "PageDown") {
-        setPrevIdx(idx);
-        setIdx((prev) => (prev < maxIdx ? prev + 1 : prev));
-      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
-        setPrevIdx(idx);
-        setIdx((prev) => (prev > 0 ? prev - 1 : prev));
-      }
-    },
-    [idx, maxIdx],
+  // PromleeBlog 브랜드 요소
+  const brandElement = (
+    <span className="text-xl font-extrabold tracking-wide text-blue-600">
+      PromleeBlog
+    </span>
   );
 
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyDown]);
-
-  // 클릭으로도 넘길 수 있게
-  const handleNext = () => {
-    setPrevIdx(idx);
-    setIdx((prev) => (prev < maxIdx ? prev + 1 : prev));
-  };
-  const handlePrev = () => {
-    setPrevIdx(idx);
-    setIdx((prev) => (prev > 0 ? prev - 1 : prev));
-  };
+  const slides = [
+    <Suspense key="promleeblog-page1" fallback={<SlideLoader />}>
+      <Page1 />
+    </Suspense>,
+    <Suspense key="promleeblog-page2" fallback={<SlideLoader />}>
+      <Page2 />
+    </Suspense>,
+    <Suspense key="promleeblog-page3" fallback={<SlideLoader />}>
+      <Page3 />
+    </Suspense>,
+    <Suspense key="promleeblog-page4" fallback={<SlideLoader />}>
+      <Page4 />
+    </Suspense>,
+    <Suspense key="promleeblog-page5" fallback={<SlideLoader />}>
+      <Page5 />
+    </Suspense>,
+    <Suspense key="promleeblog-page6" fallback={<SlideLoader />}>
+      <Page6 />
+    </Suspense>,
+    <Suspense key="promleeblog-page7" fallback={<SlideLoader />}>
+      <Page7 />
+    </Suspense>,
+  ];
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center px-2 py-4">
-      {/* 좌측 상단 홈 버튼 */}
-      <Link
-        href="/aboutme"
-        className="fixed top-4 left-4 z-50 rounded-xl bg-white/80 px-4 py-2 text-base font-bold text-blue-600 shadow transition-colors hover:bg-blue-500 hover:text-white"
-      >
-        About Me 홈
-      </Link>
-      <div className="relative flex w-full max-w-4xl items-center justify-center select-none">
-        <div className="flex w-full items-center justify-center">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, x: idx > prevIdx ? 100 : -100 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: idx < prevIdx ? 100 : -100 }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="w-full"
-            >
-              {slides[idx].component}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </div>
-      {/* Prev/Next 버튼을 인디케이터 좌우로 배치 */}
-      <div className="mt-6 flex flex-row items-center justify-center gap-4">
-        <button
-          onClick={handlePrev}
-          disabled={idx === 0}
-          className="text-4xl text-gray-400 hover:text-blue-500 disabled:opacity-30"
-          aria-label="이전 슬라이드"
-        >
-          &#8592;
-        </button>
-        <div className="flex gap-2">
-          {slides.map((_, i) => (
-            <div
-              key={i}
-              className={`h-3 w-3 rounded-full ${i === idx ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-700"}`}
-            />
-          ))}
-        </div>
-        <button
-          onClick={handleNext}
-          disabled={idx === maxIdx}
-          className="text-4xl text-gray-400 hover:text-blue-500 disabled:opacity-30"
-          aria-label="다음 슬라이드"
-        >
-          &#8594;
-        </button>
-      </div>
-      <div className="mt-2 text-sm text-gray-400">
-        ← → 방향키 또는 클릭으로 넘길 수 있습니다
-      </div>
-    </div>
+    <SlideLayout
+      slides={slides}
+      homeLink={{
+        href: "/aboutme",
+        label: "About Me 홈",
+      }}
+      brandElement={brandElement}
+    />
   );
 }
-

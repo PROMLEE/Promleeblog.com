@@ -15,7 +15,7 @@ const structure = [
   },
 ];
 
-export const Page4 = () => (
+const Page4 = () => (
   <div className="mx-auto w-full max-w-2xl">
     <h1 className="mb-6 text-center text-4xl font-extrabold text-blue-700 dark:text-blue-400">
       구조
@@ -79,3 +79,5 @@ export const Page4 = () => (
     </div>
   </div>
 );
+
+export default Page4;

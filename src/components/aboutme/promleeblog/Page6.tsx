@@ -24,7 +24,7 @@ const devCases = [
   },
 ];
 
-export const Page6 = () => (
+const Page6 = () => (
   <div className="mx-auto w-full max-w-2xl">
     <h1 className="mb-8 text-center text-3xl font-bold text-blue-700 dark:text-blue-400">
       개발/운영 문제해결 사례 (2)
@@ -73,3 +73,6 @@ export const Page6 = () => (
     </div>
   </div>
 );
+
+export default Page6;
+

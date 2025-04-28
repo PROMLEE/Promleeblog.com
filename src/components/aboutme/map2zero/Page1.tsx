@@ -27,7 +27,7 @@ const tools: SkillType[] = [
   { name: "Figma", bg: "F24E1E", logo: "figma", logocolor: "white" },
 ];
 
-export const Page1 = () => (
+const Page1 = () => (
   <div className="mx-auto w-full max-w-3xl">
     <h1 className="mb-8 text-center text-4xl font-extrabold text-blue-700 dark:text-blue-400">
       프로젝트 개요
@@ -104,3 +104,6 @@ export const Page1 = () => (
     </div>
   </div>
 );
+
+export default Page1;
+

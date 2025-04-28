@@ -24,7 +24,7 @@ const perfCases = [
   },
 ];
 
-export const Page7 = () => (
+const Page7 = () => (
   <div className="mx-auto w-full max-w-2xl">
     <h1 className="mb-8 text-center text-3xl font-bold text-blue-700 dark:text-blue-400">
       최적화/성과 문제해결 사례
@@ -73,3 +73,6 @@ export const Page7 = () => (
     </div>
   </div>
 );
+
+export default Page7;
+

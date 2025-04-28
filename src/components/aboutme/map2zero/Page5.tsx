@@ -19,7 +19,7 @@ const images = [
   },
 ];
 
-export const Page5 = () => (
+const Page5 = () => (
   <div className="mx-auto w-full max-w-3xl">
     <h1 className="mb-8 text-center text-4xl font-extrabold text-blue-700 dark:text-blue-400">
       UI 예시 ①
@@ -44,3 +44,6 @@ export const Page5 = () => (
     </div>
   </div>
 );
+
+export default Page5;
+

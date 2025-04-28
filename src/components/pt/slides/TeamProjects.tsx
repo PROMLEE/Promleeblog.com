@@ -1,20 +1,23 @@
-// import { JSX } from "react";
-// import { FaLink, FaGithub } from "react-icons/fa";
-// import {
-//   SiReact,
-//   SiTypescript,
-//   SiAmazon,
-//   SiNaver,
-//   SiNextdotjs,
-// } from "react-icons/si";
+import { memo } from "react";
+import OptimizedImage from "@/components/common/OptimizedImage";
 
-// const techIcons: Record<string, JSX.Element> = {
-//   React: <SiReact size={22} color="#61DAFB" />,
-//   Typescript: <SiTypescript size={22} color="#3178C6" />,
-//   "Next.js": <SiNextdotjs size={22} color="#000" className="dark:text-white" />,
-//   "AWS(S3, CloudFront)": <SiAmazon size={22} color="#FF9900" />,
-//   "Naver Maps API": <SiNaver size={22} color="#03CF5D" />,
-// };
+import { JSX } from "react";
+import { FaLink, FaGithub } from "react-icons/fa";
+import {
+  SiReact,
+  SiTypescript,
+  SiAmazon,
+  SiNaver,
+  SiNextdotjs,
+} from "react-icons/si";
+
+const techIcons: Record<string, JSX.Element> = {
+  React: <SiReact size={22} color="#61DAFB" />,
+  Typescript: <SiTypescript size={22} color="#3178C6" />,
+  "Next.js": <SiNextdotjs size={22} color="#000" className="dark:text-white" />,
+  "AWS(S3, CloudFront)": <SiAmazon size={22} color="#FF9900" />,
+  "Naver Maps API": <SiNaver size={22} color="#03CF5D" />,
+};
 
 const projects = [
   {
@@ -65,7 +68,129 @@ const projects = [
   },
 ];
 
-export default function TeamProjects() {
+// React.memo로 래핑하여 불필요한 리렌더링 방지
+interface Project {
+  name: string;
+  period: string;
+  iconUrl?: string;
+  tech: string[];
+  link?: { url: string; label: string };
+  github?: { url: string; label: string };
+  detailPage?: { url: string; label: string };
+  featured?: boolean;
+  desc: string[];
+  teamSize: string;
+  role: string;
+}
+
+const ProjectCard = memo(
+  ({ project, idx }: { project: Project; idx: number }) => (
+    <div
+      key={idx}
+      className={`relative rounded-xl border bg-white p-6 shadow-md transition-all duration-300 hover:shadow-lg dark:bg-gray-800 dark:shadow-gray-900/50 ${
+        project.featured ? "border-green-500 dark:border-teal-500" : ""
+      }`}
+    >
+      {project.featured && (
+        <div className="absolute -top-3 -right-3 rounded-full bg-gradient-to-r from-green-600 to-teal-600 p-2 text-xs font-bold text-white shadow-lg">
+          Featured
+        </div>
+      )}
+      <div className="flex flex-col gap-6 md:flex-row md:items-start">
+        {project.iconUrl && (
+          <div className="flex items-center justify-center md:w-1/6">
+            <OptimizedImage
+              src={project.iconUrl}
+              alt={project.name}
+              width={96}
+              height={96}
+              className="h-24 w-24 rounded-xl object-cover shadow-sm"
+            />
+          </div>
+        )}
+        <div className="flex-1">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {project.name}
+            </h3>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {project.period}
+            </span>
+          </div>
+
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="rounded-md bg-green-100 px-2 py-1 text-xs font-medium text-green-800 dark:bg-green-900/50 dark:text-green-200">
+                팀 규모: {project.teamSize}
+              </span>
+              <span className="rounded-md bg-teal-100 px-2 py-1 text-xs font-medium text-teal-800 dark:bg-teal-900/50 dark:text-teal-200">
+                역할: {project.role}
+              </span>
+            </div>
+          </div>
+
+          <div className="mb-4 flex flex-wrap gap-2">
+            {project.tech.map((tech: string, i: number) => (
+              <span
+                key={i}
+                className="flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800 dark:bg-green-900/50 dark:text-green-200"
+              >
+                {techIcons[tech] && (
+                  <span className="mr-1">{techIcons[tech]}</span>
+                )}
+                {tech}
+              </span>
+            ))}
+          </div>
+
+          <ul className="mb-4 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+            {project.desc.map((text: string, i: number) => (
+              <li key={i} className="flex items-start">
+                <span className="mt-1 mr-2 text-green-500">•</span>
+                {text}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            {project.link && (
+              <a
+                href={project.link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 rounded-lg bg-green-100 px-3 py-1 text-sm font-medium text-green-800 transition-colors hover:bg-green-200 dark:bg-green-900/50 dark:text-green-200 dark:hover:bg-green-800/60"
+              >
+                <FaLink className="text-xs" /> {project.link.label}
+              </a>
+            )}
+            {project.github && (
+              <a
+                href={project.github.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 rounded-lg bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              >
+                <FaGithub className="text-xs" /> {project.github.label}
+              </a>
+            )}
+            {project.detailPage && (
+              <a
+                href={project.detailPage.url}
+                className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-r from-green-600 to-teal-600 px-3 py-1 text-sm font-medium text-white transition-transform hover:scale-105"
+              >
+                <span>🔍</span> {project.detailPage.label}
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  ),
+);
+
+ProjectCard.displayName = "ProjectCard";
+
+// React.memo로 컴포넌트 전체를 감싸 불필요한 리렌더링 방지
+export default memo(function TeamProjects() {
   return (
     <div className="mx-auto w-full max-w-5xl">
       <h1 className="mb-6 text-center text-4xl font-bold text-gray-800 dark:text-white">
@@ -75,102 +200,9 @@ export default function TeamProjects() {
       </h1>
       <div className="space-y-10">
         {projects.map((project, idx) => (
-          <div
-            key={idx}
-            className={`relative rounded-xl border bg-white p-6 shadow-md transition-all duration-300 hover:shadow-lg dark:bg-gray-800 dark:shadow-gray-900/50 ${
-              project.featured ? "border-green-500 dark:border-teal-500" : ""
-            }`}
-          >
-            {project.featured && (
-              <div className="absolute -top-3 -right-3 rounded-full bg-gradient-to-r from-green-600 to-teal-600 p-2 text-xs font-bold text-white shadow-lg">
-                Featured
-              </div>
-            )}
-            <div className="flex flex-col gap-6 md:flex-row md:items-start">
-              {project.iconUrl && (
-                <div className="flex items-center justify-center md:w-1/6">
-                  <img
-                    src={project.iconUrl}
-                    alt={project.name}
-                    className="h-24 w-24 rounded-xl object-cover shadow-sm"
-                  />
-                </div>
-              )}
-              <div className="flex-1">
-                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {project.name}
-                  </h3>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {project.period}
-                  </span>
-                </div>
-
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="rounded-md bg-green-100 px-2 py-1 text-xs font-medium text-green-800 dark:bg-green-900/50 dark:text-green-200">
-                      팀 규모: {project.teamSize}
-                    </span>
-                    <span className="rounded-md bg-teal-100 px-2 py-1 text-xs font-medium text-teal-800 dark:bg-teal-900/50 dark:text-teal-200">
-                      역할: {project.role}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mb-4 flex flex-wrap gap-2">
-                  {project.tech.map((tech, i) => (
-                    <span
-                      key={i}
-                      className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800 dark:bg-green-900/50 dark:text-green-200"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-
-                <ul className="mb-4 space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                  {project.desc.map((text, i) => (
-                    <li key={i} className="flex items-start">
-                      <span className="mt-1 mr-2 text-green-500">•</span>
-                      {text}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-4 flex flex-wrap items-center gap-3">
-                  {project.link && (
-                    <a
-                      href={project.link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-lg bg-green-100 px-3 py-1 text-sm font-medium text-green-800 transition-colors hover:bg-green-200 dark:bg-green-900/50 dark:text-green-200 dark:hover:bg-green-800/60"
-                    >
-                      <span>🔗</span> {project.link.label}
-                    </a>
-                  )}
-                  {project.github && (
-                    <a
-                      href={project.github.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-lg bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-                    >
-                      <span>💻</span> {project.github.label}
-                    </a>
-                  )}
-                  {project.detailPage && (
-                    <a
-                      href={project.detailPage.url}
-                      className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-r from-green-600 to-teal-600 px-3 py-1 text-sm font-medium text-white transition-transform hover:scale-105"
-                    >
-                      <span>🔍</span> {project.detailPage.label}
-                    </a>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+          <ProjectCard key={idx} project={project} idx={idx} />
         ))}
       </div>
     </div>
   );
-}
+});

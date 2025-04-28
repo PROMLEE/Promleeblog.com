@@ -24,7 +24,7 @@ const goals = [
   },
 ];
 
-export const Page2 = () => (
+const Page2 = () => (
   <div className="mx-auto w-full max-w-2xl">
     <h1 className="mb-6 text-center text-4xl font-extrabold text-blue-700 dark:text-blue-400">
       블로그 목표/설계
@@ -45,4 +45,6 @@ export const Page2 = () => (
     </div>
   </div>
 );
+
+export default Page2;
 

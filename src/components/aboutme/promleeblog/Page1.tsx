@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { FaRegLightbulb } from "react-icons/fa";
 
-export const Page1 = () => (
+const Page1 = () => (
   <div className="mx-auto w-full max-w-2xl">
     <div className="mb-6 flex justify-center">
       <Image
@@ -51,3 +51,4 @@ export const Page1 = () => (
   </div>
 );
 
+export default Page1;

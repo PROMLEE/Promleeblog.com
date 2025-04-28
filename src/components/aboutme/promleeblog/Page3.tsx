@@ -47,7 +47,7 @@ const stacks = [
   },
 ];
 
-export const Page3 = () => (
+const Page3 = () => (
   <div className="mx-auto w-full max-w-2xl">
     <h1 className="mb-6 text-center text-4xl font-extrabold text-blue-700 dark:text-blue-400">
       기술스택
@@ -68,3 +68,6 @@ export const Page3 = () => (
     </div>
   </div>
 );
+
+export default Page3;
+

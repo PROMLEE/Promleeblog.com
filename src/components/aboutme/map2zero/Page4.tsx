@@ -1,6 +1,6 @@
 import React from "react";
 
-export const Page4 = () => (
+const Page4 = () => (
   <div className="mx-auto w-full max-w-3xl">
     <h1 className="mb-8 text-center text-4xl font-extrabold text-blue-700 dark:text-blue-400">
       주요 역할 ②
@@ -37,3 +37,6 @@ export const Page4 = () => (
     </div>
   </div>
 );
+
+export default Page4;
+

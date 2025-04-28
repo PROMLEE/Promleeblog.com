@@ -1,125 +1,66 @@
 "use client";
+import { lazy, Suspense } from "react";
+import SlideLayout from "@/components/common/SlideLayout";
 
-import React, { useState, useCallback, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
-import {
-  Page1,
-  Page2,
-  Page3,
-  Page4,
-  Page5,
-  Page6,
-  Page7,
-} from "@/components/aboutme/map2zero";
+// 성능 최적화를 위한 동적 임포트
+const Page1 = lazy(() => import("@/components/aboutme/map2zero/Page1"));
+const Page2 = lazy(() => import("@/components/aboutme/map2zero/Page2"));
+const Page3 = lazy(() => import("@/components/aboutme/map2zero/Page3"));
+const Page4 = lazy(() => import("@/components/aboutme/map2zero/Page4"));
+const Page5 = lazy(() => import("@/components/aboutme/map2zero/Page5"));
+const Page6 = lazy(() => import("@/components/aboutme/map2zero/Page6"));
+const Page7 = lazy(() => import("@/components/aboutme/map2zero/Page7"));
 
-const slides = [
-  <Page1 key={"map2zero-page1"} />,
-  <Page2 key={"map2zero-page2"} />,
-  <Page3 key={"map2zero-page3"} />,
-  <Page4 key={"map2zero-page4"} />,
-  <Page5 key={"map2zero-page5"} />,
-  <Page6 key={"map2zero-page6"} />,
-  <Page7 key={"map2zero-page7"} />,
-];
+// 로딩 상태 표시 컴포넌트
+const SlideLoader = () => (
+  <div className="flex h-[50vh] w-full items-center justify-center">
+    <div className="h-10 w-10 animate-spin rounded-full border-4 border-green-500 border-t-transparent"></div>
+  </div>
+);
 
-const Page = () => {
-  const [idx, setIdx] = useState(0);
-  const [prevIdx, setPrevIdx] = useState(0);
-  const maxIdx = slides.length - 1;
-
-  // 키보드 좌우 방향키로 슬라이드 이동
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight" || e.key === "PageDown") {
-        setPrevIdx(idx);
-        setIdx((prev) => (prev < maxIdx ? prev + 1 : prev));
-      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
-        setPrevIdx(idx);
-        setIdx((prev) => (prev > 0 ? prev - 1 : prev));
-      }
-    },
-    [idx, maxIdx],
+const MapZeroPage = () => {
+  // Map2Zero 브랜드 요소
+  const brandElement = (
+    <span className="text-xl font-extrabold tracking-wide text-green-600">
+      map2zero
+    </span>
   );
 
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyDown]);
-
-  // 클릭으로도 넘길 수 있게
-  const handleNext = () => {
-    setPrevIdx(idx);
-    setIdx((prev) => (prev < maxIdx ? prev + 1 : prev));
-  };
-  const handlePrev = () => {
-    setPrevIdx(idx);
-    setIdx((prev) => (prev > 0 ? prev - 1 : prev));
-  };
+  const slides = [
+    <Suspense key="map2zero-page1" fallback={<SlideLoader />}>
+      <Page1 />
+    </Suspense>,
+    <Suspense key="map2zero-page2" fallback={<SlideLoader />}>
+      <Page2 />
+    </Suspense>,
+    <Suspense key="map2zero-page3" fallback={<SlideLoader />}>
+      <Page3 />
+    </Suspense>,
+    <Suspense key="map2zero-page4" fallback={<SlideLoader />}>
+      <Page4 />
+    </Suspense>,
+    <Suspense key="map2zero-page5" fallback={<SlideLoader />}>
+      <Page5 />
+    </Suspense>,
+    <Suspense key="map2zero-page6" fallback={<SlideLoader />}>
+      <Page6 />
+    </Suspense>,
+    <Suspense key="map2zero-page7" fallback={<SlideLoader />}>
+      <Page7 />
+    </Suspense>,
+  ];
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center px-2 py-4">
-      {/* 좌측 상단 홈 버튼 */}
-      <Link
-        href="/aboutme"
-        className="fixed top-4 left-4 z-50 rounded-xl bg-white/80 px-4 py-2 text-base font-bold text-blue-600 shadow transition-colors hover:bg-blue-500 hover:text-white"
-      >
-        About Me 홈
-      </Link>
-      {/* 우측 상단 map2zero 로고 */}
-      <div className="fixed top-4 right-4 z-50 flex items-center rounded-xl bg-white/80 px-4 py-2 shadow dark:bg-gray-900/80">
-        <span className="text-xl font-extrabold tracking-wide text-purple-600">
-          map2zero
-        </span>
-      </div>
-      <div className="relative mx-auto flex w-full max-w-3xl items-center justify-center select-none">
-        <div className="w-full">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, x: idx > prevIdx ? 100 : -100 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: idx < prevIdx ? 100 : -100 }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="w-full"
-            >
-              {slides[idx]}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </div>
-      {/* Prev/Next 버튼을 인디케이터 좌우로 배치 */}
-      <div className="mt-6 flex flex-row items-center justify-center gap-4">
-        <button
-          onClick={handlePrev}
-          disabled={idx === 0}
-          className="text-4xl text-gray-400 hover:text-blue-500 disabled:opacity-30"
-          aria-label="이전 슬라이드"
-        >
-          &#8592;
-        </button>
-        <div className="flex gap-2">
-          {slides.map((_, i) => (
-            <div
-              key={i}
-              className={`h-3 w-3 rounded-full ${i === idx ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-700"}`}
-            />
-          ))}
-        </div>
-        <button
-          onClick={handleNext}
-          disabled={idx === maxIdx}
-          className="text-4xl text-gray-400 hover:text-blue-500 disabled:opacity-30"
-          aria-label="다음 슬라이드"
-        >
-          &#8594;
-        </button>
-      </div>
-      <div className="mt-2 text-sm text-gray-400">
-        ← → 방향키 또는 클릭으로 넘길 수 있습니다
-      </div>
-    </div>
+    <SlideLayout
+      slides={slides}
+      homeLink={{
+        href: "/aboutme",
+        label: "About Me 홈",
+      }}
+      brandElement={brandElement}
+    />
   );
 };
 
-export default Page;
+export default MapZeroPage;
+
