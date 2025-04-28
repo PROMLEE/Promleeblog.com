@@ -6,7 +6,7 @@ export const Page1 = () => (
   <div className="mx-auto w-full max-w-2xl">
     <div className="mb-6 flex justify-center">
       <Image
-        src="https://cdn.promleeblog.com/etc/blog/cover.png"
+        src="/icons/android-chrome-512x512.png"
         alt="블로그 대표 이미지"
         width={100}
         height={100}

@@ -10,16 +10,15 @@ import KeyAchievementsSlide from "@/components/pt/slides/KeyAchievements";
 import PersonalProjectsSlide from "@/components/pt/slides/PersonalProjects";
 import TeamProjectsSlide from "@/components/pt/slides/TeamProjects";
 import Link from "next/link";
-// KeyAchievementsSlide import 예정
 
 const slides = [
   { component: <IntroSlide /> },
   { component: <KeyAchievementsSlide /> },
+  { component: <ExperiencePT /> },
   { component: <SkillsPT /> },
   { component: <PersonalProjectsSlide /> },
   { component: <TeamProjectsSlide /> },
   { component: <ProjectsPT /> },
-  { component: <ExperiencePT /> },
   { component: <EducationPT /> },
 ];
 

@@ -8,6 +8,7 @@ import { Page4 } from "@/components/aboutme/promleeblog/Page4";
 import { Page5 } from "@/components/aboutme/promleeblog/Page5";
 import { Page6 } from "@/components/aboutme/promleeblog/Page6";
 import { Page7 } from "@/components/aboutme/promleeblog/Page7";
+import Link from "next/link";
 
 const slides = [
   { component: <Page1 /> },
@@ -55,6 +56,13 @@ export default function PromleeblogPTPage() {
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center px-2 py-4">
+      {/* 좌측 상단 홈 버튼 */}
+      <Link
+        href="/aboutme"
+        className="fixed top-4 left-4 z-50 rounded-xl bg-white/80 px-4 py-2 text-base font-bold text-blue-600 shadow transition-colors hover:bg-blue-500 hover:text-white"
+      >
+        About Me 홈
+      </Link>
       <div className="relative flex w-full max-w-4xl items-center justify-center select-none">
         <div className="flex w-full items-center justify-center">
           <AnimatePresence mode="wait">
@@ -104,3 +112,4 @@ export default function PromleeblogPTPage() {
     </div>
   );
 }
+

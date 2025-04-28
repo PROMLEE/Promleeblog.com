@@ -35,40 +35,33 @@ export const Page4 = () => (
       </ul>
       <div className="mt-4 flex flex-wrap gap-4">
         <Image
-          src="https://cdn.promleeblog.com/etc/blog/stack.png"
+          src="https://cdn.promleeblog.com/etc/promleeblog/diagram.webp"
           alt="기술스택 다이어그램"
-          width={220}
-          height={120}
-          className="rounded-xl border"
-        />
-        <Image
-          src="https://cdn.promleeblog.com/etc/blog/structure.png"
-          alt="프로젝트 구조"
-          width={220}
+          width={1000}
           height={120}
           className="rounded-xl border"
         />
       </div>
-    </div>
-    <div className="mt-4 text-xs text-gray-500">
-      참고:{" "}
-      <a
-        href="https://www.promleeblog.com/blog/post/111-stack-library-blog"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="underline"
-      >
-        블로그에 사용된 스택과 라이브러리
-      </a>
-      ,{" "}
-      <a
-        href="https://www.promleeblog.com/blog/post/112-next-project-init"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="underline"
-      >
-        Next.js 프로젝트 구조
-      </a>
+      <div className="mt-4 text-xs text-gray-500">
+        참고:{" "}
+        <a
+          href="https://www.promleeblog.com/blog/post/111-stack-library-blog"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          블로그에 사용된 스택과 라이브러리
+        </a>
+        ,{" "}
+        <a
+          href="https://www.promleeblog.com/blog/post/112-next-project-init"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          Next.js 프로젝트 구조
+        </a>
+      </div>
     </div>
     <div className="mt-8 flex flex-col gap-6">
       {structure.map((s, i) => (
