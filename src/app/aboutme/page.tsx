@@ -1,100 +1,65 @@
 "use client";
-import { useState, useCallback, useEffect } from "react";
-import SkillsPT from "@/components/pt/Skills";
-import ProjectsPT from "@/components/pt/Projects";
-import ExperiencePT from "@/components/pt/Experience";
-import EducationPT from "@/components/pt/Education";
-import IntroSlide from "@/components/pt/slides/Intro";
-import KeyAchievementsSlide from "@/components/pt/slides/KeyAchievements";
-import PersonalProjectsSlide from "@/components/pt/slides/PersonalProjects";
-import TeamProjectsSlide from "@/components/pt/slides/TeamProjects";
-import Link from "next/link";
-// KeyAchievementsSlide import 예정
+import { lazy, Suspense } from "react";
+import SlideLayout from "@/components/common/SlideLayout";
 
-const slides = [
-  { component: <IntroSlide /> },
-  { component: <KeyAchievementsSlide /> },
-  { component: <SkillsPT /> },
-  { component: <PersonalProjectsSlide /> },
-  { component: <TeamProjectsSlide /> },
-  { component: <ProjectsPT /> },
-  { component: <ExperiencePT /> },
-  { component: <EducationPT /> },
-];
+// 성능 최적화를 위한 동적 임포트
+const IntroSlide = lazy(() => import("@/components/pt/slides/Intro"));
+const KeyAchievementsSlide = lazy(
+  () => import("@/components/pt/slides/KeyAchievements"),
+);
+const TeamProjectsSlide = lazy(
+  () => import("@/components/pt/slides/TeamProjects"),
+);
+const PersonalProjectsSlide = lazy(
+  () => import("@/components/pt/slides/PersonalProjects"),
+);
+const ExperiencePT = lazy(() => import("@/components/pt/Experience"));
+const SkillsPT = lazy(() => import("@/components/pt/Skills"));
+const ProjectsPT = lazy(() => import("@/components/pt/Projects"));
+const EducationPT = lazy(() => import("@/components/pt/Education"));
+
+// 로딩 상태 표시 컴포넌트
+const SlideLoader = () => (
+  <div className="flex h-[50vh] w-full items-center justify-center">
+    <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+  </div>
+);
 
 export default function PTPage() {
-  const [idx, setIdx] = useState(0);
-  const maxIdx = slides.length - 1;
-
-  // 키보드 좌우 방향키로 슬라이드 이동
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight" || e.key === "PageDown") {
-        setIdx((prev) => (prev < maxIdx ? prev + 1 : prev));
-      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
-        setIdx((prev) => (prev > 0 ? prev - 1 : prev));
-      }
-    },
-    [maxIdx],
-  );
-
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyDown]);
-
-  // 클릭으로도 넘길 수 있게
-  const handleNext = () => setIdx((prev) => (prev < maxIdx ? prev + 1 : prev));
-  const handlePrev = () => setIdx((prev) => (prev > 0 ? prev - 1 : prev));
+  const slides = [
+    <Suspense key="intro" fallback={<SlideLoader />}>
+      <IntroSlide />
+    </Suspense>,
+    <Suspense key="achievements" fallback={<SlideLoader />}>
+      <KeyAchievementsSlide />
+    </Suspense>,
+    <Suspense key="experience" fallback={<SlideLoader />}>
+      <ExperiencePT />
+    </Suspense>,
+    <Suspense key="skills" fallback={<SlideLoader />}>
+      <SkillsPT />
+    </Suspense>,
+    <Suspense key="personal-projects" fallback={<SlideLoader />}>
+      <PersonalProjectsSlide />
+    </Suspense>,
+    <Suspense key="team-projects" fallback={<SlideLoader />}>
+      <TeamProjectsSlide />
+    </Suspense>,
+    <Suspense key="projects" fallback={<SlideLoader />}>
+      <ProjectsPT />
+    </Suspense>,
+    <Suspense key="education" fallback={<SlideLoader />}>
+      <EducationPT />
+    </Suspense>,
+  ];
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      {/* 좌측 상단 홈 버튼 */}
-      <Link
-        href="/"
-        className="absolute top-4 left-4 z-50 rounded-xl bg-white/80 px-4 py-2 text-base font-bold text-blue-600 shadow transition-colors hover:bg-blue-500 hover:text-white"
-      >
-        홈으로
-      </Link>
-      <div className="relative flex w-full max-w-7xl items-center justify-center select-none">
-        <div
-          className="flex h-full w-full items-center justify-center"
-          // onClick={handleNext}
-          // style={{ cursor: idx < maxIdx ? "pointer" : "default" }}
-        >
-          {slides[idx].component}
-        </div>
-      </div>
-      {/* Prev/Next 버튼을 인디케이터 좌우로 배치 */}
-      <div className="mt-6 flex flex-row items-center justify-center gap-4">
-        <button
-          onClick={handlePrev}
-          disabled={idx === 0}
-          className="text-4xl text-gray-400 hover:text-blue-500 disabled:opacity-30"
-          aria-label="이전 슬라이드"
-        >
-          &#8592;
-        </button>
-        <div className="flex gap-2">
-          {slides.map((_, i) => (
-            <div
-              key={i}
-              className={`h-3 w-3 rounded-full ${i === idx ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-700"}`}
-            />
-          ))}
-        </div>
-        <button
-          onClick={handleNext}
-          disabled={idx === maxIdx}
-          className="text-4xl text-gray-400 hover:text-blue-500 disabled:opacity-30"
-          aria-label="다음 슬라이드"
-        >
-          &#8594;
-        </button>
-      </div>
-      <div className="mt-2 text-sm text-gray-400">
-        ← → 방향키 또는 클릭으로 넘길 수 있습니다
-      </div>
-    </div>
+    <SlideLayout
+      slides={slides}
+      homeLink={{
+        href: "/",
+        label: "홈으로",
+      }}
+    />
   );
 }

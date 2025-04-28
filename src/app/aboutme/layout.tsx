@@ -50,5 +50,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return <section>{children}</section>;
+  return (
+    <div className="fixed inset-0 z-[9999] min-h-screen w-full overflow-auto bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      {children}
+    </div>
+  );
 }

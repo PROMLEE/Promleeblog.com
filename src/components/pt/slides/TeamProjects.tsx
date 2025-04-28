@@ -1,170 +1,208 @@
+import { memo } from "react";
+import OptimizedImage from "@/components/common/OptimizedImage";
+
 import { JSX } from "react";
 import { FaLink, FaGithub } from "react-icons/fa";
-import { SiSpringboot, SiMysql, SiReact, SiAmazon } from "react-icons/si";
+import {
+  SiReact,
+  SiTypescript,
+  SiAmazon,
+  SiNaver,
+  SiNextdotjs,
+} from "react-icons/si";
 
 const techIcons: Record<string, JSX.Element> = {
-  "Spring Boot": <SiSpringboot size={22} color="#6DB33F" />,
-  MySQL: <SiMysql size={22} color="#00758F" />,
   React: <SiReact size={22} color="#61DAFB" />,
-  "AWS(EC2)": <SiAmazon size={22} color="#FF9900" />,
-};
-
-const highlight = (text: string) => {
-  const regex =
-    /(\d+\.?\d*%|\d+ms|\d+초|\d+명|\d+점|개선|최적화|런칭|유치|출품|성공|도입|도전|신규|성과|효율|안정성|성능|실사용자|데모데이|출시|최초|기록|달성|팀장)/g;
-  let count = 0;
-  return text.split(regex).map((part, i) => {
-    if (i % 2 === 1 && count < 2) {
-      count++;
-      return (
-        <span key={i} className="font-bold text-white">
-          {part}
-        </span>
-      );
-    }
-    return part;
-  });
+  Typescript: <SiTypescript size={22} color="#3178C6" />,
+  "Next.js": <SiNextdotjs size={22} color="#000" className="dark:text-white" />,
+  "AWS(S3, CloudFront)": <SiAmazon size={22} color="#FF9900" />,
+  "Naver Maps API": <SiNaver size={22} color="#03CF5D" />,
 };
 
 const projects = [
   {
-    name: "Map: 2 Zero (제로 웨이스트 매장 정보 제공 서비스)",
+    name: "Map2Zero (제로웨이스트 매장 지도)",
     period: "2024.01.05 ~ 2024.02.25",
-    iconUrl: "",
-    tech: ["React"],
+    iconUrl:
+      "https://github.com/PROMLEE/map2zero-frontend/raw/main/image/logo.png",
+    tech: ["React", "Typescript", "Naver Maps API", "AWS(S3, CloudFront)"],
+    link: { url: "https://map2zero.vercel.app", label: "서비스 바로가기" },
     github: {
       url: "https://github.com/PROMLEE/map2zero-frontend",
       label: "소스코드 보기",
     },
-    link: {
-      url: "https://www.promleeblog.com/aboutme/map2zero",
-      label: "상세보기",
+    detailPage: {
+      url: "/aboutme/map2zero",
+      label: "프로젝트 상세보기",
     },
+    featured: true,
     desc: [
-      "제로 웨이스트 샵 정보 플랫폼, 프론트엔드 팀장 (FE 4, BE 4, PM 1, Design 1)",
-      "git-workflow/코드리뷰/팀 소통 주도, React 컴포넌트 모듈화, TypeScript로 타입 안정성 확보",
-      "50개+ 매장 데이터 시각화, 위치 기반 추천, 서울시 스마트서울맵 API 연동",
-      "비동기 예외처리로 위치 탐색 오류 제거, UMC 데모데이 출품, 100명+ 사용자 유치",
+      "UMC 5기 데모데이 출품작으로 제작된 제로 웨이스트 매장 검색/추천 및 소셜 리뷰 서비스",
+      "프로젝트 팀장으로 개발 주도 및 소셜 로그인, 지도 API 담당",
+      "네이버 지도 연동하여 매장의 위치 정보를 시각화하고 사용자의 현재 위치 기반 검색 기능 구현",
+      "소셜 로그인 기능과 리뷰 시스템을 통해 커뮤니티 활성화 지원",
+      "실 사용자 100명 이상 유치 및 Neordinary Demoday 출품",
+      "지속가능한 소비를 위한 ESG 서비스로 환경 보호에 기여",
     ],
+    teamSize: "5명 (프론트엔드 3명, 백엔드 2명)",
+    role: "프론트엔드 팀장",
   },
   {
-    name: "PROTOTYNE (시제품 체험 플랫폼)",
-    period: "2024.09.01 ~ 2024.12.15",
-    iconUrl: "",
-    tech: ["Spring Boot", "MySQL", "React", "AWS(EC2)"],
+    name: "PROTOTYNE (프로토타입 체험 플랫폼)",
+    period: "2024.03.01 ~ 2024.04.15",
+    iconUrl: "https://cdn.promleeblog.com/etc/logo/prototyne-logo.png",
+    tech: ["Next.js", "Typescript", "AWS(S3, CloudFront)"],
     github: {
-      url: "https://github.com/PROMLEE/PROTOTYNE_BE",
+      url: "https://github.com/PROMLEE/prototyne-frontend",
       label: "소스코드 보기",
     },
     desc: [
-      "유저와 기업 모두 윈-윈하는 시제품 체험 플랫폼 개발 (BE 4, FE 4, PM 1)",
-      "백엔드 팀장, 전체 아키텍처 설계/코드리뷰/CI/CD/이슈 관리 총괄",
-      // "QueryDSL로 쿼리 30% 단축, Redis 캐싱으로 응답 200ms→50ms, Docker로 컨테이너 크기 70% 축소",
-      "EC2/S3/Route53로 실서비스 배포, Github Actions+Docker로 자동화된 CI/CD 구축",
-      "카카오 소셜 로그인, 20개+ 핵심 API, JWT 권한 분리, RESTful 설계, Notion 문서화",
-      "UMC 데모데이 출품, 60명 사용자 유치",
+      "UMC 6기 프로젝트로 개발된 초기 스타트업과 사용자를 연결하는 프로토타입 체험 플랫폼",
+      "스타트업은 개발한 서비스의 프로토타입을 등록하고, 사용자는 체험 후 피드백을 제공하는 서비스",
+      "Next.js를 활용한 풀스택 개발 및 AWS 인프라 구축 담당",
+      "서버 파트 팀장으로 백엔드 아키텍처 설계 및 API 개발 주도",
+      "사용자 경험 개선 및 효율적인 데이터 처리를 위한 최적화 작업 수행",
     ],
-  },
-  {
-    name: "이슈역 (이슈 관리 서비스)",
-    period: "2024.05.01 ~ 2024.06.10",
-    iconUrl: "",
-    tech: ["Spring Boot", "MySQL", "React", "AWS(EC2)"],
-    github: {
-      url: "https://github.com/PROMLEE/Issue-Station",
-      label: "소스코드 보기",
-    },
-    desc: [
-      "소프트웨어 공학적 설계 기반 이슈 관리 서비스 (FE+BE 1, FE 1, BE 2, Docs 1)",
-      "역할별 권한 분리, 이슈 등록/댓글/상태변경/조회 등 협업 핵심 기능 제공",
-      "설계-문서화-검증 전 과정 주도, 유스케이스/도메인모델/API스펙 직접 작성",
-      "Web UI+GUI 클라이언트 이중화, RESTful 설계로 멀티 인터페이스 구조 검증",
-      "구조적 사고와 설계 역량 강화 경험",
-    ],
+    teamSize: "6명 (프론트엔드 3명, 백엔드 3명)",
+    role: "서버 파트 팀장",
   },
 ];
 
-export default function TeamProjectsSlide() {
-  return (
-    <section className="flex h-full w-full flex-col items-center justify-center gap-10 select-none">
-      <h2 className="animate-fadein mb-4 text-3xl font-extrabold text-gray-800 md:text-4xl dark:text-gray-100">
-        팀 프로젝트
-      </h2>
-      <div className="animate-fadein2 flex w-full max-w-7xl flex-col gap-10">
-        {projects.map((p, idx) => (
-          <div
-            key={p.name}
-            className="flex min-h-[320px] w-full flex-col gap-8 rounded-2xl bg-white/80 p-10 shadow-2xl transition-transform hover:scale-[1.02] md:flex-row dark:bg-gray-900/80"
-            style={{ animationDelay: `${0.2 * idx}s` }}
-          >
-            {/* 좌측: 프로젝트 정보 */}
-            <div className="flex max-w-[420px] min-w-[320px] flex-1 flex-col justify-between gap-4">
-              <div className="mb-2 flex items-center gap-3">
-                {p.iconUrl && (
-                  <img
-                    src={p.iconUrl}
-                    alt="project icon"
-                    className="mr-2 h-10 w-10 rounded-lg object-cover"
-                  />
-                )}
-                <span className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-                  {p.name}
-                </span>
-              </div>
-              <div className="mb-1 text-base text-gray-500 dark:text-gray-400">
-                {p.period}
-              </div>
-              <div className="mb-2 flex flex-wrap gap-3">
-                {p.tech.map((t) => (
-                  <span
-                    key={t}
-                    className="flex items-center gap-1 rounded-full bg-blue-100 px-4 py-2 text-base font-semibold text-blue-700 dark:bg-blue-900 dark:text-blue-200"
-                  >
-                    {techIcons[t] ?? null}
-                    {t}
-                  </span>
-                ))}
-              </div>
-              <div className="mt-2 flex flex-wrap gap-3">
-                {p.link && (
-                  <a
-                    href={p.link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-blue-500 hover:text-pink-500 dark:text-blue-400 dark:hover:text-pink-500"
-                  >
-                    <FaLink />
-                    <span className="text-sm whitespace-nowrap underline">
-                      {p.link.label}
-                    </span>
-                  </a>
-                )}
-                {p.github && (
-                  <a
-                    href={p.github.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-gray-700 hover:text-pink-500 dark:text-gray-400 dark:hover:text-pink-500"
-                  >
-                    <FaGithub />
-                    <span className="text-sm whitespace-nowrap underline">
-                      {p.github.label}
-                    </span>
-                  </a>
-                )}
-              </div>
-            </div>
-            {/* 우측: 설명 */}
-            <div className="flex flex-[2] flex-col justify-center">
-              <ul className="ml-6 list-disc space-y-2 text-lg break-keep whitespace-pre-line text-gray-700 dark:text-gray-200">
-                {p.desc.map((d, i) => (
-                  <li key={i}>{highlight(d)}</li>
-                ))}
-              </ul>
+// React.memo로 래핑하여 불필요한 리렌더링 방지
+interface Project {
+  name: string;
+  period: string;
+  iconUrl?: string;
+  tech: string[];
+  link?: { url: string; label: string };
+  github?: { url: string; label: string };
+  detailPage?: { url: string; label: string };
+  featured?: boolean;
+  desc: string[];
+  teamSize: string;
+  role: string;
+}
+
+const ProjectCard = memo(
+  ({ project, idx }: { project: Project; idx: number }) => (
+    <div
+      key={idx}
+      className={`relative rounded-xl border bg-white p-6 shadow-md transition-all duration-300 hover:shadow-lg dark:bg-gray-800 dark:shadow-gray-900/50 ${
+        project.featured ? "border-green-500 dark:border-teal-500" : ""
+      }`}
+    >
+      {project.featured && (
+        <div className="absolute -top-3 -right-3 rounded-full bg-gradient-to-r from-green-600 to-teal-600 p-2 text-xs font-bold text-white shadow-lg">
+          Featured
+        </div>
+      )}
+      <div className="flex flex-col gap-6 md:flex-row md:items-start">
+        {project.iconUrl && (
+          <div className="flex items-center justify-center md:w-1/6">
+            <OptimizedImage
+              src={project.iconUrl}
+              alt={project.name}
+              width={96}
+              height={96}
+              className="h-24 w-24 rounded-xl object-cover shadow-sm"
+            />
+          </div>
+        )}
+        <div className="flex-1">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {project.name}
+            </h3>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {project.period}
+            </span>
+          </div>
+
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="rounded-md bg-green-100 px-2 py-1 text-xs font-medium text-green-800 dark:bg-green-900/50 dark:text-green-200">
+                팀 규모: {project.teamSize}
+              </span>
+              <span className="rounded-md bg-teal-100 px-2 py-1 text-xs font-medium text-teal-800 dark:bg-teal-900/50 dark:text-teal-200">
+                역할: {project.role}
+              </span>
             </div>
           </div>
+
+          <div className="mb-4 flex flex-wrap gap-2">
+            {project.tech.map((tech: string, i: number) => (
+              <span
+                key={i}
+                className="flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800 dark:bg-green-900/50 dark:text-green-200"
+              >
+                {techIcons[tech] && (
+                  <span className="mr-1">{techIcons[tech]}</span>
+                )}
+                {tech}
+              </span>
+            ))}
+          </div>
+
+          <ul className="mb-4 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+            {project.desc.map((text: string, i: number) => (
+              <li key={i} className="flex items-start">
+                <span className="mt-1 mr-2 text-green-500">•</span>
+                {text}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            {project.link && (
+              <a
+                href={project.link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 rounded-lg bg-green-100 px-3 py-1 text-sm font-medium text-green-800 transition-colors hover:bg-green-200 dark:bg-green-900/50 dark:text-green-200 dark:hover:bg-green-800/60"
+              >
+                <FaLink className="text-xs" /> {project.link.label}
+              </a>
+            )}
+            {project.github && (
+              <a
+                href={project.github.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 rounded-lg bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              >
+                <FaGithub className="text-xs" /> {project.github.label}
+              </a>
+            )}
+            {project.detailPage && (
+              <a
+                href={project.detailPage.url}
+                className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-r from-green-600 to-teal-600 px-3 py-1 text-sm font-medium text-white transition-transform hover:scale-105"
+              >
+                <span>🔍</span> {project.detailPage.label}
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  ),
+);
+
+ProjectCard.displayName = "ProjectCard";
+
+// React.memo로 컴포넌트 전체를 감싸 불필요한 리렌더링 방지
+export default memo(function TeamProjects() {
+  return (
+    <div className="mx-auto w-full max-w-5xl">
+      <h1 className="mb-6 text-center text-4xl font-bold text-gray-800 dark:text-white">
+        <span className="bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
+          팀 프로젝트
+        </span>
+      </h1>
+      <div className="space-y-10">
+        {projects.map((project, idx) => (
+          <ProjectCard key={idx} project={project} idx={idx} />
         ))}
       </div>
-    </section>
+    </div>
   );
-}
+});

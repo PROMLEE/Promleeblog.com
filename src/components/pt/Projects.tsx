@@ -86,7 +86,7 @@ export default function ProjectsPT() {
       <h2 className="animate-fadein mb-10 text-3xl font-extrabold text-gray-800 md:text-4xl dark:text-gray-100">
         대표 프로젝트
       </h2>
-      <div className="grid w-full max-w-5xl grid-cols-1 gap-10 md:grid-cols-2">
+      <div className="max-w-8xl grid w-full grid-cols-1 gap-10 md:grid-cols-2">
         {projects.map((p, idx) => (
           <div
             key={p.name}

@@ -21,7 +21,7 @@ export default function EducationPT() {
       <h2 className="animate-fadein mb-10 bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-center text-3xl font-extrabold text-transparent md:text-4xl">
         학력
       </h2>
-      <div className="grid w-full max-w-3xl grid-cols-1 gap-8">
+      <div className="grid w-full max-w-6xl grid-cols-1 gap-8">
         {educations.map((edu, idx) => (
           <div
             key={edu.school}
