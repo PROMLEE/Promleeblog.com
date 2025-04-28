@@ -21,7 +21,7 @@ const devCases = [
       "SSR 환경에서 CSS-in-JS 문제, Tailwind 커스텀/컴포넌트 스타일링 어려움.",
     solution:
       "Tailwind config, shadcn, CSS 모듈 등 조합. SSR/CSR 모두에서 일관된 스타일 구현.",
-    result: "30+ 커스텀 컴포넌트, 3가지 테마 지원.",
+    result: "30+ 커스텀 컴포넌트, 2가지 테마 지원.",
     link: "https://www.promleeblog.com/blog/post/121-tailwind-custom-several-ways",
     linkText: "Tailwind 커스텀 방법 정리",
   },
@@ -78,4 +78,3 @@ const Page5 = () => (
 );
 
 export default Page5;
-

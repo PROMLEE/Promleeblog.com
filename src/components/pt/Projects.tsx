@@ -1,4 +1,5 @@
-import { FaLink, FaGooglePlay, FaApple } from "react-icons/fa";
+import { memo } from "react";
+import { FaLink, FaApple } from "react-icons/fa";
 
 const highlight = (text: string) => {
   // 수치/강조 키워드 정규식
@@ -9,7 +10,7 @@ const highlight = (text: string) => {
     if (i % 2 === 1 && count < 2) {
       count++;
       return (
-        <span key={i} className="font-bold text-white">
+        <span key={i} className="font-bold text-blue-600 dark:text-blue-400">
           {part}
         </span>
       );
@@ -22,7 +23,7 @@ const projects = [
   {
     name: "사슬 (블록체인 코어 개발)",
     period: "2024.10.01 ~ 2024.12.20",
-    iconUrl: "https://cdn.promleeblog.com/etc/logo/saseul.png",
+    iconUrl: "https://cdn.promleeblog.com/etc/logo-new/saseul.png",
     tech: ["Golang", "Docker", "Mysql", "AWS EC2", "PHP"],
     link: "https://saseul.com",
     desc: [
@@ -36,7 +37,7 @@ const projects = [
   {
     name: "프로톤 (토큰 스테이킹 서비스)",
     period: "2024.10.01 ~ 2024.11.15",
-    iconUrl: "https://cdn.promleeblog.com/etc/logo/proton.png",
+    iconUrl: "https://cdn.promleeblog.com/etc/logo-new/proton.png",
     tech: ["Rust", "wasm", "typescript"],
     link: "https://www.proton.cool/",
     desc: [
@@ -50,7 +51,7 @@ const projects = [
   {
     name: "찍고머니 (리워드 앱)",
     period: "2024.12.01 ~ 2025.2.28",
-    iconUrl: "https://cdn.promleeblog.com/etc/logo/jjiggomoney.png",
+    iconUrl: "https://cdn.promleeblog.com/etc/logo-new/jjiggomoney.png",
     tech: ["Flutter", "Next.js", "firebase"],
     link: "https://play.google.com/store/apps/details?id=com.jeff.lite",
     apple:
@@ -67,7 +68,7 @@ const projects = [
   {
     name: "밈슬롯 (토큰 런치패드)",
     period: "2024.8.26 ~ 2024.10.1",
-    iconUrl: "https://cdn.promleeblog.com/etc/logo/memeslot.png",
+    iconUrl: "https://cdn.promleeblog.com/etc/logo-new/memeslot.png",
     tech: ["Next.js", "tailwindcss"],
     link: "https://www.memeslot.me/",
     sublink: "https://www.kaiseki.fun/",
@@ -80,102 +81,106 @@ const projects = [
   },
 ];
 
+const ProjectCard = memo(({ project }: { project: (typeof projects)[0] }) => (
+  <div className="relative rounded-xl border bg-white p-6 shadow-md transition-all duration-300 hover:shadow-lg dark:bg-gray-800 dark:shadow-gray-900/50">
+    <div className="flex flex-col gap-6 md:flex-row md:items-start">
+      {project.iconUrl && (
+        <div className="flex items-center justify-center md:w-1/6">
+          <img
+            src={project.iconUrl}
+            alt={project.name}
+            width={96}
+            className="w-24 shadow-sm"
+          />
+        </div>
+      )}
+      <div className="flex-1">
+        <div className="mb-2 flex flex-wrap justify-between gap-2">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+            {project.name}
+          </h3>
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            {project.period}
+          </span>
+        </div>
+        <div className="mb-4 flex flex-wrap gap-2">
+          {project.tech.map((tech: string, i: number) => (
+            <span
+              key={i}
+              className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+            >
+              {tech}
+            </span>
+          ))}
+        </div>
+        <ul className="mb-4 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+          {project.desc.map((text: string, i: number) => (
+            <li key={i} className="flex items-start">
+              <span className="mt-1 mr-2 text-blue-500">•</span>
+              <span>{highlight(text)}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          {project.link && (
+            <a
+              href={project.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-lg bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 transition-colors hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800"
+            >
+              <FaLink className="text-xs" /> 서비스 바로가기
+            </a>
+          )}
+          {project.apple && (
+            <a
+              href={project.apple}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-lg bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+            >
+              <FaApple className="text-xs" /> 앱스토어에서 보기
+            </a>
+          )}
+          {project.sublink && (
+            <a
+              href={project.sublink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800"
+            >
+              <FaLink className="text-xs" /> 서브 서비스
+            </a>
+          )}
+          {project.portfolio && (
+            <a
+              href={project.portfolio}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800"
+            >
+              <FaLink className="text-xs" /> 포트폴리오
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+));
+
+ProjectCard.displayName = "ProjectCard";
+
 export default function ProjectsPT() {
   return (
-    <section className="flex w-full flex-col items-center py-10">
-      <h2 className="animate-fadein mb-10 text-3xl font-extrabold text-gray-800 md:text-4xl dark:text-gray-100">
-        대표 프로젝트
+    <div className="mx-auto w-full max-w-5xl">
+      <h2 className="mb-10 text-center text-3xl font-extrabold text-gray-800 md:text-4xl dark:text-gray-100">
+        실무 프로젝트
       </h2>
-      <div className="max-w-8xl grid w-full grid-cols-1 gap-10 md:grid-cols-2">
-        {projects.map((p, idx) => (
-          <div
-            key={p.name}
-            className="group animate-fadein2 flex flex-col gap-4 rounded-2xl bg-white/80 p-8 shadow-xl transition-transform hover:scale-105 dark:bg-gray-900/80"
-            style={{ animationDelay: `${0.2 * idx}s` }}
-          >
-            <div className="mb-2 flex flex-col gap-3">
-              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">
-                {p.name}
-              </h3>
-              {p.name === "찍고머니 (리워드 앱)" && p.link && (
-                <a
-                  href={p.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 whitespace-nowrap text-green-600 hover:text-pink-500"
-                >
-                  <FaGooglePlay />
-                  <span className="text-sm underline">
-                    플레이스토어에서 보기
-                  </span>
-                </a>
-              )}
-              {p.name !== "찍고머니 (리워드 앱)" && p.link && (
-                <a
-                  href={p.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 whitespace-nowrap text-blue-500 hover:text-pink-500"
-                >
-                  <FaLink />
-                  <span className="text-sm underline">서비스 바로가기</span>
-                </a>
-              )}
-              {p.apple && (
-                <a
-                  href={p.apple}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 whitespace-nowrap text-gray-700 hover:text-pink-500 dark:text-gray-300 dark:hover:text-pink-500"
-                >
-                  <FaApple />
-                  <span className="text-sm underline">앱스토어에서 보기</span>
-                </a>
-              )}
-              {p.sublink && (
-                <a
-                  href={p.sublink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 whitespace-nowrap text-blue-400 hover:text-pink-500"
-                >
-                  <FaLink />
-                  <span className="text-sm underline">서브 서비스</span>
-                </a>
-              )}
-              {p.portfolio && (
-                <a
-                  href={p.portfolio}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 whitespace-nowrap text-blue-400 hover:text-pink-500"
-                >
-                  <FaLink />
-                  <span className="text-sm underline">포트폴리오</span>
-                </a>
-              )}
-            </div>
-            <div className="mb-1 text-sm text-gray-500 dark:text-gray-400">
-              {p.period}
-            </div>
-            <div className="mb-2 flex flex-wrap gap-2">
-              {p.tech.map((t) => (
-                <span
-                  key={t}
-                  className="flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900 dark:text-blue-200"
-                >
-                  {t}
-                </span>
-              ))}
-            </div>
-            <ul className="ml-5 list-disc space-y-1 text-base text-gray-700 dark:text-gray-200">
-              {p.desc.map((d, i) => (
-                <li key={i}>{highlight(d)}</li>
-              ))}
-            </ul>
-          </div>
+      <div className="space-y-10">
+        {projects.map((project, idx) => (
+          <ProjectCard key={idx} project={project} />
         ))}
       </div>
-    </section>
+    </div>
   );
 }

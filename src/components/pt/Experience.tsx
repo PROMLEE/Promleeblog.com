@@ -35,7 +35,7 @@ const Experience = () => {
               {experience.department} {experience.position}
             </p>
           </div>
-          <div className="mt-2 rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 sm:mt-0 dark:bg-blue-900/30 dark:text-blue-200">
+          <div className="max-h-3 rounded-full px-3 py-1 text-sm font-medium text-blue-700 sm:mt-0 dark:text-blue-200">
             {experience.period}
           </div>
         </div>
