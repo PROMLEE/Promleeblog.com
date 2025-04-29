@@ -11,7 +11,7 @@ const structure = [
   {
     icon: <FaSitemap className="text-2xl text-blue-500" />,
     name: "DB/스토리지 분리",
-    desc: "Prisma+Supabase, S3로 데이터/이미지 분리 관리 (1,000+ 포스트/이미지)",
+    desc: "Prisma+Supabase, S3로 데이터/이미지 분리 관리 (200+ 포스트/이미지)",
   },
 ];
 

@@ -89,7 +89,7 @@ const ProjectCard = memo(({ project }: { project: Project }) => (
         </div>
       )}
       <div className="flex-1">
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <div className="mb-2 flex flex-wrap justify-between gap-2">
           <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
             {project.name}
           </h3>

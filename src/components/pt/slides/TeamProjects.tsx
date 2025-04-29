@@ -1,6 +1,6 @@
 import { memo } from "react";
 import OptimizedImage from "@/components/common/OptimizedImage";
-
+import { FaReact, FaAws, FaGitAlt, FaFigma, FaJava } from "react-icons/fa";
 import { JSX } from "react";
 import { FaLink, FaGithub } from "react-icons/fa";
 import {
@@ -9,14 +9,18 @@ import {
   SiAmazon,
   SiNaver,
   SiNextdotjs,
+  SiSpringboot,
 } from "react-icons/si";
 
 const techIcons: Record<string, JSX.Element> = {
   React: <SiReact size={22} color="#61DAFB" />,
   Typescript: <SiTypescript size={22} color="#3178C6" />,
   "Next.js": <SiNextdotjs size={22} color="#000" className="dark:text-white" />,
-  "AWS(S3, CloudFront)": <SiAmazon size={22} color="#FF9900" />,
+  "AWS(S3)": <SiAmazon size={22} color="#FF9900" />,
+  "AWS(EC2, RDS)": <SiAmazon size={22} color="#FF9900" />,
   "Naver Maps API": <SiNaver size={22} color="#03CF5D" />,
+  "Spring Boot": <SiSpringboot size={22} color="#6DB33F" />,
+  Java: <FaJava size={22} color="#E76F00" />,
 };
 
 const projects = [
@@ -25,7 +29,7 @@ const projects = [
     period: "2024.01.05 ~ 2024.02.25",
     iconUrl:
       "https://github.com/PROMLEE/map2zero-frontend/raw/main/image/logo.png",
-    tech: ["React", "Typescript", "Naver Maps API", "AWS(S3, CloudFront)"],
+    tech: ["React", "Typescript", "Naver Maps API", "AWS(S3)"],
     link: { url: "https://map2zero.vercel.app", label: "서비스 바로가기" },
     github: {
       url: "https://github.com/PROMLEE/map2zero-frontend",
@@ -50,21 +54,21 @@ const projects = [
   {
     name: "PROTOTYNE (프로토타입 체험 플랫폼)",
     period: "2024.03.01 ~ 2024.04.15",
-    iconUrl: "https://cdn.promleeblog.com/etc/logo/prototyne-logo.png",
-    tech: ["Next.js", "Typescript", "AWS(S3, CloudFront)"],
+    iconUrl: "https://cdn.promleeblog.com/etc/logo-new/prototyne.png",
+    tech: ["Spring Boot", "Java", "AWS(EC2, RDS), Docker"],
     github: {
       url: "https://github.com/PROMLEE/prototyne-frontend",
       label: "소스코드 보기",
     },
     desc: [
-      "UMC 6기 프로젝트로 개발된 초기 스타트업과 사용자를 연결하는 프로토타입 체험 플랫폼",
-      "스타트업은 개발한 서비스의 프로토타입을 등록하고, 사용자는 체험 후 피드백을 제공하는 서비스",
-      "Next.js를 활용한 풀스택 개발 및 AWS 인프라 구축 담당",
-      "서버 파트 팀장으로 백엔드 아키텍처 설계 및 API 개발 주도",
-      "사용자 경험 개선 및 효율적인 데이터 처리를 위한 최적화 작업 수행",
+      "유저는 시제품을 체험하고, 기업은 피드백과 마케팅 데이터를 얻는 플랫폼",
+      "6주간 백엔드 팀장으로 아키텍처 설계, 코드리뷰, CI/CD, 이슈 관리 총괄",
+      "QueryDSL·Redis로 성능 30~75% 개선, Docker로 일관된 배포 환경 구축",
+      "20개+ RESTful API, 카카오 OAuth2/JWT로 인증·권한 분리",
+      "UMC 데모데이 출품, 약 60명 사용자 유치",
     ],
-    teamSize: "6명 (프론트엔드 3명, 백엔드 3명)",
-    role: "서버 파트 팀장",
+    teamSize: "9명 (백엔드 4명, 프론트엔드 4명, PM 1명)",
+    role: "백엔드 팀장",
   },
 ];
 
@@ -99,12 +103,12 @@ const ProjectCard = memo(
       <div className="flex flex-col gap-6 md:flex-row md:items-start">
         {project.iconUrl && (
           <div className="flex items-center justify-center md:w-1/6">
-            <OptimizedImage
+            <img
               src={project.iconUrl}
               alt={project.name}
-              width={96}
-              height={96}
-              className="h-24 w-24 rounded-xl object-cover shadow-sm"
+              // width={96}
+              // height={96}
+              // className="h-24 w-24 rounded-xl shadow-sm"
             />
           </div>
         )}

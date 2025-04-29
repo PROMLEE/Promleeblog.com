@@ -8,7 +8,7 @@ const devCases = [
     problem: "DB/인증/스토리지 통합 관리가 번거로웠음.",
     solution:
       "Prisma와 Supabase를 연동해 DB/인증/스토리지/이미지 업로드를 통합 관리.",
-    result: "1,000개 이상의 포스트/이미지 관리, 인증/업로드 오류 0건.",
+    result: "200개 이상의 포스트/이미지 관리, 인증/업로드 오류 0건.",
     link: "https://www.promleeblog.com/blog/post/105-supabase-data-fetching",
     linkText: "Supabase 데이터 관리",
   },
@@ -75,4 +75,3 @@ const Page6 = () => (
 );
 
 export default Page6;
-

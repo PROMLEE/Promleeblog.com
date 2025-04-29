@@ -8,7 +8,7 @@ const perfCases = [
     problem: "느린 로딩, SEO 미흡, 사용자 이탈 문제를 경험.",
     solution:
       "코드 스플리팅, 이미지/데이터 최적화, SEO 개선, UI/UX 반복 개선을 통해 성능을 높임.",
-    result: "구글 검색 노출 15회/일 → 300회/일, CTR 3.5%로 대폭 개선.",
+    result: "구글 검색 노출 15회/일 → 1000회/일, CTR 5%로 대폭 개선.",
     link: "https://www.promleeblog.com/blog/post/177-blog-optimizing",
     linkText: "블로그 최적화 경험",
   },
@@ -18,7 +18,8 @@ const perfCases = [
     problem: "정적/동적 데이터 균형, 빌드/배포 속도와 실시간성 모두 필요했음.",
     solution:
       "ISR(Incremental Static Regeneration) 적용으로 자주 바뀌는 데이터만 빠르게 갱신.",
-    result: "빌드 시간 40% 단축, 실시간 데이터 반영.",
+    result:
+      "서버 응답 대기시간은 4.12 -> 0.5초로, SSR 방식에 비해 약 8배 이상 개선",
     link: "https://www.promleeblog.com/blog/post/195-blog-isr",
     linkText: "ISR 경험 자세히 보기",
   },
@@ -75,4 +76,3 @@ const Page7 = () => (
 );
 
 export default Page7;
-
