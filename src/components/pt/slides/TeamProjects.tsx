@@ -1,8 +1,6 @@
 import { memo } from "react";
-import OptimizedImage from "@/components/common/OptimizedImage";
-import { FaReact, FaAws, FaGitAlt, FaFigma, FaJava } from "react-icons/fa";
 import { JSX } from "react";
-import { FaLink, FaGithub } from "react-icons/fa";
+import { FaLink, FaGithub, FaJava } from "react-icons/fa";
 import {
   SiReact,
   SiTypescript,
