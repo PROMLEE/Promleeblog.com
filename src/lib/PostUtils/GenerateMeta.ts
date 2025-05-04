@@ -22,7 +22,8 @@ export const GenerateMeta = ({
     ...(meta.metatag?.map((tag) => tag) || []),
   ];
   const thumbnail =
-    ImageUrl(meta.thumbnail_url) || "icons/android-chrome-512x512.png";
+    ImageUrl(meta.thumbnail_url) ||
+    `${baseUrl}/icons/android-chrome-512x512.png`;
   const flattenedPath = `blog/post/${param}`;
   return {
     title,
@@ -34,7 +35,7 @@ export const GenerateMeta = ({
       url: `${baseUrl}/${flattenedPath}`,
       siteName: "PromleeBlog",
       images: {
-        url: `${baseUrl}/${thumbnail}`,
+        url: thumbnail,
         alt: "Post Image",
       },
       locale: "ko_KR",
@@ -47,7 +48,7 @@ export const GenerateMeta = ({
       title,
       description,
       images: {
-        url: `${baseUrl}/${thumbnail}`,
+        url: thumbnail,
         alt: "Post Image",
       },
     },
