@@ -53,6 +53,32 @@ export default function PTPage() {
     </Suspense>,
   ];
 
+  // 우측 상단에 표시할 링크 그룹
+  const aboutmeLinks = (
+    <div className="flex gap-3">
+      <a
+        href="/aboutme/promleeblog"
+        className="rounded-lg bg-gray-100 px-4 py-2 text-gray-700 transition hover:bg-gray-500 hover:text-white"
+      >
+        Promleeblog
+      </a>
+      <a
+        href="/aboutme/map2zero"
+        className="rounded-lg bg-green-100 px-4 py-2 text-green-700 transition hover:bg-green-500 hover:text-white"
+      >
+        Map2Zero
+      </a>
+      <a
+        href="/download/jjiggo.pdf"
+        className="rounded-lg bg-purple-100 px-4 py-2 text-purple-700 transition hover:bg-purple-500 hover:text-white"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        찍고머니
+      </a>
+    </div>
+  );
+
   return (
     <SlideLayout
       slides={slides}
@@ -60,6 +86,7 @@ export default function PTPage() {
         href: "/",
         label: "홈으로",
       }}
+      brandElement={aboutmeLinks}
     />
   );
 }
