@@ -242,7 +242,7 @@ export const atag = ({ id, children, href }: Props) => {
 
 export const codetag = ({ children }: { children: React.ReactNode }) => {
   return (
-    <code className="text-text relative font-extralight">
+    <code className="text-text-foreground relative mx-0.5 rounded-lg px-2 py-1 font-normal tracking-wide">
       <span className="absolute top-0 right-0">
         <CopyButton>{children}</CopyButton>
       </span>
