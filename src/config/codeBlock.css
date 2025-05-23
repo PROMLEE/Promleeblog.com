@@ -1,0 +1,341 @@
+/**
+ * 코드 블록 통합 스타일 시트
+ * - 코드 블록 기본 스타일
+ * - 인라인 코드 스타일
+ * - 코드 토큰 색상
+ * - 줄 번호 및 하이라이트
+ * - 스크롤바 스타일
+ * - 시각적 효과
+ */
+
+/* ==================== 코드 블록 기본 스타일 ==================== */
+
+/* 코드 블록 컨테이너 기본 스타일 */
+.prose pre {
+  overflow-x: auto;
+  overflow-y: hidden; /* 세로 스크롤 제거 */
+  @apply rounded-md bg-gray-800 dark:bg-gray-950;
+  scrollbar-width: thin;
+  box-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.12),
+    0 0 1px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(60, 60, 60, 0.2);
+  position: relative;
+  transition: all 0.2s;
+  cursor: text;
+}
+
+/* 코드 블록 내부 스타일 */
+.prose pre > code {
+  display: grid;
+  counter-reset: line;
+  @apply border-0 bg-transparent p-0 text-[0.92em] font-normal;
+  border-radius: 0.5rem;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace !important;
+  line-height: 1.6 !important;
+}
+
+/* 각 코드 라인 스타일 */
+.prose pre span[data-line] {
+  @apply inline-block px-2 py-0.5 leading-relaxed;
+  counter-increment: line;
+  min-height: 1.5rem;
+  border-left: 2px solid transparent;
+}
+
+/* 코드 블록 호버 효과 */
+.prose pre span[data-line]:hover {
+  background-color: rgba(99, 102, 241, 0.08);
+}
+
+/* 코드 블록 다크 모드에서의 텍스트 선명도 개선 */
+.dark .prose pre > code {
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+/* ==================== 줄 번호 스타일 ==================== */
+
+/* 줄 번호 카운터 초기화 */
+.prose pre > code[data-line-numbers] {
+  counter-reset: line;
+}
+
+/* 줄 번호 표시 스타일 */
+.prose pre > code[data-line-numbers] span[data-line]::before {
+  content: counter(line);
+  display: inline-block;
+  width: 1.5rem;
+  margin-right: 0.75rem;
+  color: rgba(115, 115, 115, 0.8);
+  text-align: right;
+  font-size: 0.85em;
+  user-select: none;
+  border-right: 1px solid rgba(115, 115, 115, 0.3);
+  padding-right: 0.5rem;
+}
+
+/* ==================== 하이라이트된 줄 스타일 ==================== */
+
+/* 하이라이트된 줄 스타일 */
+.prose pre > code span[data-highlighted-line] {
+  @apply border-y-0 border-l-2 border-blue-400 bg-indigo-400/10 dark:border-blue-500 dark:bg-slate-700/50;
+  position: relative;
+}
+
+/* 하이라이트된 줄 그라디언트 효과 */
+.prose pre > code span[data-highlighted-line]::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(99, 102, 241, 0.05));
+}
+
+/* ==================== 코드 블록 제목 스타일 ==================== */
+
+/* 코드 블록 제목 기본 스타일 */
+.prose figcaption[data-rehype-pretty-code-title] {
+  @apply rounded-t-lg border border-b-0 border-gray-200 bg-gray-200 px-5 py-2.5 font-mono text-sm font-bold text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200;
+  border-bottom: 1px solid rgba(74, 85, 104, 0.3);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+/* 코드 블록 제목 하단 그라디언트 효과 */
+.prose figcaption[data-rehype-pretty-code-title]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(to right, rgba(99, 102, 241, 0.8), transparent);
+}
+
+/* 코드 블록 제목 아이콘 */
+.prose figcaption[data-rehype-pretty-code-title]::before {
+  content: "📄";
+  margin-right: 1rem;
+  font-size: 1rem;
+}
+
+/* 코드 블록 제목이 있을 때 상단 모서리 처리 */
+.prose figcaption[data-rehype-pretty-code-title] + pre {
+  @apply mt-0 rounded-t-none;
+}
+
+/* ==================== 인라인 코드 스타일 ==================== */
+
+/* 인라인 코드의 백틱 기호 제거 */
+.prose :not(pre) > code::before,
+.prose :not(pre) > code::after {
+  display: none;
+}
+
+/* 인라인 코드 기본 스타일 */
+.prose :not(pre) > code {
+  @apply relative mx-0.5 rounded-lg border-none px-2 py-1;
+  background-color: rgb(243, 244, 246) !important; /* bg-gray-100 */
+  color: rgb(225, 29, 72) !important; /* text-red-600 */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  letter-spacing: 0.02em !important;
+  font-weight: 500 !important;
+  font-size: 1em !important;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace !important;
+}
+
+/* 인라인 코드 다크모드 스타일 */
+.dark .prose :not(pre) > code {
+  background-color: rgb(39, 39, 42) !important; /* dark:bg-gray-700 */
+  color: rgb(244, 114, 182) !important; /* dark:text-rose-400 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* 인라인 코드 호버 효과 */
+.prose :not(pre) > code:hover {
+  transform: translateY(-1px);
+  transition: transform 0.2s;
+}
+
+/* ==================== 코드 토큰 스타일 ==================== */
+
+/* HTML 태그 */
+.prose pre > code .token.tag {
+  color: #7ee787 !important;
+}
+
+/* 속성 이름 */
+.prose pre > code .token.attr-name {
+  color: #d2a8ff !important;
+}
+
+/* 속성 값 */
+.prose pre > code .token.attr-value {
+  color: #a5d6ff !important;
+}
+
+/* 주석 */
+.prose pre > code .token.comment {
+  color: #8b949e !important;
+  font-style: italic !important;
+}
+
+/* 문자열 */
+.prose pre > code .token.string {
+  color: #a5d6ff !important;
+}
+
+/* 숫자 */
+.prose pre > code .token.number {
+  color: #f2cc60 !important;
+}
+
+/* 불리언 */
+.prose pre > code .token.boolean {
+  color: #ff7b72 !important;
+}
+
+/* 함수 */
+.prose pre > code .token.function {
+  color: #d2a8ff !important;
+}
+
+/* 연산자 */
+.prose pre > code .token.operator {
+  color: #ff7b72 !important;
+}
+
+/* 키워드 */
+.prose pre > code .token.keyword {
+  color: #ff7b72 !important;
+}
+
+/* 프로퍼티 */
+.prose pre > code .token.property {
+  color: #79c0ff !important;
+}
+
+/* 네임스페이스 */
+.prose pre > code .token.namespace {
+  color: #ffa657 !important;
+}
+
+/* ==================== 스크롤바 스타일 ==================== */
+
+/* 일반적으로 페이지에서는 스크롤바 숨김 */
+html ::-webkit-scrollbar {
+  display: none;
+}
+
+/* 코드 블록 스크롤바 스타일 */
+.prose pre::-webkit-scrollbar {
+  display: block !important;
+  height: 3px !important;
+  background-color: transparent !important;
+  opacity: 0.5 !important;
+  transition: all 0.3s !important;
+}
+
+/* 호버시 스크롤바 크기 조정 */
+.prose pre:hover::-webkit-scrollbar {
+  height: 5px !important;
+  opacity: 1 !important;
+}
+
+/* 스크롤바 썸네일 기본 스타일 */
+.prose pre::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    to right,
+    rgba(74, 85, 104, 0.15),
+    rgba(74, 85, 104, 0.3)
+  ) !important;
+  border-radius: 8px !important;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
+  will-change: transform, background !important;
+}
+
+/* 다크모드에서 스크롤바 썸네일 스타일 */
+.dark .prose pre::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    to right,
+    rgba(99, 102, 241, 0.15),
+    rgba(99, 102, 241, 0.35)
+  ) !important;
+}
+
+/* 코드 블록 호버시 스크롤바 썸네일 스타일 */
+.prose pre:hover::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    to right,
+    rgba(74, 85, 104, 0.3),
+    rgba(99, 102, 241, 0.4)
+  ) !important;
+  box-shadow: 0 0 3px rgba(99, 102, 241, 0.3) !important;
+  transform: scaleX(0.98) !important;
+}
+
+/* 다크모드에서 코드 블록 호버시 스크롤바 썸네일 스타일 */
+.dark .prose pre:hover::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    to right,
+    rgba(99, 102, 241, 0.3),
+    rgba(129, 140, 248, 0.5)
+  ) !important;
+  box-shadow: 0 0 4px rgba(129, 140, 248, 0.4) !important;
+}
+
+/* 스크롤바 썸네일 호버 효과 */
+.prose pre::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    to right,
+    rgba(99, 102, 241, 0.5),
+    rgba(129, 140, 248, 0.7)
+  ) !important;
+  box-shadow: 0 0 6px rgba(99, 102, 241, 0.5) !important;
+  transform: scaleX(1.02) !important;
+  transition: all 0.3s !important;
+}
+
+/* 다크모드에서 스크롤바 썸네일 호버 효과 */
+.dark .prose pre::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    to right,
+    rgba(129, 140, 248, 0.6),
+    rgba(165, 180, 252, 0.8)
+  ) !important;
+  box-shadow: 0 0 8px rgba(129, 140, 248, 0.6) !important;
+  transform: scaleX(1.02) !important;
+}
+
+/* 스크롤바 트랙 스타일 */
+.prose pre::-webkit-scrollbar-track {
+  background: transparent !important;
+  border-radius: 8px !important;
+  margin: 0 6px !important;
+  transition: all 0.3s ease !important;
+}
+
+/* 코드 블록 호버시 스크롤바 트랙 스타일 */
+.prose pre:hover::-webkit-scrollbar-track {
+  background: rgba(226, 232, 240, 0.05) !important;
+}
+
+/* 다크모드에서 코드 블록 호버시 스크롤바 트랙 스타일 */
+.dark .prose pre:hover::-webkit-scrollbar-track {
+  background: rgba(30, 41, 59, 0.2) !important;
+}
+
+/* Firefox 스크롤바 스타일 */
+.prose pre {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(99, 102, 241, 0.3) transparent !important;
+}
