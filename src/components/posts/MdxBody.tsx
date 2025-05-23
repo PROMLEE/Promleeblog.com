@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { Components } from "@/components/mdx";
 import { MDXRemote } from "next-mdx-remote/rsc";
@@ -27,27 +26,7 @@ export const MdxBody = ({
         mdxOptions: {
           remarkPlugins: [remarkGfm, remarkBreaks, remarkMath],
           rehypePlugins: [
-            [
-              rehypePrettyCode,
-              {
-                defaultLangauge: "plaintext",
-                keepBackground: true,
-                showLineNumbers: true,
-                theme: "github-dark",
-                onVisitLine(node: any) {
-                  // 줄이 비어 있으면 최소 높이 추가
-                  if (node.children.length === 0) {
-                    node.children = [{ type: "text", value: " " }];
-                  }
-                },
-                onVisitHighlightedLine(node: any) {
-                  node.properties.className = ["highlighted-line"];
-                },
-                onVisitHighlightedWord(node: any) {
-                  node.properties.className = ["highlighted-word"];
-                },
-              },
-            ],
+            [rehypePrettyCode],
             [
               rehypeKatex,
               {
