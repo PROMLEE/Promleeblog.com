@@ -84,7 +84,7 @@ export const Navbar = () => {
     <>
       {" "}
       <motion.div
-        className="topbar sticky top-0 z-20 shadow-md"
+        className="topbar top-0 z-20 shadow-md backdrop-blur-md"
         initial="hidden"
         animate="visible"
         variants={navbarVariants}
