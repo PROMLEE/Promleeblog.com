@@ -18,7 +18,7 @@ import {
   // blockquotetag,
   atag,
   Img,
-  codetag,
+  // codetag,
   DevImg,
 } from "@/components/mdx/defaulttags";
 import {
@@ -33,6 +33,7 @@ import {
   MathBox,
   Toggle,
 } from "@/components/mdx/customtags";
+import Pre from "./pretags";
 
 export const Components = (isDev?: boolean) => {
   return {
@@ -49,10 +50,11 @@ export const Components = (isDev?: boolean) => {
     strong: btag,
     b: btag,
     p: ptag,
-    code: codetag,
+    // code: codetag,
     // code: codetag,
     // span: spantag,
     // blockquote: blockquotetag,
+    pre: Pre,
     br: brtag,
     a: atag,
     Img: isDev ? DevImg : Img,

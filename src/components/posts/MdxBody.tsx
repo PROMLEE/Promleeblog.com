@@ -26,7 +26,15 @@ export const MdxBody = ({
         mdxOptions: {
           remarkPlugins: [remarkGfm, remarkBreaks, remarkMath],
           rehypePlugins: [
-            [rehypePrettyCode],
+            [
+              rehypePrettyCode,
+              {
+                defaultLangauge: "plaintext",
+                keepBackground: true,
+                showLineNumbers: true,
+                theme: "github-dark",
+              },
+            ],
             [
               rehypeKatex,
               {
