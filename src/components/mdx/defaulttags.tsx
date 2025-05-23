@@ -1,7 +1,6 @@
 import Image from "next/image";
 import "katex/dist/katex.min.css";
 import Link from "next/link";
-import { CopyButton } from "../buttons/CopyButton";
 import { DevImageUrl, ImageUrl } from "@/lib/PostUtils/getImageUrl";
 
 interface Props {
@@ -240,12 +239,18 @@ export const atag = ({ id, children, href }: Props) => {
   );
 };
 
-export const codetag = ({ children }: { children: React.ReactNode }) => {
+export const codetag = ({
+  children,
+  props,
+}: {
+  children: React.ReactNode;
+  props?: React.HTMLProps<HTMLElement>;
+}) => {
   return (
-    <code className="text-text-foreground relative mx-0.5 rounded-lg px-2 py-1 font-normal tracking-wide">
-      <span className="absolute top-0 right-0">
-        <CopyButton>{children}</CopyButton>
-      </span>
+    <code
+      className="text-text-foreground relative mx-0.5 rounded-lg px-2 py-1 font-normal tracking-wide"
+      {...props}
+    >
       {children}
     </code>
   );
