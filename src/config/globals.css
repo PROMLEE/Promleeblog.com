@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./codeBlock.css";
 
 @config '../../tailwind.config.ts';
 
@@ -236,70 +237,6 @@
   .prose ul > li > ul > li > ul {
     @apply list-["▪__"];
   }
-  .prose pre {
-    overflow-x: auto;
-  }
-  .prose pre::-webkit-scrollbar {
-    display: block;
-    width: 0;
-    height: 5px;
-    transition: all 0.3s ease;
-  }
-  .prose pre::-webkit-scrollbar-thumb {
-    background-color: rgba(74, 85, 104, 0.6);
-    border-radius: 2px;
-    transition: all 0.3s ease;
-  }
-  .prose pre:hover::-webkit-scrollbar-thumb {
-    background-color: rgba(74, 85, 104, 0.8);
-  }
-  .prose pre::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(74, 85, 104, 1);
-  }
-  .prose pre::-webkit-scrollbar-track {
-    background-color: rgba(45, 55, 72, 0.3);
-  }
-  .prose pre > code {
-    display: grid;
-  }
-  .prose pre span[data-line] {
-    @apply inline-block px-0 py-0.5 leading-snug;
-  }
-
-  /* Fenced Code block - line number style */
-  .prose code[data-line-numbers] {
-    counter-reset: line;
-  }
-
-  .prose code[data-line-numbers] > span[data-line]::before {
-    counter-increment: line;
-    content: counter(line);
-    display: inline-block;
-    width: 1rem;
-    margin-right: 0.5rem;
-    color: gray;
-  }
-  /* Fenced Code block - line hightlight */
-  .prose code span[data-highlighted-line] {
-    @apply border-y-0 border-l-2 border-blue-400 bg-indigo-400/90 pl-[calc(1rem-2px)] dark:border-blue-500 dark:bg-slate-700;
-  }
-  /* Fenced Code block - with title style*/
-  .prose figcaption[data-rehype-pretty-code-title] {
-    @apply rounded-t-lg border border-b-0 border-gray-200 bg-gray-200 px-5 py-3 font-mono text-sm font-bold text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200;
-  }
-  .prose figcaption[data-rehype-pretty-code-title] + pre {
-    @apply mt-0 rounded-t-none;
-  }
-  /* Inline code block backtick display: none */
-  .prose :not(pre) > code::before,
-  .prose :not(pre) > code::after {
-    display: none;
-  }
-
-  /* inline code block style */
-  .prose :not(pre) > code {
-    @apply border-primary bg-foreground text-text rounded border px-1 py-0.5 align-middle font-mono text-sm font-normal;
-  }
 }
 @layer utilities {
   * {
@@ -307,16 +244,6 @@
     scroll-behavior: smooth !important;
   }
   /* custom styles */
-}
-/* body > div {
-  -ms-overflow-style: none;
-} */
-html ::-webkit-scrollbar {
-  display: none;
-}
-/* 코드 블록의 스크롤바는 표시 */
-.prose pre::-webkit-scrollbar {
-  display: block;
 }
 html {
   @media (max-width: 1500px) {
