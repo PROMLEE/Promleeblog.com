@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
 async function postTags(post_id: string) {
   const tags = await prisma.tag.findMany({
     orderBy: {
-      id: "asc",
+      name: "asc",
     },
   });
   const post_tags = await prisma.post_Tag.findMany({
@@ -55,3 +55,4 @@ async function postTags(post_id: string) {
   });
   return result;
 }
+
