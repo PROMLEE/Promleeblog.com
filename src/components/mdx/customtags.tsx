@@ -76,7 +76,7 @@ export function Toggle({
 
 export const Ads = () => {
   return (
-    <div className="mt-10 mb-4 flex w-full items-center justify-center">
+    <div className="mt-10 mb-4">
       <AdComponent
         adSlot="2890712597"
         adFormat="fluid"
@@ -96,3 +96,4 @@ export const AdsDev = () => {
     </div>
   );
 };
+
