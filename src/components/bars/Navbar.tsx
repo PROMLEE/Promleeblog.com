@@ -84,7 +84,7 @@ export const Navbar = () => {
     <>
       {" "}
       <motion.div
-        className="topbar top-0 z-20 shadow-md backdrop-blur-md"
+        className="topbar top-0 z-20 px-2 shadow-md backdrop-blur-md"
         initial="hidden"
         animate="visible"
         variants={navbarVariants}
@@ -95,9 +95,10 @@ export const Navbar = () => {
           whileHover={{ scale: 1.02 }}
           transition={hoverSpring}
         >
+          {" "}
           <Link
             href={"/"}
-            className="group relative ml-2 overflow-hidden rounded-lg p-2 text-2xl font-bold hover:cursor-pointer"
+            className="group relative ml-2 flex items-center overflow-hidden rounded-lg px-3 py-1.5 text-2xl font-bold hover:cursor-pointer"
           >
             <span className="from-button relative z-10 bg-gradient-to-r to-blue-200 bg-clip-text text-transparent">
               PromleeBlog
@@ -146,29 +147,32 @@ export const Navbar = () => {
           {" "}
           {process.env.NODE_ENV === "development" && (
             <>
+              {" "}
               <motion.div
                 variants={itemVariants}
                 whileHover={{ scale: 1.02 }}
                 transition={hoverSpring}
               >
+                {" "}
                 <Link
                   href={"/blog/edit"}
-                  className="group relative overflow-hidden rounded-lg px-3 py-1.5"
+                  className="group relative inline-flex items-center overflow-hidden rounded-lg px-3 py-1.5"
                 >
                   <span className="group-hover:text-background relative z-10 transition-colors duration-200">
                     edit
                   </span>
                   <span className="bg-button/0 group-hover:bg-button/90 absolute inset-0 z-0 rounded-md transition-colors duration-300"></span>
                 </Link>
-              </motion.div>
+              </motion.div>{" "}
               <motion.div
                 variants={itemVariants}
                 whileHover={{ scale: 1.02 }}
                 transition={hoverSpring}
               >
+                {" "}
                 <Link
                   href={"/test"}
-                  className="group relative overflow-hidden rounded-lg px-3 py-1.5"
+                  className="group relative inline-flex items-center overflow-hidden rounded-lg px-3 py-1.5"
                 >
                   <span className="group-hover:text-background relative z-10 transition-colors duration-200">
                     test
@@ -183,9 +187,10 @@ export const Navbar = () => {
             whileHover={{ scale: 1.02 }}
             transition={hoverSpring}
           >
+            {" "}
             <Link
               href={"/sitemap-tree"}
-              className="group relative overflow-hidden rounded-lg px-3 py-1.5"
+              className="group relative inline-flex items-center overflow-hidden rounded-lg px-3 py-1.5"
             >
               <span className="group-hover:text-background relative z-10 transition-colors duration-200">
                 sitemap
@@ -198,9 +203,10 @@ export const Navbar = () => {
             whileHover={{ scale: 1.02 }}
             transition={hoverSpring}
           >
+            {" "}
             <Link
               href={"/aboutme"}
-              className="group relative overflow-hidden rounded-lg px-3 py-1.5"
+              className="group relative inline-flex items-center overflow-hidden rounded-lg px-3 py-1.5"
             >
               <span className="group-hover:text-background relative z-10 transition-colors duration-200">
                 aboutMe
@@ -213,26 +219,28 @@ export const Navbar = () => {
             whileHover={{ scale: 1.02 }}
             transition={hoverSpring}
           >
+            {" "}
             <Button
               ref={buttonRef}
               onClick={() => {
                 setMenu(!menu);
               }}
-              className="bg-button text-button-foreground hover:bg-button-foreground hover:text-button ml-2 flex cursor-pointer items-center gap-1 rounded-lg shadow-sm md:hidden"
+              className="bg-button text-button-foreground hover:bg-button-foreground hover:text-button ml-2 flex cursor-pointer items-center gap-1 rounded-lg px-3 shadow-sm md:hidden"
             >
-              <Menu size={18} />
+              <Menu size={16} />
               <span>Menu</span>
             </Button>
-          </motion.div>
+          </motion.div>{" "}
           <motion.div
             variants={itemVariants}
             whileHover={{ scale: 1.02 }}
             transition={hoverSpring}
+            className="flex items-center"
           >
             <DarkmodeButton />
           </motion.div>
-        </div>
-      </motion.div>{" "}
+        </div>{" "}
+      </motion.div>
       <Indicator />
       {menu && (
         <motion.div
@@ -241,7 +249,7 @@ export const Navbar = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
-          className="bg-background/95 supports-[backdrop-filter]:bg-background/90 fixed inset-x-0 top-[48px] z-50 max-h-[calc(100vh-64px)] overflow-y-auto shadow-lg backdrop-blur-md md:hidden"
+          className="bg-background/20 fixed inset-x-0 top-[32px] z-50 max-h-[calc(100vh-64px)] overflow-y-auto backdrop-blur md:hidden"
         >
           {" "}
           <Accordion
@@ -279,7 +287,7 @@ export const Navbar = () => {
                           setValue("");
                           menuclose();
                         }}
-                        className="text-foreground bg-background/50 hover:bg-button hover:text-background mx-4 my-2 block rounded-md px-5 py-3 text-base font-medium shadow-sm transition-all duration-200"
+                        className="bg-background/50 hover:bg-button hover:text-background mx-4 my-2 block rounded-md px-5 py-3 text-base font-medium shadow-sm transition-all duration-200"
                       >
                         {subject.nameko}
                       </Link>
