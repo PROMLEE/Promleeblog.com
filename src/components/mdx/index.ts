@@ -24,6 +24,7 @@ import {
 import {
   Answer,
   AdsDev,
+  Ads,
   Math,
   Bbox,
   Rbox,
@@ -33,7 +34,6 @@ import {
   Toggle,
 } from "@/components/mdx/customtags";
 import Pre from "./pretags";
-import { Ads } from "../ads/AdsWrapper";
 
 export const Components = (isDev?: boolean) => {
   return {
