@@ -9,6 +9,7 @@ import remarkMath from "remark-math";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import "katex/dist/katex.min.css";
+import { AdsProvider } from "../ads/AdsWrapper";
 
 export const MdxBody = ({
   content,
@@ -18,43 +19,45 @@ export const MdxBody = ({
   isDev?: boolean;
 }) => {
   return (
-    <MDXRemote
-      source={content === "" ? "no contents 😿" : content}
-      components={Components(isDev)}
-      options={{
-        parseFrontmatter: true,
-        mdxOptions: {
-          remarkPlugins: [remarkGfm, remarkBreaks, remarkMath],
-          rehypePlugins: [
-            [rehypePrettyCode],
-            [
-              rehypeKatex,
-              {
-                colorIsTextColor: true,
-                strict: false,
-                macros: {
-                  // issue from google fonts
-                  "\\neq": "\\mathrel{\\char`≠}",
+    <AdsProvider>
+      <MDXRemote
+        source={content === "" ? "no contents 😿" : content}
+        components={Components(isDev)}
+        options={{
+          parseFrontmatter: true,
+          mdxOptions: {
+            remarkPlugins: [remarkGfm, remarkBreaks, remarkMath],
+            rehypePlugins: [
+              [rehypePrettyCode],
+              [
+                rehypeKatex,
+                {
+                  colorIsTextColor: true,
+                  strict: false,
+                  macros: {
+                    // issue from google fonts
+                    "\\neq": "\\mathrel{\\char`≠}",
+                  },
                 },
-              },
-            ],
-            rehypeSlug,
-            [
-              rehypeAutolinkHeadings,
-              {
-                behavior: "append",
-                properties: { className: ["anchor"] },
-                content: {
-                  type: "element",
-                  tagName: "span",
-                  properties: { className: ["icon", "icon-link"] },
-                  children: [{ type: "text", value: " 🔗" }],
+              ],
+              rehypeSlug,
+              [
+                rehypeAutolinkHeadings,
+                {
+                  behavior: "append",
+                  properties: { className: ["anchor"] },
+                  content: {
+                    type: "element",
+                    tagName: "span",
+                    properties: { className: ["icon", "icon-link"] },
+                    children: [{ type: "text", value: " 🔗" }],
+                  },
                 },
-              },
+              ],
             ],
-          ],
-        },
-      }}
-    />
+          },
+        }}
+      />
+    </AdsProvider>
   );
 };
