@@ -122,6 +122,14 @@ export const Ads5 = () => {
   );
 };
 
+export const Ads6 = () => {
+  return (
+    <AdComponent
+      {...adsConfig[5]} // Ads6
+    />
+  );
+};
+
 export const AdsDev = () => {
   return (
     <div className="mt-10 mb-4">
