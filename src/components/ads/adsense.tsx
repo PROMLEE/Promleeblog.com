@@ -19,45 +19,50 @@ const AdComponent: React.FC<AdComponentProps> = ({
   style,
 }) => {
   const pathname = usePathname();
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLModElement>(null);
 
   useEffect(() => {
-    const loadAd = () => {
-      if (!ref.current) return;
+    const tryPushAd = () => {
+      const el = ref.current;
+      if (!el) return;
+
+      const width = el.offsetWidth;
+      console.log("Ad ref offsetWidth:", width);
+
+      if (width < 300) {
+        // 너비 확보될 때까지 재시도
+        setTimeout(tryPushAd, 300);
+        return;
+      }
 
       try {
         (window.adsbygoogle = window.adsbygoogle || []).push({});
-        console.log("AdSense loaded after window.onload");
+        console.log("AdSense pushed successfully");
       } catch (e) {
         console.error("AdSense error:", e);
       }
     };
 
     if (document.readyState === "complete") {
-      // 이미 로드된 상태면 바로 실행
-      loadAd();
+      tryPushAd();
     } else {
-      window.addEventListener("load", loadAd);
+      window.addEventListener("load", tryPushAd);
+      return () => window.removeEventListener("load", tryPushAd);
     }
-
-    return () => {
-      window.removeEventListener("load", loadAd);
-    };
   }, []);
 
   return pathname.startsWith("/test") ||
     pathname.startsWith("/aboutme") ? null : (
-    <div ref={ref}>
-      <ins
-        className="adsbygoogle"
-        style={{ display: "block", ...style }}
-        data-ad-client={"ca-pub-" + process.env.NEXT_PUBLIC_GAPID}
-        data-ad-slot={adSlot}
-        data-ad-format={adFormat}
-        data-ad-layout={adLayout}
-        data-ad-layout-key={layoutKey}
-      />
-    </div>
+    <ins
+      ref={ref}
+      className="adsbygoogle"
+      style={{ display: "block", ...style, width: "100%" }}
+      data-ad-client={"ca-pub-" + process.env.NEXT_PUBLIC_GAPID}
+      data-ad-slot={adSlot}
+      data-ad-format={adFormat}
+      data-ad-layout={adLayout}
+      data-ad-layout-key={layoutKey}
+    />
   );
 };
 
