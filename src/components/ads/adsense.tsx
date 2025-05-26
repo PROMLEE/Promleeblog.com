@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 interface AdComponentProps {
@@ -20,26 +19,39 @@ const AdComponent: React.FC<AdComponentProps> = ({
   style,
 }) => {
   const pathname = usePathname();
-  const adRef = React.useRef<HTMLDivElement>(null);
+  const adRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // 광고를 로드하기 전에 컨테이너가 렌더링됐는지 확인
-    if (adRef.current && adRef.current.clientWidth > 0) {
-      try {
-        (window as any).adsbygoogle = (window as any).adsbygoogle || [];
-        (window as any).adsbygoogle.push({});
-      } catch (e) {
-        console.error("Error loading ads:", e);
-      }
-    }
-  }, []);
+    if (!adRef.current) return;
 
-  return pathname.startsWith("/test") ||
-    pathname.startsWith("/aboutme") ? null : (
-    <div ref={adRef} className="min-h-[100px] w-full">
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          try {
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+          } catch (e) {
+            console.error("Error loading ads:", e);
+          }
+          observer.disconnect(); // 한 번만 로드
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    observer.observe(adRef.current);
+
+    return () => observer.disconnect();
+  }, [pathname]); // pathname이 바뀌면 광고 다시 시도
+
+  if (pathname.startsWith("/test") || pathname.startsWith("/aboutme")) {
+    return null;
+  }
+
+  return (
+    <div ref={adRef}>
       <ins
         className="adsbygoogle"
-        style={{ display: "block", width: "100%", ...style }}
+        style={{ display: "block", minHeight: 100, minWidth: 300, ...style }}
         data-ad-client={"ca-pub-" + process.env.NEXT_PUBLIC_GAPID}
         data-ad-slot={adSlot}
         data-ad-format={adFormat}
@@ -51,4 +63,3 @@ const AdComponent: React.FC<AdComponentProps> = ({
 };
 
 export default AdComponent;
-
