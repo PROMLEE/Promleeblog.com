@@ -23,7 +23,6 @@ import {
 } from "@/components/mdx/defaulttags";
 import {
   Answer,
-  Ads,
   AdsDev,
   Math,
   Bbox,
@@ -34,6 +33,7 @@ import {
   Toggle,
 } from "@/components/mdx/customtags";
 import Pre from "./pretags";
+import { Ads } from "../ads/AdsWrapper";
 
 export const Components = (isDev?: boolean) => {
   return {
@@ -70,3 +70,4 @@ export const Components = (isDev?: boolean) => {
     Ads: isDev ? AdsDev : Ads,
   };
 };
+
