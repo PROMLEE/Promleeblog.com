@@ -73,8 +73,8 @@ const Post = async ({ params }: { params: Promise<{ post: string }> }) => {
           layoutKey="-fb+5w+4e-db+86"
         />
         <div className="prose dark:prose-invert my-5 min-h-[100vh] scroll-smooth focus:scroll-auto">
-          <MdxBody content={markdownsource.posting} />
           <RightSidebarComp content={markdownsource.posting} />
+          <MdxBody content={markdownsource.posting} />
         </div>
         <AdComponent
           adSlot="7985984960"
@@ -90,3 +90,4 @@ const Post = async ({ params }: { params: Promise<{ post: string }> }) => {
 };
 
 export default Post;
+

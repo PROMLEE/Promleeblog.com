@@ -154,8 +154,8 @@
 
 /* 인라인 코드 다크모드 스타일 */
 .dark .prose :not(pre) > code {
-  background-color: rgb(39, 39, 42) !important; /* dark:bg-gray-700 */
-  color: rgb(244, 114, 182) !important; /* dark:text-rose-400 */
+  background-color: rgb(47, 47, 47) !important; /* dark:bg-gray-700 */
+  color: rgb(255, 70, 165) !important; /* dark:text-rose-400 */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
 }
 
