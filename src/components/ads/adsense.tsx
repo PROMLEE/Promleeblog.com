@@ -47,15 +47,17 @@ const AdComponent: React.FC<AdComponentProps> = ({
 
   return pathname.startsWith("/test") ||
     pathname.startsWith("/aboutme") ? null : (
-    <ins
-      className="adsbygoogle"
-      style={{ display: "block", ...style }}
-      data-ad-client={"ca-pub-" + process.env.NEXT_PUBLIC_GAPID}
-      data-ad-slot={adSlot}
-      data-ad-format={adFormat}
-      data-ad-layout={adLayout}
-      data-ad-layout-key={layoutKey}
-    ></ins>
+    <div ref={ref}>
+      <ins
+        className="adsbygoogle"
+        style={{ display: "block", ...style }}
+        data-ad-client={"ca-pub-" + process.env.NEXT_PUBLIC_GAPID}
+        data-ad-slot={adSlot}
+        data-ad-format={adFormat}
+        data-ad-layout={adLayout}
+        data-ad-layout-key={layoutKey}
+      />
+    </div>
   );
 };
 
