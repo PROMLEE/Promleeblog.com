@@ -82,20 +82,17 @@ export const Navbar = () => {
 
   return (
     <>
-      {" "}
       <motion.div
-        className="topbar top-0 z-20 px-2 shadow-md backdrop-blur-md"
+        className="topbar top-0 z-20 px-2 py-1 shadow-md backdrop-blur-md"
         initial="hidden"
         animate="visible"
         variants={navbarVariants}
       >
-        {" "}
         <motion.div
           variants={itemVariants}
           whileHover={{ scale: 1.02 }}
           transition={hoverSpring}
         >
-          {" "}
           <Link
             href={"/"}
             className="group relative ml-2 flex items-center overflow-hidden rounded-lg px-3 py-1.5 text-2xl font-bold hover:cursor-pointer"
@@ -144,16 +141,13 @@ export const Navbar = () => {
           })}
         </div>
         <div className="flex content-center items-center gap-2">
-          {" "}
           {process.env.NODE_ENV === "development" && (
             <>
-              {" "}
               <motion.div
                 variants={itemVariants}
                 whileHover={{ scale: 1.02 }}
                 transition={hoverSpring}
               >
-                {" "}
                 <Link
                   href={"/blog/edit"}
                   className="group relative inline-flex items-center overflow-hidden rounded-lg px-3 py-1.5"
@@ -163,13 +157,12 @@ export const Navbar = () => {
                   </span>
                   <span className="bg-button/0 group-hover:bg-button/90 absolute inset-0 z-0 rounded-md transition-colors duration-300"></span>
                 </Link>
-              </motion.div>{" "}
+              </motion.div>
               <motion.div
                 variants={itemVariants}
                 whileHover={{ scale: 1.02 }}
                 transition={hoverSpring}
               >
-                {" "}
                 <Link
                   href={"/test"}
                   className="group relative inline-flex items-center overflow-hidden rounded-lg px-3 py-1.5"
@@ -187,7 +180,6 @@ export const Navbar = () => {
             whileHover={{ scale: 1.02 }}
             transition={hoverSpring}
           >
-            {" "}
             <Link
               href={"/sitemap-tree"}
               className="group relative inline-flex items-center overflow-hidden rounded-lg px-3 py-1.5"
@@ -203,7 +195,6 @@ export const Navbar = () => {
             whileHover={{ scale: 1.02 }}
             transition={hoverSpring}
           >
-            {" "}
             <Link
               href={"/aboutme"}
               className="group relative inline-flex items-center overflow-hidden rounded-lg px-3 py-1.5"
@@ -213,13 +204,12 @@ export const Navbar = () => {
               </span>
               <span className="bg-button/0 group-hover:bg-button/90 absolute inset-0 z-0 rounded-md transition-colors duration-300"></span>
             </Link>
-          </motion.div>{" "}
+          </motion.div>
           <motion.div
             variants={itemVariants}
             whileHover={{ scale: 1.02 }}
             transition={hoverSpring}
           >
-            {" "}
             <Button
               ref={buttonRef}
               onClick={() => {
@@ -230,7 +220,7 @@ export const Navbar = () => {
               <Menu size={16} />
               <span>Menu</span>
             </Button>
-          </motion.div>{" "}
+          </motion.div>
           <motion.div
             variants={itemVariants}
             whileHover={{ scale: 1.02 }}
@@ -239,7 +229,7 @@ export const Navbar = () => {
           >
             <DarkmodeButton />
           </motion.div>
-        </div>{" "}
+        </div>
       </motion.div>
       <Indicator />
       {menu && (
@@ -251,7 +241,6 @@ export const Navbar = () => {
           transition={{ duration: 0.2 }}
           className="bg-background/20 fixed inset-x-0 top-[32px] z-50 max-h-[calc(100vh-64px)] overflow-y-auto backdrop-blur md:hidden"
         >
-          {" "}
           <Accordion
             type="single"
             collapsible
@@ -271,7 +260,7 @@ export const Navbar = () => {
                   className="hover:bg-button/15 data-[state=open]:bg-button/10 px-5 py-4 text-base font-medium transition-colors hover:no-underline data-[state=open]:font-semibold"
                 >
                   {category.nameko}
-                </AccordionTrigger>{" "}
+                </AccordionTrigger>
                 <AccordionContent className="px-2 py-3">
                   {category.Subject.map((subject, index) => (
                     <motion.div
