@@ -1,5 +1,3 @@
-"use client";
-
 import AdComponent from "../ads/adsense";
 
 export function Answer({ children }: { children: React.ReactNode }) {

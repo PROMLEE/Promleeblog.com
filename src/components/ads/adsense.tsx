@@ -22,33 +22,22 @@ const AdComponent: React.FC<AdComponentProps> = ({
   const ref = useRef<HTMLModElement>(null);
 
   useEffect(() => {
-    const tryPushAd = () => {
-      const el = ref.current;
-      if (!el) return;
+    const el = ref.current;
+    if (!el) return;
 
-      const width = el.offsetWidth;
-      console.log("Ad ref offsetWidth:", width);
-
-      if (width < 300) {
-        // 너비 확보될 때까지 재시도
-        setTimeout(tryPushAd, 300);
-        return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && el.offsetWidth >= 300) {
+        try {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+          observer.disconnect();
+        } catch (e) {
+          console.error("AdSense error:", e);
+        }
       }
+    });
 
-      try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-        console.log("AdSense pushed successfully");
-      } catch (e) {
-        console.error("AdSense error:", e);
-      }
-    };
-
-    if (document.readyState === "complete") {
-      tryPushAd();
-    } else {
-      window.addEventListener("load", tryPushAd);
-      return () => window.removeEventListener("load", tryPushAd);
-    }
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   return pathname.startsWith("/test") ||
