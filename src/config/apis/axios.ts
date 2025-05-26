@@ -42,15 +42,20 @@ const returnFetchJson = (
   if (params) {
     query = "?" + new URLSearchParams(params).toString();
   }
-
   return async <T>(
     url: FetchArgs[0],
     init?: JsonRequestInit,
   ): Promise<JsonResponse<T>> => {
     const response = await fetch(baseUrl + url + query, {
       ...init,
-      next: { revalidate: init?.next?.revalidate ?? 86400 }, // 1 day
-      cache: process.env.NODE_ENV === "development" ? "no-store" : init?.cache,
+      next: {
+        revalidate:
+          init?.next?.revalidate ??
+          (process.env.NODE_ENV === "production" ? 86400 : 0),
+      }, // production 환경에서는 1일(86400초), 그 외에는 캐시 사용 안 함(0)
+      cache:
+        init?.cache ||
+        (process.env.NODE_ENV === "production" ? "default" : "no-store"), // production 환경에서만 기본 캐시 사용
       body: init?.body && JSON.stringify(init.body),
     });
 
@@ -90,4 +95,3 @@ export const CustomFetch = returnFetchJson({
     },
   },
 });
-
