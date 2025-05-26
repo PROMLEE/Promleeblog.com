@@ -28,5 +28,11 @@ const adsConfig = [
     adLayout: "in-article",
     style: { textAlign: "center" as const },
   },
+  {
+    adSlot: "8345743897", // Ads6
+    adFormat: "fluid",
+    adLayout: "in-article",
+    style: { textAlign: "center" as const },
+  },
 ];
 export default adsConfig;
