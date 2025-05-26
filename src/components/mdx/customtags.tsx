@@ -1,3 +1,4 @@
+import adsConfig from "../ads/adsconfig";
 import AdComponent from "../ads/adsense";
 
 export function Answer({ children }: { children: React.ReactNode }) {
@@ -81,6 +82,42 @@ export const Ads = () => {
       adFormat="fluid"
       adLayout="in-article"
       style={{ textAlign: "center" }}
+    />
+  );
+};
+
+export const Ads1 = () => {
+  return (
+    <AdComponent
+      {...adsConfig[0]} // Ads1
+    />
+  );
+};
+export const Ads2 = () => {
+  return (
+    <AdComponent
+      {...adsConfig[1]} // Ads2
+    />
+  );
+};
+export const Ads3 = () => {
+  return (
+    <AdComponent
+      {...adsConfig[2]} // Ads3
+    />
+  );
+};
+export const Ads4 = () => {
+  return (
+    <AdComponent
+      {...adsConfig[3]} // Ads4
+    />
+  );
+};
+export const Ads5 = () => {
+  return (
+    <AdComponent
+      {...adsConfig[4]} // Ads5
     />
   );
 };

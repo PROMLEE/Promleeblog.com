@@ -32,6 +32,11 @@ import {
   Ybox,
   MathBox,
   Toggle,
+  Ads1,
+  Ads2,
+  Ads3,
+  Ads4,
+  Ads5,
 } from "@/components/mdx/customtags";
 import Pre from "./pretags";
 
@@ -68,6 +73,10 @@ export const Components = (isDev?: boolean) => {
     MathBox,
     Toggle,
     Ads: isDev ? AdsDev : Ads,
+    Ads1: isDev ? AdsDev : Ads1,
+    Ads2: isDev ? AdsDev : Ads2,
+    Ads3: isDev ? AdsDev : Ads3,
+    Ads4: isDev ? AdsDev : Ads4,
+    Ads5: isDev ? AdsDev : Ads5,
   };
 };
-
