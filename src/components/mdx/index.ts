@@ -37,6 +37,7 @@ import {
   Ads3,
   Ads4,
   Ads5,
+  Ads6,
 } from "@/components/mdx/customtags";
 import Pre from "./pretags";
 
@@ -78,5 +79,6 @@ export const Components = (isDev?: boolean) => {
     Ads3: isDev ? AdsDev : Ads3,
     Ads4: isDev ? AdsDev : Ads4,
     Ads5: isDev ? AdsDev : Ads5,
+    Ads6: isDev ? AdsDev : Ads6,
   };
 };
