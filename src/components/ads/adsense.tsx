@@ -1,6 +1,5 @@
 "use client";
-
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 interface AdComponentProps {
@@ -11,47 +10,67 @@ interface AdComponentProps {
   style?: React.CSSProperties;
 }
 
-const AdComponent: React.FC<AdComponentProps> = ({
+const AdComponent = ({
   adSlot,
   adFormat = "auto",
   adLayout = "",
   layoutKey = "",
   style,
-}) => {
+}: AdComponentProps) => {
   const pathname = usePathname();
-  const adRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!adRef.current) return;
+    if (!ref.current) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          try {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-          } catch (e) {
-            console.error("Error loading ads:", e);
-          }
-          observer.disconnect(); // 한 번만 로드
+        if (!entry.isIntersecting) return;
+
+        const alreadyLoaded = ref.current?.getAttribute("data-loaded");
+        if (alreadyLoaded === "true") return;
+
+        try {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+          ref.current?.setAttribute("data-loaded", "true");
+        } catch (e) {
+          console.error("AdSense error:", e);
         }
+
+        observer.disconnect();
       },
-      { threshold: 0.1 },
+      {
+        threshold: 0.1,
+      },
     );
 
-    observer.observe(adRef.current);
-
+    observer.observe(ref.current);
     return () => observer.disconnect();
-  }, [pathname]); // pathname이 바뀌면 광고 다시 시도
+  }, [pathname]);
+
+  useEffect(() => {
+    console.log("ref width:", ref.current?.offsetWidth);
+  }, []);
 
   if (pathname.startsWith("/test") || pathname.startsWith("/aboutme")) {
     return null;
   }
 
   return (
-    <div ref={adRef}>
+    <div
+      ref={ref}
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        ...style,
+      }}
+    >
       <ins
         className="adsbygoogle"
-        style={{ display: "block", minHeight: 100, minWidth: 300, ...style }}
+        style={{
+          display: "block",
+          width: "100%",
+        }}
         data-ad-client={"ca-pub-" + process.env.NEXT_PUBLIC_GAPID}
         data-ad-slot={adSlot}
         data-ad-format={adFormat}
