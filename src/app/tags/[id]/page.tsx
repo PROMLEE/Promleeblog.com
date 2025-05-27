@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { TagsService } from "@/config/apis/service/tags";
 import { Cards } from "@/components/posts/Cards";
+import AdComponent from "@/components/ads/adsense";
 
 const getTags = async (params: { id: string }) => {
   const postList = await TagsService().getPostLink({
@@ -16,7 +17,7 @@ const Tags = async ({ params }: { params: Promise<{ id: string }> }) => {
 
   return (
     <div>
-      <h2 className="mb-3 mt-7 text-2xl font-bold">
+      <h2 className="mt-7 mb-3 text-2xl font-bold">
         # {id.split("-")[1].replace("%20", " ")}
       </h2>
       <div className="flex w-full flex-wrap gap-5">
@@ -26,8 +27,8 @@ const Tags = async ({ params }: { params: Promise<{ id: string }> }) => {
           </Link>
         ))}
       </div>
+      <AdComponent adSlot="9354906951" adFormat="autorelaxed" />
     </div>
   );
 };
 export default Tags;
-

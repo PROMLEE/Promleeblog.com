@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Metadata } from "next";
 import { GenerateMeta } from "@/lib/PostUtils/GenerateMeta_category";
 import { PostService } from "@/config/apis";
+import AdComponent from "@/components/ads/adsense";
 
 type Props = { params: Promise<{ category: string }> };
 
@@ -40,6 +41,7 @@ const Category = async (props: Props) => {
             </Link>
           ),
         )}
+      <AdComponent adSlot="9354906951" adFormat="autorelaxed" />
     </div>
   );
 };

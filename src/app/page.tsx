@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/carousel";
 import { MainService } from "@/config/apis";
 import { ImageUrl } from "@/lib/PostUtils/getImageUrl";
+import AdComponent from "@/components/ads/adsense";
 
 const Page = async () => {
   const [recentPosts, hotPosts] = await Promise.all([
@@ -125,9 +126,12 @@ const Page = async () => {
         <CarouselPrevious className="hidden md:flex" />
         <CarouselNext className="hidden md:flex" />
       </Carousel>
+      <div className="mt-10 mb-5 text-4xl font-bold text-gray-900 dark:text-slate-200">
+        ⭐️ Advertise
+      </div>
+      <AdComponent adSlot="4462031713" adFormat="autorelaxed" />
     </div>
   );
 };
 
 export default Page;
-
