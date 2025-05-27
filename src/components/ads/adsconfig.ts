@@ -2,6 +2,7 @@ const adsConfig = [
   {
     adSlot: "2713309110", // Ads1
     adFormat: "fluid",
+    adLayout: "in-article",
     style: { textAlign: "center" as const },
   },
   {
