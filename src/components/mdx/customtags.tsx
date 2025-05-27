@@ -1,4 +1,3 @@
-import adsConfig from "../ads/adsconfig";
 import AdComponent from "../ads/adsense";
 
 export function Answer({ children }: { children: React.ReactNode }) {
@@ -92,7 +91,10 @@ export const Ads1 = () => {
   return (
     <div className="mt-10 mb-4">
       <AdComponent
-        {...adsConfig[0]} // Ads1
+        adSlot="2713309110"
+        adFormat="fluid"
+        adLayout="in-article"
+        style={{ textAlign: "center" }}
       />
     </div>
   );
@@ -101,7 +103,10 @@ export const Ads2 = () => {
   return (
     <div className="mt-10 mb-4">
       <AdComponent
-        {...adsConfig[1]} // Ads2
+        adSlot="2890712597" // Ads3
+        adFormat="fluid"
+        adLayout="in-article"
+        style={{ textAlign: "center" }}
       />
     </div>
   );
@@ -110,7 +115,10 @@ export const Ads3 = () => {
   return (
     <div className="mt-10 mb-4">
       <AdComponent
-        {...adsConfig[2]} // Ads3
+        adSlot="6309773342" // Ads3
+        adFormat="fluid"
+        adLayout="in-article"
+        style={{ textAlign: "center" }}
       />
     </div>
   );
@@ -119,7 +127,10 @@ export const Ads4 = () => {
   return (
     <div className="mt-10 mb-4">
       <AdComponent
-        {...adsConfig[3]} // Ads4
+        adSlot="4201041797" // Ads4
+        adFormat="fluid"
+        adLayout="in-article"
+        style={{ textAlign: "center" }}
       />
     </div>
   );
@@ -128,7 +139,10 @@ export const Ads5 = () => {
   return (
     <div className="mt-10 mb-4">
       <AdComponent
-        {...adsConfig[4]} // Ads5
+        adSlot="7290848373" // Ads5
+        adFormat="fluid"
+        adLayout="in-article"
+        style={{ textAlign: "center" }}
       />
     </div>
   );
@@ -138,7 +152,10 @@ export const Ads6 = () => {
   return (
     <div className="mt-10 mb-4">
       <AdComponent
-        {...adsConfig[5]} // Ads6
+        adSlot="8345743897" // Ads6
+        adFormat="fluid"
+        adLayout="in-article"
+        style={{ textAlign: "center" }}
       />
     </div>
   );
