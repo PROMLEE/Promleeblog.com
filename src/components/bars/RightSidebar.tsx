@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import AdComponent from "../ads/adsense";
 
 const parseToc = (content: string) => {
   const regex = /^(#|##|###) (.*$)/gim;
@@ -105,10 +104,19 @@ const RightSidebarComp = ({ content }: { content: string }) => {
         }
       })}
       <div className="hidden md:block">
-        <div className="h-10" />
-        <AdComponent adSlot="6339310501" adFormat="auto" />
-        <div className="h-10" />
-        <AdComponent adSlot="4757186394" adFormat="auto" />
+        <div className="h-5" />
+        <iframe
+          src="https://ads-partners.coupang.com/widgets.html?id=870087&template=carousel&trackingCode=AF1096671&subId=&width=150&height=400&tsource="
+          width="150"
+          height="400"
+          frameBorder="0"
+          scrolling="no"
+          referrerPolicy="unsafe-url"
+        ></iframe>
+        <div className="mt-2 text-xs text-gray-500">
+          이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를
+          제공받습니다.
+        </div>
       </div>
     </div>
   );
