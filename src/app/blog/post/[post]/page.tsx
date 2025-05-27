@@ -77,7 +77,7 @@ const Post = async ({ params }: { params: Promise<{ post: string }> }) => {
           <MdxBody content={markdownsource.posting} />
         </div>
         <AdComponent
-          adSlot="7985984960"
+          adSlot="6830024817"
           adFormat="fluid"
           layoutKey="-fb+5w+4e-db+86"
         />
