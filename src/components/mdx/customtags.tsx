@@ -77,56 +77,70 @@ export function Toggle({
 
 export const Ads = () => {
   return (
-    <AdComponent
-      adSlot="2890712597"
-      adFormat="fluid"
-      adLayout="in-article"
-      style={{ textAlign: "center" }}
-    />
+    <div className="mt-10 mb-4">
+      <AdComponent
+        adSlot="2890712597"
+        adFormat="fluid"
+        adLayout="in-article"
+        style={{ textAlign: "center" }}
+      />
+    </div>
   );
 };
 
 export const Ads1 = () => {
   return (
-    <AdComponent
-      {...adsConfig[0]} // Ads1
-    />
+    <div className="mt-10 mb-4">
+      <AdComponent
+        {...adsConfig[0]} // Ads1
+      />
+    </div>
   );
 };
 export const Ads2 = () => {
   return (
-    <AdComponent
-      {...adsConfig[1]} // Ads2
-    />
+    <div className="mt-10 mb-4">
+      <AdComponent
+        {...adsConfig[1]} // Ads2
+      />
+    </div>
   );
 };
 export const Ads3 = () => {
   return (
-    <AdComponent
-      {...adsConfig[2]} // Ads3
-    />
+    <div className="mt-10 mb-4">
+      <AdComponent
+        {...adsConfig[2]} // Ads3
+      />
+    </div>
   );
 };
 export const Ads4 = () => {
   return (
-    <AdComponent
-      {...adsConfig[3]} // Ads4
-    />
+    <div className="mt-10 mb-4">
+      <AdComponent
+        {...adsConfig[3]} // Ads4
+      />
+    </div>
   );
 };
 export const Ads5 = () => {
   return (
-    <AdComponent
-      {...adsConfig[4]} // Ads5
-    />
+    <div className="mt-10 mb-4">
+      <AdComponent
+        {...adsConfig[4]} // Ads5
+      />
+    </div>
   );
 };
 
 export const Ads6 = () => {
   return (
-    <AdComponent
-      {...adsConfig[5]} // Ads6
-    />
+    <div className="mt-10 mb-4">
+      <AdComponent
+        {...adsConfig[5]} // Ads6
+      />
+    </div>
   );
 };
 
