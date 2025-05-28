@@ -22,16 +22,18 @@ const AdComponent: React.FC<AdComponentProps> = ({
   const pathname = usePathname();
   useEffect(() => {
     try {
+      // 광고 태그 초기화
       (window as any).adsbygoogle = (window as any).adsbygoogle || [];
       (window as any).adsbygoogle.push({});
     } catch (e) {
       console.error("Error loading ads:", e);
     }
-  }, []);
+  }, [adSlot, adFormat, adLayout, layoutKey]);
 
   return pathname.startsWith("/test") ||
     pathname.startsWith("/aboutme") ? null : (
     <ins
+      key={adSlot} // 추가
       className="adsbygoogle"
       style={{ display: "block", ...style }}
       data-ad-client={"ca-pub-" + process.env.NEXT_PUBLIC_GAPID}
@@ -44,4 +46,3 @@ const AdComponent: React.FC<AdComponentProps> = ({
 };
 
 export default AdComponent;
-
