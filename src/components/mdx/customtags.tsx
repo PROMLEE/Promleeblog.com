@@ -74,19 +74,6 @@ export function Toggle({
   );
 }
 
-export const Ads = () => {
-  return (
-    <div className="mt-10 mb-4">
-      <AdComponent
-        adSlot="2890712597"
-        adFormat="fluid"
-        adLayout="in-article"
-        style={{ textAlign: "center" }}
-      />
-    </div>
-  );
-};
-
 export const Ads1 = () => {
   return (
     <div className="mt-10 mb-4">

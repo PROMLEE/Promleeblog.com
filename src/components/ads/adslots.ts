@@ -1,6 +1,5 @@
 // components/mdx/adslots.ts
 import {
-  Ads,
   AdsDev,
   Ads1,
   Ads2,
@@ -11,7 +10,6 @@ import {
 } from "@/components/mdx/customtags";
 
 export const AdSlots = {
-  Ads,
   Ads1,
   Ads2,
   Ads3,
@@ -21,7 +19,6 @@ export const AdSlots = {
 };
 
 export const AdSlotsDev = {
-  Ads: AdsDev,
   Ads1: AdsDev,
   Ads2: AdsDev,
   Ads3: AdsDev,
