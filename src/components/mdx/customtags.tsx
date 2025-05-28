@@ -103,7 +103,7 @@ export const Ads2 = () => {
   return (
     <div className="mt-10 mb-4">
       <AdComponent
-        adSlot="2890712597" // Ads3
+        adSlot="2890712597"
         adFormat="fluid"
         adLayout="in-article"
         style={{ textAlign: "center" }}
