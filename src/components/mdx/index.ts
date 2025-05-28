@@ -23,8 +23,6 @@ import {
 } from "@/components/mdx/defaulttags";
 import {
   Answer,
-  AdsDev,
-  Ads,
   Math,
   Bbox,
   Rbox,
@@ -32,14 +30,9 @@ import {
   Ybox,
   MathBox,
   Toggle,
-  Ads1,
-  Ads2,
-  Ads3,
-  Ads4,
-  Ads5,
-  Ads6,
 } from "@/components/mdx/customtags";
 import Pre from "./pretags";
+import { AdSlots, AdSlotsDev } from "../ads/adslots";
 
 export const Components = (isDev?: boolean) => {
   return {
@@ -73,12 +66,6 @@ export const Components = (isDev?: boolean) => {
     Ybox,
     MathBox,
     Toggle,
-    Ads: isDev ? AdsDev : Ads,
-    Ads1: isDev ? AdsDev : Ads1,
-    Ads2: isDev ? AdsDev : Ads2,
-    Ads3: isDev ? AdsDev : Ads3,
-    Ads4: isDev ? AdsDev : Ads4,
-    Ads5: isDev ? AdsDev : Ads5,
-    Ads6: isDev ? AdsDev : Ads6,
+    ...(isDev ? AdSlotsDev : AdSlots),
   };
 };
