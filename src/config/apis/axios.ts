@@ -51,8 +51,8 @@ const returnFetchJson = (
       next: {
         revalidate:
           init?.next?.revalidate ??
-          (process.env.NODE_ENV === "production" ? 86400 : 0),
-      }, // production 환경에서는 1일(86400초), 그 외에는 캐시 사용 안 함(0)
+          (process.env.NODE_ENV === "production" ? 14400 : 0),
+      }, // production 환경에서는 4시간(14400초), 그 외에는 캐시 사용 안 함(0)
       cache:
         init?.cache ||
         (process.env.NODE_ENV === "production" ? "default" : "no-store"), // production 환경에서만 기본 캐시 사용

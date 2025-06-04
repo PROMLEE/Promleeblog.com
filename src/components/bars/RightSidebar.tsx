@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import AdComponent from "../ads/adsense";
 
 const parseToc = (content: string) => {
   const regex = /^(#|##|###) (.*$)/gim;
@@ -117,6 +118,11 @@ const RightSidebarComp = ({ content }: { content: string }) => {
           이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를
           제공받습니다.
         </div>
+      </div> <div className="hidden md:block">Add commentMore actions
+        <div className="h-10" />
+        <AdComponent adSlot="6339310501" adFormat="auto" />
+        <div className="h-10" />
+        <AdComponent adSlot="4757186394" adFormat="auto" />
       </div>
     </div>
   );
