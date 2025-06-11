@@ -104,7 +104,7 @@ const RightSidebarComp = ({ content }: { content: string }) => {
           );
         }
       })}
-      <div className="hidden md:block">
+      {/* <div className="hidden md:block">
         <div className="h-5" />
         <iframe
           src="https://ads-partners.coupang.com/widgets.html?id=870087&template=carousel&trackingCode=AF1096671&subId=&width=150&height=400&tsource="
@@ -118,10 +118,11 @@ const RightSidebarComp = ({ content }: { content: string }) => {
           이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를
           제공받습니다.
         </div>
-      </div> <div className="hidden md:block">Add commentMore actions
+      </div> */}
+      <div className="hidden md:block">
         <div className="h-10" />
         <AdComponent adSlot="6339310501" adFormat="auto" />
-        <div className="h-10" />
+        <div className="h-5" />
         <AdComponent adSlot="4757186394" adFormat="auto" />
       </div>
     </div>
