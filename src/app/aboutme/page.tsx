@@ -30,11 +30,11 @@ export default function PTPage() {
     <Suspense key="intro" fallback={<SlideLoader />}>
       <IntroSlide />
     </Suspense>,
-    <Suspense key="achievements" fallback={<SlideLoader />}>
-      <KeyAchievementsSlide />
-    </Suspense>,
     <Suspense key="experience" fallback={<SlideLoader />}>
       <ExperiencePT />
+    </Suspense>,
+    <Suspense key="achievements" fallback={<SlideLoader />}>
+      <KeyAchievementsSlide />
     </Suspense>,
     <Suspense key="skills" fallback={<SlideLoader />}>
       <SkillsPT />

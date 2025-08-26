@@ -24,6 +24,14 @@ export const AboutMe = () => {
           </li>
           <li className="flex items-center gap-2 transition-all duration-300 hover:translate-x-2">
             <span className="text-blue-500">▹</span>
+            현재{" "}
+            <strong className="font-bold text-blue-600 dark:text-blue-400">
+              현대오토에버
+            </strong>
+            에서 백엔드 개발자로 근무하고 있습니다.
+          </li>
+          <li className="flex items-center gap-2 transition-all duration-300 hover:translate-x-2">
+            <span className="text-blue-500">▹</span>
             풀스택 개발을 꿈꾸고 있습니다.
           </li>
           <li className="flex items-center gap-2 transition-all duration-300 hover:translate-x-2">
