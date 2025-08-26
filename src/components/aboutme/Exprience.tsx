@@ -11,6 +11,28 @@ interface ExprienceType {
 
 const expriences: ExprienceType[] = [
   {
+    name: "현대오토에버",
+    date: "2025.07 ~ 현재",
+    url: {
+      name: "현대오토에버",
+      url: "https://www.hyundai-autoever.com/",
+      desc: "현대자동차그룹의 IT 솔루션 전문 기업",
+    },
+    thumbnail: {
+      url: "https://opening-attachments.greetinghr.com/2025-02-02/22ee3d55-74fb-45d1-9a37-85702a3b686a/__.png",
+      width: 100,
+      height: 50,
+    },
+    id: "hyundai-autoever",
+    contents: [
+      "백엔드 개발자로 근무",
+      "Java/Spring Boot 기반 서버 개발",
+      "MSA 아키텍처 설계 및 구축",
+      "API 설계 및 개발",
+      "데이터베이스 설계 및 최적화",
+    ],
+  },
+  {
     name: "UMC 5th, 6th",
     date: "2023.09.07 ~",
     url: {

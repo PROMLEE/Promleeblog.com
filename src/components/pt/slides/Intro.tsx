@@ -18,7 +18,7 @@ const info = {
   portfolio: "https://promleeblog.com",
   github: "https://github.com/PROMLEE",
   linkedin: "https://linkedin.com/in/동훈-이-7778a5315",
-  keywords: ["도전", "풀스택", "UI/UX", "Web3"],
+  keywords: ["도전", "풀스택", "UI/UX", "Web3", "백엔드"],
 };
 
 export default function IntroSlide() {
@@ -47,7 +47,33 @@ export default function IntroSlide() {
           </span>
         ))}
       </div>
-      <div className="animate-fadein4 mt-4 flex flex-col items-center gap-4 md:flex-row">
+      <div className="animate-fadein3-5 mt-4 text-center">
+        <div className="mb-3 flex items-center justify-center gap-3">
+          <Image
+            src="https://opening-attachments.greetinghr.com/2025-02-02/22ee3d55-74fb-45d1-9a37-85702a3b686a/__.png"
+            alt="현대오토에버 로고"
+            width={100}
+            height={40}
+            className="object-contain"
+          />
+          <p className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+            현재{" "}
+            <span
+              className="cursor-pointer font-bold text-blue-600 dark:text-blue-400"
+              onClick={() =>
+                window.open("https://www.hyundai-autoever.com/", "_blank")
+              }
+            >
+              현대오토에버
+            </span>
+            에서
+          </p>
+        </div>
+        <p className="text-lg text-gray-700 dark:text-gray-200">
+          백엔드 개발자로 근무 중입니다
+        </p>
+      </div>
+      {/* <div className="animate-fadein4 mt-4 flex flex-col items-center gap-4 md:flex-row">
         <a
           href={info.resume}
           download
@@ -55,7 +81,7 @@ export default function IntroSlide() {
         >
           이력서 다운로드
         </a>
-      </div>
+      </div> */}
       <div className="animate-fadein5 mt-4 flex flex-col items-center gap-4 text-gray-700 md:flex-row dark:text-gray-200">
         <div className="flex items-center gap-2">
           <FaEnvelope color="#3b82f6" /> {info.email}
