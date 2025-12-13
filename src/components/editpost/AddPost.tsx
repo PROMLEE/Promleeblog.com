@@ -15,15 +15,42 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { EditService } from "@/config/apis";
 import { TagsService } from "@/config/apis/service/tags";
 import { Badge } from "../ui/badge";
 import { moveFiles } from "@/lib/actions/moveFiles";
 
+// MDX frontmatter 파싱 함수
+const parseMdxFrontmatter = (content: string) => {
+  const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---/;
+  const match = content.match(frontmatterRegex);
+
+  if (!match) return null;
+
+  const frontmatterContent = match[1];
+  const result: Record<string, string> = {};
+
+  // 각 줄을 파싱하여 key: value 형태로 추출
+  const lines = frontmatterContent.split("\n");
+  for (const line of lines) {
+    const colonIndex = line.indexOf(":");
+    if (colonIndex > 0) {
+      const key = line.slice(0, colonIndex).trim();
+      const value = line.slice(colonIndex + 1).trim();
+      result[key] = value;
+    }
+  }
+
+  // frontmatter를 제외한 본문 추출
+  const body = content.replace(frontmatterRegex, "").trim();
+
+  return { frontmatter: result, body };
+};
+
 interface value {
   name: // | "series_id"
-  "name" | "nameko" | "url" | "series_no" | "desc" | "thumbnail_url";
+    "name" | "nameko" | "url" | "series_no" | "desc" | "thumbnail_url";
   type: "text" | "number" | "checkbox";
   disabled?: boolean;
   formlabel: string;
@@ -96,6 +123,63 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
     },
   });
 
+  // MDX 붙여넣기 시 자동 파싱 및 폼 필드 채우기
+  const handlePostingChange = useCallback(
+    (value: string) => {
+      form.setValue("posting", value);
+
+      const parsed = parseMdxFrontmatter(value);
+      if (parsed) {
+        const { frontmatter, body } = parsed;
+
+        // frontmatter 값으로 폼 필드 자동 채우기
+        if (frontmatter.title_en) {
+          form.setValue("name", frontmatter.title_en);
+        }
+        if (frontmatter.title_ko) {
+          form.setValue("nameko", frontmatter.title_ko);
+        }
+        if (frontmatter.url) {
+          form.setValue("url", frontmatter.url);
+        }
+        if (frontmatter.series_no) {
+          form.setValue("series_no", parseInt(frontmatter.series_no) || 0);
+        }
+        if (frontmatter.desc) {
+          form.setValue("desc", frontmatter.desc);
+        }
+        if (frontmatter.thumbnail_url) {
+          form.setValue("thumbnail_url", frontmatter.thumbnail_url);
+        }
+        if (frontmatter.metatag) {
+          // 쉼표로 구분된 태그를 배열로 변환
+          const metatags = frontmatter.metatag
+            .split(",")
+            .map((t) => t.trim())
+            .filter((t) => t);
+          form.setValue("metatag", metatags);
+        }
+        if (frontmatter.tags) {
+          // 태그 이름으로 태그 ID 찾기
+          const tagNames = frontmatter.tags
+            .split(",")
+            .map((t) => t.trim().toLowerCase())
+            .filter((t) => t);
+          const tagIds = tags
+            .filter((tag) => tagNames.includes(tag.name.toLowerCase()))
+            .map((tag) => parseInt(tag.id));
+          if (tagIds.length > 0) {
+            form.setValue("tags", tagIds);
+          }
+        }
+
+        // posting은 전체 내용 유지 (frontmatter 포함)
+        // 이미 위에서 setValue로 전체 value가 설정되어 있음
+      }
+    },
+    [form, tags],
+  );
+
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     const confirmtext = `Name: ${data.name}\nName(ko): ${data.nameko}\nURL: ${data.url}\nSeries_no: ${data.series_no}\nDescription: ${data.desc}\nThumbnail URL: ${data.thumbnail_url}\nLock: ${data.lock}\nPosting: ${data.posting.slice(0, 20)}...`;
     if (window.confirm("Do you want to add this Post?\n" + confirmtext)) {
@@ -145,22 +229,6 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
             ))}
             <FormField
               control={form.control}
-              name="lock"
-              render={({ field }) => (
-                <FormItem className="border-third flex flex-row items-center justify-between rounded-lg border p-4">
-                  <FormLabel>Lock</FormLabel>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      className="data-[state=checked]:bg-third data-[state=unchecked]:bg-secondary"
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="metatag"
               render={({ field }) => (
                 <FormItem>
@@ -185,15 +253,34 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
               name="posting"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Posting</FormLabel>
+                  <FormLabel>
+                    Posting (MDX 전체 붙여넣기 시 자동 파싱)
+                  </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Posting"
-                      className="border-third resize-none"
-                      {...field}
+                      placeholder="MDX 파일 내용을 붙여넣으면 frontmatter가 자동으로 파싱됩니다"
+                      className="border-third min-h-[200px] resize-none"
+                      value={field.value}
+                      onChange={(e) => handlePostingChange(e.target.value)}
                     />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="lock"
+              render={({ field }) => (
+                <FormItem className="border-third flex flex-row items-center justify-between rounded-lg border p-4">
+                  <FormLabel>Lock</FormLabel>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      className="data-[state=checked]:bg-third data-[state=unchecked]:bg-secondary"
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />
