@@ -9,7 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "npx prisma@6 generate",
+    "postinstall": "prisma generate",
     "netlify-deploy": "next build && next export",
     "vercel-deploy": "next build && next export"
   },
@@ -95,6 +95,7 @@
     "postcss": "^8.5.3",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
+    "prisma": "^6.5.0",
     "tailwindcss": "^4.1.1",
     "tsx": "^4.19.3",
     "typescript": "^5",
