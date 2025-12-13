@@ -9,7 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "npx prisma generate",
+    "postinstall": "npx prisma@6 generate",
     "netlify-deploy": "next build && next export",
     "vercel-deploy": "next build && next export"
   },
@@ -50,17 +50,17 @@
     "input-otp": "^1.4.2",
     "lucide-react": "^0.487.0",
     "mysql2": "^3.14.0",
-    "next": "15.2.4",
+    "next": "15.2.8",
     "next-images": "^1.8.5",
     "next-mdx-remote": "^5.0.0",
     "next-swagger-doc": "^0.4.1",
     "next-themes": "^0.4.6",
     "npm-run-all": "^4.1.5",
     "plaiceholder": "^3.0.0",
-    "react": "19.1.0",
+    "react": "19.1.2",
     "react-cytoscapejs": "^2.0.0",
     "react-day-picker": "^9.6.4",
-    "react-dom": "19.1.0",
+    "react-dom": "19.1.2",
     "react-hook-form": "^7.55.0",
     "react-icons": "^5.5.0",
     "react-responsive": "^10.0.1",
@@ -85,9 +85,9 @@
     "@tailwindcss/typography": "^0.5.16",
     "@types/cytoscape": "^3.21.9",
     "@types/node": "^22",
-    "@types/react": "19.1.0",
+    "@types/react": "^19.1.2",
     "@types/react-cytoscapejs": "^1.2.5",
-    "@types/react-dom": "19.1.1",
+    "@types/react-dom": "^19.1.2",
     "concurrently": "^9.1.2",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
@@ -101,7 +101,7 @@
     "ws": "^8.18.1"
   },
   "overrides": {
-    "@types/react": "19.1.0",
-    "@types/react-dom": "19.1.1"
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2"
   }
 }
