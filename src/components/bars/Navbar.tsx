@@ -78,7 +78,7 @@ export const Navbar = () => {
   };
 
   // 호버 애니메이션 조절을 위한 스프링 설정
-  const hoverSpring = { type: "spring", stiffness: 400, damping: 17 };
+  const hoverSpring = { type: "spring", stiffness: 400, damping: 17 } as const;
 
   return (
     <>
