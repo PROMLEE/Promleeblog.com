@@ -1,12 +1,11 @@
 export const dynamic = "force-dynamic";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { createResponse } from "@/config/apiResponse";
 import { NextResponse, NextRequest } from "next/server";
 
 (BigInt.prototype as unknown as { toJSON: () => string }).toJSON = function () {
   return this.toString();
 };
-const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get("post_id")?.split("-")[0];

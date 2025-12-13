@@ -1,10 +1,8 @@
 export const dynamic = "force-dynamic";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { createResponse } from "@/config/apiResponse";
 import { NextRequest, NextResponse } from "next/server";
 import { google } from "googleapis";
-
-const prisma = new PrismaClient();
 
 const NAVER = "https://searchadvisor.naver.com/indexnow";
 const BING = "https://www.bing.com/indexnow";
