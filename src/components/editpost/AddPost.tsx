@@ -130,7 +130,7 @@ export const AddPost = ({ series_id }: { series_id: number }) => {
 
       const parsed = parseMdxFrontmatter(value);
       if (parsed) {
-        const { frontmatter, body } = parsed;
+        const { frontmatter } = parsed;
 
         // frontmatter 값으로 폼 필드 자동 채우기
         if (frontmatter.title_en) {

@@ -53,6 +53,16 @@ const Page = () => {
         setLinks(res);
       });
   }, []);
+
+  // 목록 새로고침 함수
+  const refreshLinks = () => {
+    PostService()
+      .getLinks()
+      .then((res) => {
+        setLinks(res);
+      });
+  };
+
   const sendIndexNow = async () => {
     const basePath = "https://www.promleeblog.com/blog/";
     const Links = await PostService().getLinks();
@@ -152,6 +162,9 @@ const Page = () => {
 
   return (
     <>
+      <Button variant={"secondary"} className="m-5" onClick={refreshLinks}>
+        <span>목록 새로고침</span>
+      </Button>
       <Button variant={"secondary"} className="m-5" onClick={sendIndexNow}>
         <span>indexNow 요청 보내기</span>
       </Button>
