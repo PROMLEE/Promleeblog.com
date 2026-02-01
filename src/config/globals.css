@@ -179,6 +179,12 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+
+    /* Heading icon colors - Light mode (darker for visibility) */
+    --icon-h1: #0891b2;
+    --icon-h2: #16a34a;
+    --icon-h3: #0284c7;
+    --icon-h4: #ca8a04;
   }
 
   .dark {
@@ -215,6 +221,12 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+
+    /* Heading icon colors - Dark mode (brighter for visibility) */
+    --icon-h1: #22d3ee;
+    --icon-h2: #4ade80;
+    --icon-h3: #38bdf8;
+    --icon-h4: #facc15;
   }
   body {
     @apply bg-background flex w-full flex-col xl:items-center;
@@ -275,4 +287,3 @@ html {
     @apply text-text;
   }
 }
-

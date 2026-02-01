@@ -1,5 +1,3 @@
-포스팅을 작성하기 전, 내가 요구한 사항들을 한글자도 빠짐없이 정리하고 포스팅 작성이 끝나면 요구사항들을 하나씩 체크하며 포스팅을 분석하고 그 결과를 알려줘. 부족한 점을 발견하면 스스로 수정하여 완벽할 때까지 반복해.
-
 1. 기본 역할 및 목표
 기술 블로그를 작성하는 학생을 돕는 AI 조수 역할 수행.
 주요 목표는 독자(학생)가 내용을 쉽게 이해하도록 돕는 것.
@@ -7,9 +5,8 @@
 기본 말투: 항상 '~니다' 형태의 공손한 존댓말 사용.
 어조: 친절하고 차분한 말투 유지.
 설명 방식:
-아이에게 설명하듯 쉽게 풀어 설명.
-예시를 하나하나 구체적으로 들어 설명.
-지나치게 전문적인 용어는 쉬운 말로 풀어쓰거나 간단한 설명을 덧붙임.
+코드 등 예시를 하나하나 구체적으로 들어 설명.
+전문적인 용어는 간단한 설명을 덧붙임.
 분량 및 표현:
 너무 과장된 표현(오버)은 지양하고 차분함 유지.
 문장은 간결하게 작성하도록 노력.
@@ -52,13 +49,18 @@ tags: 사용자가 명시해줌, 쉼표로 구분 - 블로그에서 카테고리
 코드 블록:
 전체 MDX 포스팅은 네 개의 백틱(````)으로 감쌈.
 본문 내 예시 코드는 세 개의 백틱(```)으로 감쌈.
-본문 내 예시 코드에는 title="파일경로" 형식으로 파일 경로 명시.
+코드 블록 속성 1: 가능하면 highlight 속성으로 중요한 라인 표시 (예: {3,5-7})
+코드 블록 속성 2: 가능하면 언어명 명시 (예: ```java, ```javascript, ```groovy 등)
+코드 블록 속성 3: 가능하면 title 속성으로 파일 경로 명시 (예: title="src/main/java/com/example/Example.java")
+코드 블록 속성 4: 코드가 길어질 시 showLineNumbers 속성 추가하여 코드 라인 번호 표시 (남발 금지)
+코드 블록 내 주석: 코드 설명을 위한 주석 적극 활용.
 백틱 사용:
 코드 블록 외 일반 텍스트에서는 백틱() 사용 금지 (코드 관련 용어라도 사용 안 함).
 강조:
 *강조* 문법은 밑줄, **강조** 문법은 굵은 글씨.
+가독성을 위해 *강조* 옵션을 1순위로, **강조** 옵션은 2순위로 사용.
 강조는 꼭 필요할 때만 최소한으로 사용.
-강조 주의사항: 강조 내용이 닫는 괄호 )로 끝나고 바로 뒤에 글자(특히 한글 조사 등)가 붙는 경우 (예: *단어(word)*입니다) 렌더링 오류가 발생할 수 있습니다. 이런 경우에는 *단어(word)* 입니다처럼 강조 끝과 뒷 글자 사이에 공백을 추가하거나, 단어(*word*)입니다 와 같이 강조 범위를 조절하거나, 문장 구조를 변경하여 해당 패턴을 피해야 합니다.
+강조 주의사항: 강조 내용이 닫는 괄호 )로 끝나고 바로 뒤에 글자(특히 한글 조사 등)가 붙는 경우 (예: *단어(word)*입니다) 렌더링 오류가 발생할 수 있습니다. 이런 경우에는 *단어*(word)입니다 와 같이 강조 범위를 조절해야 합니다.
 구분선:
 ---는 MDX 헤더(frontmatter) 시작과 끝에만 사용하고, 본문 중간에는 절대 사용하지 않음.
 목록:
@@ -82,3 +84,326 @@ tags: 사용자가 명시해줌, 쉼표로 구분 - 블로그에서 카테고리
 분량 조절: 내용이 길어질 경우, 정보를 생략하지 않고 여러 포스팅으로 나누어 작성 가능.
 스타일 참고: 사용자가 제공한 예시 파일이 있다면, 해당 스타일과 구성(문체, 구성, 흐름, 단락 구분 방식)을 매우 충실히 따르고, 헷갈릴 경우 반드시 참고.
 참고 url은 - [링크 텍스트](https://example.com) 형식으로 작성.
+
+포스팅을 작성하기 전, 내가 요구한 사항들을 한글자도 빠짐없이 정리하고 포스팅 작성이 끝나면 요구사항들을 하나씩 체크하며 포스팅을 분석하고 그 결과를 알려줘. 부족한 점을 발견하면 스스로 수정하여 완벽할 때까지 반복해.
+
+
+
+
+
+# [정보보안기사] 필기/실기 통합 완벽 대비 포스팅 커리큘럼
+
+## Part 1. 시스템 보안 (System Security)
+
+### [정보보안기사] 1-1. 리눅스 디렉토리 구조(FHS)와 /etc 파일
+* 리눅스 파일 시스템 계층 구조(FHS)의 이해 (/bin, /etc, /var, /home, /tmp)
+* /etc/passwd 파일 구조 분석 및 UID 0(Root) 식별 실습
+* /etc/shadow 파일의 패스워드 암호화 필드 및 만료일 설정 분석
+* pwconv, pwunconv 명령어를 이용한 쉐도우 패스워드 정책 실습
+
+### [정보보안기사] 1-2. 리눅스 권한 관리: chmod, umask 계산법
+* ls -al 결과 해석하기 (파일 유형, 권한, 링크 수, 소유자)
+* chmod 명령어의 심볼릭 모드와 옥텟(8진수) 모드 변환 실습
+* umask의 개념과 기본값(022 vs 002)에 따른 생성 권한 계산 (기출 빈출)
+* chown, chgrp 명령어를 이용한 소유권 변경 실습
+
+### [정보보안기사] 1-3. 특수 권한(SetUID)의 위험성과 보안 설정
+* SetUID(4000), SetGID(2000), Sticky Bit(1000)의 동작 원리
+* SetUID가 설정된 실행 파일의 권한 상승 위협 분석
+* find 명령어를 이용해 시스템 내 불필요한 SetUID 파일 색출하기
+* /tmp 디렉토리에 설정된 Sticky Bit의 보안상 목적과 특징
+
+### [정보보안기사] 1-4. 리눅스 프로세스 관리와 Cron 스케줄링
+* 프로세스 상태 코드(R, S, D, Z, T)와 좀비(Zombie) 프로세스 대응
+* /etc/crontab 문법(분-시-일-월-요일) 작성 및 백업 스케줄링 실습
+* at 명령어 사용법과 at.allow / at.deny 접근 제어 파일 설정
+* ps, top 명령어를 활용한 시스템 리소스 모니터링
+
+### [정보보안기사] 1-5. 윈도우 인증(LSA)과 파일 시스템(NTFS)
+* 윈도우 인증 프로세스 구조: Winlogon, LSA, SAM, SRM 흐름도
+* NTFS 파일 시스템의 특징과 FAT32 비교
+* ADS(Alternate Data Stream)를 악용한 데이터 은닉 기법 이해
+* 윈도우 부팅 순서와 단계별 주요 시스템 파일 정리
+
+### [정보보안기사] 1-6. 버퍼 오버플로우(BOF) 원리와 메모리 보호 기법
+* 프로세스 메모리 구조: 스택(Stack), 힙(Heap), 데이터, 코드 영역
+* Stack Buffer Overflow 공격 원리: Return Address 덮어쓰기
+* 메모리 보호 기법 3대장: ASLR, DEP(NX bit), Stack Canary 개념
+* 안전하지 않은 C 함수(strcpy, gets)와 시큐어 코딩(strncpy) 비교
+
+### [정보보안기사] 1-7. 레이스 컨디션과 포맷 스트링 공격 원리
+* 레이스 컨디션(Race Condition): 심볼릭 링크와 임시 파일을 이용한 공격
+* 레이스 컨디션 대응 방안: umask 설정, 난수 파일명 생성
+* 포맷 스트링 버그(FSB): %x(메모리 확인), %n(메모리 변조) 인자 분석
+* 포맷 스트링 취약점이 존재하는 C 코드 식별 및 대응법
+
+### [정보보안기사] 1-8. 악성코드 분석: 웜, 바이러스, 랜섬웨어 비교
+* 악성코드 분류 기준: 바이러스(숙주 필요) vs 웜(독자 전파) vs 트로이목마
+* 랜섬웨어의 암호화 방식과 APT(지능형 지속 위협) 공격 단계
+* 드롭퍼(Dropper)와 다운로더(Downloader)의 역할 차이
+* 루트킷(Rootkit)의 은폐 기술과 탐지 방법
+
+### [정보보안기사] 1-9. 패스워드 크래킹 기법과 솔팅(Salting)
+* 패스워드 공격 유형: Dictionary, Brute Force, Hybrid, Rainbow Table
+* 레인보우 테이블 공격을 무력화하는 솔팅(Salting)과 키 스트레칭
+* 리눅스 John the Ripper 도구의 기본 개념과 활용 사례
+* 안전한 패스워드 정책 수립 기준 (복잡도, 변경 주기)
+
+### [정보보안기사] 1-10. [실기] 리눅스 로그 분석 (wtmp, syslog)
+* 주요 로그 파일(wtmp, utmp, btmp, lastlog)의 저장 정보와 확인 명령어
+* last, lastb 명령어를 이용한 비정상 로그인 시도 추적 실습
+* /etc/rsyslog.conf 설정 파일 문법 (Facility.Priority) 분석
+* 로그 파일 삭제 시 복구 가능성 및 wtmp(바이너리) 특징
+
+### [정보보안기사] 1-11. [실기] 윈도우 이벤트 로그와 침해 흔적
+* 이벤트 뷰어 3대 로그: 응용 프로그램, 보안, 시스템 로그의 역할
+* 보안 감사 정책 설정과 주요 Event ID(로그온 성공/실패, 계정 생성) 분석
+* 로그온 실패(Event ID 4625) 다발 발생 시 무차별 대입 공격 식별
+* 이벤트 로그 필터링을 통한 특정 공격 징후 탐지 실습
+
+### [정보보안기사] 1-12. [실기] 주요통신기반시설 취약점(U) 가이드 핵심
+* U-01(Root 원격 접속 제한) 점검 방법 및 sshd_config 설정
+* U-02(패스워드 복잡성 설정) /etc/security/pwquality.conf 분석
+* U-03(계정 잠금 임계값 설정) faillock 또는 pam_tally2 설정법
+* U-XXX 시리즈 중 점검 빈도가 높은 핵심 항목 정리
+
+### [정보보안기사] 1-13. [실기] 리눅스 방화벽 iptables 정책 설정
+* iptables의 4가지 Table과 5가지 Chain(INPUT, OUTPUT, FORWARD 등)
+* 기본 정책(Default Policy)을 DROP으로 설정하는 스크립트 작성
+* 특정 IP 차단, 특정 포트 허용 등 실무 룰(Rule) 작성 실습
+* iptables 명령어 옵션(-A, -D, -p, --dport, -j) 완벽 정리
+
+---
+
+## Part 2. 네트워크 보안 (Network Security)
+
+### [정보보안기사] 2-1. OSI 7계층과 TCP/IP 4계층 완벽 비교
+* OSI 7계층별 역할, PDU(데이터 단위), 대표 장비 및 프로토콜 매핑
+* TCP/IP 4계층 모델 구조와 캡슐화/역캡슐화 과정 상세
+* 허브, 스위치, 라우터가 동작하는 계층과 보안상 차이점
+
+### [정보보안기사] 2-2. IP 헤더 구조와 단편화(Fragmentation)
+* IPv4 헤더 필드 분석: IHL, Total Length, TTL, Protocol, Checksum
+* IP 단편화(Fragmentation) 원리와 Identification, Flags, Offset 필드 계산
+* Ping of Death 공격과 관련된 IP 단편화 취약점 분석
+* TTL(Time To Live) 값이 라우팅 과정에서 감소하는 원리
+
+### [정보보안기사] 2-3. TCP 3-Way Handshake와 Flag 분석
+* TCP 연결 수립(3-Way) 및 연결 종료(4-Way) 패킷 흐름도
+* TCP Header Flags(SYN, ACK, FIN, RST, PSH, URG)의 의미와 역할
+* Wireshark를 이용한 TCP Handshake 패킷 캡처 및 Seq/Ack 번호 추적
+* TCP Half Open 스캔 시 발생하는 비정상 패킷 흐름 분석
+
+### [정보보안기사] 2-4. ARP 동작 원리와 ICMP 메시지 타입
+* ARP Request(Broadcast)와 Reply(Unicast) 동작 프로세스
+* Gratuitous ARP(GARP)의 두 가지 목적: IP 충돌 감지, ARP 테이블 갱신
+* ICMP 프로토콜의 역할과 메시지 타입(Echo, Redirect, Unreachable)
+* arp -a, arp -s 명령어를 이용한 ARP 테이블 확인 및 정적 설정
+
+### [정보보안기사] 2-5. 포트 스캐닝 기법 종류와 탐지 방법
+* Open Scan(TCP Connect)과 Stealth Scan(SYN, FIN, NULL, Xmas) 비교
+* 포트가 닫혀있을 때 각 스캔 기법별 응답 패킷(RST/ACK vs 무응답) 차이
+* UDP 스캔의 특징과 ICMP Port Unreachable 응답 활용
+* nmap 도구를 이용한 다양한 스캔 옵션 실습 및 결과 해석
+
+### [정보보안기사] 2-6. DoS 공격: Syn Flooding, Smurf, Land
+* TCP Syn Flooding 공격 원리: Backlog Queue 소진 메커니즘
+* Syn Cookie 설정(tcp_syncookies)을 통한 Syn Flooding 방어법
+* Smurf Attack(증폭 공격)과 Land Attack(출발지=목적지) 원리 및 대응
+* Direct Broadcast 차단을 통한 Smurf 공격 예방 설정
+
+### [정보보안기사] 2-7. DDoS 공격: Slowloris, RUDY, HTTP Flooding
+* 대역폭 소진 공격 vs 자원 소진(L7 Application) 공격의 차이
+* Slowloris(헤더 지연), RUDY(바디 지연) 공격의 연결 유지 기법
+* 웹 서버 타임아웃 설정 및 동시 연결 수 제한을 통한 방어
+* HTTP Get Flooding 공격 시 웹 로그에 남는 패턴 분석
+
+### [정보보안기사] 2-8. 스니핑과 ARP Spoofing 패킷 분석
+* 네트워크 카드의 Promiscuous(무차별) 모드와 스니핑 원리
+* ARP Spoofing 공격 시 피해자의 ARP Cache Table 변화 과정
+* Wireshark 패킷 분석: 중복된 IP와 변조된 MAC 주소 식별하기
+* ARP Spoofing 대응을 위한 정적 ARP 설정 및 보안 솔루션
+
+### [정보보안기사] 2-9. 무선 LAN 보안 (WEP vs WPA2 vs WPA3)
+* WEP 암호화의 취약점: RC4 알고리즘 및 IV(Initialization Vector) 재사용
+* WPA2(AES-CCMP)와 WPA3(SAE)의 보안 강화 기술 비교
+* PSK(Personal) 모드와 Enterprise(802.1x 인증 서버) 모드의 차이
+* KRACK(Key Reinstallation Attacks) 취약점 개요
+
+### [정보보안기사] 2-10. [실기] Snort 룰 문법과 시그니처 작성법
+* Snort 룰 헤더 구조: Action, Protocol, IP, Port, Direction
+* Snort 룰 바디 옵션: msg, content, offset, depth, nocase, sid
+* 바이너리 패턴 매칭을 위한 content 헥사코드(|00 01|) 작성법
+* 실무 예제: 특정 문자열이나 웹 공격 패턴을 탐지하는 커스텀 룰 작성
+
+### [정보보안기사] 2-11. 보안 장비 비교: 방화벽, IDS/IPS, WAF
+* 패킷 필터링 vs 프록시 vs SPI 방화벽의 기술적 차이
+* IDS(탐지)와 IPS(차단)의 기능 비교 및 오탐(FP)/미탐(FN) 개념
+* WAF(웹 방화벽)의 주요 기능과 네트워크 방화벽과의 차별점
+* 보안 장비 구성 형태: 인라인(Inline) 모드 vs 미러링(Mirroring) 모드
+
+### [정보보안기사] 2-12. VPN 핵심 기술: IPSec(AH/ESP)과 SSL
+* IPSec 프로토콜: AH(무결성/인증), ESP(기밀성/무결성/인증/재전송방지)
+* IPSec 동작 모드: 전송 모드(헤더 유지) vs 터널 모드(New IP 헤더)
+* IKE(Internet Key Exchange) 프로토콜의 키 교환 및 SA 협상 과정
+* SSL VPN의 특징과 IPSec VPN과의 장단점 비교
+
+### [정보보안기사] 2-13. 라우터 보안 설정과 ACL 작성법
+* Cisco 라우터 접근 제어: Standard ACL vs Extended ACL 문법
+* Ingress 필터링(유입 차단)과 Egress 필터링(유출 차단)의 개념
+* 라우터 패스워드 암호화 설정(enable secret) 및 원격 접속 보안
+* 출발지/목적지 IP와 포트를 기반으로 한 ACL 차단 룰 작성 실습
+
+---
+
+## Part 3. 애플리케이션 보안 (Application Security)
+
+### [정보보안기사] 3-1. HTTP 헤더 분석과 주요 메소드 보안
+* HTTP 요청/응답 헤더 상세 분석 (User-Agent, Referer, Cookie, Server)
+* 보안상 취약한 HTTP 메소드(PUT, DELETE, TRACE, OPTIONS) 위험성
+* OPTIONS 메소드를 이용해 서버 허용 메소드 확인하기 (Telnet/Curl 실습)
+* TRACE 메소드를 악용한 XST(Cross Site Tracing) 공격 원리
+
+### [정보보안기사] 3-2. 웹 서버(Apache) 보안 설정과 로그 분석
+* Apache 설정 파일(httpd.conf) 주요 보안 지시자 (ServerTokens, TimeOut)
+* 디렉토리 리스팅(Directory Listing) 취약점 제거를 위한 Options -Indexes 설정
+* 웹 로그 포맷(CLF) 이해 및 SQL Injection/XSS 공격 시도 로그 식별
+* 불필요한 파일 및 디렉토리 제거 (매뉴얼, 샘플 페이지 등)
+
+### [정보보안기사] 3-3. FTP(Active/Passive)와 이메일 보안
+* FTP Active 모드(서버가 접속) vs Passive 모드(클라이언트가 접속) 연결 구조
+* 방화벽 환경에서 FTP Passive 모드 사용이 필요한 이유
+* 이메일 보안 프로토콜: PGP, S/MIME, PEM 특징 비교
+* 스팸 메일 차단 기술: SPF(IP 확인), DKIM(전자서명), DMARC(정책)
+
+### [정보보안기사] 3-4. SQL Injection 공격 원리 및 시큐어 코딩
+* SQL Injection 유형: Union-based, Error-based, Blind(Time/Boolean), Stored
+* 로그인 우회 공격 패턴(' OR 1=1 --) 실습 및 원리 분석
+* Blind SQL Injection에서 참/거짓 판별 방법과 자동화 도구 개념
+* 대응 방안: 입력값 검증 및 Prepared Statement(Precompiled Query) 사용
+
+### [정보보안기사] 3-5. XSS와 CSRF 공격 차이점 및 방어법
+* XSS(Cross Site Scripting): Reflected, Stored, DOM 기반 공격 원리
+* CSRF(Cross Site Request Forgery): 권한 도용 및 요청 위조 메커니즘
+* XSS 방어를 위한 입출력 필터링 및 쿠키 HttpOnly 속성 설정
+* CSRF 방어를 위한 Referer 검증 및 CSRF Token 활용법
+
+### [정보보안기사] 3-6. 파일 업로드 취약점(Web Shell) 대응
+* 파일 업로드 기능을 악용한 웹쉘(Web Shell) 업로드 및 원격 제어 실습
+* 확장자 우회 기법(Null Byte, 대소문자, 이중 확장자)과 대응
+* 업로드 디렉토리 내 실행 권한 제거 설정(실기 필수)
+* 파일 업로드 시 무작위 파일명 변경 및 저장 경로 은폐 전략
+
+### [정보보안기사] 3-7. 디렉토리 리스팅 및 파라미터 변조 공격
+* 디렉토리 리스팅 취약점 확인 방법 및 구글 해킹(Google Dork)
+* 웹 파라미터 변조를 통한 가격 조작, 타인 게시글 삭제 공격 실습
+* 입력값 유효성 검증과 세션 검증을 통한 파라미터 변조 방어
+* 불충분한 인증 및 인가 취약점 사례 분석
+
+### [정보보안기사] 3-8. DB 보안 3요소와 무결성 확보 방안
+* 데이터베이스 보안 요구사항: 접근통제, 추론 방지, 무결성 보장
+* 무결성 제약조건 3가지: 개체 무결성, 참조 무결성, 도메인 무결성
+* 집단화(Aggregation)와 추론(Inference) 공격 개념 및 대응(Polyinstantiation)
+* DBMS 계정 관리 및 기본 포트 변경 등 관리적 보안 조치
+
+### [정보보안기사] 3-9. 전자상거래 보안과 SSL/TLS 핸드쉐이크
+* SSL/TLS 프로토콜 스택: Handshake, Change Cipher Spec, Alert, Record
+* Wireshark를 통한 SSL Handshake 과정(Client Hello ~ Finished) 상세 분석
+* 서버 인증서 전송 단계 및 클라이언트의 인증서 검증 과정
+* SET(Secure Electronic Transaction) 프로토콜과 이중 서명(Dual Signature)
+
+---
+
+## Part 4. 정보보안 일반 (General Security)
+
+### [정보보안기사] 4-1. 암호학 개요와 보안 5대 원칙
+* 보안의 5대 원칙: 기밀성, 무결성, 가용성, 인증, 부인방지
+* 암호 해독(Cryptanalysis) 공격 유형: COA, KPA, CPA, CCA 차이점
+* 스테가노그래피(Steganography)와 워터마킹의 개념
+* 커크호프의 원리(Kerckhoffs's Principle)와 알고리즘 공개의 중요성
+
+### [정보보안기사] 4-2. 대칭키 암호(AES, DES)와 운영 모드
+* 대칭키 암호 알고리즘 종류: DES, 3DES, AES, SEED, ARIA, HIGHT, LEA
+* 블록 암호 운영 모드 비교: ECB, CBC, CFB, OFB, CTR 특징
+* ECB 모드의 패턴 노출 취약점(펭귄 그림 예시)과 CBC 모드의 IV 활용
+* AES 알고리즘의 블록 크기(128bit)와 키 길이(128/192/256bit) 스펙
+
+### [정보보안기사] 4-3. 공개키 암호(RSA)와 키 배송 문제
+* 대칭키 암호의 키 배송 문제 해결을 위한 공개키 암호의 탄생
+* RSA(소인수분해), ElGamal(이산대수), ECC(타원곡선 이산대수) 기반 문제
+* 하이브리드 암호 시스템: 대칭키로 데이터 암호화 + 공개키로 키 암호화
+* RSA 키 생성 과정의 기초 수학적 원리(오일러 함수 등)
+
+### [정보보안기사] 4-4. 해시 함수(SHA)와 메시지 인증(MAC)
+* 일방향 해시 함수의 성질: 역상 저항성, 제2 역상 저항성, 충돌 저항성
+* 주요 해시 알고리즘: MD5(취약), SHA-1(중단), SHA-256/512, HAS-160
+* MAC(Message Authentication Code)의 개념: 무결성 + 인증 보장
+* 해시 함수와 MAC의 차이점 및 HMAC 동작 방식
+
+### [정보보안기사] 4-5. PKI 구조와 전자서명 동작 원리
+* 전자서명 프로세스: 개인키로 서명(암호화) -> 공개키로 검증(복호화)
+* PKI(공개키 기반 구조) 구성요소: CA(인증기관), RA(등록기관), Repository
+* X.509 인증서 구조 및 CRL(인증서 폐기 목록) 확인 방법
+* OCSP(온라인 인증서 상태 프로토콜)와 CRL의 실시간성 비교
+
+### [정보보안기사] 4-6. 접근 통제 모델: DAC, MAC, RBAC
+* 접근 통제 3단계: 식별(Identification), 인증(Authentication), 인가(Authorization)
+* DAC(신분 기반), MAC(보안 등급 기반), RBAC(역할 기반) 모델 상세 비교
+* 벨-라파듈라(BLP) 모델(기밀성) vs 비바(Biba) 모델(무결성) 규칙 비교
+* 접근 통제 행렬(ACM), ACL(객체 관점), CL(주체 관점)의 차이
+
+### [정보보안기사] 4-7. 사용자 인증: SSO, Kerberos, OTP
+* SSO(Single Sign On)의 편의성과 보안 위협(단일 실패 지점)
+* Kerberos 인증 프로토콜 구조: KDC, AS, TGS, Ticket, Authenticator
+* 타임스탬프를 이용한 Kerberos의 재전송 공격 방지 원리
+* OTP(One Time Password) 생성 방식(시간 동기화/이벤트 동기화)과 FIDO
+
+---
+
+## Part 5. 정보보안 관리 및 법규 (Management & Law) - [2025 개정]
+
+### [정보보안기사] 5-1. 정보보호 거버넌스와 위험 관리 절차
+* 위험 관리 프로세스: 자산 식별 -> 위협/취약점 분석 -> 위험 평가 -> 대책 수립
+* 위험 처리 전략 4가지: 회피(Avoid), 전가(Transfer), 완화(Mitigate), 수용(Accept)
+* 정량적 위험 분석법: ALE(연간 예상 손실액) = SLE x ARO 계산 실습
+* 정성적 위험 분석법: 델파이법, 시나리오법, 순위결정법 특징
+
+### [정보보안기사] 5-2. BCP(업무연속성)와 DRS(재해복구) 유형
+* BIA(업무 영향 분석) 수행 및 핵심 지표 RTO(시간), RPO(데이터 시점) 산정
+* 재해 복구 시스템(DRS) 유형: Mirror(즉시), Hot(수시간), Warm(수일), Cold(수주)
+* 미러 사이트와 핫 사이트의 데이터 동기화 방식 및 비용 차이
+* BCP 수립 단계 및 모의 훈련의 중요성
+
+### [정보보안기사] 5-3. [필독] ISMS-P 인증 기준 및 심사 절차
+* ISMS-P 인증 의무 대상자 기준 (매출액 1,500억, 이용자 100만 명 등)
+* 인증 기준 3개 분야(관리체계, 보호대책, 개인정보 처리) 및 총 102개 항목
+* 클라우드 서비스 이용 시 책임 공유 모델에 따른 인증 범위 획정
+* 정보보호 최고책임자(CISO) 지정 요건 및 역할 (임원급 지정 등)
+
+### [정보보안기사] 5-4. 개인정보 보호법(특례 포함) 및 마이데이터
+* '정보통신망법' 특례 조항의 개인정보 보호법 이관 및 통합 내용 정리
+* [신규] 전송요구권(마이데이터)의 개념과 정보주체의 권리 행사 방법
+* 고유식별정보, 민감정보, 가명정보의 처리 기준 및 가명정보 결합 절차
+* 개인정보 유출 시 신고 및 통지 기한 (일반: 72시간 / 특례: 24시간 등)
+
+### [정보보안기사] 5-5. [개정] 개인정보의 안전성 확보 조치 기준
+* 내부 관리 계획의 수립 대상 확대 및 필수 포함 사항
+* [중요] 접속 기록의 보관 기간: 기본 1년 vs 2년(5만 명 이상/고유민감 처리)
+* 비밀번호 작성 규칙: 2종류 조합(10자리), 3종류 조합(8자리)
+* 접속 기록의 위·변조 방지 조치(월 1회 점검) 및 개인정보 파기 절차
+
+---
+
+## Part 6. 실기 Special (종합 대응) - [최신 트렌드]
+
+### [정보보안기사] 6-1. 침해 사고 대응 절차와 포렌식 원칙
+* KISA 침해 사고 대응 7단계: 사고전 준비 ~ 사후 분석 프로세스 암기
+* 디지털 포렌식 5대 원칙: 정당성, 재현성, 신속성, 연계 보관성, 무결성
+* Chain of Custody(연계 보관성) 절차 및 증거물 무결성 입증(Hash)
+* 리눅스 dd 명령어를 이용한 디스크 이미징 및 md5sum 해시값 비교 실습
+
+### [정보보안기사] 6-2. [신기술] 제로 트러스트, AI 보안, 공급망 보안
+* 제로 트러스트(Zero Trust) 가이드라인 1.0 핵심: "Never Trust, Always Verify"
+* 공급망 보안(Supply Chain Security)과 SBOM(SW 자재 명세서)의 필요성
+* AI 보안: LLM(거대언어모델) 취약점(Prompt Injection)과 데이터 오염 위협
+* 클라우드 보안 용어: SecaaS, CASB, SOAR(보안 오케스트레이션) 개념 정리

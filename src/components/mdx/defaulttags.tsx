@@ -2,6 +2,7 @@ import Image from "next/image";
 import "katex/dist/katex.min.css";
 import Link from "next/link";
 import { DevImageUrl, ImageUrl } from "@/lib/PostUtils/getImageUrl";
+import { H1Icon, H2Icon, H3Icon, H4Icon } from "@/components/ui/HeadingIcons";
 
 interface Props {
   id: string;
@@ -68,8 +69,8 @@ export function h1tag({ id, children }: Props) {
       <hr
         className={"border-foreground mx-auto my-10 w-full rounded border-2"}
       />
-      <div className="mt-14 mb-5 ml-[-15px] flex gap-2 text-3xl">
-        💡{" "}
+      <div className="mt-14 mb-5 flex items-center gap-2 text-3xl">
+        <H1Icon />
         <h1
           id={id}
           className="not-prose text-text-foreground m-0 text-3xl font-bold"
@@ -84,8 +85,8 @@ export function h2tag({ id, children }: Props) {
   return (
     <>
       <hr className={"border-foreground w-full rounded border-1"} />
-      <div className="mt-5 mb-3 ml-[-10px] flex gap-2 text-2xl">
-        <div>🚀 </div>
+      <div className="mt-5 mb-3 flex items-center gap-2 text-2xl">
+        <H2Icon />
         <h2
           id={id}
           className="not-prose text-text-foreground m-0 text-2xl font-bold"
@@ -98,8 +99,8 @@ export function h2tag({ id, children }: Props) {
 }
 export function h3tag({ id, children }: Props) {
   return (
-    <div className="mt-7 mb-2 ml-[-10px] flex gap-2 text-xl font-bold">
-      ✅{" "}
+    <div className="mt-7 mb-2 flex items-center gap-2 text-xl font-bold">
+      <H3Icon />
       <h3
         id={id}
         className="not-prose text-text-foreground m-0 text-xl font-bold"
@@ -111,8 +112,8 @@ export function h3tag({ id, children }: Props) {
 }
 export function h4tag({ id, children }: Props) {
   return (
-    <div className="mt-7 mb-1 ml-[-8px] flex gap-2">
-      ➡️{" "}
+    <div className="mt-7 mb-1 flex items-center gap-2 text-lg">
+      <H4Icon />
       <h4
         id={id}
         className="not-prose text-text-foreground m-0 text-lg font-bold"
