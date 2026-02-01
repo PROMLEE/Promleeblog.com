@@ -77,7 +77,8 @@ const RightSidebarComp = ({ content }: { content: string }) => {
                 href={item.link}
                 className={`sidebar text-text-foreground mt-3 flex items-center gap-1 text-sm font-bold ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
               >
-                <H1Icon className="h-3 w-3 -translate-y-px" /> {item.text.split("(")[0]}
+                <H1Icon className="h-3 w-3 -translate-y-px" />{" "}
+                {item.text.split("(")[0]}
               </Link>
             </div>
           );
@@ -88,7 +89,8 @@ const RightSidebarComp = ({ content }: { content: string }) => {
                 href={item.link}
                 className={`sidebar text-text-foreground ml-4 flex items-center gap-1 text-xs font-semibold ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
               >
-                <H2Icon className="h-3 w-3 -translate-y-px" /> {item.text.split("(")[0]}
+                <H2Icon className="h-3 w-3 -translate-y-px" />{" "}
+                {item.text.split("(")[0]}
               </Link>
             </div>
           );
@@ -99,7 +101,8 @@ const RightSidebarComp = ({ content }: { content: string }) => {
                 href={item.link}
                 className={`sidebar text-text ml-8 flex items-center gap-1 text-xs ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
               >
-                <H3Icon className="h-2.5 w-2.5 -translate-y-px" /> {item.text.split("(")[0]}
+                <H3Icon className="h-2.5 w-2.5 -translate-y-px" />{" "}
+                {item.text.split("(")[0]}
               </Link>
             </div>
           );

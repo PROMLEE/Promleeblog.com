@@ -7,33 +7,20 @@ interface IconProps {
 export function H1Icon({ className }: IconProps) {
   return (
     <svg
-      className={cn("h-[1.2em] w-[1.2em] shrink-0 -translate-y-[0.05em]", className)}
+      className={cn(
+        "h-[1.2em] w-[1.2em] shrink-0 -translate-y-[0.05em]",
+        className,
+      )}
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       style={{ stroke: "var(--icon-h1)" }}
     >
       {/* # 해시 기호 */}
-      <path
-        d="M10 4L8 20"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      <path
-        d="M16 4L14 20"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      <path
-        d="M4 9H20"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      <path
-        d="M4 15H20"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
+      <path d="M10 4L8 20" strokeWidth="3" strokeLinecap="round" />
+      <path d="M16 4L14 20" strokeWidth="3" strokeLinecap="round" />
+      <path d="M4 9H20" strokeWidth="3" strokeLinecap="round" />
+      <path d="M4 15H20" strokeWidth="3" strokeLinecap="round" />
     </svg>
   );
 }
@@ -41,7 +28,10 @@ export function H1Icon({ className }: IconProps) {
 export function H2Icon({ className }: IconProps) {
   return (
     <svg
-      className={cn("h-[1.2em] w-[1.2em] shrink-0 -translate-y-[0.05em]", className)}
+      className={cn(
+        "h-[1.2em] w-[1.2em] shrink-0 -translate-y-[0.05em]",
+        className,
+      )}
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -64,7 +54,10 @@ export function H2Icon({ className }: IconProps) {
 export function H3Icon({ className }: IconProps) {
   return (
     <svg
-      className={cn("h-[1.2em] w-[1.2em] shrink-0 -translate-y-[0.05em]", className)}
+      className={cn(
+        "h-[1.2em] w-[1.2em] shrink-0 -translate-y-[0.05em]",
+        className,
+      )}
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -77,11 +70,7 @@ export function H3Icon({ className }: IconProps) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path
-        d="M14 4L10 20"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-      />
+      <path d="M14 4L10 20" strokeWidth="2.5" strokeLinecap="round" />
       <path
         d="M17 7L22 12L17 17"
         strokeWidth="2.5"
@@ -95,7 +84,10 @@ export function H3Icon({ className }: IconProps) {
 export function H4Icon({ className }: IconProps) {
   return (
     <svg
-      className={cn("h-[1.2em] w-[1.2em] shrink-0 -translate-y-[0.05em]", className)}
+      className={cn(
+        "h-[1.2em] w-[1.2em] shrink-0 -translate-y-[0.05em]",
+        className,
+      )}
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -108,11 +100,7 @@ export function H4Icon({ className }: IconProps) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path
-        d="M14 19H22"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-      />
+      <path d="M14 19H22" strokeWidth="2.5" strokeLinecap="round" />
     </svg>
   );
 }
