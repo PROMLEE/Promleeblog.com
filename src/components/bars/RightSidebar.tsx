@@ -87,7 +87,7 @@ const RightSidebarComp = ({ content }: { content: string }) => {
             <div key={idx} className={`sidebar`}>
               <Link
                 href={item.link}
-                className={`sidebar text-text-foreground ml-4 flex items-center gap-1 text-xs font-semibold ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
+                className={`sidebar text-text-foreground ml-4 flex items-center gap-1 text-xs ${active && "md:text-blue-700 md:dark:text-blue-400"}`}
               >
                 <H2Icon className="h-3 w-3 -translate-y-px" />{" "}
                 {item.text.split("(")[0]}
