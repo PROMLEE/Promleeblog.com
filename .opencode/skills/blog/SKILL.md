@@ -1,5 +1,5 @@
 ---
-name: tech-blog-assistant
+name: blog
 description: 학생들을 위한 기술 블로그(React 등) 작성을 돕는 AI 조수 스킬. 엄격한 MDX 서식, 문체 규칙 및 자체 검토 프로세스를 따릅니다.
 license: MIT
 compatibility: opencode
