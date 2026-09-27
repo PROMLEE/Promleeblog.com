@@ -15,11 +15,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { EditService, PostService } from "@/config/apis";
 import { TagsService } from "@/config/apis/service/tags";
 import { Badge } from "../ui/badge";
 import { moveFiles } from "@/lib/actions/moveFiles";
+import { parseMdxFrontmatter } from "@/lib/parseMdxFrontmatter";
 
 interface value {
   name: // | "series_id"
@@ -113,6 +114,70 @@ export const EditPost = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post_id]);
 
+  const handlePostingChange = useCallback(
+    async (value: string) => {
+      form.setValue("posting", value);
+
+      const parsed = parseMdxFrontmatter(value);
+      if (!parsed) return;
+
+      const { frontmatter } = parsed;
+      if (frontmatter.title_en) form.setValue("name", frontmatter.title_en);
+      if (frontmatter.title_ko) form.setValue("nameko", frontmatter.title_ko);
+      if (frontmatter.url) form.setValue("url", frontmatter.url);
+      if (frontmatter.series_no) {
+        form.setValue("series_no", parseInt(frontmatter.series_no) || 0);
+      }
+      if (frontmatter.desc) form.setValue("desc", frontmatter.desc);
+      if (frontmatter.thumbnail_url) {
+        form.setValue("thumbnail_url", frontmatter.thumbnail_url);
+      }
+      if (frontmatter.metatag) {
+        form.setValue(
+          "metatag",
+          frontmatter.metatag
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean),
+        );
+      }
+      if (frontmatter.tags && post_id) {
+        const tagNames = frontmatter.tags
+          .split(",")
+          .map((tag) => tag.trim().toLowerCase())
+          .filter(Boolean);
+        const desiredTagIds = tags
+          .filter((tag) => tagNames.includes(tag.name.toLowerCase()))
+          .map((tag) => parseInt(tag.id));
+        const currentTagIds = tags
+          .filter((tag) => tag.isExist)
+          .map((tag) => parseInt(tag.id));
+        const tagsToAdd = desiredTagIds.filter(
+          (tagId) => !currentTagIds.includes(tagId),
+        );
+        const tagsToDelete = currentTagIds.filter(
+          (tagId) => !desiredTagIds.includes(tagId),
+        );
+
+        await Promise.all([
+          ...tagsToAdd.map((tag_id) =>
+            TagsService().addTags({ post_id, tag_id }),
+          ),
+          ...tagsToDelete.map((tag_id) =>
+            TagsService().deleteTags({ post_id, tag_id }),
+          ),
+        ]);
+        setTags((previousTags) =>
+          previousTags.map((tag) => ({
+            ...tag,
+            isExist: desiredTagIds.includes(parseInt(tag.id)),
+          })),
+        );
+      }
+    },
+    [form, post_id, tags],
+  );
+
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     const confirmtext = `Name: ${data.name}\nName(ko): ${data.nameko}\nURL: ${data.url}\nSeries_no: ${data.series_no}\nDescription: ${data.desc}\nThumbnail URL: ${data.thumbnail_url}\nLock: ${data.lock}\nPosting: ${data.posting.slice(0, 20)}...`;
     if (window.confirm("Do you want to add this Post?\n" + confirmtext)) {
@@ -203,12 +268,15 @@ export const EditPost = ({
               name="posting"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Posting</FormLabel>
+                    <FormLabel>Posting (MDX 전체 붙여넣기 시 자동 파싱)</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Posting"
-                      className="border-third resize-none"
-                      {...field}
+                        placeholder="MDX 파일 내용을 붙여넣으면 frontmatter가 자동으로 파싱됩니다"
+                        className="border-third resize-none"
+                        value={field.value}
+                        onChange={(event) =>
+                          handlePostingChange(event.target.value)
+                        }
                     />
                   </FormControl>
                   <FormMessage />

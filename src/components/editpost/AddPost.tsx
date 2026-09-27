@@ -20,33 +20,7 @@ import { EditService } from "@/config/apis";
 import { TagsService } from "@/config/apis/service/tags";
 import { Badge } from "../ui/badge";
 import { moveFiles } from "@/lib/actions/moveFiles";
-
-// MDX frontmatter 파싱 함수
-const parseMdxFrontmatter = (content: string) => {
-  const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---/;
-  const match = content.match(frontmatterRegex);
-
-  if (!match) return null;
-
-  const frontmatterContent = match[1];
-  const result: Record<string, string> = {};
-
-  // 각 줄을 파싱하여 key: value 형태로 추출
-  const lines = frontmatterContent.split("\n");
-  for (const line of lines) {
-    const colonIndex = line.indexOf(":");
-    if (colonIndex > 0) {
-      const key = line.slice(0, colonIndex).trim();
-      const value = line.slice(colonIndex + 1).trim();
-      result[key] = value;
-    }
-  }
-
-  // frontmatter를 제외한 본문 추출
-  const body = content.replace(frontmatterRegex, "").trim();
-
-  return { frontmatter: result, body };
-};
+import { parseMdxFrontmatter } from "@/lib/parseMdxFrontmatter";
 
 interface value {
   name: // | "series_id"
