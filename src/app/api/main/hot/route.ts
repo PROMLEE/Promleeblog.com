@@ -23,6 +23,9 @@ export async function GET(req: NextRequest) {
 async function getHotPosts(take: number) {
   const post = await prisma.post.findMany({
     take,
+    where: {
+      lock: false,
+    },
     orderBy: {
       view: "desc",
     },

@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import prisma from "@/lib/prisma";
 import { createResponse } from "@/config/apiResponse";
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { google } from "googleapis";
 
 const NAVER = "https://searchadvisor.naver.com/indexnow";
@@ -20,6 +21,40 @@ export async function PATCH(req: NextRequest) {
       where: { id: Number(id) },
       data: body,
     });
+
+    revalidatePath(`/blog/post/${req.id}-${req.url}`);
+
+    const revalidationUrl = process.env.REVALIDATION_URL;
+    if (revalidationUrl) {
+      try {
+        const token = process.env.REVALIDATION_TOKEN;
+        if (!token) throw new Error("REVALIDATION_TOKEN is not configured");
+        const response = await fetch(revalidationUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ post_id: req.id.toString() }),
+          cache: "no-store",
+          signal: AbortSignal.timeout(10000),
+          redirect: "error",
+        });
+        if (!response.ok) {
+          throw new Error(`Revalidation returned ${response.status}`);
+        }
+      } catch (error) {
+        console.error("Remote post revalidation failed", error);
+        return NextResponse.json(
+          {
+            error:
+              "글은 저장됐지만 운영 서버 캐시 갱신에 실패했습니다. 환경변수와 운영 서버 상태를 확인해주세요.",
+            saved: true,
+          },
+          { status: 502 },
+        );
+      }
+    }
 
     const query = `?url=https://www.promleeblog.com/blog/post/${req.id}-${req.url}&key=${KEY}`;
     console.log({ query });
