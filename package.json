@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "concurrently \"next dev --turbopack\" \"tsx ./watcher.ts\" --kill-others",
     "next-dev": "next dev",
