@@ -11,10 +11,83 @@
     "markdown": true,
     "plaintext": false,
     "json": true,
+    "mdx": true,
     "scminput": true // language used in the source control commit message box
   },
   "editor.insertSpaces": true,
   "editor.tabSize": 2,
+  "extensions.ignoreRecommendations": false,
+  "files.associations": {
+    "*.mdx": "markdown"
+  },
+  "[mdx]": {
+    "editor.semanticHighlighting.enabled": false
+  },
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": [
+          "markup.bold",
+          "markup.bold.markdown",
+          "markup.bold.mdx",
+          "markup.bold.string",
+          "string.other.strong.asterisk.mdx",
+          "string.other.strong.underscore.mdx",
+          "string.other.strong.emphasis.asterisk.mdx",
+          "string.other.strong.emphasis.underscore.mdx",
+          "punctuation.definition.bold",
+          "punctuation.definition.bold.markdown",
+          "punctuation.definition.bold.mdx"
+        ],
+        "settings": {
+          "foreground": "#F59E0B",
+          "fontStyle": "bold"
+        }
+      },
+      {
+        "scope": [
+          "markup.italic",
+          "markup.italic.markdown",
+          "markup.italic.mdx",
+          "markup.italic.string",
+          "string.other.emphasis.asterisk.mdx",
+          "string.other.emphasis.underscore.mdx",
+          "punctuation.definition.italic",
+          "punctuation.definition.italic.markdown",
+          "punctuation.definition.italic.mdx"
+        ],
+        "settings": {
+          "foreground": "#67E8F9",
+          "fontStyle": "italic"
+        }
+      },
+      {
+        "scope": [
+          "markup.strikethrough",
+          "markup.strikethrough.markdown",
+          "markup.strikethrough.mdx",
+          "string.other.strikethrough.mdx",
+          "punctuation.definition.strikethrough",
+          "punctuation.definition.strikethrough.markdown",
+          "punctuation.definition.strikethrough.mdx"
+        ],
+        "settings": {
+          "foreground": "#FB7185",
+          "fontStyle": "strikethrough"
+        }
+      },
+      {
+        "scope": [
+          "markup.inline.raw.markdown",
+          "markup.inline.raw.mdx",
+          "punctuation.definition.raw.markdown"
+        ],
+        "settings": {
+          "foreground": "#A78BFA"
+        }
+      }
+    ]
+  },
   "mdx-preview.preview.useVscodeMarkdownStyles": true,
   "mdx-preview.preview.useWhiteBackground": false,
   "mdx-preview.preview.security": "disabled",
