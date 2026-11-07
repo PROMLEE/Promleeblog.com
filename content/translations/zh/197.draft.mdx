@@ -1,0 +1,409 @@
+---
+title_ko: AWS Lambda와 S3로 이미지 업로드 시 resize + webp 자동 변환하기
+title_en: AWS Lambda and S3 for automatic resize + webp conversion on image upload
+desc: >-
+  AWS Lambda와 S3를 연동하여 이미지 업로드 시 자동으로 resize + webp 이미지를 생성하는 튜토리얼을 따라하며, 서버리스
+  환경에서의 이미지 처리 자동화를 배워봅니다.
+thumbnail_url: /250409-201542.webp
+metatag: 'AWS, Lambda, S3, 서버리스, 이미지 처리, 썸네일 생성, 자동화, IAM 역할, Node.js, 클라우드 컴퓨팅'
+post_id: '197'
+locale: zh
+title: 使用AWS Lambda和S3自动缩放上传图片并转换为WebP
+description: 将AWS Lambda与S3连接，在图片上传后自动缩放并转换为WebP，实现无服务器图片处理。
+source_hash: f37fa3d8c262fdf2a8d2dd271153e66dfa2bae1586c64d7d23e1b5b2e8fd79fd
+---
+
+## 开始之前
+最近完成博客优化后，访问用户明显增加，Vercel开始发来如下提醒邮件：
+> Your site is growing!
+Your free team promes-projects has used 75% of the included free tier usage for Image Optimization - Cache Writes (100,000 Writes).
+你的网站正在成长！
+免费团队promes-projects已经使用了图片优化——缓存写入免费额度（100,000次写入）的75%。
+
+Next.js的Image标签可以自动优化并提供图片。这个功能通过CDN提供，在用户请求图片时生成优化版本。但在这个过程中会不断产生缓存，超过免费额度后，就可能带来额外费用。
+[使用CDN优化图片加载](/blog/post/106-optimize-image-cdn)
+由于我已经通过CDN缓存服务器提供图片，即使不使用Vercel的图片优化，也能保持足够快的加载速度。因此，我判断，只要*关闭Vercel图片优化*，再增加通过AWS S3与Lambda自动压缩图片的处理，就能维持原有速度。
+于是，我参考AWS官方文档，整理了使用Lambda和S3在图片上传后自动缩放的方法。
+
+## 创建S3存储桶
+首先创建两个S3存储桶：一个存放上传的原图，另一个存放优化后的图片。
+<Rbox>请注意区域设置。首尔区域是ap-northeast-2。</Rbox>
+
+例如：
+- `original-image-bucket-prome`
+- `thumbnail-image-bucket-prome`
+
+S3存储桶可以直接在AWS控制台创建，名称必须全局唯一。其余设置保持默认，并将访问权限设为私有。完成后，确认两个存储桶都已创建。
+<Img src="/250409-205046.png" width={300} alt=""/>
+
+
+<Ads1 />
+## 创建IAM权限策略与执行角色
+
+需要为Lambda设置读写权限，使其能够访问S3存储桶和CloudWatch日志。
+
+### 第1步：创建策略
+创建一个授予两个S3存储桶读写权限的IAM策略。在AWS控制台中依次进入IAM → 策略 → 创建策略，并使用以下策略。[IAM：策略](https://console.aws.amazon.com/iamv2/home#policies)
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:PutLogEvents",
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream"
+            ],
+            "Resource": "arn:aws:logs:*:*:*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject"
+            ],
+            "Resource": "arn:aws:s3:::*/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject"
+            ],
+            "Resource": "arn:aws:s3:::*/*"
+        }
+    ]
+}
+```
+<Img src="/250409-205522.png" width={500} alt=""/>
+点击下一步，将策略名设为`LambdaS3Policy`并创建策略。这个策略允许Lambda函数访问S3存储桶。
+
+### 第2步：创建角色
+依次进入IAM → 角色 → 创建角色，选择Lambda服务，并关联刚创建的策略。
+[IAM：角色](https://console.aws.amazon.com/iamv2/home#roles)
+<Img src="/250409-205746.png" width={500} alt=""/>
+点击下一步，在添加权限页面选择`LambdaS3Policy`，将角色名设为`LambdaS3Role`，然后创建角色。
+
+## 编写并部署Lambda函数
+接下来编写Lambda函数。AWS Lambda是一种无服务器计算服务，可以编写并部署代码，而无需管理运行代码的服务器。
+在Lambda控制台点击创建函数，使用下面的配置。尤其要将执行角色设为前面创建的`LambdaS3Role`。
+<Rbox>一定要与S3使用相同的区域！例如首尔区域是ap-northeast-2。</Rbox>
+<Img src="/250409-210928.png" width={500} alt=""/>
+之后会打开一个小型代码编辑器。先添加触发器：选择S3，并将事件类型设为PUT。这样，每次有图片上传到S3存储桶时，都会执行Lambda函数。
+<Img src="/250409-211503.png" width={300} alt=""/>
+
+然后回到自己电脑的本地环境编写代码。虽然也可以直接在AWS Lambda控制台编写，但在本地操作更方便。这里使用Node.js编写Lambda函数。如果尚未安装Node.js，请从[Node.js官方网站](https://nodejs.org/)下载并安装。
+```bash
+mkdir resize-image
+cd resize-image
+npm init
+```
+进入resize-image目录，安装`sharp`库。`sharp`用于图片缩放。
+```bash
+npm install --platform=linux --arch=x64 sharp@0.32.6
+```
+然后在该文件夹中创建`index.mjs`文件，最终目录结构如下。
+```
+📦resize-image
+ ┣ 📂node_modules
+ ┣ 📜index.mjs
+ ┣ 📜package-lock.json
+ ┗ 📜package.json
+```
+这个文件是Lambda函数的入口。粘贴下面的代码。它会获取上传到S3存储桶的图片，缩放后保存到另一个S3存储桶。
+
+<Toggle title="AWS图片缩放示例代码">
+
+```javascript
+// dependencies
+import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+
+import { Readable } from 'stream';
+
+import sharp from 'sharp';
+import util from 'util';
+
+
+// create S3 client
+const s3 = new S3Client({region: 'us-east-1'});
+
+// define the handler function
+export const handler = async (event, context) => {
+
+// Read options from the event parameter and get the source bucket
+console.log("Reading options from event:\n", util.inspect(event, {depth: 5}));
+  const srcBucket = event.Records[0].s3.bucket.name;
+  
+// Object key may have spaces or unicode non-ASCII characters
+const srcKey    = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, " "));
+const dstBucket = srcBucket + "-resized";
+const dstKey    = "resized-" + srcKey;
+
+// Infer the image type from the file suffix
+const typeMatch = srcKey.match(/\.([^.]*)$/);
+if (!typeMatch) {
+  console.log("Could not determine the image type.");
+  return;
+}
+
+// Check that the image type is supported
+const imageType = typeMatch[1].toLowerCase();
+if (imageType != "jpg" && imageType != "png") {
+  console.log(`Unsupported image type: ${imageType}`);
+  return;
+}
+
+// Get the image from the source bucket. GetObjectCommand returns a stream.
+try {
+  const params = {
+    Bucket: srcBucket,
+    Key: srcKey
+  };
+  var response = await s3.send(new GetObjectCommand(params));
+  var stream = response.Body;
+  
+// Convert stream to buffer to pass to sharp resize function.
+  if (stream instanceof Readable) {
+    var content_buffer = Buffer.concat(await stream.toArray());
+    
+  } else {
+    throw new Error('Unknown object stream type');
+  }
+
+
+} catch (error) {
+  console.log(error);
+  return;
+}
+
+  
+// set thumbnail width. Resize will set the height automatically to maintain aspect ratio.
+const width  = 200;
+
+// Use the sharp module to resize the image and save in a buffer.
+try {    
+  var output_buffer = await sharp(content_buffer).resize(width).toBuffer();
+
+} catch (error) {
+  console.log(error);
+  return;
+}
+
+// Upload the thumbnail image to the destination bucket
+try {
+  const destparams = {
+    Bucket: dstBucket,
+    Key: dstKey,
+    Body: output_buffer,
+    ContentType: "image"
+  };
+
+  const putResult = await s3.send(new PutObjectCommand(destparams));
+
+  } catch (error) {
+    console.log(error);
+    return;
+  }
+
+  console.log('Successfully resized ' + srcBucket + '/' + srcKey +
+    ' and uploaded to ' + dstBucket + '/' + dstKey);
+  };
+```
+</Toggle>
+
+不过，我需要同时缩放图片并转换为WebP，因此使用了下面的代码。请按照自己的环境修改*region和bucket名称*。
+代码会将上传到`original-image-bucket-prome`的图片缩放后保存到`resized-image-bucket-prome`，并根据原图扩展名调整输出文件名。例如，原图是`image.jpg`时，处理后保存为`image.webp`。如果原图本身就是WebP，则只进行缩放。
+这段代码也支持GIF等动画文件。
+<Toggle title="AWS图片缩放与WebP转换示例代码">
+
+```javascript
+// dependencies
+import {
+  S3Client,
+  GetObjectCommand,
+  PutObjectCommand,
+} from "@aws-sdk/client-s3";
+
+import { Readable } from "stream";
+
+import sharp from "sharp";
+
+// create S3 client
+const s3 = new S3Client({ region: "ap-northeast-2" });
+
+// define the handler function
+export const handler = async (event, context) => {
+  const srcBucket = event.Records[0].s3.bucket.name;
+  const srcKey = decodeURIComponent(
+    event.Records[0].s3.object.key.replace(/\+/g, " ")
+  );
+  const dstBucket = "resized-image-bucket-prome"; // 리사이즈된 이미지를 저장할 버킷 이름
+  const filename = srcKey.split("/").pop(); // 파일명만 추출
+  const dstKey = `${filename.replace(/\.[^.]+$/, ".webp")}`; 
+
+  const typeMatch = srcKey.match(/\.([^.]*)$/);
+  if (!typeMatch) {
+    return;
+  }
+
+  const imageType = typeMatch[1].toLowerCase();
+
+  // WebP 파일은 변환 없이 그대로 복사
+  if (imageType === "webp") {
+    try {
+      const params = {
+        Bucket: srcBucket,
+        Key: srcKey,
+      };
+      var response = await s3.send(new GetObjectCommand(params));
+      var stream = response.Body;
+
+      if (stream instanceof Readable) {
+        var content_buffer = Buffer.concat(await stream.toArray());
+      } else {
+        throw new Error("알 수 없는 객체 스트림 타입입니다");
+      }
+
+      const destparams = {
+        Bucket: dstBucket,
+        Key: dstKey,
+        Body: content_buffer,
+        ContentType: "image/webp",
+      };
+
+      await s3.send(new PutObjectCommand(destparams));
+      return;
+    } catch (error) {
+      return;
+    }
+  }
+
+  try {
+    const params = {
+      Bucket: srcBucket,
+      Key: srcKey,
+    };
+    var response = await s3.send(new GetObjectCommand(params));
+    var stream = response.Body;
+
+    if (stream instanceof Readable) {
+      var content_buffer = Buffer.concat(await stream.toArray());
+    } else {
+      throw new Error("알 수 없는 객체 스트림 타입입니다");
+    }
+  } catch (error) {
+    return;
+  }
+
+  const width = 600;
+  const height = 600;
+
+  try {
+    let sharpInstance = sharp(content_buffer, {
+      animated: true, // 애니메이션 GIF 지원
+      pages: -1, // 모든 프레임 처리
+    }).resize(width, height, {
+      fit: sharp.fit.inside,
+    });
+
+    var output_buffer = await sharpInstance
+      .webp({
+        lossless: false,
+        animated: true, // 애니메이션 보존
+      })
+      .toBuffer();
+  } catch (error) {
+    return;
+  }
+
+  try {
+    const destparams = {
+      Bucket: dstBucket,
+      Key: dstKey,
+      Body: output_buffer,
+      ContentType: "image/webp",
+    };
+
+    await s3.send(new PutObjectCommand(destparams));
+  } catch (error) {
+    return;
+  }
+};
+
+```
+</Toggle>
+需要将resize-image文件夹中的内容压缩为ZIP文件，其中应包含`index.mjs`和`node_modules`。尤其不能遗漏`node_modules`，因为AWS Lambda使用Node.js运行时，需要一并提供所有依赖。
+生成ZIP后，回到AWS Lambda控制台上传。在代码选项卡中点击上传，选择ZIP文件。上传完成后，Lambda函数就准备好了。
+
+
+<Ads2 />
+## 测试并确认结果
+现在开始测试Lambda函数。向S3存储桶上传图片后，Lambda会自动执行，并将缩放后的图片保存到另一个存储桶。测试时，先向`original-image-bucket-prome`上传图片。
+### 创建测试事件
+如果没有正常执行，可以通过测试选项卡手动创建事件。
+先将需要的图片上传到`original-image-bucket-prome`，再进入测试选项卡创建事件，使用如下S3 PUT模板。
+<Img src="/250409-223451.png" width={500} alt=""/>
+
+根据自己的环境，修改下面JSON事件中的4个属性。
+```json
+{
+  "Records": [
+    {
+      "eventVersion": "2.0",
+      "eventSource": "aws:s3",
+      "awsRegion": "ap-northeast-2", // 리전
+      "eventTime": "1970-01-01T00:00:00.000Z",
+      "eventName": "ObjectCreated:Put",
+      "userIdentity": {
+        "principalId": "EXAMPLE"
+      },
+      "requestParameters": {
+        "sourceIPAddress": "127.0.0.1"
+      },
+      "responseElements": {
+        "x-amz-request-id": "EXAMPLE123456789",
+        "x-amz-id-2": "EXAMPLE123/5678abcdefghijklambdaisawesome/mnopqrstuvwxyzABCDEFGH"
+      },
+      "s3": {
+        "s3SchemaVersion": "1.0",
+        "configurationId": "testConfigRule",
+        "bucket": {
+          "name": "original-image-bucket-prome", // 사진이 저장된된 버킷 이름
+          "ownerIdentity": {
+            "principalId": "EXAMPLE"
+          },
+          "arn": "arn:aws:s3:::original-image-bucket-prome" // 사진이 저장된된 버킷 ARN
+        },
+        "object": {
+          "key": "1234.png", // 파일 이름
+          "size": 1024,
+          "eTag": "0123456789abcdef0123456789abcdef",
+          "sequencer": "0A1B2C3D4E5F678901"
+        }
+      }
+    }
+  ]
+}
+```
+点击测试后，会显示成功或失败消息。如果成功，请确认`resized-image-bucket-prome`中是否保存了缩放后的图片；如果失败，请进入CloudWatch日志查看错误信息。
+<Img src="/250409-223912.png" width={300} alt=""/>
+
+## 结论
+现在，我们已经了解如何关闭Vercel图片优化，并通过AWS Lambda与S3，在图片上传时自动缩放和转换为WebP。这种方式适合在无服务器环境中实现图片处理自动化：Lambda运行代码，无需管理服务器；S3负责存储和管理图片，从而改善博客或网站的性能。
+
+<div className="flex gap-5 justify-center">
+	<Img src="/250409-233644.png" width={200} alt="缩放前"/>
+	<Img src="/250409-233709.png" width={200} alt="缩放后"/>
+</div>
+
+现在可以和Vercel图片优化说再见了✋
+```javascript
+module.exports = {
+	images: {
+		unoptimized: true,
+	},
+};
+```
+
+### 参考资料
+- [AWS官方教程](https://docs.aws.amazon.com/ko_kr/lambda/latest/dg/with-s3-tutorial.html)
+- [AWS Lambda图片缩放实践](https://oliveyoung.tech/2023-05-19/aws-lambda-resize/)

@@ -1,0 +1,141 @@
+---
+title_ko: 'VCode, Cursor에서 MCP로 피그마에 그림 그리고 디자인하기 ( cursor-talk-to-figma-mcp )'
+title_en: >-
+  draw and design on figma with MCP in VCode, Cursor ( cursor-talk-to-figma-mcp
+  )
+desc: >-
+  AI 코드 편집기 Cursor와 디자인 도구 Figma를 연결하는 강력한 도구인 cursor-talk-to-figma-mcp에 대해
+  알아보세요. 이 프로젝트를 활용하면 단순 반복적인 디자인 작업을 자동화하고, 코드와 디자인 사이의 간극을 줄여 훨씬 효율적으로 작업할 수
+  있습니다.
+thumbnail_url: /250512-161216.webp
+metatag: >-
+  Cursor, Figma, MCP, Windows, PowerShell, 디자인 자동화, AI 코딩, Figma 플러그인, Bun,
+  WebSocket, TypeScript, API
+post_id: '274'
+locale: en
+title: Draw and Design in Figma from VS Code or Cursor with MCP
+description: >-
+  Connect Cursor or VS Code to Figma with cursor-talk-to-figma-mcp to automate
+  repetitive design work and move more easily between code and design.
+source_hash: 4a99c80316e85087b887ba1fa93a9d3ef0509974dcc182a655096d77d9244051
+reviewed_at: '2026-11-07T07:03:04.635Z'
+---
+## Before We Begin
+> To set up MCP in VS Code, see the earlier guide on [using MCP in VS Code](/blog/post/189-vscode-mcp).
+
+Today we'll install and use `cursor-talk-to-figma-mcp`, which connects AI-powered code editors to *Figma*. The project provides an MCP server that works with Cursor and VS Code, so you can automate design tasks in Figma from either editor.
+We'll look at what `cursor-talk-to-figma-mcp` does, how to set it up, and what you can do with it.
+[cursor-talk-to-figma-mcp on GitHub](https://github.com/sonnylazuardi/cursor-talk-to-figma-mcp)
+<Img src="/250512-145537.webp" width={300} alt="cursor-talk-to-figma-mcp"/>
+
+<Ads1 />
+## Environment Setup
+The steps below are for *macOS and Linux*. Windows users should follow the [Windows + WSL guide](https://github.com/sonnylazuardi/cursor-talk-to-figma-mcp?tab=readme-ov-file#windows--wsl-guide).
+First, clone the project from GitHub.
+```bash
+git clone https://github.com/sonnylazuardi/cursor-talk-to-figma-mcp
+cd cursor-talk-to-figma-mcp
+```
+### 1. Install Bun
+Bun is a fast JavaScript runtime, bundler, and package manager. It gives you tools to run JavaScript and manage packages.
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+> This command installs Bun by downloading and running a script from the web.
+
+### 2. Run the Project Setup
+Once Bun is installed, run this command in your terminal to set up the project.
+```bash
+bun setup
+```
+The setup also adds MCP to your active Cursor project.
+To issue commands through Copilot in VS Code, add the following to settings.json.
+```json
+{
+  "mcpServers": {
+    "TalkToFigma": {
+      "command": "bunx",
+      "args": ["cursor-talk-to-figma-mcp@latest"]
+    }
+  }
+}
+```
+### 3. Start the WebSocket Server
+Start the WebSocket server so the MCP server and the Figma plugin can communicate. Run the following in your terminal.
+```bash
+bun socket
+```
+You should see this output when it starts successfully.
+```
+bun run src/socket.ts
+WebSocket server running on port 3055
+New client connected
+```
+
+#### 4. Start the MCP Server
+Open a new terminal and run the MCP server, which communicates with Figma.
+```bash
+bunx cursor-talk-to-figma-mcp
+```
+This command starts the server. You should see a message like this on success.
+```
+[INFO] Connecting to Figma socket server at ws://localhost:3055...
+[INFO] FigmaMCP server running on stdio
+[INFO] Connected to Figma socket server
+[DEBUG] Received message: "Please join a channel to start chatting"
+[LOG] myResponse"Please join a channel to start chatting"
+[INFO] Received broadcast message: "Please join a channel to start chatting"
+```
+
+<Img src="/250512-151403.webp" width={500} alt="WebSocket server output above and MCP server output below"/>
+
+### 5. Install the Figma Plugin
+Finally, install the Figma plugin. Open the Figma file you want to work on, go to Plugins > New Plugin, and select the Cursor Talk to Figma MCP plugin.
+<Img src="/250512-152217.webp" width={500} alt="Installing the plugin"/>
+In the plugin window, select Use Localhost and click Connect.
+<Img src="/250512-153558.webp" width={500} alt="After clicking Connect"/>
+Figma and Cursor are now connected. Use the channel code to read and modify the Figma design from your editor.
+Click Share in the upper-right corner to copy the Figma page link. Set permissions to Anyone with the link and Can edit.
+<Img src="/250512-153824.webp" width={400} alt="Sharing the link"/>
+
+<Ads2 />
+
+## Design in Figma from Your Editor
+With Figma and Cursor connected, you can read and edit designs from the editor. If the connection fails, quit the editor completely and reopen it.
+### 1. Join the Channel
+Give the editor the channel code you received in [step 5, Install the Figma Plugin](#5-figma-플러그인-설치하기), and ask it to join.
+```text
+connect to figma channel : <채널코드>
+```
+<Img src="/250512-154720.webp" width={500} alt="Joining the channel"/>
+
+### 2. Read the Figma Design
+Paste the link to the Figma page you copied and ask the editor to read the design file.
+```text
+read figma page : <링크>
+```
+<Img src="/250512-155023.webp" width={500} alt="Reading the page"/>
+
+### 3. Draw in Figma
+Now try creating a design in Figma. Here's an example.
+```text
+큰 원을 그려 줘
+```
+<Img src="/250512-155202.webp" width={400} alt="Prompt to draw a circle"/>
+The editor runs create_frame, create_rectangle, and set_corner_radius in sequence to draw the circle.
+Open the Figma page to see the result.
+<Img src="/250512-155138.webp" width={300} alt="Circle drawn in Figma"/>
+
+<Ads3 />
+
+## Conclusion
+
+We installed and tried `cursor-talk-to-figma-mcp`, a tool that connects the Cursor AI code editor with Figma. It can automate repetitive design tasks and make it easier to work across code and design.
+
+### References
+- [Original GitHub repository](https://github.com/sonnylazuardi/cursor-talk-to-figma-mcp)
+- [Figma plugin community page](https://www.figma.com/community/plugin/1485687494525374295/cursor-talk-to-figma-mcp-plugin)
+- [Quick video tutorial (Sonny Lazuardi)](https://www.linkedin.com/posts/sonnylazuardi_just-wanted-to-share-my-latest-experiment-activity-7307821553654657024-yrh8)
+- [Bulk text replacement demo (@dusskapark)](https://www.youtube.com/watch?v=j05gGT3xfCs)
+- [Instance override propagation demo (@dusskapark)](https://youtu.be/uvuT8LByroI)
+- [Official Bun website](https://bun.sh/)

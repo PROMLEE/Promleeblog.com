@@ -1,0 +1,289 @@
+---
+title_ko: 네비게이션 바 탭 단위 스택 유지하기
+title_en: Maintaining a per-tab stack of navigation bars
+desc: '하단 네비게이션 바를 설정하고, 각 탭을 눌렀을 때 해당 페이지로 이동하도록 설정해보겠습니다.'
+post_id: '127'
+locale: en
+title: Maintaining a Separate Navigation Stack for Each Tab
+description: >-
+  Keep Flutter's bottom navigation bar visible on nested pages and return to a
+  tab's root when it is selected again.
+source_hash: e833b162f2edf1b035393cd1682dad8276b71248689ebbf229ca9fbc90b7db46
+reviewed_at: '2026-11-06T14:53:58.715Z'
+---
+## Before getting started
+> 1. Goals, requirements, initial setup, and overview: [Link](/blog/post/124-goals-init-paging)
+> 2. Login-page branching with FlutterSecureStorage: [Link](/blog/post/125-login-branch-paging)
+> 3. Setting up a bottom navigation bar: [Link](/blog/post/126-bt-navigation-paging)
+>
+> This post assumes you have configured the project by following those links in order.
+> It was written for Flutter 3.24.
+
+So far, we have configured login-page branching and a bottom navigation bar.
+Now let's add depth to each tab so it can navigate between its own pages.
+
+Here is the file tree inside my lib folder for this post.
+Creating these files beforehand makes the process easier.
+```plaintext
+📦 lib
+┣ 📂 model						// 데이터 보관하는 모델 폴더(이번 포스팅에서는 사용하지 않음)
+┣ 📂 view						// 화면을 구성하는 뷰 폴더
+┃ ┣ 📂 tabs						// 탭 4개를 구성하는 화면
+┃ ┃ ┣ 📜 home_screen.dart
+┃ ┃ ┣ 📜 notifications_screen.dart
+┃ ┃ ┣ 📜 profile_screen.dart
+┃ ┃ ┗ 📜 search_screen.dart
+┃ ┣ 📜 external_screen.dart
+┃ ┣ 📜 login_page.dart
+┃ ┗ 📜 main_page.dart
+┣ 📂 viewModel					// 데이터와 화면을 잇는 viewModel 폴더
+┃ ┗ 📜 auth_service.dart
+┗ 📜 main.dart
+```
+<Ads1 />
+## Navigating within a tab
+### 1. Adding External Screen
+External Screen is not a screen selected directly from the bottom navigation bar; it is opened from another screen.
+We will add it and make it accessible from Home Screen.
+```dart title="lib/view/external_screen.dart"
+import 'package:flutter/material.dart';
+
+class ExternalScreen extends StatelessWidget {
+  const ExternalScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('External Screen'), // 추가 화면 제목
+      ),
+      body: const Center(
+        child: Text('External Screen', style: TextStyle(fontSize: 24)),
+      ),
+    );
+  }
+}
+```
+
+### 2. Updating Home Screen
+Add a button that opens External Screen from Home Screen.
+```dart title="lib/view/home_screen.dart"
+import 'package:flutter/material.dart';
+import 'package:navigationbar_example/view/external_screen.dart';
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('Home Screen', style: TextStyle(fontSize: 24)),
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ExternalScreen()));
+              },
+              icon: const Icon(Icons.next_plan))
+        ],
+      ),
+    );
+  }
+}
+```
+
+### 3. Checking the result
+Home Screen now has a button to open External Screen.
+<Img src="/posts/250113-173304.gif" width={200} alt=""/>
+However, a problem appears: External Screen does not show the bottom navigation bar.
+To fix this, we will use IndexedStack to maintain a separate stack for each tab.
+
+<Ads2 />
+## Keeping the navigation bar on additional pages
+Use *IndexedStack* and *Navigator* to maintain a stack for each tab and keep the navigation bar visible on additional pages.
+The bar should remain visible while navigating inside a tab as well.
+```dart title="lib/view/main_page.dart"import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+
+import 'package:navigationbar_example/view/tabs/home_screen.dart';
+import 'package:navigationbar_example/view/tabs/notifications_screen.dart';
+import 'package:navigationbar_example/view/tabs/profile_screen.dart';
+import 'package:navigationbar_example/view/tabs/search_screen.dart';
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  MainPageState createState() => MainPageState();
+}
+
+class MainPageState extends State<MainPage> {
+  int _currentIndex = 0; // 현재 선택된 탭의 인덱스
+
+  // 각 탭에서 보여줄 화면 리스트
+  final List<Widget> _pages = [
+    const HomeScreen(), // 첫 번째 탭 화면
+    const SearchScreen(), // 두 번째 탭 화면
+    const NotificationsScreen(), // 세 번째 탭 화면
+    ProfileScreen(), // 네 번째 탭 화면
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack( // 각 탭마다 스택을 유지하도록 설정
+        index: _currentIndex,
+        children: List.generate(_pages.length, (index) {
+          return Navigator( // 탭 선택 시 페이지 이동을 위한 Navigator
+            onGenerateRoute: (routeSettings) {
+              return MaterialPageRoute(	
+                builder: (context) => _pages[index],
+              );
+            },
+          );
+        }),
+      ), // 선택된 탭의 화면을 보여줄 위젯
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex, // 선택된 탭 인덱스
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index; // 탭 전환 시 상태 업데이트
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        selectedItemColor: Colors.blue, // 선택된 아이템 색상
+        unselectedItemColor: Colors.grey, // 선택되지 않은 아이템 색상
+      ),
+    );
+  }
+}
+```
+### Checking the result
+The bottom navigation bar now remains visible when navigating within a tab.
+The previously selected tab also keeps its state when you switch to another tab.
+<Img src="/posts/250113-182350.gif" width={200} alt=""/>
+
+## Using NavigatorStack
+One requirement from the overview still is not met: Selecting an already active tab should return to its *top-level page*.
+We will use *NavigatorStack* to manage each tab's stack and address this.
+```dart title="lib/view/main_page.dart"
+import 'package:flutter/material.dart';
+import 'package:navigationbar_example/view/tabs/home_screen.dart';
+import 'package:navigationbar_example/view/tabs/notifications_screen.dart';
+import 'package:navigationbar_example/view/tabs/profile_screen.dart';
+import 'package:navigationbar_example/view/tabs/search_screen.dart';
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  MainPageState createState() => MainPageState();
+}
+
+class MainPageState extends State<MainPage> {
+  int _currentIndex = 0; // 현재 선택된 탭의 인덱스
+
+  // 각 탭에서 보여줄 화면 리스트
+  final List<Widget> _pages = [
+    const HomeScreen(), // 첫 번째 탭 화면
+    const SearchScreen(), // 두 번째 탭 화면
+    const NotificationsScreen(), // 세 번째 탭 화면
+    ProfileScreen(), // 네 번째 탭 화면
+  ];
+
+  final List<GlobalKey<NavigatorState>> _navigatorKeys = [ // 각 탭의 NavigatorKey
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+  ];
+
+  void _onTap(int index) { // 탭 선택 시 호출할 함수
+    if (index == _currentIndex) {
+      _navigatorKeys[index].currentState?.popUntil((route) => route.isFirst); // 탭이 이미 선택된 상태에서 다시 선택할 경우 최상단 페이지로 이동
+    } else {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentIndex,
+        children: List.generate(_pages.length, (index) {
+          return Navigator(
+            key: _navigatorKeys[index], // 각 탭의 NavigatorKey 설정
+            onGenerateRoute: (routeSettings) {
+              return MaterialPageRoute(
+                builder: (context) => _pages[index],
+              );
+            },
+          );
+        }),
+      ), // 선택된 탭의 화면을 보여줄 위젯
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex, // 선택된 탭 인덱스
+        onTap: _onTap, // 탭 선택 시 호출할 함수
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        selectedItemColor: Colors.blue, // 선택된 아이템 색상
+        unselectedItemColor: Colors.grey, // 선택되지 않은 아이템 색상
+      ),
+    );
+  }
+}
+```
+<Ads3 />
+### Checking the result
+Selecting the active tab again now returns to that tab's top-level page.
+<Img src="/posts/250113-183324.gif" width={200} alt="Complete!"/>
+
+## Conclusion
+We have maintained separate stacks so each tab can navigate between its own pages.
+We also configured selecting an already active tab to return to its top-level page.
+### Further questions
+- How could you configure a separate app bar for each page?
+
+### References
+- [Flutter Navigator class](https://api.flutter.dev/flutter/widgets/Navigator-class.html)
+- [Flutter IndexedStack class](https://api.flutter.dev/flutter/widgets/IndexedStack-class.html)

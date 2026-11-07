@@ -1,0 +1,129 @@
+---
+title_ko:
+  - BOJ
+title_en: Color Weakness (Python)
+desc: A problem related to color weakness implemented in Python.
+thumbnail_url: 'https://d2gd6pc034wcta.cloudfront.net/tier/11.svg'
+metatag: >-
+  algorithm, python, boj, baekjoon, color, weakness, graph, bfs, shortest_path,
+  10026
+post_id: '258'
+locale: zh
+title: '[BOJ] #10026：红绿色弱（Python）'
+description: 使用BFS统计普通视角与红绿色弱视角下的颜色连通区域，并给出Python实现。
+source_hash: c618002466161efcd283e33b3cf21664958c6da6483e3979d28f6b070c1fe998
+reviewed_at: '2026-11-06T14:45:00.098Z'
+---
+> https://www.acmicpc.net/problem/10026
+## 算法分类
+图论、图搜索、广度优先搜索、深度优先搜索。
+
+## 题目说明
+> 本题中的红绿色弱，指无法区分红色与绿色的人。
+
+给定一幅N×N大小的图，每个格子被涂成R、G、B中的一种颜色。
+红绿色弱者无法区分R和G，因此将它们视为同一种颜色。
+```
+RRRBB
+GGBBB
+BBBRR
+BBRRR
+RRRRR
+```
+上面的图中，非红绿色弱者可以区分出4个区域。
+红绿色弱者可以区分出3个区域。
+请输出两种视角下分别能够区分出的区域数量。
+
+### 输入
+第一行给出N（1 ≤ N ≤ 100）。
+从第二行开始，用N行给出图案。
+```
+5
+RRRBB
+GGBBB
+BBBRR
+BBRRR
+RRRRR
+```
+
+### 输出
+输出非红绿色弱者和红绿色弱者能够区分的区域数量，以空格分隔，分别给出两种结果。
+```
+4 3
+```
+
+## 解题思路
+1. 使用BFS（广度优先搜索）遍历各个区域。
+2. 对于红绿色弱视角，将R和G视为相同颜色。
+3. 用BFS遍历每个区域，并通过visited数组标记访问过的格子。
+4. 使用队列实现BFS，搜索上下左右相连且颜色相同的格子。
+5. 每开始搜索一个新区块，计数加1。
+6. 最后输出两种视角能够区分的区域数量。
+
+## Python代码
+```python
+import sys
+from collections import deque
+
+sys.setrecursionlimit(10000)  # 재귀 제한 해제 (DFS 쓸 경우 대비)
+N = int(sys.stdin.readline())
+
+ # 색상 격자 입력 받기
+grid = [list(sys.stdin.readline().strip()) for _ in range(N)]
+
+ # 상하좌우 방향 정의
+dx = [0, 0, 1, -1]
+dy = [1, -1, 0, 0]
+
+ # BFS로 한 구역 탐색하는 함수
+def bfs(x, y, visited, board, is_amblyopia):
+    queue = deque()
+    queue.append((x, y))
+    visited[x][y] = True  # 현재 위치 방문 처리
+    current_color = board[x][y]
+
+    while queue:
+        cx, cy = queue.popleft()
+        for i in range(4):
+            nx, ny = cx + dx[i], cy + dy[i]
+
+            # 범위를 벗어나거나 이미 방문한 경우 무시
+            if 0 <= nx < N and 0 <= ny < N and not visited[nx][ny]:
+                next_color = board[nx][ny]
+
+                if is_amblyopia:
+                    # 적록색약인 경우: R과 G는 같은 색으로 간주
+                    if (current_color in "RG" and next_color in "RG") or current_color == next_color:
+                        visited[nx][ny] = True
+                        queue.append((nx, ny))
+                else:
+                    # 일반인: 정확히 같은 색만 같은 구역
+                    if next_color == current_color:
+                        visited[nx][ny] = True
+                        queue.append((nx, ny))
+
+ # 전체 격자를 순회하면서 BFS 시작 지점을 찾아 구역 수 세기
+def count_areas(is_amblyopia):
+    visited = [[False]*N for _ in range(N)]
+    count = 0
+    for i in range(N):
+        for j in range(N):
+            if not visited[i][j]:
+                bfs(i, j, visited, grid, is_amblyopia)
+                count += 1  # BFS 한 번 돌면 하나의 구역
+    return count
+
+ # 결과 계산 및 출력
+normal = count_areas(False)       # 일반인의 시각
+color_blind = count_areas(True)   # 적록색약인의 시각
+print(normal, color_blind)
+```
+
+## 核心要点
+### BFS搜索
+- 通过BFS搜索一个区域，用visited数组标记访问过的格子。
+- BFS使用队列实现，搜索上下左右相连的同色格子。
+
+### 时间复杂度
+$O(N^2)$：每个格子最多访问一次。
+由于N ≤ 100，效率足够。

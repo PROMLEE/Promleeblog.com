@@ -1,0 +1,199 @@
+---
+title_ko: React Native(Expo)환경에서 SecureStore 사용하기
+title_en: How to use SecureStore in React Native(Expo)
+desc: >-
+  RN(Expo)환경에서 SecureStore를 사용하는 방법을 알아보겠습니다. Let's see how to use SecureStore
+  in RN(Expo) environment.
+thumbnail_url: 'https://docs.expo.dev/static/images/packages/expo-secure-store.png'
+metatag: null
+post_id: '154'
+locale: en
+title: Using SecureStore in React Native and Expo
+description: >-
+  Set up Expo SecureStore, store and retrieve encrypted values, and add
+  biometric authentication in a React Native app.
+source_hash: 7836afe57dabeb53b0119507d6c4c1534f888090dd07a11da75a4844b5339a46
+reviewed_at: '2026-11-07T12:21:24.256Z'
+---
+## Before We Begin
+> This guide assumes you already have a basic Expo project. To create one, see the guides for [Windows](/blog/post/117-expo-proj-init) and [Mac](/blog/post/143-expo-init-mac).
+> You can also use SecureStore in a React Native CLI project with some additional setup.
+### What Is SecureStore?
+> Expo SecureStore encrypts key-value pairs and stores them locally on the device. Each Expo project has its own storage and cannot access another project's data. (Expo documentation)
+
+React Native already has [AsyncStorage](/blog/post/129-async-storage) for storing key-value data on the device. Why use SecureStore as well? As its name suggests, SecureStore offers stronger protection for sensitive values.
+On Android, SecureStore stores values in SharedPreferences encrypted with the Android Keystore system. On iOS, it uses Keychain Services and stores values as kSecClassGenericPassword items. iOS also lets you set kSecAttrAccessible to control when a value can be retrieved.
+### What Makes SecureStore Different?
+The source describes SecureStore data as being deleted when the app is uninstalled. On iOS, however, Keychain data may persist after reinstalling, so do not rely on uninstalling to clear it. If the user changes biometric settings, such as by adding a fingerprint, data protected with requireAuthentication set to true can become inaccessible.
+<Ads1 />
+## Install and Configure SecureStore
+Run this command to install SecureStore.
+```bash
+npx expo install expo-secure-store
+```
+### Configure an Expo Project
+Add the following configuration to the Expo project's `app.json`.
+```json title="app.json"
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true,
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
+        }
+      ]
+    ]
+  }
+}
+
+```
+### Configure a React Native CLI Project
+For a React Native CLI project, run the following command.
+```bash
+npx pod-install
+```
+### Set Encryption Export Compliance Information for App Review
+App Store Connect asks which encryption algorithms your app implements when you publish it or submit a build to TestFlight. This is part of the export compliance process.
+During Apple review, you may see a question like the one below about what type of encryption the app uses.
+<Img src="/posts/250314-133431.png" width={400} alt=""/>
+If expo-secure-store is your only relevant use of encryption, you can set `ios.config.usesNonExemptEncryption` to false to declare that the app does not use non-exempt encryption.
+```json title="app.json"
+{
+  "expo": {
+    "ios": {
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    }
+  }
+}
+```
+
+<Ads2 />
+## Use SecureStore
+Add the following code to your page component.
+<Toggle title="View /app/index.tsx">
+
+```tsx title="/app/index.tsx" {6, 10}
+import * as SecureStore from 'expo-secure-store';
+import { useState } from 'react';
+import { Text, View, StyleSheet, TextInput, Button, Alert } from 'react-native';
+
+async function save(key: string, value: string) {
+  await SecureStore.setItemAsync(key, value);
+}
+
+async function getValueFor(key: string) {
+  let result = await SecureStore.getItemAsync(key);
+  if (result) {
+    Alert.alert("🔐 Here's your value 🔐 \n" + result);
+  } else {
+    Alert.alert('No values stored under that key.');
+  }
+}
+
+const App = () => {
+  const [key, onChangeKey] = useState('Your key here');
+  const [value, onChangeValue] = useState('Your value here');
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.paragraph}>Save an item, and grab it later!</Text>
+      {}
+
+      <TextInput
+        style={styles.textInput}
+        clearTextOnFocus
+        onChangeText={(text) => onChangeKey(text)}
+        value={key}
+      />
+      <TextInput
+        style={styles.textInput}
+        clearTextOnFocus
+        onChangeText={(text) => onChangeValue(text)}
+        value={value}
+      />
+      {}
+      <Button
+        title="Save this key/value pair"
+        onPress={() => {
+          save(key, value);
+          onChangeKey('Your key here');
+          onChangeValue('Your value here');
+        }}
+      />
+      <Text style={styles.paragraph}>🔐 Enter your key 🔐</Text>
+      <TextInput
+        style={styles.textInput}
+        onSubmitEditing={(event) => {
+          getValueFor(event.nativeEvent.text);
+        }}
+        placeholder="Enter the key for the value you want to get"
+      />
+    </View>
+  );
+};
+
+export default App;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingTop: 10,
+    backgroundColor: '#ecf0f1',
+    padding: 8,
+  },
+  paragraph: {
+    marginTop: 34,
+    margin: 24,
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  textInput: {
+    height: 35,
+    borderColor: 'gray',
+    borderWidth: 0.5,
+    padding: 4,
+  },
+});
+```
+</Toggle>
+<Img src="/posts/250314-141219.gif" width={200} alt=""/>
+The example saves a value with `SecureStore.setItemAsync(key, value)` and reads it with `SecureStore.getItemAsync(key)`. The API is similar to AsyncStorage, with the benefit of encrypted storage.
+Use SecureStore.deleteItemAsync(key, options) to delete a value by key. The original article also mentions SecureStore.deleteAllItemsAsync(), but that method is not part of the documented Expo SecureStore API. To clear values, delete each key you manage.
+ 
+## Add Biometric Authentication
+SecureStore supports biometric authentication. Set `requireAuthentication` to require it and `authenticationPrompt` to supply a message for the prompt.
+Use SecureStore.canUseBiometricAuthentication() to check whether biometric authentication is available on the device.
+```tsx title="/app/index.tsx" {5,6}
+// ...
+async function save(key: string, value: string) {
+	if (SecureStore.canUseBiometricAuthenticationAsync()) {
+		await SecureStore.setItemAsync(key, value, {
+			requireAuthentication: true,
+			authenticationPrompt: 'Authenticate to save the value',
+		});
+	} else {
+		await SecureStore.setItemAsync(key, value);
+	}
+}
+// ...
+```
+The platforms differ. On Android, each operation requires authentication. On iOS, the user is prompted only when reading or updating an existing value. Creating a new value does not show the prompt.
+Test on a physical device for the biometric behavior in this example.
+<Ads3 />
+## Conclusion
+Choose SecureStore or AsyncStorage based on the data you're storing. SecureStore is a good fit for login tokens and sensitive user information. Use AsyncStorage for ordinary preferences such as the user's theme.
+### Further Considerations
+- What are the trade-offs of using SecureStore?
+- How does it compare with other ways to store data?
+  - [Expo FileSystem](https://docs.expo.dev/versions/latest/sdk/filesystem/)
+  - [Expo SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/)
+### References
+- [Expo SecureStore](https://docs.expo.dev/versions/latest/sdk/securestore/)
+- [npm](https://www.npmjs.com/package/expo-secure-store)
+- [Expo guide to storing data](https://docs.expo.dev/develop/user-interface/store-data/)

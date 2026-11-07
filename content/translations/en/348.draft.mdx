@@ -1,0 +1,79 @@
+---
+title_ko: 데이터베이스 정규화와 반정규화
+title_en: Database Normalization vs. Denormalization
+desc: >-
+  데이터베이스 설계의 핵심인 정규화(Normalization)와 반정규화(Denormalization)를 알아봅니다. 1, 2, 3차 정규형의
+  개념, 데이터 중복을 줄이는 이유, 그리고 성능을 위해 JOIN을 줄이는 반정규화의 장단점까지 학습합니다.
+thumbnail_url: /250622-190847.webp
+metatag: >-
+  Normalization, Denormalization, Database, 정규화, 반정규화, 데이터베이스, 1NF, 2NF, 3NF,
+  데이터 무결성, JOIN, 면접 질문, CS
+post_id: '348'
+locale: en
+title: Database Normalization and Denormalization
+description: >-
+  Learn the first three normal forms, why reducing duplication matters, and the
+  trade-offs of using denormalization to reduce JOINs and improve read
+  performance.
+source_hash: b24f0ff4820b81d89747832f9f02ae0a8f6e5bc666b14d79621f666b016d4b95
+---
+## Before We Begin
+In this post, we'll look at **database normalization**, a technique for organizing data systematically.
+We'll also explore why we sometimes deliberately duplicate data through **denormalization**.
+<br/>
+When designing a database for the first time, it's tempting to put everything into one enormous table.
+That design can quickly lead to inconsistent data and a database that's hard to maintain.
+Normalization addresses those problems by dividing data into well-structured tables.
+
+## Normalization Reduces Duplicate Data
+**Normalization** is the process of structuring database tables to **minimize duplication** and **preserve data integrity**.
+<Ybox>Data integrity means that data is accurate, consistent, and reliable.</Ybox>
+### Normal Forms
+Normalization has several stages. A database is usually described as normalized once it meets the requirements of third normal form.
+- **First Normal Form (1NF)**
+  Every column must contain **atomic values**. The basic rule is that a single cell cannot hold multiple values. For example, a hobbies column cannot store ‘basketball, soccer’ together in one cell.
+- **Second Normal Form (2NF)**
+  The table must satisfy 1NF and eliminate **partial functional dependencies**. Move columns that depend on only part of the primary key into a separate table. In a student enrollment example, a student's name and department depend on the student ID portion of the key rather than the enrollment ID, so they belong in a separate table.
+- **Third Normal Form (3NF)**
+  The table must satisfy 2NF and eliminate **transitive dependencies**. Move columns that depend on another non-key column into a separate table. For example, if an enrollment table includes a student's academic advisor, move that information to the student table because the student determines the advisor.
+
+<Ads1/>
+
+## When to Denormalize
+Normalization helps protect data integrity, but it can sometimes hurt *performance*.
+The more tables you split the data into, the more **JOIN operations** you may need to retrieve the information you want.
+JOINs can be among the more expensive operations in a database.
+<br/>
+**Denormalization** deliberately **relaxes normalization rules by combining tables or allowing duplicate data** to improve reads that have slowed down because of excessive normalization.
+<br/>
+Consider it when data is read very frequently and the slowdown is significant.
+It's also an option when the data rarely changes, making inconsistencies less likely. Examples include data warehouses for statistical analysis and monthly leaderboards.
+<br/>
+Denormalization is a deliberate trade-off between **faster reads** and **harder-to-maintain data consistency**.
+
+<Img src="/250622-191402.webp" width={400} alt="Normalization and denormalization"/>
+<Ads2/>
+
+## Common Interview Questions
+Normalization and denormalization reflect basic database design principles. Interviewers often ask about the difference and the trade-offs.
+
+### 1. What Is Database Normalization, and Why Is It Necessary?
+Explain the main goal clearly.
+> Normalization structures database tables to **minimize data duplication** and **preserve integrity**.
+It helps prevent *inconsistencies* caused by insertion, update, and deletion anomalies that can arise when data is duplicated. It also makes the database structure more stable and easier to maintain.
+
+### 2. When Should You Consider Denormalization, and What Are the Pros and Cons?
+This question tests whether you understand the trade-off.
+> Consider denormalization when normalization hurts read performance, especially if **too many JOINs create a bottleneck**.
+It reduces the number of JOINs by deliberately duplicating data or combining tables.
+The **advantage** is that fetching data more quickly can **improve system performance**.
+The **drawback** is that duplicate data makes **consistency harder to maintain** and raises *maintenance costs*, since changes must be made in several places.
+
+## Conclusion
+Today we looked at normalization as a principle for organizing data and denormalization as a deliberate exception.
+- *Normalization* protects **data integrity** by **eliminating duplicate data**.
+- *Denormalization* deliberately **duplicates data** to **improve read performance**.
+- Choosing between the two involves a **trade-off** between *data consistency* and *read performance*. The right choice depends on the situation.
+### References
+- [Wikipedia — Database normalization](https://ko.wikipedia.org/wiki/데이터베이스_정규화)
+- [Microsoft Docs — Description of database normalization](https://docs.microsoft.com/ko-kr/office/troubleshoot/access/data-normalization-description)

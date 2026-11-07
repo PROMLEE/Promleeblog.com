@@ -1,0 +1,109 @@
+---
+title_ko: Expo 프로젝트 생성하기(Mac Os)
+title_en: Create an Expo project(Mac Os)
+desc: Expo 프로젝트를 생성하는 방법을 알아보자. Let's find out how to create an Expo project.
+thumbnail_url: 'https://cdn.worldvectorlogo.com/logos/expo-go-app.svg'
+tag:
+  - Expo
+  - React Native
+  - Mac
+  - Typescript
+post_id: '143'
+locale: zh
+title: 在 macOS 上创建 Expo 项目
+description: 介绍如何在 macOS 上创建、关联并运行 Expo 项目，以及通过 Expo Go 在真机上预览应用。
+source_hash: 91783ea6ad34c8e21fe65a03f9f68af7fa8319f105c4045a5ce80278f647102a
+reviewed_at: '2026-11-07T07:11:04.890Z'
+---
+## 开始之前
+> 本文使用搭载 M3 芯片的 Mac，以及 Xcode、Android Studio 和 Visual Studio Code 作为开发环境。
+
+### 什么是 Expo？
+[Expo](https://expo.io/)
+使用 React Native 开发应用时，Expo 可以简化开发流程。开发 Android 和 iOS 应用所需的许多设置，都可以交给 Expo 处理。Expo 可以免费使用，也能简化应用的构建与发布流程。安装 Expo Go 后，可以直接在真机上实时查看正在开发的应用。
+
+### Expo 与 React Native CLI
+Expo 可以简化构建与发布流程，但有些库无法使用，也无法直接添加原生功能。如果要添加 Expo 不支持的功能，可以使用允许添加原生功能的 React Native CLI。
+> 请先确认项目所需的功能是否与 Expo 兼容。如果不兼容，建议使用 React Native CLI。
+
+[安装 React Native CLI](/blog/post/114-rn-init)
+
+<Ads1 />
+## 1. 安装 Node 和 npm
+Node.js 是 JavaScript 运行时，也是开发 React Native 应用所需的环境。请从 Node.js 官网下载并安装 LTS 版本。在 Mac 上，可以通过 Homebrew 和 nvm 安装 Node.js。具体步骤见下面的文章。
+[在 macOS 上安装 Node.js（Homebrew、nvm、npm）](/blog/post/120-macos-nodejs)
+安装完成后，在终端输入 node -v 和 npm -v 检查版本。
+```bash
+node -v
+npm -v
+```
+<Img src="/posts/250305-093829.png" width={200} alt=""/>
+
+## 2. 安装 Expo 并创建项目
+### 2.1. 注册 Expo 账号并创建项目
+使用 Expo 需要 Expo 账号。在 Expo 官网注册，然后登录。
+[Expo 官网](https://expo.io/)
+登录后就可以创建 Expo 项目。点击 Create a new project，输入项目名称，即可创建项目。
+<Img src="/posts/240729-002615.png" width={400} alt="创建名为 Test 的项目"/>
+
+### 2.2. 安装 Expo CLI 并创建本地项目
+可以选择在终端全局安装 expo-cli。
+即使没有安装 expo-cli，也可以使用 npx expo 命令创建并运行 Expo 项目。
+```bash
+npm install --global expo-cli
+```
+安装 expo-cli 后，用 expo init 命令创建项目。
+```bash
+npx create-expo-app@latest
+```
+输入 y 安装附加软件包，再设置项目名称，完成项目创建。
+<Img src="/posts/250305-094759.png" width={400} alt="显示 ✅ Your project is ready! 表示创建成功"/>
+
+运行项目之前，需要先登录 Expo。
+```bash
+npx expo login	# expo 계정 입력
+```
+创建完成后，进入本地项目目录，将它与 Expo 项目关联。项目 ID 可以在 Expo 项目详情页中查看。
+<Img src="/posts/240729-004021.png" width={500} alt=""/>
+
+```bash
+cd my-new-project
+eas init --id {expo 프로젝트 id}
+```
+关联完成后，运行 Expo 项目。
+```bash
+npm start
+```
+
+<Img src="/posts/240729-004744.png" width={300} alt=""/>
+启动后，按 a 可以在 Android Studio 模拟器中查看应用，按 w 可以在浏览器中查看应用，按 i 可以在 Xcode 的 iOS 模拟器中查看应用（仅限 macOS）。
+
+<Ads2 />
+### 2.3. 安装并连接 Expo Go
+在手机上安装 Expo Go。
+[下载 Expo Go（Android）](https://play.google.com/store/apps/details?id=host.exp.exponent&hl=ko&gl=US)
+[下载 Expo Go（iOS）](https://apps.apple.com/kr/app/expo-go/id982107779)
+安装后，扫描二维码即可在真机上实时查看正在开发的应用。也可以登录并打开 Expo Go，输入开发应用的链接进行查看。
+
+## 结语
+请根据项目需求选择 Expo 或 React Native CLI。Expo 可以简化应用开发，但部分库无法使用，也无法直接添加原生功能。如果需要添加 Expo 不支持的功能，可以使用 React Native CLI，或采用 expo eject 的替代方案。
+
+### 进一步思考
+#### expo eject
+expo eject 曾用于将 Expo 项目转换为 React Native CLI 项目。如今它已弃用，并由 [prebuild](https://docs.expo.dev/workflow/prebuild/) 取代。详情见官方说明。
+[expo eject 是否已弃用？](https://docs.expo.dev/faq/#is-expo-eject-deprecated)
+
+<Ads3 />
+#### expo prebuild
+简单来说，可以根据应用配置文件生成包含原生源代码的 Expo 项目。
+```bash
+expo prebuild
+```
+命令会生成 `android/` 和 `ios/` 目录，让 Expo 项目包含原生代码。
+然后可以用以下命令运行预构建后的应用。
+```bash
+npx expo run:android
+npx expo run:ios
+```
+### 参考资料
+- [Expo 文档](https://docs.expo.dev/)

@@ -1,0 +1,28 @@
+---
+post_id: '45'
+locale: ja
+title: 情報源符号化と通信路符号化の概要
+description: 無線移動通信に関連する情報源符号化と通信路符号化の概要です。
+source_hash: 3ab863b01809aa816200633718f776723db8e7b876dd549349ef74538e214133
+---
+## 通信システムの一般的な構成
+通信システムの一般的な構成と、その順序は次のとおりです。
+1. 情報源：情報を提供します。
+2. 送信機 (Transmitter)：情報を送信信号へ変換します。
+   - _フォーマッター (Formatter)、情報源符号器 (Source Encoder)、通信路符号器 (Channel Encoder)、変調器 (Modulator)、多重化器 (Multiplexer)_があります。
+3. 通信路 (Channel)：送信された信号を運びます。雑音が存在する場合があります。
+4. 受信機 (Receiver)：受信した信号を処理します。
+   - _分離器 (Demultiplexer)、復調器 (Demodulator)、通信路復号器 (Channel Decoder)、情報源復号器 (Source Decoder)、デフォーマッター (Deformatter)_があります。
+5. 宛先 (Destination)：情報を受け取る最終段階です。
+
+## 情報源符号化と通信路符号化の比較 (Source Coding vs Channel Coding)
+- 符号理論 (Coding Theory)：符号の性質と、特定の用途への適合性を研究します。
+  - データ圧縮、暗号化、誤り訂正、ネットワーク符号化に使われます。
+  - 一般に、冗長性の除去、または送信データの誤り訂正・検出を含みます。
+  - 主な側面は二つあります。
+    - データ圧縮 (Data Compression)
+    - 誤り訂正 (Error Correction)
+- 情報源符号化：情報源でデータを圧縮し、より効率的に伝送する方法です（ZIP、JPEG）。
+- 通信路符号化：追加のデータビットを使い、伝送中に生じる誤りを検出・訂正する方法です（Parity Check、CRC、Hamming Code）。
+  - 音楽CD：リード・ソロモン符号 (Reed–Solomon Code) を使用します。
+  - NASA：ターボ符号 (Turbo Code) とLDPC (Low-Density Parity-Check) を使用します。

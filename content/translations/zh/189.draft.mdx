@@ -1,0 +1,109 @@
+---
+title_ko: Visual Studio Code에서 MCP 서버 활용하기
+title_en: Utilizing MCP Servers in Visual Studio Code
+desc: >-
+  Visual Studio Code에서 MCP(Model Context Protocol) 서버를 설정하고 사용하는 방법을 공식 문서를 기반으로
+  단계별 안내합니다.
+thumbnail_url: /250407-141042.webp
+metatag: 'Visual Studio Code, GitHub Copilot, MCP 서버, 에이전트 모드'
+post_id: '189'
+locale: zh
+title: 在 Visual Studio Code 中使用 MCP 服务器
+description: 依据官方文档，逐步介绍如何在 Visual Studio Code 中配置和使用 MCP（模型上下文协议）服务器。
+source_hash: fbce60c5f1f6693b716e582b78813f00bef811aa039a33eea5ea11f42a8c038b
+---
+
+## 开始之前
+
+Visual Studio Code 支持将 GitHub Copilot 与 MCP（Model Context Protocol，模型上下文协议）结合使用。这样就可以在代理模式下与外部工具交互。本文依据官方文档，逐步介绍如何配置和使用 MCP 服务器。
+
+## 什么是 MCP？
+
+*MCP（Model Context Protocol）* 是一个开放标准，让模型能够与开发工具交互。借助 MCP，AI 除了生成文本，还能实际读取和写入代码文件，或者执行命令。VS Code 通过 MCP 支持在代理模式中调用工具（tool）。
+
+<Ads1 />
+## 在 VS Code 中配置 MCP 服务器
+
+按以下步骤添加 MCP 服务器。
+1. 在 VS Code 中，在项目根目录创建 `.vscode/mcp.json` 文件。
+2. 按以下示例的格式注册 MCP 服务器。
+
+```json
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "perplexity-key",
+      "description": "Perplexity API Key",
+      "password": true
+    },
+  ],
+  "servers": {
+    "Perplexity": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-perplexity-ask"
+      ],
+      "env": {
+        "PERPLEXITY_API_KEY": "${input:perplexity-key}"
+      }
+    }
+  }
+}
+```
+完成配置后，Copilot 就能使用该 MCP 服务器。
+如果希望在所有工作区中启用 MCP 服务器，可以在 VS Code 的 MCP 用户设置中指定服务器。在命令面板（Cmd + Shift + P）中运行 `MCP: add Server` 命令时，新的 MCP 服务器配置会自动添加到用户设置中。
+VS Code 可以自动发现 Claude Desktop 等其他工具中已经配置的 MCP 服务器，并复用其配置。通过 chat.mcp.discovery.enabled 设置启用自动发现。在命令面板中运行 `MCP: list Servers`，即可查看和管理已经配置的 MCP 服务器。
+
+## 配置文件格式
+MCP 服务器的 `mcp.json` 配置文件使用 JSON 格式。该文件定义 MCP 服务器的行为。`mcp.json` 包含以下三个部分。
+
+- *inputs* 定义需要用户提供的输入，例如 API 密钥。
+- *servers* 定义 MCP 服务器的命令、参数和环境变量等。
+- *type* 指定服务器类型（`stdio` 或 `websocket`）。
+
+有关详细格式，请参阅[官方文档](https://code.visualstudio.com/docs/copilot/chat/mcp-servers#_configuration-format)。
+
+<Ads2 />
+## 启用代理模式
+<Img src="https://code.visualstudio.com/assets/docs/copilot/chat/mcp-servers/chat-mode-agent.png" width={300} alt="工具选择界面"/>
+
+启用代理模式后，Copilot 就能使用 MCP 工具。设置步骤如下。
+
+1. 在 VS Code 中按 `F1`，输入 `Preferences: Open Settings (JSON)`。
+2. 添加下面的设置。
+
+```json
+{
+  "chat.agent.enabled": true
+}
+```
+
+现在可以在聊天界面中使用代理模式了。例如，输入“帮我创建测试文件”，Copilot 就会查找并执行相关工具。
+
+<Ads3 />
+## 从 smithery.ai 添加并使用 MCP 服务器
+
+按以下步骤添加并使用 MCP 服务器。
+1. 打开 [Smithery](https://smithery.ai/) 网站。
+2. 选择所需的 MCP 服务器。
+3. 将所选 MCP 服务器的配置添加到 VS Code。
+   <Img src="/250407-134548.webp" width={1000} alt="MCP 服务器配置"/>
+4. 在 VS Code 中点击 `서버 설치`（安装服务器）按钮，启用 MCP 服务器。
+   <Img src="/250407-134713.webp" width={500} alt="安装 MCP 服务器"/>
+   可以在 settings.json 中查看新添加的 MCP 服务器。点击启动按钮后，服务器就会启用。
+   <Img src="/250407-134956.webp" width={500} alt="检查服务器配置"/>
+5. 在代理模式下使用 MCP 服务器执行所需任务。
+6. 要停用 MCP 服务器，请从设置中移除对应的服务器。
+
+## 选择工具
+可以按 MCP 服务器选择和管理工具。工具选择窗口会列出可用工具，可以选择所需的工具来使用。
+<Img src="https://code.visualstudio.com/assets/docs/copilot/chat/mcp-servers/mcp-list-servers.png" width={500} alt="工具选择界面"/>
+工具由 MCP 服务器动态加载，可用工具可能随项目设置而变化。
+
+<Ads4 />
+## 参考资料
+- [VS Code 官方文档 - MCP Servers](https://code.visualstudio.com/docs/copilot/chat/mcp-servers)
+- [GitHub Copilot Labs](https://copilot.microsoft.com/labs)

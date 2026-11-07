@@ -1,0 +1,24 @@
+---
+post_id: '93'
+locale: zh
+title: 网络管理与SNMP
+description: 介绍网络管理与SNMP。
+source_hash: 60aafadaac9f3bb4e24b18182c116e94051c58d2a6a988fda8450a3a9e0bdf81
+---
+## 什么是网络管理？ (What is Network Management?)
+*自治系统（也就是“网络”）*包含数千个相互协作的硬件和软件组件。
+其他同样需要监控和控制的复杂系统包括：
+- 喷气式飞机
+- 核电站
+- 还有哪些？
+> “*网络管理*包括部署、整合和协调硬件、软件及人员，以监控、测试、轮询、配置、分析、评估和控制网络及其组成部分的资源，从而以合理的成本满足实时运行性能和服务质量的要求。”
+<Ads1 />
+## 网络管理基础设施 (Network Management Infrastructure)
+<Img src="/posts/240618-113916.png" width={400}/>
+**管理实体 (Managing Entity)**：负责收集和管理数据的中心系统。
+**被管理设备 (Managed Device)**：网络中受到管理的各台设备。
+**代理 (Agent)**：在被管理设备上运行，收集数据并将其发送给管理实体的软件。
+**网络管理协议 (Network Management Protocol)**：负责管理实体与代理之间的通信。
+**管理信息库 (Management Information Base, MIB)**：汇集被管理设备数据的地方。
+<br/>
+*被管理设备*包含*被管理对象*，这些对象的数据被收集到*管理信息库*（MIB）中。

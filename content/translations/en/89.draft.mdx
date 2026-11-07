@@ -1,0 +1,117 @@
+---
+post_id: '89'
+locale: en
+title: Routing Protocols
+description: >-
+  Routing goals, network graphs, link-state and distance-vector algorithms,
+  Dijkstra, Bellman–Ford, and their trade-offs.
+source_hash: 34c009c2b6488487027cb5fbc0ca668ff2890ab6819b28d4fd9c7e62da0078bc
+---
+## Routing protocols
+The goal of routing protocols:
+- Determine a *good path*, or route, from a sending host to a receiving host through a network of routers.
+	- Path: The sequence of routers a packet traverses from the initial sender to the final destination.
+	- Good path: Low cost, high speed through low delay or high throughput, low congestion, and so on.
+## Network graph abstraction
+<Img src="/posts/240528-171257.png" width={300}/>
+graph: G = (N, E)
+N = set of routers = ${u, v, w, x, y, z}$
+E = set of links = ${(u, v), (u, x), (v, x), (v, w), (x, w), (x, y), (w, y), (w, z), (y, z)}$
+
+c(x, x') = Cost of link (x-x').
+For example, c(w, z) = 5.
+
+- Costs may always be 1, inversely proportional to bandwidth, or related to delay or congestion.
+- The cost of path $(x_1, x_2, ..., x_n)$ is $c(x_1, x_2) + c(x_2, x_3) + ... + c(x_{n-1}, x_n)$.
+
+Question: What is the minimum-cost path between $u$ and $z$?
+- A routing algorithm finds that minimum-cost path.
+<Ads1 />
+## Routing algorithm classification
+Routing algorithms have two basic classifications.
+- **Global** or **decentralized**.
+- **Static** or **dynamic**.
+
+
+### Global vs. decentralized
+**Global**: Every router has network-wide information.
+- Uses information about the entire network to determine optimal paths.
+
+**Decentralized**: Each router knows only about its neighbors.
+- Uses only neighboring-router information to determine optimal paths.
+
+### Static vs. dynamic
+**Static**
+- Used when network link state changes slowly.
+
+**Dynamic**
+- Used when network link state changes rapidly.
+
+# 5.2.1 Routing protocols: Link state
+## Link-state routing algorithm
+**Dijkstra's algorithm**
+Network topology and link costs are known to *every node*.
+- Achieved through *link-state broadcasts*.
+- Every node has the same information.
+
+Finds the shortest paths from one node, or router, to every other node.
+- Builds that node's forwarding table.
+
+Iterative: After $k$ iterations, shortest paths to $k$ nodes have been found.
+Notation:
+- $N'$: The set of nodes whose shortest paths have already been found.
+- $D(v)$: The length of the shortest path to node $v$.
+- $p(v)$: The node immediately preceding $v$ on the shortest path to $v$.
+- $c(x, x')$: Cost of link $x-x'$.
+
+```python
+def dijkstra(G, s):
+		N' = {s}
+		for each node v in G:
+				if v != s:
+						D(v) = c(s, v)
+						p(v) = s
+		while N' != N:
+				find v not in N' such that D(v) is a minimum
+				add v to N'
+				update D(w) for each neighbor w of v and not in N':
+						D(w) = min{D(w), D(v) + c(v, w)}
+						p(w) = v
+```
+### Complexity analysis
+- $O(n^2)$: Finding a shortest path for each node takes $O(n)$.
+
+Optimization with a heap:
+- $O(n\log n + m)$ for $n$ nodes and $m$ links.
+<Ads2 />
+# 5.2.2 Routing protocols: Distance vector
+## Distance-vector routing algorithm
+**Bellman–Ford algorithm**: Dynamic programming.
+$d_x(y)$: Length of the shortest path from node $x$ to node $y$.
+- $d_x(y) = \min_v\{c(x, v) + d_v(y)\}$
+	- $c(x,v)$: Cost from $x$ to neighbor $v$.
+	- $d_v(y)$: Cost from neighbor $v$ to destination $y$.
+	- $\min$ is evaluated over every neighbor of $x$, denoted $v$.
+- $D_x(y)$: Estimated minimum cost from $x$ to $y$.
+	- $x$ maintains the distance vector $D_x = [D_x(y) : y \in N]$.
+
+Iterative and asynchronous: Send distance vectors to neighboring nodes.
+- Each local iteration is triggered by:
+	- A change in a local link cost.
+	- A distance-vector update received from a neighbor.
+- Distributed:
+	- Each node notifies its neighbors only when its own distance vector changes.
+
+### Comparing link-state and distance-vector routing
+**Message complexity**
+- LS: For $n$ nodes and $E$ links, $O(nE)$.
+- DV: Exchanges messages only between neighbors, giving lower message complexity.
+
+**Convergence speed**
+- LS: The $O(n^2)$ algorithm needs $O(nE)$ messages.
+	Oscillation may occur.
+- DV: Convergence may be slow.
+
+**Robustness**
+- LS: A node may advertise an incorrect link cost.
+- DV: A node may propagate incorrect route information.

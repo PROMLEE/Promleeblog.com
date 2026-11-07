@@ -1,0 +1,245 @@
+---
+title_en: Testing Asynchronous Logic - TDD with React Part 8
+title_ko: 비동기 로직 테스트 - React로 시작하는 TDD 8편
+url: testing-asynchronous-logic
+series_no: 8
+desc: >-
+  API 호출과 같은 비동기 작업을 테스트하는 방법을 배웁니다. findBy 쿼리를 사용하여 Loading, Success, Error 상태
+  변화를 감지하고 검증하는 과정을 다룹니다.
+thumbnail_url: /251221-225404.webp
+metatag: >-
+  React, TDD, AsyncTesting, findBy, waitFor, API, fetch, Mocking, Vitest,
+  TestingLibrary
+tags: 'React, Javascript, Typescript, Next.js'
+post_id: '391'
+locale: zh
+title: 测试异步逻辑——用 React 开始 TDD，第 8 篇
+description: 学习如何测试 API 请求等异步操作，并使用 findBy 查询观察和验证加载、成功与错误状态的变化。
+source_hash: 324ec673ea64debf7d3ea492d14d6c4f48a6229b9b0ce8d8b86e0368776be43e
+---
+
+## 开始之前
+
+此前我们测试的是点击按钮后数字立即变化的*同步（Synchronous）*代码。
+真实网站的操作往往没这么快。
+<br/>
+想象一下在外卖应用中点餐的过程。
+按下下单按钮，食物并不会马上出现在眼前。
+1. “正在接单……”（加载）
+2. 骑手配送（等待）
+3. “已送达！”（成功）或“订单取消”（错误）
+<br/>
+在 Web 开发中，向服务器请求数据也需要等待。
+今天通过 *RTL* 提供的 `findBy`，学习如何在测试代码中处理这类*异步（Asynchronous）*操作。
+
+<Ads1/>
+
+## 场景：查询用户列表
+
+先定义新需求。
+
+> **需求**
+> 1. 组件渲染时，从服务器获取用户列表。
+> 2. 获取数据期间，显示“불러오는 중...”（正在加载）。
+> 3. 成功获取数据后，在界面上显示用户名，例如 Leanne Graham。
+
+这个过程会随时间推进。
+测试代码也需要跟上各个阶段的变化。
+
+## 第 1 步：编写测试（Red）
+
+创建 `src/components/UserList.test.tsx` 文件。
+本次测试的重点是创建**模拟 API**（Mock），并使用**会等待的查询**（findBy）。
+<br/>
+（本篇使用简单的 `global.fetch` 模拟。第 9 篇将介绍专门的 MSW 工具。）
+
+```tsx title="src/components/UserList.test.tsx" showLineNumbers highlight="{8-18}"
+import { render, screen } from '@testing-library/react';
+import { vi, describe, test, expect, beforeEach, afterEach } from 'vitest';
+// 아직 UserList 컴포넌트가 없으므로 import 에러가 날 수 있습니다.
+import UserList from './UserList';
+
+describe('UserList 컴포넌트 비동기 테스트', () => {
+  
+  // [설정] 테스트 전에 가짜 fetch 함수를 만듭니다.
+  beforeEach(() => {
+    // global.fetch를 스파이(Spy)로 심어서 가로챕니다.
+    // 실제 서버 대신 우리가 정의한 가짜 데이터(JSON)를 반환하도록 합니다.
+    global.fetch = vi.fn().mockResolvedValue({
+      json: async () => [
+        { id: 1, name: 'Leanne Graham' },
+        { id: 2, name: 'Ervin Howell' },
+      ],
+    });
+  });
+
+  // [정리] 테스트가 끝나면 가짜 함수를 초기화합니다.
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test('데이터를 불러오는 동안 로딩 문구가 뜨고, 이후 데이터가 표시된다', async () => {
+    render(<UserList />);
+
+    console.log('[Step 1] 렌더링 직후 확인');
+    screen.debug();
+
+    // 1. 로딩 상태 확인 (동기)
+    // 렌더링 되자마자 바로 보여야 하므로 getBy를 씁니다.
+    expect(screen.getByText('불러오는 중...')).toBeInTheDocument();
+
+    console.log('[Step 2] 데이터 수신 대기');
+    
+    // 2. 데이터 표시 확인 (비동기)
+    // 데이터는 나중에 뜨므로 getBy를 쓰면 에러가 납니다.
+    // findBy는 요소가 나타날 때까지(기본 1초) 기다려줍니다.
+    const userItem = await screen.findByText('Leanne Graham');
+    
+    console.log('[Step 3] 데이터 수신 완료 후 디버깅');
+    screen.debug();
+
+    expect(userItem).toBeInTheDocument();
+  });
+});
+```
+<Ads2/>
+
+### getBy 与 findBy
+
+这是异步测试中最重要的区别。
+
+- **getByText**
+  找不到元素时立即报错。
+- **findByText**
+  最多等待 1000 毫秒，仍找不到时才报错。
+- **await**
+  `findBy` 会等待结果，因此必须在前面加上 `await`。
+
+## 第 2 步：运行测试（Red）
+
+运行测试。
+
+```bash title="Terminal"
+npm test -- src/components/UserList.test.tsx
+```
+
+### 分析运行结果
+
+测试会失败，因为还没有 `UserList` 组件。
+不过，通过测试代码，我们已经清楚*接下来需要实现什么*。
+
+## 第 3 步：实现功能（Green）
+
+创建 `src/components/UserList.tsx` 并实现功能。
+使用 `useEffect` 和 `fetch` 编写实际获取数据的逻辑。
+
+```tsx title="src/components/UserList.tsx" showLineNumbers
+import { useEffect, useState } from 'react';
+
+// 사용자 데이터 타입 정의
+interface User {
+  id: number;
+  name: string;
+}
+
+export default function UserList() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // 실제 API 호출 (테스트에서는 가짜 함수가 실행됨)
+    fetch('https://jsonplaceholder.typicode.com/users')
+      .then((response) => response.json())
+      .then((data) => {
+        setUsers(data);
+        setLoading(false); // 로딩 끝
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return <p>불러오는 중...</p>;
+  }
+
+  return (
+    <ul>
+      {users.map((user) => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+<Ads3/>
+
+## 第 4 步：重新运行测试并分析结果
+
+再次运行测试。
+
+```bash title="Terminal"
+npm test -- src/components/UserList.test.tsx
+```
+
+### 查看并分析成功日志
+
+可以从终端日志中观察各阶段的变化。
+<Img src="/251221-224401.webp" width={600} alt="查看测试通过的日志"/>
+
+```text
+[Step 1] 렌더링 직후 확인
+<body>
+  <div>
+    <p>불러오는 중...</p>
+  </div>
+</body>
+
+[Step 2] 데이터 수신 대기
+
+[Step 3] 데이터 수신 완료 후 디버깅
+<body>
+  <div>
+    <ul>
+      <li>Leanne Graham</li>
+      <li>Ervin Howell</li>
+    </ul>
+  </div>
+</body>
+
+PASS src/components/UserList.test.tsx
+```
+
+- **第 1 步**：组件首次渲染时，`loading` 状态为 `true`，因此会显示“불러오는 중...”。
+- **第 2 步**：测试执行到 `await screen.findByText(...)` 时暂停等待。这期间，`useEffect` 执行，数据随后返回。
+- **第 3 步**：状态更新，界面重新渲染，可以看到用户列表（`li`）出现。
+
+<Ads4/>
+
+## 结语
+
+源代码可在 [GitHub - Promleeblog/react-tdd-setup](https://github.com/PROMLEE/my-tdd-app/tree/part8) 查看。
+```bash title="Terminal"
+git clone https://github.com/PROMLEE/my-tdd-app.git
+cd my-tdd-app
+git checkout part8
+```
+
+今天练习了前端测试中比较棘手的异步逻辑。
+- **findBy 查询**
+  测试在异步操作之后才出现的元素时，需要使用 `await findBy...`。
+- **模拟（Mocking）**
+  用模拟实现替换 `global.fetch`，不必发出真实的网络请求，测试也更快、更稳定。
+- **检测状态变化**
+  通过测试验证了 UI 从加载到完成的整个变化过程。
+<br/>
+随着 API 数量增加，直接拦截 `global.fetch` 会变得难以管理。
+> 第 9 篇将介绍实际项目常用的网络模拟工具，讨论 **API 模拟策略与 MSW 的使用**。
+
+### 参考资料
+- [Async Methods - Testing Library](https://testing-library.com/docs/dom-testing-library/api-async/)
+  介绍 findBy、waitFor 等异步测试核心 API 的文档。
+- [Vitest Mocking Functions](https://vitest.dev/guide/mocking.html)
+  介绍在 Vitest 中模拟函数和使用 Spy 的指南。

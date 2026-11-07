@@ -1,0 +1,46 @@
+---
+post_id: '160'
+locale: en
+title: '[BOJ] #1927 Minimum Heap (Python)'
+description: A solution to Baekjoon problem 1927.
+source_hash: b0c0c73d05e82562b23180a56a7ebf0b7edc044a6be6403e61695fdc9d367c21
+reviewed_at: '2026-11-06T14:45:40.770Z'
+---
+> https://www.acmicpc.net/problem/1927
+## Algorithm categories
+Data structures, priority queues
+
+## Approach
+1. Python's built-in heapq module can solve this problem. Implementing the heap directly is another option.
+2. When the input is not 0, push the value with heapq.heappush(list, data).
+3. When the input is 0, check whether the list is empty; otherwise, pop with heapq.heappop(list) and print the result.
+
+## Code — Python
+```python
+import heapq
+import sys
+
+H = []
+n = int(sys.stdin.readline())
+for i in range(n):
+    k = int(sys.stdin.readline())
+    if k == 0:
+        if len(H) == 0:
+            print(0)
+            continue
+        else:
+            print(heapq.heappop(H))
+    else:
+        heapq.heappush(H, k)
+```
+<Img src="https://blogger.googleusercontent.com/img/a/AVvXsEgoK67slEIGeDq4g-jFI03xBN28-oW2lUXCiMBZ_VKzcS7eBIxX03MrM4htI4wN310mxZTINoJSzFHz2Op0fKVjJc9EDNStvSqAoTOxsYDzeErLEGWkPx2Q4B4rVmDGWWDl0nJZ2NjL0mwmiQKEPt6rfBDHInJjPH72Ji37VOnrZRlCiD2swT0q78t0HUQ" width={1000} alt=""/>
+## Problem encountered and solution
+1. Lines 5 and 7: reading data with input() caused a time limit exceeded error.
+   - In Python, use readline through the sys module rather than input() for this input-reading step.
+
+## Key points
+- The heapq module can implement a min-heap.
+- Push with heapq.heappush(list, data).
+- Pop with heapq.heappop(list).
+- Attempting to pop from an empty list raises IndexError, so handle the empty case.
+- Time complexity: O(NlogN)

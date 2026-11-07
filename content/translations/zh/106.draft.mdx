@@ -1,0 +1,128 @@
+---
+post_id: '106'
+locale: zh
+title: 使用CDN优化图片加载
+description: 使用Amazon S3与CloudFront搭建图片CDN，并配置存储桶策略、域名和SSL证书。
+source_hash: 2b2444d1ff305871e9102343f949220cad022c7a06d534ab966df7f2a5439769
+---
+## 开始之前
+目前，文章图片以.png文件保存在public文件夹中。
+可以使用`<Image>`组件引用并加载这些图片。
+但随着图片增多，项目体积会变大，图片文件也越来越难管理。
+此外，图片越多，页面加载越慢，因此我开始寻找能够优化图片加载的方式。
+
+### 什么是CDN
+> *CDN*（*Content Delivery Network*，内容分发网络）会把内容存储在分布于世界各地的服务器上，当用户访问内容时，由距离用户最近的服务器提供内容。
+这样可以提高内容传输速度，减轻服务器负载。
+[维基百科](https://ko.wikipedia.org/wiki/콘텐츠_전송_네트워크)
+
+提供CDN服务的厂商有很多。
+- [Cloudinary](https://cloudinary.com/)
+- [imgix](https://www.imgix.com/)
+- [Akamai](https://www.akamai.com/kr/ko)
+- [Fastly](https://www.fastly.com/ko)
+- [Cloudflare](https://www.cloudflare.com/ko-kr/)
+- [AWS CloudFront](https://aws.amazon.com/ko/cloudfront/)
+- [Google Cloud CDN](https://cloud.google.com/cdn)
+
+这里我打算使用CloudFront和S3存储桶搭建CDN环境。
+
+### 什么是CloudFront和S3
+**Amazon CloudFront**是一项将.html、.css、.js和图片等*静态与动态Web内容*快速分发给用户的Web服务。
+CloudFront通过遍布世界各地、称为边缘站点的数据中心网络提供内容。
+当用户请求CloudFront上的内容时，请求会被路由到延迟最低的边缘站点，从而获得更好的传输性能。
+**Amazon S3**是面向Web服务的对象存储服务，提供简单的Web服务接口，供Web规模的计算任务使用。
+
+<Ads1 />
+## 搭建CDN环境
+### 1. 创建S3存储桶
+我已有一个通过Route53托管的域名，因此使用对应账号登录并操作。
+1. 登录AWS，进入`S3`服务，然后点击`버킷 생성`。
+	**注意区域选择！**创建存储桶之前，应先选择合适的区域。这里我选择了`아시아 태평양(서울)`。
+	[存储桶命名规则](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html)——不能使用下划线。
+	<Img src="/posts/240622-160521.png" width={500}/>
+	其余选项使用默认设置。
+	点击`버킷 만들기`后，即可创建。
+### 2. 创建CloudFront分配
+1. 进入`CloudFront`服务，点击`배포 생성`。
+2. 在Origin Domain中，选择S3存储桶的端点地址。
+	在Origin Access中选择`원본 엑세스 제어 설정`，然后点击`Create new OAC`。
+	<Img src="/posts/240622-160940.png" width={500}/>
+	使用默认设置，点击`Create`。
+	<Img src="/posts/240622-161245.png" width={500}/>
+	在默认缓存行为中，根据自己的需求选择查看器协议策略（我选择了HTTPS only）。
+	<Img src="/posts/240622-161430.png" width={300}/>
+	通常img和script标签不会检查CORS，因此可以保留默认缓存策略，但为了保险，这里仍然进行配置。
+	- 将源请求策略设为`CORS-S3Origin`。
+	- 将响应标头策略设为`CORS-With-Preflight`。
+	<Img src="/posts/240622-161805.png" width={500}/>
+	关闭Web应用程序防火墙（WAF）。
+	这是一个可能产生费用的选项。
+	<Img src="/posts/240622-162350.png" width={500}/>
+	完成其余个性化配置后，点击`배포 생성`。
+### 3. 配置S3存储桶策略
+CloudFront创建完成后，会显示以下消息。
+<Img src="/posts/240622-162618.png" width={500}/>
+点击复制策略按钮，将策略复制下来，然后通过链接进入S3存储桶的策略设置页面。
+点击编辑策略，粘贴策略并保存。
+<Img src="/posts/240622-162846.png" width={500}/>
+### 4. 确认CloudFront连接
+向S3存储桶上传图片。
+点击上传按钮，选择要上传的文件或图片。
+也可以直接拖放上传。
+<Img src="/posts/240622-163531.png" width={500}/>
+回到CloudFront，检查分配状态。
+CloudFront部署完成后，可以看到分配的域名。
+<Img src="/posts/240622-163409.png" width={500}/>
+现在，通过分配域名就能访问图片。
+```https
+https://[도메인 이름]/[파일명]"
+```
+<Img src="/posts/240622-163745.png" width={500}/>
+
+<Ads2 />
+## 绑定CDN域名（可选）
+默认提供的域名由AWS生成。
+这个域名比较复杂、不易记忆，因此最好绑定到自己已有的域名。
+需要一个已经完成**托管**的域名，请提前准备。
+### 1. 创建记录
+进入Route53，选择自己的域名。
+点击`레코드 세트 생성`。
+输入子域名，选择`CNAME`记录。
+将值设为CloudFront分配域名，然后创建记录。
+<Img src="/posts/240622-164311.png" width={500}/>
+
+### 2. 申请SSL证书
+CloudFront需要SSL证书，因此进入ACM（AWS Certificate Manager）申请证书。
+可供CloudFront使用的证书，只能在美国东部（弗吉尼亚北部）区域申请。
+**请先将区域切换到弗吉尼亚北部！**
+依次选择申请证书 > 申请公有证书。
+输入配置CNAME的域名，点击`요청`。
+<Img src="/posts/240622-165122.png" width={500}/>
+初始状态为等待验证。
+如果等待后状态仍然没有变化，可以点击`Route53에서 레코드 생성`，创建DNS记录。
+<Img src="/posts/240622-171033.png" width={500}/>
+
+### 3. 绑定CloudFront域名
+在CloudFront页面点击编辑设置。
+<Img src="/posts/240622-171429.png" width={500}/>
+按下图配置CNAME和SSL证书，再点击`설정 저장`。
+<Img src="/posts/240622-171750.png" width={500}/>
+配置完成后，通过对应域名访问CDN。
+<Img src="/posts/240622-173903.png" width={500}/>
+
+
+
+<Ads3 />
+## 结论
+
+### 进一步思考
+对比应用CDN前后的整篇文章。
+这里选取了一篇图片较多的文章进行比较。
+应用CDN之前：
+<Img src="/posts/240622-175247.png" width={500}/>
+应用CDN之后：
+<Img src="/posts/240622-180046.png" width={500}/>
+
+### 参考资料
+[AWS：使用域名将流量路由到Amazon CloudFront分配](https://docs.aws.amazon.com/ko_kr/Route53/latest/DeveloperGuide/routing-to-cloudfront-distribution.html)

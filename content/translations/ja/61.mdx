@@ -1,0 +1,78 @@
+---
+post_id: '61'
+locale: ja
+title: 設計をコードへ対応付ける
+description: 設計からコードへ対応付ける方法を説明します。
+source_hash: 6b80e773fbb71a46a74c652800e15213c951146c662bfd5435fafd2b439832fd
+reviewed_at: '2026-11-07T01:44:57.941Z'
+---
+## 設計をコードへ対応付ける
+設計時に作成したUMLの成果物、つまり相互作用図とDCDは、コードを生成する際の入力になります。
+**実装モデル**
+- 実装に関わるすべての成果物です。
+  - ソースコード、データベース定義、JSP・XML・HTMLページなどを含みます。
+
+オブジェクト指向言語で実装する場合は、次のソースコードを書きます。
+- クラスとインターフェースの定義
+- メソッドの定義
+
+**UML設計をコードへ変換する流れ**
+- クラス図から*クラス定義*を作ります。
+- 相互作用図から*メソッド本体*を作ります。
+<Ads1 />
+## DCDからクラス定義を作る (Creating Class Definitions from DCD)
+DCDには、オブジェクト指向言語の基本的なクラス定義を作るために十分な情報があります。
+<Img src="/posts/240618-003747.png" width={400}/>
+**属性の定義（Javaのフィールド）**：
+DCDで属性として定義されたものを、Javaのフィールドとして宣言します。
+- 例：`quantity: Integer`は`private int quantity;`へ対応付けます。
+- 例：`description: ProductDescription`は`private ProductDescription description;`へ対応付けます。
+
+**メソッドシグネチャ**：
+DCDでメソッドとして定義されたものを、Javaのメソッドとして宣言します。
+- 例：`getSubtotal(): Money`は`public Money getSubtotal() { ... }`へ対応付けます。
+
+## 相互作用図からメソッド本体を作る (Creating Method Bodies from Interaction Diagrams)
+相互作用図のメッセージの順序は、メソッド定義内の一連の文へ変換されます。
+<Img src="/posts/240618-004009.png" width={500}/>
+
+**相互作用図からメッセージを取り出す**：
+- `enterItem`メッセージが`Register`インスタンスへ送られます。したがって、`enterItem`メソッドは`Register`クラスに定義します。
+- メッセージの順序をたどりながら、メソッドの動作をコードにします。
+
+**メッセージの順序**：
+- メッセージ1：`ProductCatalog`オブジェクトへ`getProductDescription`を送り、商品説明を取得します。
+- メッセージ2：`Sale`オブジェクトへ`makeLineItem`を送り、販売明細を作ります。
+
+**Javaでの実装**：
+- メッセージの順序をコードの文へ変換して、`enterItem`メソッドを書きます。
+	```java title="예시 코드" showLineNumbers=true
+	public class Register {
+			private ProductCatalog catalog;
+			private Sale currentSale;
+			public Register(ProductCatalog catalog) {
+					this.catalog = catalog;
+					this.currentSale = new Sale();
+			}
+			public void enterItem(int itemID, int qty) {
+					ProductDescription desc = catalog.getProductDescription(itemID);
+					currentSale.makeLineItem(desc, qty);
+			}
+	}
+	```
+<Ads2 />
+## コード内のコレクションクラス (Collection Classes in Code)
+> オブジェクト指向プログラミングで、多数のオブジェクトを管理・操作するための重要な道具です。
+特に*一対多*の関係を表す際に使います。
+
+オブジェクト指向言語では、*コレクションオブジェクト*を使って実装します。
+- List（ArrayList、Listインターフェース）：要素を追加できる、順序付きのリスト。
+- Map（HashMap、Mapインターフェース）：キーに基づく検索。
+- 単純な配列。
+
+## 実装の順序 (Order of Implementation)
+> クラスは、結合度の低いものから高いものへ、順に実装します。
+
+<Img src="/posts/240618-004911.png" width={500}/>
+- 最初に実装できるのは、PaymentまたはProductDescriptionです。
+- 次に、すでに実装したものにだけ依存するProductCatalogやSalesLineItemを実装します。

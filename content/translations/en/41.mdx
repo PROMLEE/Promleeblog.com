@@ -1,0 +1,151 @@
+---
+post_id: '41'
+locale: en
+title: Database Design and Implementation
+description: >-
+  Study notes for the third subject of Korea's Engineer Information Processing
+  exam, covering database design and implementation.
+source_hash: 83dd552ec00a7f53e7c2229d90dc7c85f01897d68ee38ed073c5587dea52c941
+reviewed_at: '2026-11-07T06:56:41.758Z'
+---
+## Database
+> A collection of data an organization needs and owns, maintains, and uses jointly.
+
+- Conceptual design models an implementation-independent conceptual schema.
+  - *Model transactions*.
+  - Create an E-R diagram.
+- Logical design produces a logical schema for the selected data model.
+  - *Design transaction interfaces*.
+  - *Normalize the schema*.
+  - Map the model to a logical database structure.
+  - Evaluate and refine the schema.
+- Physical design converts the logical design to a physical structure for the target DBMS.
+  - *Denormalize where appropriate*.
+  - Design objects, access methods, indexes, and view capacity.
+  - *Write transactions*.
+  - **Design stored record formats, ordering, and access paths**.
+
+## Components of a Data Model
+- Structure
+  - The structural properties of the data.
+  - Examples include format, length, keys, and relationships.
+- Operations
+  - Specifications for actions that process data.
+  - Examples include insertion, deletion, updating, and retrieval.
+- Constraints
+  - Logical rules on what data can be stored in the database.
+  - Examples include validity, consistency, and integrity rules.
+
+## Schemas
+| Type | Description |
+|---|---|
+| Conceptual schema | Defines the entire database from the users' and database administrator's perspective.<br/>Specifies entities, relationships, constraints, access rights, and integrity rules. |
+| Internal schema | Describes the database from the designer's or developer's perspective and defines how the conceptual schema is implemented on physical storage.<br/>Specifies physical structure and the physical order of internal records. |
+| External schema | Describes the database from a user's perspective. Different users and programs can have different logical views. |
+
+## E-R Diagram Notation
+![240508-174919](/posts/240508-174919.png)
+
+## Relational Databases
+- A relational database represents data in tables called relations.
+- A relation consists of *attributes* (columns or fields) and *tuples* (rows or records).
+- The *degree* is the number of attributes. The *cardinality* is the number of tuples.
+- A *domain* is the set of atomic values an attribute can take.
+
+Properties of a relation
+- Tuples and attributes are unique and unordered.
+- A subset of attributes serves as a key to identify tuples.
+- Attributes can contain nulls, except for those that belong to the *primary key*.
+
+## Keys
+| Type | Description |
+|---|---|
+| Candidate key | A key that satisfies *uniqueness* and *minimality*. |
+| Primary key | The candidate key chosen as the main key. Its values cannot be *duplicate or NULL*. |
+| Alternate key | A candidate key other than the primary key. |
+| Foreign key | An attribute that references a primary key in another relation. The referenced key is unique, but foreign-key values in the referencing relation may repeat. |
+| Superkey | A set of attributes that uniquely identifies tuples in a relation. |
+
+## Integrity
+| Type | Description |
+|---|---|
+| **Entity integrity** | No attribute in the *primary key* can be *NULL*, and the key must be unique. |
+| **Domain or attribute integrity** | Attribute values must belong to the defined *domain*. |
+| **Referential integrity** | A *foreign key* value is either NULL or matches a primary key value in the referenced relation. |
+| User-defined integrity | Data must satisfy the integrity rules defined by users. |
+| Enforcing data integrity | Constraints help ensure that data is accurate, consistent, and valid. |
+
+## Relational Algebra
+> A *procedural language* that defines how to retrieve the desired information.
+
+1. Relational operators
+
+   | Symbol | Operator | Description |
+   |---|---|---|
+   | σ | Select | Selects tuples that satisfy a condition. |
+   | π | Project | Selects specific attributes from a set of tuples. |
+   | ⋈ | Join | Joins two relations based on common attributes. |
+   | ÷ | Division | Divides one relation by another. |
+
+2. General set operators
+
+   | Symbol | Operator | Description |
+   |---|---|---|
+   | ∪ | Union | Returns the union of two relations. |
+   | ∩ | Intersection | Returns the intersection of two relations. |
+   | - | Difference | Returns the set difference of two relations. |
+   | x | Cartesian product | Combines each tuple in one relation with each tuple in the other. |
+
+## Relational Calculus
+> A *nonprocedural language* that describes the information to retrieve.
+
+1. Logical operators
+
+   | Symbol | Operator | Description |
+   |---|---|---|
+   | ∧ | AND | True when both conditions are true. |
+   | ∨ | OR | True when at least one condition is true. |
+   | ¬ | NOT | Negates a condition. |
+
+2. Quantifiers
+
+   | Symbol | Operator | Description |
+   |---|---|---|
+   | ∀ | For all | The condition holds for every tuple. |
+   | ∃ | There exists | The condition holds for at least one tuple. |
+
+## Normalization
+> A process for minimizing redundancy and preserving data integrity.
+
+- Minimize *redundancy and dependencies* that cause anomalies.
+- During *logical design*, divide tables into relations with fewer attributes so they are easier to manage.
+- Make the data structure more stable and reduce the need to restructure relations when inserting data.
+
+- Types of anomalies
+  - Insertion anomaly occurs when adding desired data requires adding unwanted data.
+  - Deletion anomaly occurs when deleting desired data also removes information you wanted to keep.
+  - Update anomaly occurs when only some tuples are updated, leaving inconsistent data.
+
+## Normal Forms
+1. First normal form requires every *domain* to contain only *atomic values*.
+2. Second normal form requires non-key attributes to be *fully functionally dependent* on the primary key, eliminating *partial dependencies*.
+3. Third normal form eliminates *transitive functional dependencies* of non-key attributes on the primary key.
+4. Boyce–Codd normal form (BCNF) requires every determinant to be a *candidate key*.
+5. Fourth normal form addresses *multivalued dependencies* by requiring the determinant of each nontrivial multivalued dependency to be a superkey.
+6. Fifth normal form requires every *join dependency* to follow from the candidate keys.
+
+## Data Dictionary and System Catalog
+> System tables maintain definitions and specifications for all data objects.
+
+- The catalog stores metadata, or data about the database.
+- You can query it with SQL.
+- The system creates and maintains it automatically. *Ordinary users cannot update it directly*.
+
+- The data directory contains the location information needed to access the data dictionary.
+
+## Indexes
+> An ordered data structure built separately to make records quicker to locate and retrieve.
+
+When a table is dropped, its indexes must also be removed. Users can manage indexes directly.
+Use CREATE to create an index and DROP to remove it.
+Types include clustered, nonclustered, tree-based, function-based, bitmap, bitmap join, and domain indexes.

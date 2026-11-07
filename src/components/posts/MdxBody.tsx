@@ -1,3 +1,4 @@
+import { rehypeHeadingAliases } from "@/lib/i18n/heading-aliases";
 import React from "react";
 import { Components } from "@/components/mdx";
 import { MDXRemote } from "next-mdx-remote/rsc";
@@ -13,9 +14,11 @@ import "katex/dist/katex.min.css";
 export const MdxBody = ({
   content,
   isDev,
+  originalContent,
 }: {
   content: string;
   isDev?: boolean;
+  originalContent?: string;
 }) => {
   return (
     <MDXRemote
@@ -39,6 +42,7 @@ export const MdxBody = ({
               },
             ],
             rehypeSlug,
+            [rehypeHeadingAliases, { source: originalContent }],
             [
               rehypeAutolinkHeadings,
               {

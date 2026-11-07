@@ -1,0 +1,183 @@
+---
+post_id: '238'
+locale: ja
+title: Expoのディープリンクでクエリパラメーターを送受信する
+description: Expo Routerでクエリパラメーター付きのディープリンクを設定し、特定の画面への移動とデータの受け渡しを行う方法を紹介します。
+source_hash: 3146eec381c94feab744598ad6698925d52096d7e200cbb845989ff7d5ec2b63
+---
+## はじめに
+
+今回は、Expoアプリの使い勝手を高める*ディープリンク（Deep Link）*を学びます。
+特に、特定の画面へ移動するときにデータを一緒に渡すための*クエリパラメーター*に注目します。
+<br/>
+<br/>
+Webサイトのリンクを押したら、ブラウザではなく、アプリ内の特定の画面が直接開いたことはありませんか。
+それがディープリンクです。他のアプリ、Webサイト、プッシュ通知など、アプリの外から特定のコンテンツや機能へユーザーを直接案内できます。
+<br/>
+<br/>
+この記事ではExpo Routerを使い、Expoでディープリンクを設定し、URLのクエリパラメーターでデータを送り、アプリの画面で受け取って使うまでを順に説明します。
+
+## ディープリンクとクエリパラメーターを使う理由
+
+### ディープリンクとは？
+
+ディープリンクは、WebのURLのようにアプリに固有のアドレスを割り当て、外部からアプリの特定の画面や機能に直接アクセスできるようにする技術です。
+ディープリンクがなければ、リンクを押してもアプリの最初の画面に移動するだけだったり、ストアからアプリを探して起動し、目的の画面まで何度も操作する必要があったりします。
+
+### クエリパラメーターはなぜ使う？
+特定の画面を開くとき、*追加の情報*も一緒に渡したいことがあります。
+- ショッピングアプリで商品ID `123` の詳細を開く。
+- ニュースアプリで「スポーツ」の記事一覧を表示する。
+- 地図アプリで特定の緯度と経度を表示する。
+
+そのために*クエリパラメーター*を使います。URLのパスの後に?を付け、`key=value` で必要な値を指定し、複数の値は `&` で区切ります。
+<br/>
+<br/>
+
+例 myapp://products/detail?productId=123&category=electronics
+- `myapp://` はアプリを識別するスキームです。
+- `products/detail` はアプリ内の商品詳細画面へのパスです。
+- `?productId=123&category=electronics` はクエリパラメーターです。商品IDが123、カテゴリが家電です。
+
+ディープリンクで目的の画面を開き、クエリパラメーターで、その画面を組み立てるために必要な具体的な情報も渡せます。
+
+## Expoでディープリンクを設定する（Expo Router）
+
+Expoでディープリンクを使う前に、いくつかの設定が必要です。Expo Routerを使うと簡単に設定できます。
+
+### 1. URLスキームを設定する
+
+アプリを識別する固有のURLスキームを決めます。
+例えばアプリ名が「My Awesome App」なら、「myawesomeapp」のようなスキームを使えます。`app.json` または `app.config.js` で設定します。
+```json title="app.json" {5}
+{
+  "expo": {
+    "name": "My Awesome App",
+    "slug": "my-awesome-app",
+    "scheme": "myawesomeapp", // 여기에 원하는 스킴을 입력합니다.
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router" // Expo Router를 사용하고 있다면 이 플러그인이 필요합니다.
+    ]
+    // ... 기타 설정 ...
+  }
+}
+```
+
+この値がディープリンクURLの先頭になります。例は `myawesomeapp://...` です。アプリ名に関係があり、他のアプリと重ならない名前を選ぶとよいでしょう。
+Expo CLIでビルドすると、スキームはiOSのInfo.plistやAndroidのAndroidManifest.xmlに自動で反映されます。
+```bash
+expo prebuild
+```
+
+### 2. Expo Routerのファイル構成を使う
+Expo Routerはファイルシステムベースのルーティングを使います。`app` ディレクトリ内の構成が、URLのパスに対応します。
+例えば `app/products/detail.tsx` を作ると、`myawesomeapp://products/detail` に対応します。
+クエリパラメーターはこのパスに追加するだけで、専用のファイルは不要です。
+
+<Ads1 />
+
+## クエリパラメーター付きのディープリンクを作る
+
+ディープリンクは、プッシュ通知、Webサイト、マーケティングメールなど、アプリの外で使います。決めたスキームとパスに `?` を付け、`key=value` の組を `&` でつなぎます。
+
+- 商品ID `456` の詳細へ移動する場合は `myawesomeapp://products/detail?productId=456` です。
+- ユーザー「alice」のプロフィールを開く場合は `myawesomeapp://users/profile?username=alice` です。
+- 検索結果で「react native」を検索する場合は `myawesomeapp://search?query=react%20native` です。空白はURLエンコードで `%20` になることがあります。
+
+ユーザーがリンクを押すと、ExpoアプリがURLを解釈し、対応する画面を開いて、そのコンポーネントにクエリパラメーターを渡します。
+
+## ディープリンクのパラメーターを取得する（useLocalSearchParams）
+
+アプリの画面でクエリパラメーターを取り出して使うには、Expo Routerの `useLocalSearchParams` フックを使います。
+例えば `app/products/detail.tsx` で `productId` を取得します。
+```tsx
+// 파일 경로: app/products/detail.tsx
+
+import { useLocalSearchParams } from 'expo-router';
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+
+export default function ProductDetailScreen() {
+  // useLocalSearchParams 훅을 사용하여 현재 경로에 전달된 파라미터를 가져옵니다.
+  // 제네릭 타입을 사용하여 파라미터의 타입을 명시할 수 있습니다.
+  const params = useLocalSearchParams<{ productId?: string; category?: string }>();
+
+  const productId = params.productId; // 'productId' 키로 값 추출
+  const category = params.category;   // 'category' 키로 값 추출 (있다면)
+
+  console.log('전달받은 Product ID:', productId);
+  console.log('전달받은 Category:', category);
+
+  // productId를 사용하여 상품 정보를 불러오는 등의 로직 수행 가능
+  // useEffect(() => {
+  //   if (productId) {
+  //     fetchProductDetails(productId);
+  //   }
+  // }, [productId]);
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>상품 상세 페이지</Text>
+      {productId ? (
+        <Text>요청된 상품 ID: {productId}</Text>
+      ) : (
+        <Text>상품 ID가 전달되지 않았습니다.</Text>
+      )}
+      {category && ( // category 파라미터가 있을 경우 표시
+        <Text>카테고리: {category}</Text>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+});
+```
+
+1. `useLocalSearchParams` を呼ぶと、現在の画面（ルート）のクエリパラメーターがオブジェクトで返ります。
+2. 返された `params` から、`productId` や `category` など、必要な名前をキーにして値を取り出します。
+3. TypeScriptなら、`useLocalSearchParams<{ productId?: string; category?: string }>()` のように、ジェネリクスで型と任意項目（`?`）を明記すると安全性が高まります。クエリの値は文字列で渡るため、数値として使う場合は `parseInt()` などで変換します。
+4. 取り出した `productId` で、画面にデータを表示したり、サーバーに詳細を問い合わせたりできます。
+
+## 注意点とテストのヒント
+<Rbox>アプリのスキームは、他のアプリと競合しないよう、できるだけ固有の名前にします。</Rbox>
+### テスト方法
+
+Expo Goや開発ビルドでは、ターミナルから次のコマンドを使ってディープリンクを試せます。環境によってコマンドは少し異なります。
+```bash
+# Android 에뮬레이터/기기
+npx uri-scheme open myawesomeapp://products/detail?productId=999 --android
+
+# iOS 시뮬레이터/기기
+npx uri-scheme open myawesomeapp://products/detail?productId=999 --ios
+```
+iOSシミュレーターでは、Hardware → Open URL...のメニューを使う方法もあります。
+実機では、メモやメッセージアプリにURLを入力し、タップして確認できます。
+
+<Ads2 />
+
+## おわりに
+
+ディープリンクとクエリパラメーターを使うと、アプリ内への移動が滑らかになり、機能を利用してもらいやすくなります。外部リンクから特定のコンテンツへ直接案内し、必要な情報も渡すことで、ユーザーの手間を減らせます。
+Expo Routerの `useLocalSearchParams` を使えば、ディープリンクのクエリパラメーターを簡単に取得して利用できます。
+
+### 参考
+
+- Expo Routing（Deep Linking） [https://docs.expo.dev/router/guides/deep-linking/](https://docs.expo.dev/router/guides/deep-linking/)
+- Expo Router API Reference（useLocalSearchParams） [https://docs.expo.dev/router/api/use-local-search-params/](https://docs.expo.dev/router/api/use-local-search-params/)
+- Expo Configuration（app.json/app.config.js） [https://docs.expo.dev/versions/latest/config/app/](https://docs.expo.dev/versions/latest/config/app/)
+- uri-scheme CLI tool [https://github.com/expo/uri-scheme](https://github.com/expo/uri-scheme)

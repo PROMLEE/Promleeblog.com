@@ -1,0 +1,130 @@
+---
+post_id: '148'
+locale: ja
+title: 共同開発のためのJavaScript・TypeScriptコメント（JSDoc）
+description: JavaScriptとTypeScriptでJSDocを使い、共同開発でコードの意図や使い方を伝えるコメントを書く方法を紹介します。
+source_hash: be0f84bb88a85447bc274e19281951554090149a94bf4ef7f705ea343449fe34
+---
+## はじめに
+### コメントが大切な理由
+ソフトウェア開発では、コードの読みやすさと保守のしやすさが大切です。特に複数人で開発するプロジェクトでは、コードだけで意図を読み取りにくい場合があります。
+最近、仕事で規約を決める役割を任され、互いに理解しやすいコードを書くにはどうすればよいか考えました。npmモジュールのファイルを調べると、半分以上がコメントのファイルも珍しくありません。そのコメントが、コードを理解するのに大いに役立つと気づきました。今回は、JavaScriptとTypeScriptでコメントを書く方法と、共同開発での書き方を見ていきます。
+
+### JSDocとは？
+[JSDoc](https://jsdoc.app/)は、JavaScriptでコードの意味や使い方を説明するコメント形式です。IDE（統合開発環境）がコメントから情報を抽出して表示するので、コードを理解しやすくなります。APIドキュメントも自動生成でき、利用する開発者がAPIを把握しやすくなります。
+次の画像は、VS CodeでNext.jsのLinkコンポーネントにマウスを合わせたときの表示です。JSDocを通して、必要なパラメーターや戻り値、文章での説明まで確認できます。
+<Img src="/posts/250307-185748.png" width={800} alt=""/>
+
+このように、JavaScriptやTypeScriptでは `JSDoc` でコメントの形式を統一できます。共同開発者が、コードの目的と使い方を理解しやすくなります。
+この記事では、**JSDocの基本構文と使い方**、**共同開発で伝わるコメントの書き方**を説明します。
+
+<Ads1 />
+## 1. JSDocの基本構文
+JSDocは、JavaScriptとTypeScriptでコードの意味を明確に伝えるために使うコメントの形式です。基本形は次のとおりです。
+```ts
+/** @type {string} */
+var win;
+```
+この例の `/** ... */` 形式がJSDocコメントです。関数には次のように書けます。
+
+```ts
+/**
+* 책의 정보를 나타내는 함수입니다.
+* @constructor
+* @param {string} title - 책의 제목
+* @param {string} author - 책의 저자
+*/
+function Book(title: string, author: string) {
+}
+```
+
+1. `/** ... */` 形式のコメントブロックを使います。
+2. 最初の行に関数の目的を簡潔に書きます。
+3. `@param` タグに、引数の型と役割を書きます。
+4. `@returns` タグに、戻り値の型と意味を書きます。
+
+<Img src="/posts/250307-200516.png" width={500} alt=""/>
+このように書くと、IDEが型情報と説明を自動で表示し、開発者がコードを理解しやすくなります。
+
+## 2. JSDocの追加タグ
+JSDocは、さまざまなタグに対応しています。よく使うものを見ていきます。
+### 2.1. @exampleで使用例を示す
+```ts
+/**
+ * 숫자를 세제곱합니다.
+ * @param {number} x - 입력 숫자
+ * @returns {number} x의 세제곱 값
+ * @example
+ * cube(3); // 27
+ */
+function cube(x: number): number {
+  return x * x * x;
+}
+```
+
+### 2.2. @deprecatedで非推奨の関数を示す
+```ts
+/**
+ * 이 함수는 더 이상 사용되지 않습니다. 대신 newMethod를 사용하세요.
+ * @deprecated
+ */
+function oldMethod() {
+  console.log("이 메서드는 더 이상 사용되지 않습니다.");
+}
+```
+
+<Ads2 />
+### 2.3. @throwsで例外を説明する
+```ts
+/**
+ * 숫자를 나눕니다.
+ * @param {number} x - 나눌 숫자
+ * @param {number} y - 나누는 숫자
+ * @returns {number} x를 y로 나눈 값
+ * @throws {DivideByZero} y가 0인 경우
+ */
+function divide(x: number, y: number): number {
+	if (y === 0) {
+		throw new Error("y는 0이 될 수 없습니다.");
+	}
+	return x / y;
+}
+```
+
+### 2.4. @asyncで非同期関数を示す
+```js
+/**
+ * 비동기적으로 사용자 정보를 가져옵니다.
+ * @param {string} userId - 사용자 ID
+ * @returns {Promise<User>} 사용자 정보
+ * @async
+ */
+async function fetchUser(userId: string): Promise<User> {
+	const response = await fetch(`/users/${userId}`);
+	return response.json();
+}
+```
+
+### 2.5. @typedefで型を定義する
+```js
+/**
+ * 숫자 또는 숫자가 포함된 문자열입니다.
+ * @typedef {(number|string)} NumberLike
+ */
+
+/**
+ * 매직넘버를 설정합니다.
+ * @param {NumberLike} x - 매직넘버.
+ */
+ function setMagicNumber(x: NumberLike) {
+}
+```
+
+<Ads3 />
+## おわりに
+伝わるコメントを書くことは、開発の習慣として、チームの開発文化を改善するうえでも大切です。
+### もう少し考えてみる
+- コメントが多すぎると、かえってコードを読みにくくすることもあるでしょうか。
+### 参考
+- [JSDoc公式ドキュメント](https://jsdoc.app/)
+- [TypeScriptハンドブック - JSDocのサポート](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html)

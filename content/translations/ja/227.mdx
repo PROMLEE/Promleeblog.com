@@ -1,0 +1,224 @@
+---
+title_ko: 'useState와 setState 상태 관리의 비밀 - React, 알고 쓰자 2일차'
+title_en: >-
+  Deep Dive into useState & setState State Management Secrets - React Explained
+  Day 2
+desc: >-
+  React의 핵심 훅 useState와 상태 업데이트 함수 setState의 내부 동작 원리를 알아봅니다. 훅 호출 순서, Hook 연결
+  리스트, Update Queue, 함수형 업데이트, 배치 처리, Lazy Initial State 등을 쉽게 설명합니다.
+thumbnail_url: /250423-224838.png
+metatag: >-
+  React, useState, setState, 상태 관리, Hook, 함수형 컴포넌트, React Hooks, Update Queue,
+  배치, Batching, Lazy Initial State, 면접, 프론트엔드
+post_id: '227'
+locale: ja
+title: useStateとsetStateの状態管理原理：Reactを理解して使う2日目
+description: フックの呼び出し順、連結リスト、Update Queue、関数型更新、バッチ処理、遅延初期化からuseStateとsetStateの内部を理解します。
+source_hash: 1e2f8056df5de42189b5d474bc74e8a4d34dd54e37eb6995d14eff7386e050a3
+reviewed_at: '2026-11-07T01:38:21.513Z'
+---
+## はじめに
+Reactの原理を学ぶ2日目です。
+昨日は描画パイプラインとFiberという全体像を確認しました。
+今回は、その中心である状態管理、特にuseStateを詳しく探ります。
+状態は、コンポーネントが記憶する値であり、変更時に再描画を起こす力です。
+useStateは関数コンポーネントでその状態を簡単に扱えますが、*どのように*動くかを知れば、より強力で効率的なコードを書けます。
+記憶の仕組みとsetStateの更新処理を一つずつ見ます。
+面接でよく聞かれる問いも交えるので、その準備にも役立ちます。
+
+## useStateの動作
+まず、使用時のReact内部を確認します。
+
+```tsx
+import React, { useState } from 'react';
+
+function Counter() {
+  const [count, setCount] = useState(0); // useState 사용!
+    // ... 컴포넌트 로직 ...
+    return (
+    // ... JSX ...
+  );
+}
+```
+`useState(0)`を呼ぶと、状態変数`count`と更新関数`setCount`を得ます。
+Reactは複数のコンポーネントや、一つの中の複数のuseStateを、どう区別して記憶するのでしょうか。
+### 呼び出し順
+重要な規則があります。
+<Bbox>フックは常に最上位で呼び、ループ・条件分岐・入れ子の関数内では呼んではいけません。</Bbox>
+
+Reactが*呼び出し順*に依存して状態を管理するためです。
+描画のたび、同じ順番で呼ばれると仮定しています。
+
+> Q：「フックの規則は何で、なぜ重要ですか。」
+A：「最上位だけで呼ぶ必要があります。Reactは順番で状態を対応させるため、順序が変わると誤った状態につながります。」
+
+### Hookオブジェクトと連結リスト
+関数コンポーネントの情報はFiberノードに保存されると学びました。
+各Fiberは、フックを*連結リスト*で管理します。
+#### 連結リスト
+値と、次のデータへの参照を持つノードが、列車のようにつながるデータ構造です。
+配列のような順序がありますが、連続したメモリー配置は不要で、途中の挿入や削除が容易です。
+<hr />
+
+初回にuseStateを呼ぶと、ReactはHookオブジェクトを作り、リストへ追加します。
+現在値のmemoizedStateや、更新待ちのqueueなどを保持します。
+<Img src="/250423-221804.png" width={300} alt="Hookオブジェクトの連結リスト"/>
+
+再描画時はリストを順にたどり、各useStateに対応するHookから現在値を返します。
+順番が変わると誤ったHookを参照し、予期しないバグになります。
+### memoizedState：現在値の保存
+Hook内の*memoizedState*は、useStateの*現在の値*を保存します。
+最初の描画で初期値が入り、その後setStateの更新がコミットされると、新しい値に変わります。
+
+```typescript
+const [count, setCount] = useState(0); // count의 초기값은 0
+// setCount(1) 호출 시, Hook 객체의 memoizedState가 1로 업데이트됨
+```
+<Ads1 />
+
+## setStateによる更新要求
+記憶方法を理解したので、*setState*、たとえば`setCount`を呼ぶときの動作を見ます。
+直接書き換えるだけに見えて、実際には精密な過程を通ります。
+### Update Queue：更新要求を保存する
+setStateは即座に状態を変えません。
+*Update*オブジェクトを作り、該当Hookの*queue*へ追加します。
+順番に処理するための待ち行列で、単方向の連結リストとして実装されています。
+- Update：変更する値または関数、優先度などを保持する。
+- Update Queue：setStateごとのUpdateが、順に並ぶ場所。
+<Img src="/250423-222319.png" width={300} alt="Updateオブジェクトを連結リストで保持するキュー"/>
+
+次のレンダーフェーズでキューを処理し、最終値を計算します。
+即時に適用せず、まとめて扱うことで効率よく管理し、前回の並行性も実現できます。
+
+### 関数型更新で前の状態を安全に使う
+値の代わりに関数を渡す方法を、*関数型更新*と呼びます。
+
+```typescript
+// 값으로 업데이트
+setCount(count + 1); // 이전 count 값에 의존
+// 함수형 업데이트
+setCount(prevCount => prevCount + 1); // 이전 상태를 인자로 받아 새 상태 반환
+```
+*前の状態から次の状態を決める*ときに便利です。
+短時間に複数の更新を予約するバッチ処理では、実行時点の*最新状態*を安全に参照できます。
+`setCount(count + 1)`を何度も呼ぶと、各時点の`count`が同じで、期待どおりにならない可能性があります。
+`setCount(prevCount => prevCount + 1)`なら、キュー内の関数を順に実行し、前の結果を反映した最新のprevCountを次へ渡すため、正しい結果が得られます。
+
+### バッチ処理
+Reactは複数のsetStateを一つにまとめる*Batching*で最適化します。
+一つのイベントハンドラーで何度呼んでも、まとめて一度だけ再描画します。
+
+```typescript
+function handleClick() {
+  setCount(count + 1); // 업데이트 요청 1
+  setSomethingElse(false); // 업데이트 요청 2
+  // React는 이 두 업데이트를 모아서 처리하고, 리렌더링은 한 번만 발생
+}
+```
+<Img src="/250423-223047.png" width={300} alt="バッチ処理の過程"/>
+- **React 17以前**：Reactイベント内の更新だけが自動でまとめられ、`setTimeout`や`Promise`のような非同期コールバックでは個別に再描画しました。
+- **React 18以降**：自動バッチ処理により、`setTimeout`や`Promise`など、どこからsetStateを呼んでも基本的にまとめて処理します。不要な描画を減らせます。即時描画が必要な特別な場合には`flushSync`を使えます。
+
+```typescript
+import { flushSync } from 'react-dom';
+function handleClick() {
+  flushSync(() => {
+    setCount(count + 1); // 즉시 렌더링
+  });
+  setSomethingElse(false); // 자동 배치로 묶임
+}
+```
+<Ads2 />
+
+## フックとクラスのsetState
+クラスコンポーネントにも`this.setState()`があります。
+共通点と違いを見てみましょう。
+### マージと置き換え
+#### クラスのsetState
+複数の値を一つのオブジェクトで管理し、渡したオブジェクトを既存状態へ*浅くマージ*します。
+変えたいプロパティだけを更新し、ほかは維持します。
+
+```javascript
+// 클래스 컴포넌트 예시
+this.state = { count: 0, name: 'React' };
+this.setState({ count: 1 }); // { count: 1, name: 'React' } 로 병합됨
+```
+#### フックのsetState
+useStateは通常、単一の数値・文字列・真偽値や、一つの配列・オブジェクトを管理します。
+渡した値で既存状態を*完全に置き換えます。*
+オブジェクトの一部だけを変えるなら、自分で以前の状態を基に新しいオブジェクトを作って渡します。
+
+```typescript
+// 함수형 컴포넌트 예시
+const [userInfo, setUserInfo] = useState({ name: 'React', age: 8 });
+// 잘못된 예: setUserInfo({ age: 9 }); // { age: 9 } 로 교체되어 name 정보 사라짐
+// 올바른 예:
+setUserInfo(prevInfo => ({ ...prevInfo, age: 9 })); // 이전 상태를 복사하고 age만 덮어씀
+```
+### 非同期動作の共通点と違い
+どちらも基本的に*非同期的*に動く場合があり、呼んだ直後に反映されるとは限りません。
+主な理由はバッチ処理です。
+**クラス**では、更新後の処理を第2引数のコールバックで指定できます。
+
+```javascript
+this.setState({ count: 1 }, () => console.log('상태 업데이트 완료:', this.state.count));`
+```
+**フック**にはコールバック引数がありません。
+一般には`useEffect`で、変更後に行う処理を書きます。
+
+```typescript
+useEffect(() => {
+  console.log('count 상태 변경됨:', count);
+}, [count]); // count 상태가 변경될 때마다 이 효과 함수 실행
+```
+
+<Ads3 />
+
+## useStateの活用
+より効果的に使うためのヒントです。
+### 初期状態の遅延計算
+初期値は最初の描画でのみ使います。
+ただし、その計算に複雑な処理やlocalStorageへのアクセスが必要ならどうでしょうか。
+
+```typescript
+// 매 렌더링마다 computeExpensiveValue 함수가 호출될 수 있음 (비효율적)
+const [value, setValue] = useState(computeExpensiveValue());
+```
+関数を渡して*初期状態を遅延計算*できます。
+初期値の計算関数は最初の描画で一度だけ呼ばれ、不要な計算を避けられます。
+
+```typescript
+// computeExpensiveValue 함수는 최초 렌더링 시에만 호출됨
+const [value, setValue] = useState(() => {
+  const initialValue = computeExpensiveValue();
+  return initialValue;
+});
+```
+> Q：「Lazy initial stateとは何で、いつ使いますか。」
+A：「初期値の計算コストが高いとき、useStateへ関数を渡し、初回だけ計算させる最適化です。」
+
+### 更新とスケジューラー：Fiberとの関係
+Updateを作ると、Fiberの*スケジューラー*が優先度を判定し、描画を予約します。
+前回のとおり、Fiberは作業を細かく分け、優先度に応じて処理できます。
+入力への反応など高優先度の更新はすぐ処理されやすく、緊急でないものは別の作業の合間やブラウザーの待機時に処理されます。
+React 18のstartTransitionなどは、開発者が優先度を下げ、重要な操作を滑らかに保てるようにします。
+## まとめ
+今回は関数コンポーネントの中心にあるuseStateとsetStateの内部を詳しく確認しました。
+
+- 呼び出し順で各フックの状態を管理するため、フックの規則が重要。
+- Hookの情報はFiber内のオブジェクトへ保存され、連結リストで管理する。現在値はmemoizedState。
+- setStateは即時変更ではなく、Updateを作って連結リストのキューへ追加する要求。
+- setState(prev => ...)の関数型更新は、前の状態を安全に参照できる。
+- 複数の更新をまとめて再描画を一度にし、React 18では自動バッチ処理を行う。
+- クラスはマージし、フックは置き換える。
+- 遅延初期化は、高コストな初期値計算に有用。
+- setStateはスケジューラーと連携し、優先度の管理と描画の予約を行う。
+
+仕組みの理解は、動作の把握、問題の予測、性能の最適化に役立ちます。
+フックの規則、連結リスト、Update Queue、バッチ処理、遅延初期化を覚えておくとよいでしょう。
+
+> 次回はReact 18の*自動バッチ処理*と*並行性*を詳しく学びます。更新がどうまとめられ、並行性がどう体験を改善するかを確認します。
+### 参考
+- React公式ドキュメント：useState：[https://reactjs.org/docs/hooks-reference.html#usestate](https://reactjs.org/docs/hooks-reference.html#usestate)
+- React公式ドキュメント：Hooks実装：[https://reactjs.org/docs/hooks-faq.html#how-does-react-associate-hook-calls-with-components](https://reactjs.org/docs/hooks-faq.html#how-does-react-associate-hook-calls-with-components)
+- React Blog：React v18.0：[https://reactjs.org/blog/2022/03/29/react-v18.html](https://reactjs.org/blog/2022/03/29/react-v18.html)

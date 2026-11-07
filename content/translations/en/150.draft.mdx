@@ -1,0 +1,177 @@
+---
+title_ko: Expo의 페이지/다이나믹 라우팅 (expo-router)
+title_en: Expo's page/dynamic routing (expo-router)
+desc: >-
+  Expo의 페이지/다이나믹 라우팅 (expo-router)에 대한 설명입니다. In this post, I will explain about
+  Expo's page/dynamic routing (expo-router).
+thumbnail_url: 'https://cdn.worldvectorlogo.com/logos/expo-go-app.svg'
+metatag: >-
+  setting expo page routing, setting expo dynamic routing, expo-router, expo
+  Navigation, dynamic routing on folder
+post_id: '150'
+locale: en
+title: Page and Dynamic Routing in Expo with expo-router
+description: >-
+  Define Expo pages, shared layouts, route groups, dynamic segments, and
+  platform-specific routing using file-based routes.
+source_hash: 610cb8d50cb1af5034ed0a63977039dae6bc1fef49c09e94fd2e60cc33da9665
+---
+## Before getting started
+> This article assumes a basic Expo project exists. For setup, see creating an Expo project on [Windows](/blog/post/117-expo-proj-init) or [Mac](/blog/post/143-expo-init-mac).
+
+### Routing in Expo
+Expo Router is a file-based router for React Native and web applications.
+It manages navigation between screens so users can move seamlessly across the UI with the same components on Android, iOS, and the web.
+Adding a file to the `App` directory automatically creates a navigation route.
+We will explore its page and dynamic routing features.
+## 1. Creating pages
+A file in the app directory automatically becomes a route.
+For example, these files create the following paths.
+```
+📦 app
+ ┣ 📜 index.tsx  ->  '/'
+ ┣ 📜 home.tsx		->  '/home'
+ ┣ 📂 setting		
+ ┗ ┗ 📜 index.tsx		-> '/setting'
+```
+Here, `index.tsx` defines the root route and `home.tsx` defines `/home`.
+Use the routes as follows.
+```tsx title="/app/index.tsx"
+import { router } from 'expo-router';
+import { Button } from 'react-native';
+
+export default function Index() {
+
+	return (
+		<>
+			<Button
+				title="Go to Home"
+				onPress={() => router.push('/home')}
+			/>
+			<Button
+				title="Go to Setting"
+				onPress={() => router.push('/setting')}
+			/>
+		</>
+	);
+}
+```
+
+<Ads1 />
+## 2. Configuring layouts
+A directory's layout file defines shared UI such as headers and tab bars that persists between routes.
+A new project's app directory includes a root layout, app/_layout, defining the layout for all routes.
+Use a layout as follows.
+```
+📦app
+ ┣ 📜 _layout.tsx  -> 루트 레이아웃
+ ┣ 📜 index.tsx
+ ┣ 📜 home.tsx
+ ┣ 📂 setting		
+ ┗ ┗ 📜 index.tsx   -> /setting에 적용되는 레이아웃
+```
+## 3. Grouping routes
+Route groups collect routes that should share a layout.
+Use a parenthesized folder name, `(그룹명)`, meaning group name.
+Groups created this way *do not affect route URLs*.
+```
+📦app
+┣ 📜 _layout.tsx
+┣ 📜 index.tsx
+┣ 📜 home.tsx
+┣ 📂 setting
+┗ ┗ 📜 index.tsx
+┗ 📂 (group)  -> 그룹 생성
+┗ ┗ 📜 _layout.tsx
+┣ ┗ 📜 sitemap.tsx		 	-> '/sitemap'
+┗ ┗ 📜 about.tsx			-> '/about'
+```
+
+<Ads2 />
+## 4. Dynamic routing
+Dynamic routing uses parameters as part of a path without affecting its other segments.
+Use square brackets, `[]`, as follows.
+```
+📦app
+┣ 📜 _layout.tsx
+┣ 📜 index.tsx
+┣ 📜 home.tsx
+┣ 📂 user
+┗ ┗ 📜 [id].tsx  -> '/user/{id}'
+```
+The `user/[id].tsx` file defines `/user/{id}`.
+Use this route as follows.
+```tsx title="/app/index.tsx"
+import { router } from 'expo-router';
+import { Button } from 'react-native';
+
+export default function Index() {
+
+	return (
+		<>
+			<Button
+				title="Go to User"
+				onPress={() => router.push('/user/1')}
+			/>
+		</>
+	);
+}
+```
+`id` is the dynamic parameter, available inside `user/[id].tsx` as `id`.
+```tsx title="/app/user/[id].tsx"
+import { useLocalSearchParams } from 'expo-router';
+import { Text, View } from 'react-native';
+
+export default function User() {
+  const { id } = useLocalSearchParams();
+
+	return (
+		<View>
+			<Text>{id}</Text>
+		</View>
+	);
+}
+```
+<Ads3 />
+## Troubleshooting
+### Can a folder itself be a dynamic route?
+What we want:
+```
+📦app
+┣ 📜 _layout.tsx
+┣ 📜 index.tsx
+┣ 📜 home.tsx
+┣ 📂 [id]
+┣ ┣ 📜 mypage.tsx  -> '/{id}/mypage'
+┗ ┗ 📜 edit.tsx  -> '/{id}/edit'
+```
+Yes, dynamic routing also applies to folders.
+Use `[]` in the folder name.
+```tsx title="/app/[id]/mypage.tsx"
+import { useLocalSearchParams } from 'expo-router';
+import { Text, View } from 'react-native';
+
+export default function MyPage() {
+	const { id } = useLocalSearchParams<{ id: string }>();
+	return (
+		<View>
+			<Text>{id}</Text>
+		</View>
+	);
+}
+```
+<Ads4 />
+## Conclusion
+Expo's routing resembles Next.js App Router while offering a range of features.
+It manages screen navigation so the same components can support smooth transitions across Android, iOS, and the web.
+### Further ideas
+- Platform-specific routing:
+	- Expo Router 3.5.x and later support different routes for iOS, Android, and web.
+	- [Platform-specific extensions](https://docs.expo.dev/router/create-pages/#platform-specific-extensions)
+### References
+- [Expo Router](https://docs.expo.dev/router/)
+- [Expo Router — Create Pages](https://docs.expo.dev/router/create-pages)
+- [Expo Router — Layouts](https://docs.expo.dev/router/layouts/)
+- [Expo Router — Route Groups](https://docs.expo.dev/develop/file-based-routing/#groups)
+- [Expo Router — Dynamic Routing](https://docs.expo.dev/develop/dynamic-routes/)
+- [Expo Router — Platform-specific extensions](https://docs.expo.dev/router/create-pages/#platform-specific-extensions)

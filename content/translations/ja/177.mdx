@@ -1,0 +1,167 @@
+---
+title_ko: 'Next.js 블로그 성능 개선 사례 정리 - fetch 병렬 처리, Suspense 최적화'
+title_en: >-
+  Optimizing Next.js Blog Performance - Fetch Parallelization, Suspense
+  Optimization
+desc: '중복 fetch 제거, Suspense 최적화, 클라이언트 포맷 처리 등 실전 Next.js 프로젝트에서 성능을 개선한 방법을 정리합니다.'
+thumbnail_url: /250404-111537.webp
+metatag: 'nextjs, 성능 최적화, suspense, generateMetadata, hydration mismatch, fetch 병렬 처리'
+post_id: '177'
+locale: ja
+title: Next.jsブログの性能改善：fetchの並列化とSuspenseの最適化
+description: 重複fetchの削減、Suspenseの整理、クライアント側の日付整形など、実際のNext.jsブログで行った性能改善をまとめます。
+source_hash: 4b108663f828ff1dd8131e440ba0dbda682a9f4106a2c1ca9ffa8bca07eace40
+reviewed_at: '2026-11-06T14:41:00.963Z'
+---
+
+## はじめに
+Next.jsのApp RouterとReact 18のServer Componentsを使うと、柔軟で拡張性のあるウェブアプリケーションを作れます。
+しかし、使い方を誤るとページ全体の読み込みが遅くなったり、*不要なサーバーリクエスト*が発生したりします。
+この記事では、実際に運営しているブログで見つかった性能上のボトルネックを、どのように解決したか順に整理します。
+特に次の内容に注目します。
+- fetchの並列化
+- 重複したAPI呼び出しの削減
+- Suspenseの入れ子の最適化
+- 日付形式によるhydration mismatchの解消
+- generateMetadataの影響を減らす方法
+
+<Ads1 />
+## 問題1：APIの並列呼び出しを最適化する
+以前は、次のように順番にデータを取得していました。
+
+```ts
+const post = await PostService().getPost({ post_id: id });
+await PostService().viewIncrement({ post_id: id });
+```
+この二つのリクエストには依存関係がないため、並列化することで性能を改善できます。
+### 解決方法：`Promise.all()`で並列化する
+
+```ts
+const [markdownsource] = await Promise.all([
+    PostService().getPost({ post_id: id }),
+  PostService().viewIncrement({ post_id: id }),
+]);
+```
+特に`viewIncrement`が遅い場合や、外部データベースへのI/Oを含む場合には、大きな差が生まれます。
+
+<Ads2 />
+## 問題2：Suspenseの入れ子
+当初は、次のように複数の場所で`Suspense`を入れ子にしていました。
+
+```tsx
+<Suspense fallback={<Loading />}>
+  <BreadCrumb params={markdownsource} />
+</Suspense>
+<Suspense fallback={<Loading />}>
+  <MdxHeader props={...} />
+</Suspense>
+<Suspense fallback={<Loading />}>
+  <Giscus />
+</Suspense>
+```
+コンポーネントごとの読み込み制御はできますが、レンダリング時に*不要なReact boundaryのコスト*が発生し、体感速度も遅くなる欠点がありました。
+
+### 解決方法：一つのSuspenseへ統合する
+
+```tsx
+<Suspense fallback={<Loading />}>
+  <>
+    <BreadCrumb params={markdownsource} />
+    <MdxHeader props={{ ... }} />
+    <div className="ml-auto text-right">
+      📅 <LocalizedDate isoString={markdownsource.init_date} />
+    </div>
+    <div className="prose mt-10 ...">
+      <MdxBody content={markdownsource.posting} />
+      <RightSidebarComp content={markdownsource.posting} />
+    </div>
+    <Giscus />
+  </>
+</Suspense>
+```
+これにより読み込み表示が重複せず、コンポーネント間のレンダリング順序も一貫するようになりました。
+
+<Ads3 />
+## 問題3：日付形式によるHydration Mismatch
+初期のコードでは、サーバー側で日付を整形していました。
+
+```ts
+const dateString = dayjs(markdownsource.init_date).locale("ko").format("YYYY년 MM월 DD일");
+```
+サーバーとクライアントのlocaleが異なると、両者の描画結果が異なり、hydration mismatchが発生します。
+### 解決方法：日付をクライアント側で整形する
+サーバーからは元のISO文字列だけを渡し、クライアントコンポーネントでdayjsを使って整形するよう変更しました。
+
+```tsx
+'use client';
+import dayjs from 'dayjs';
+import 'dayjs/locale/ko';
+export const LocalizedDate = ({ isoString }: { isoString: string }) => {
+    const [text, setText] = useState('');
+  useEffect(() => {
+      dayjs.locale('ko');
+    setText(dayjs(isoString).format('YYYY년 MM월 DD일'));
+  }, [isoString]);
+  return <span>{text}</span>;
+};
+```
+使用箇所は次のとおりです。
+
+```tsx
+<LocalizedDate isoString={markdownsource.init_date} />
+```
+こうすると、常にクライアント環境に合った形式で描画できます。
+
+## 問題4：PostService().getPost()の重複呼び出し
+Next.js App Routerでよく遭遇する問題の一つが、`generateMetadata()`とページコンポーネント本体で、*同じデータをそれぞれfetchすること*です。
+
+```ts
+// metadata.ts에서 호출
+const markdownsource = await PostService().getPost({ post_id: params.post });
+// page.tsx에서도 또 호출
+const markdownsource = await PostService().getPost({ post_id: params.post });
+```
+この場合、**一つのページを表示するために、同じデータを2回リクエスト**します。
+特にデータ量が多い場合や外部APIを呼ぶ構造では、大きな無駄になります。
+### 解決方法：getPostMeta()を分離する
+generateMetadata()には、実際の描画に使うすべてのデータは必要ありません。
+*title、description、og:imageなど一部のフィールド*だけで十分です。
+そこで、次のような軽量の専用APIを作りました。
+
+```ts
+const getPostMeta = async (params: { post_id: string }) => {
+  const response = await CustomFetch(`/post/meta${getParams(params)}`, {
+    method: "GET",
+  });
+  return response.body.data;
+};
+```
+generateMetadata()からは、このメタデータ専用APIだけを呼ぶようにします。
+
+```ts
+export async function generateMetadata({ params }) {
+    const meta = await PostService().getPostMeta({ post_id: params.post });
+  return GenerateMeta({ meta, param: params.post });
+}
+```
+これにより、**不要な全データのfetchを減らし、重複呼び出しを除去**できました。
+
+<Ads4 />
+## まとめ
+| 項目 | 改善前 | 改善後 | 効果 |
+|------|---------|----------|------|
+| `getPost`の重複呼び出し | `generateMetadata`と本文で重複 | メタデータ専用APIに分離 | APIコスト削減 |
+| Suspense | 複数を入れ子で使用 | 一つへ統合 | レンダリングの最適化 |
+| 日付形式 | サーバー側で整形 | クライアント側で整形 | hydration mismatchの解消 |
+| API呼び出し | 順次実行 | 並列実行 | 応答時間の短縮 |
+
+Next.jsは基本性能の高いフレームワークですが、コードの構造によっては十分にボトルネックが生じます。
+今回紹介した改善策はどのプロジェクトにも適用でき、体感速度とサーバーコストの両方に良い影響を与えます。
+不要な重複を取り除く、Suspenseを簡素化する、描画タイミングを最適化する、fetchを並列化するという基本原則だけでも、快適なユーザー体験を実現できます。
+
+### さらに考える
+- `revalidateTag`や`cache: 'no-store'`などのキャッシュポリシーを活用する。
+- クライアント側でのみ必要な処理には、`dynamic(import, { ssr: false })`を検討してください。
+### 参考
+- [Next.js公式ドキュメント：App Routerの性能最適化](https://nextjs.org/docs/app/building-your-application/optimizing)
+- [React Suspenseの概念](https://reactjs.org/docs/concurrent-mode-suspense.html)

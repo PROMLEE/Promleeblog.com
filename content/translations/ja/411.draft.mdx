@@ -1,0 +1,85 @@
+---
+post_id: '411'
+locale: ja
+title: RSSの取得とWebクローリング - n8nパイプライン構築 第2回
+description: >-
+  Schedule
+  Triggerで定期実行を設定し、RSSフィードで対象サイトからデータを取得します。RSSがないサイトに備え、HTTPリクエストとHTML抽出を使うクローリングも実践します。
+source_hash: 28c962e2327bcf530a2cd2787e33f7f24ecf7dbf10217d913bce09e4773b26f1
+---
+## はじめに
+こんにちは。
+第2回では、パイプラインの出発点となる自動実行のスケジュール設定と、データの収集を扱います。
+<br/>
+毎朝決めた時刻にWebサイトの最新ニュースを取得するボットの中核を作ります。
+RSSの基本から、フィードを提供しないサイトから直接情報を集めるWebクローリング（Crawling）まで、実例とともに順に学びましょう。
+
+## Schedule Triggerとcronジョブ
+*Schedule Trigger*ノードは、設定した時刻にパイプラインを自動で動かす目覚まし時計のようなものです。
+コンピューターの分野では、決まった時刻に繰り返し実行する作業を*cronジョブ*と呼びます。
+
+### 毎朝の自動実行を設定する
+n8nの左の検索欄でSchedule Triggerノードを探し、キャンバスに配置します。
+<br/>
+設定画面で実行間隔を毎日（Days）にし、午前8時を指定します。
+Dockerの設定でタイムゾーンを韓国時間（Asia/Seoul）に合わせてあるので、毎朝8時ちょうどに最初の処理が始まります。
+<Img src="/260222-230524.webp" width={500} alt="Schedule Triggerノードを追加する"/>
+
+## RSSでデータを集める
+Webサイトのデータを取得する際に、最も安定しているのが*RSS*を使う方法です。
+RSSは、サイト運営者が記事のタイトルとリンクをあらかじめ整理し、標準形式で提供する仕組みです。
+
+### RSSノードを使う
+検索欄で*RSS Read*ノードを探し、Schedule Triggerの後ろに接続します。
+設定画面のURL欄に、対象のITニュースブログのRSSアドレスを入力します。
+例として `https://feeds.arstechnica.com/arstechnica/technology-lab` を入力します。
+<Img src="/260222-231233.webp" width={600} alt="RSS Readノードの設定画面"/>
+<br/>
+実行ボタンを押すと、取得したデータが右側にJSON形式で表示されます。
+サイトのデザインが変わってもデータ構造は変わらないため、ローカル環境で安定した収集パイプラインを組むのに役立ちます。
+
+<Ads1 />
+
+## Webクローリングでデータを集める
+すべてのサイトがRSSを提供しているわけではありません。
+RSSがない場合はHTMLを解析し、必要な情報を直接取り出します。この方法をWebクローリングまたはスクレイピングと呼びます。
+
+### Hacker Newsのクローリングを準備する
+世界中の開発者によく読まれる情報サイト、*Hacker News*を例に、クローリングを試します。
+まず、Schedule Triggerに*HTTP Request*ノードをつなぎます。
+<Img src="/260222-231413.webp" width={500} alt="HTTP Requestノードを追加する"/>
+<br/>
+設定画面でメソッド（Method）をGETにし、アドレス欄に `https://news.ycombinator.com/` を入力します。
+実行すると、ブラウザでアクセスするときと同様に、Hacker NewsのHTMLソース全体を取得します。
+
+### 木構造とCSSセレクター
+取得したHTML文書は、コンピューターサイエンスでいう*木（Tree）*のデータ構造を持ちます。
+最上位のルート要素から、子要素が枝のように階層的に広がります。
+<br/>
+複雑な木構造から記事のタイトルとリンクを取り出すには、要素を探す規則である*CSSセレクター（CSS Selector）*が必要です。
+HTTP Requestノードの直後に、*HTML → Extract HTML*ノードをつなぎます。
+<br/>
+Hacker Newsのページを調べると、記事タイトルには `span.titleline > a` という共通の要素構造があります。
+抽出ノードの設定画面で次のように入力し、必要なデータを取り出します。
+
+| Key | CSS Selector | 抽出対象 | Attribute |
+| --- | --- | --- | --- |
+| title | span.titleline > a | Text | |
+| link | span.titleline > a | Attribute | href |
+
+<Img src="/260222-232016.webp" width={600} alt="titleの抽出設定"/>
+<Img src="/260222-232043.webp" width={600} alt="linkの抽出設定"/>
+
+実行すると、複雑なHTMLから、指定したタイトル（title）とリンク（link）だけが配列として出力されます。
+このように、HTTPリクエストとHTML抽出の2つのノードを組み合わせれば、RSSのないサイトからも手軽にデータを集められます。
+
+<Ads2 />
+
+## おわりに
+今回は、パイプラインの最初の段階である定期実行の自動化とデータ収集を実践しました。
+特に、RSSがないときも、木構造をたどるクローリングでデータを取得する方法を学びました。
+<br/>
+> 毎朝取得して絞り込んだデータは、第3回で試すフィールド編集や正規表現のノードに渡し、加工します。
+
+### 参考
+[n8n公式のHTML抽出ノードガイド](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.htmlextract/)

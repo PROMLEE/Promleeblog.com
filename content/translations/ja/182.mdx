@@ -1,0 +1,88 @@
+---
+title_ko: Next.js 데이터 패칭 완전 정복 5 - 종합 정리와 전략 선택 가이드
+title_en: >-
+  Complete Guide to Data Fetching in Next.js 5 - Strategy Summary & Best
+  Practices
+desc: '지금까지 배운 Next.js의 데이터 패칭 방식들을 종합 정리하고, 상황에 맞는 최적의 전략 선택 가이드를 제공합니다.'
+thumbnail_url: /250404-093858.webp
+metatag: 'nextjs, data fetching, 전략 정리, 서버 컴포넌트, 클라이언트 컴포넌트, 캐싱'
+post_id: '182'
+locale: ja
+title: Next.jsデータ取得完全ガイド5：戦略の総整理と選び方
+description: これまでに学んだデータ取得方式を整理し、状況に合わせて適切な戦略を選ぶ実践的な指針を紹介します。
+source_hash: fb9191df73549c3301c245a9c194fbcbf4d679842af54563ad1c3c086af59c75
+reviewed_at: '2026-11-06T14:52:04.884Z'
+---
+## はじめに
+ここまで、App Routerでデータを取得するさまざまな方法を紹介しました。
+最終回では内容を整理し、状況ごとの選び方を*実践ガイド*として提示します。
+## データ取得戦略の一覧
+| 戦略（クリックで移動） | 場所 | 使用するタイミング | 長所 | 短所 |
+|------|------|------------|------|------|
+| [Server Componentsでfetch](/blog/post/178-nextjs-fetching-1#fetch-함수-기본) | `app/page.tsx`、`app/layout.tsx`など | HTML生成前 | 高速な表示、SEOに有利 | 動的な操作には不向き |
+| [Client ComponentsとuseEffect](/blog/post/180-nextjs-fetch-3#클라이언트-컴포넌트에서의-데이터-패칭) | `'use client'`コンポーネント | マウント後 | 操作後の取得が可能 | 初回表示が遅くなる場合がある |
+| [SWRまたはReact Query](/blog/post/180-nextjs-fetch-3#swr을-활용한-클라이언트-패칭) | Client Components | マウント後とキャッシュ | キャッシュ、再検証、再取得の自動化 | バンドルが増える可能性 |
+| [Route Handler（API）](/blog/post/181-nextjs-fetch-4#라우트-핸들러를-이용한-api-구성) | `app/api/**` | APIの分離が必要な場合 | バックエンドとして使える | 追加設定が必要 |
+| [ISR（revalidate）](/blog/post/179-nextjs-fetch-2#재검증을-통한-isr증분-정적-재생성) | Server Components | キャッシュと再生成 | 更新性を補える | 一定時間はキャッシュを保つ |
+| [no-store](/blog/post/179-nextjs-fetch-2) | Server Components | 常に最新が必要な場合 | 毎回新たに取得 | 性能コストが増える |
+
+<Ads1 />
+## 状況ごとのおすすめ
+### 1. ブログやドキュメントなどの静的ページ
+- *Server Componentsと基本のfetch*を使う
+- 必要に応じて`revalidate`で更新間隔を設定する
+
+```ts
+fetch('https://api.example.com/docs', {
+  next: { revalidate: 3600 }, // 1시간마다 갱신
+});
+```
+### 2. ログインユーザー専用のダッシュボード
+- *cookies()で認証トークンを取り出してfetch*、または
+- *Route HandlerのAPIとタグによる無効化*
+
+```ts
+const cookieStore = cookies();
+const token = cookieStore.get('auth');
+await fetch('https://api.example.com/user', {
+  headers: { Authorization: `Bearer ${token?.value}` },
+});
+```
+### 3. ボタン操作などでデータが変わる場合
+- Client Componentsで*SWRを使う*のがおすすめ
+
+```ts
+'use client';
+const { data, mutate } = useSWR('/api/posts', fetcher);
+// 사용자 액션 후 mutate()
+```
+### 4. リアルタイム、または頻繁に変わるデータ
+- `cache: 'no-store'`を使う
+- またはクライアントから定期取得する（SWR、polling）
+
+```ts
+await fetch('https://api.example.com/status', { cache: 'no-store' });
+```
+<Ads2 />
+## Next.jsの方向性と考え方
+Next.jsは基本的に*サーバー優先*のレンダリングを目指します。
+React 18で導入された*Server Components*とともに、クライアントを最小限にし、可能な限りサーバーで取得することを推奨しています。
+次の利点があります。
+- クライアントのJavaScriptバンドルを小さくする
+- 初回表示を速める
+- SEOの最適化
+- コードの分離と安全性の改善
+一方、クライアントが必要な場合もあるため、*バランスの取れた選択*が重要です。
+## まとめ
+5回にわたり、Next.jsのデータ取得を基礎から応用まで紹介しました。
+単純な`fetch`から、キャッシュ、SWR、Route Handler、キャッシュの無効化まで、実際の開発で必要なほぼすべての例を扱いました。
+データ取得はReactと密接に関連するため、*Reactの流れ*も理解することが大切です。
+App Router時代のデータフローは、より*サーバー中心*へ進化しています。
+必要なときに読み返し、戦略を立ててください。
+### さらに考える
+- React QueryとSWRには、どのような違いがあるでしょうか。
+- Server ComponentsでGraphQLのデータを取得するには、どうすればよいでしょうか。
+### 参考
+- [Next.js公式ドキュメント：Data Fetching](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching)
+- [Next.jsのキャッシュ戦略](https://nextjs.org/docs/app/building-your-application/caching)
+- [SWRとReact Queryの比較](https://swr.vercel.app/docs/with-react-query)

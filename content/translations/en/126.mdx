@@ -1,0 +1,207 @@
+---
+title_ko: 하단 네비게이션 바 설정하기
+title_en: Setting up the bottom navigation bar
+desc: 하단 네비게이션 바를 설정하는 방법을 알아봅니다.
+post_id: '126'
+locale: en
+title: Setting Up a Bottom Navigation Bar
+description: >-
+  Configure a four-tab bottom navigation bar in Flutter, shown on every page
+  after login.
+source_hash: fe1bd901a33164bfaf78b9ed3cb569a6244ba39fe99dd066826af90379965b5c
+reviewed_at: '2026-11-06T14:43:52.857Z'
+---
+## Before getting started
+> 1. Goals, requirements, initial setup, and overview: [Link](/blog/post/124-goals-init-paging)
+> 2. Login-page branching with FlutterSecureStorage: [Link](/blog/post/125-login-branch-paging)
+>
+> This post assumes you have configured the project by following those links in order.
+> It was written for Flutter 3.24.
+
+Once login-page branching is complete, let's configure a bottom navigation bar.
+It helps users move easily through the app.
+In this post, we will add four tabs and make each one open its corresponding page.
+As explained in the overview, we want no navigation bar on the login page, but a navigation bar on *every page* after login, so we will keep that requirement in mind.
+The following is the file tree inside my lib folder for this post.
+Creating these files beforehand makes the work easier.
+```plaintext
+📦 lib
+┣ 📂 model						// 데이터 보관하는 모델 폴더(이번 포스팅에서는 사용하지 않음)
+┣ 📂 view						// 화면을 구성하는 뷰 폴더
+┃ ┣ 📂 tabs						// 탭 4개를 구성하는 화면
+┃ ┃ ┣ 📜 home_screen.dart
+┃ ┃ ┣ 📜 notifications_screen.dart
+┃ ┃ ┣ 📜 profile_screen.dart
+┃ ┃ ┗ 📜 search_screen.dart
+┃ ┣ 📜 login_page.dart
+┃ ┗ 📜 main_page.dart
+┣ 📂 viewModel					// 데이터와 화면을 잇는 viewModel 폴더
+┃ ┗ 📜 auth_service.dart
+┗ 📜 main.dart
+```
+<Ads1 />
+## 1. Building the tab screens
+First, let's create the screens for the four tabs: Home, Search, Notifications, and Profile.
+The logout code that was previously in main_page.dart has been moved to ProfileScreen.
+```dart title="lib/view/tabs/home_screen.dart"
+import 'package:flutter/material.dart';
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text('Home Screen', style: TextStyle(fontSize: 24)),
+    );
+  }
+}
+```
+```dart title="lib/view/tabs/search_screen.dart"
+import 'package:flutter/material.dart';
+
+class SearchScreen extends StatelessWidget {
+	const SearchScreen({super.key});
+
+	@override
+	Widget build(BuildContext context) {
+		return const Center(
+			child: Text('Search Screen', style: TextStyle(fontSize: 24)),
+		);
+	}
+}
+```
+```dart title="lib/view/tabs/notifications_screen.dart"
+import 'package:flutter/material.dart';
+
+class NotificationsScreen extends StatelessWidget {
+	const NotificationsScreen({super.key});
+
+	@override
+	Widget build(BuildContext context) {
+		return const Center(
+			child: Text('Notifications Screen', style: TextStyle(fontSize: 24)),
+		);
+	}
+}
+```
+```dart title="lib/view/tabs/profile_screen.dart"
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:navigationbar_example/view/login_page.dart';
+import 'package:navigationbar_example/viewModel/auth_service.dart';
+
+class ProfileScreen extends StatelessWidget {
+  final AuthService _authService = AuthService();
+
+  ProfileScreen({super.key}); // AuthService 인스턴스 생성
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile Page'), // 프로필 화면 제목
+        actions: [
+          IconButton(
+            onPressed: () async {
+              // 로그아웃 시 상태 삭제
+              await _authService.logout();
+              // 로그아웃 후 로그인 페이지로 이동
+              Get.offAll(() => LoginPage());
+            },
+            icon: const Icon(Icons.logout), // 로그아웃 버튼 아이콘
+          ),
+        ],
+      ),
+      body: const Center(
+        child: Text('Profile Screen', style: TextStyle(fontSize: 24)),
+      ),
+    );
+  }
+}
+```
+
+
+<Ads2 />
+## 2. Building the bottom navigation bar
+Now let's create the bottom navigation bar.
+It has four tabs, each configured to navigate to its corresponding page when pressed.
+```dart title="lib/view/main_page.dart"
+import 'package:flutter/material.dart';
+import 'package:navigationbar_example/view/tabs/home_screen.dart';
+import 'package:navigationbar_example/view/tabs/notifications_screen.dart';
+import 'package:navigationbar_example/view/tabs/profile_screen.dart';
+import 'package:navigationbar_example/view/tabs/search_screen.dart';
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  MainPageState createState() => MainPageState();
+}
+
+class MainPageState extends State<MainPage> {
+  int _currentIndex = 0; // 현재 선택된 탭의 인덱스
+
+  // 각 탭에서 보여줄 화면 리스트
+  final List<Widget> _pages = [
+    const HomeScreen(), // 첫 번째 탭 화면
+    const SearchScreen(), // 두 번째 탭 화면
+    const NotificationsScreen(), // 세 번째 탭 화면
+    ProfileScreen(), // 네 번째 탭 화면
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _pages[_currentIndex], // 현재 선택된 탭에 해당하는 화면 표시
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex, // 선택된 탭 인덱스
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index; // 탭 전환 시 상태 업데이트
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        selectedItemColor: Colors.blue, // 선택된 아이템 색상
+        unselectedItemColor: Colors.grey, // 선택되지 않은 아이템 색상
+      ),
+    );
+  }
+}
+```
+
+## 3. Checking the result
+Run the app and check that the bottom navigation bar appears correctly.
+If you completed login-page branching in the previous post, you should now see the bar displayed as intended.
+<Img src="/posts/250113-164921.gif" width={200} alt=""/>
+
+<Ads3 />
+## Conclusion
+We have learned how to configure a bottom navigation bar to help users navigate around the app.
+In the next post, we will configure tab events so the navigation bar continues to work naturally on additional screens.
+### Further questions
+- What options does the bottom navigation bar provide?
+- Can you customize its design?
+
+See [this reference](https://api.flutter.dev/flutter/material/BottomNavigationBar-class.html) for more information.
+### References
+- [Flutter official documentation](https://flutter.dev/docs)
+- [Flutter GetX package](https://pub.dev/packages/get)

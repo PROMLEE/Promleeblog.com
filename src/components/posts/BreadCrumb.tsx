@@ -1,3 +1,5 @@
+import { localizePath, englishLabel, type Locale } from "@/lib/i18n/routing";
+import { categoryLabel } from "@/lib/i18n/messages";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,8 +13,10 @@ import Link from "next/link";
 
 export const BreadCrumb = ({
   params,
+  locale = "ko",
 }: {
   params: PostResponse.GetPost["data"];
+  locale?: Locale;
 }) => {
   // const dateString = dayjs(params.init_date)
   //   .locale("ko")
@@ -21,33 +25,51 @@ export const BreadCrumb = ({
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink className="hover:font-bold hover:text-text" asChild>
-            <Link href={`/blog/${params.Series.Subject.Category.url}`}>
-              {params.Series.Subject.Category.nameko}
+          <BreadcrumbLink className="hover:text-text hover:font-bold" asChild>
+            <Link
+              href={localizePath(
+                `/blog/${params.Series.Subject.Category.url}`,
+                locale,
+              )}
+            >
+              {locale === "ko"
+                ? params.Series.Subject.Category.nameko
+                : categoryLabel(params.Series.Subject.Category.url, locale) ||
+                  englishLabel(params.Series.Subject.Category.url)}
             </Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
           <BreadcrumbLink
-            href={`/blog/${params.Series.Subject.Category.url}/${params.Series.Subject.url}`}
-            className="hover:font-bold hover:text-text"
+            href={localizePath(
+              `/blog/${params.Series.Subject.Category.url}/${params.Series.Subject.url}`,
+              locale,
+            )}
+            className="hover:text-text hover:font-bold"
           >
-            {params.Series.Subject.nameko}
+            {locale === "ko"
+              ? params.Series.Subject.nameko
+              : englishLabel(params.Series.Subject.url)}
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
           <BreadcrumbLink
-            href={`/blog/${params.Series.Subject.Category.url}/${params.Series.Subject.url}#${params.Series.nameko}`}
-            className="hover:font-bold hover:text-text"
+            href={localizePath(
+              `/blog/${params.Series.Subject.Category.url}/${params.Series.Subject.url}#${locale === "ko" ? params.Series.nameko : englishLabel(params.Series.url)}`,
+              locale,
+            )}
+            className="hover:text-text hover:font-bold"
           >
-            {params.Series.nameko}
+            {locale === "ko"
+              ? params.Series.nameko
+              : englishLabel(params.Series.url)}
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbPage className="font-bold text-text">
+          <BreadcrumbPage className="text-text font-bold">
             {params.nameko}
           </BreadcrumbPage>
         </BreadcrumbItem>

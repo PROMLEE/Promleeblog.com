@@ -1,0 +1,278 @@
+---
+title_en: API Mocking Strategy and Using MSW - TDD with React Part 9
+title_ko: API Mock 전략과 MSW 활용 - React로 시작하는 TDD 9편
+url: api-mocking-msw
+series_no: 9
+desc: >-
+  실제 서버 없이도 네트워크 요청을 가로채서 테스트할 수 있게 해주는 MSW(Mock Service Worker)의 도입 방법과 활용 전략,
+  그리고 에러 상황 테스트 방법을 배웁니다.
+thumbnail_url: /251221-231556.webp
+metatag: >-
+  React, TDD, MSW, MockServiceWorker, API, Mocking, Testing, Frontend, Vitest,
+  ErrorHandling
+tags: 'React, Javascript, Typescript, Next.js'
+post_id: '392'
+locale: en
+title: 'API Mocking Strategies with MSW — TDD with React, Part 9'
+description: >-
+  Introduce Mock Service Worker to intercept network requests, manage mock
+  responses, and test success and server-error cases without a real server.
+source_hash: e4885a1b0e15d38611eee91984cdb960283f70300f4ca398dbc8b32e2c7fa297
+reviewed_at: '2026-11-07T01:45:03.127Z'
+---
+
+## Before getting started
+
+In Part 8, we intercepted `global.fetch` directly for tests.
+That approach requires redefining it repeatedly and does not perfectly reproduce real network behavior.
+<br/>
+Today we will introduce **MSW**, Mock Service Worker, often called the *de facto standard* for frontend testing.
+It intercepts network requests, allowing tests for both successful responses and **server errors such as HTTP 500**.
+
+<Ads1/>
+
+## Step 1: Installing and configuring MSW
+
+Install the library after navigating to the project directory in the terminal.
+
+```bash title="Terminal"
+npm install -D msw
+```
+
+### Creating handlers
+
+A *handler* defines a rule: Respond this way when a request arrives at a particular URL.
+Create `src/mocks` and add `handlers.ts`.
+
+```typescript title="src/mocks/handlers.ts" showLineNumbers
+import { http, HttpResponse } from 'msw';
+
+// 가짜 API 주소를 정의합니다.
+// 실제 UserList 컴포넌트가 호출하는 URL과 똑같아야 합니다.
+export const handlers = [
+  http.get('https://jsonplaceholder.typicode.com/users', () => {
+    // 이 URL로 GET 요청이 오면, 아래 JSON 데이터를 돌려줍니다.
+    return HttpResponse.json([
+      { id: 1, name: 'Leanne Graham (MSW)' },
+      { id: 2, name: 'Ervin Howell (MSW)' },
+    ]);
+  }),
+];
+```
+
+### Configuring the test server
+
+Our tests run in the terminal, in Node.js, rather than in the browser.
+We therefore need a **Node.js server** rather than a browser worker.
+Create `src/mocks/server.ts`.
+
+```typescript title="src/mocks/server.ts" showLineNumbers
+import { setupServer } from 'msw/node';
+import { handlers } from './handlers';
+
+// 위에서 만든 핸들러들을 묶어서 가짜 서버를 생성합니다.
+export const server = setupServer(...handlers);
+```
+
+<Ads2/>
+
+## Step 2: Applying MSW to the test environment
+
+Configure the mock server to start before tests and stop afterward.
+Update the previously created `src/setupTests.ts`.
+
+```typescript title="src/setupTests.ts" showLineNumbers
+import '@testing-library/jest-dom';
+import { server } from './mocks/server';
+import { beforeAll, afterEach, afterAll } from 'vitest';
+
+// [설정] 모든 테스트가 시작되기 전에 가짜 서버를 켭니다.
+beforeAll(() => server.listen());
+
+// [정리] 각 테스트가 끝날 때마다 핸들러를 초기화합니다.
+// (테스트 중간에 에러 상황으로 바꿨더라도 다시 정상 상태로 되돌립니다)
+afterEach(() => server.resetHandlers());
+
+// [종료] 모든 테스트가 끝나면 서버를 끕니다.
+afterAll(() => server.close());
+```
+
+## Step 3: Adding component error handling
+
+To test errors, the component must display something when one occurs.
+Update `src/components/UserList.tsx` to handle an error state.
+
+```tsx title="src/components/UserList.tsx" showLineNumbers
+import { useEffect, useState } from 'react';
+
+interface User {
+  id: number;
+  name: string;
+}
+
+export default function UserList() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  // [추가] 에러 메시지를 저장할 상태
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/users')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('서버 에러가 발생했습니다.');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setUsers(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        // [추가] 에러 발생 시 상태 업데이트
+        setError('에러가 발생했습니다.');
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <p>불러오는 중...</p>;
+  
+  // [추가] 에러 메시지가 있으면 표시
+  if (error) return <p>{error}</p>;
+
+  return (
+    <ul>
+      {users.map((user) => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+<Ads3/>
+
+## Step 4: Testing successful and failed requests
+
+Update `UserList.test.tsx`.
+Remove the previous `global.fetch` mocking code and use **MSW** for success and failure cases.
+The important point is that **MSW's `server.use` can override a handler for just one test**.
+
+```tsx title="src/components/UserList.test.tsx" showLineNumbers highlight="{27-32}"
+import { render, screen } from '@testing-library/react';
+import { describe, test, expect } from 'vitest';
+import { http, HttpResponse } from 'msw'; // MSW 모듈 import
+import { server } from '../mocks/server'; // 가짜 서버 import
+import UserList from './UserList';
+
+describe('UserList 컴포넌트 (MSW 적용)', () => {
+
+  test('데이터를 불러오는 동안 로딩 문구가 뜨고, 이후 데이터가 표시된다', async () => {
+    render(<UserList />);
+
+    console.log('[Test 1] 로딩 상태 확인');
+    expect(screen.getByText('불러오는 중...')).toBeInTheDocument();
+
+    console.log('[Test 1] MSW 정상 응답 대기');
+    // handlers.ts에 정의한 "Leanne Graham (MSW)" 데이터가 오길 기다립니다.
+    const userItem = await screen.findByText('Leanne Graham (MSW)');
+    
+    console.log('[Test 1] 데이터 수신 완료');
+    screen.debug();
+
+    expect(userItem).toBeInTheDocument();
+  });
+
+  // [추가] 에러 상황 테스트
+  test('서버 에러 발생 시 에러 문구가 표시된다', async () => {
+    // 1. 이 테스트 동안만 서버가 500 에러를 뱉도록 설정을 덮어씁니다(Override).
+    server.use(
+      http.get('https://jsonplaceholder.typicode.com/users', () => {
+        return new HttpResponse(null, { status: 500 });
+      })
+    );
+
+    render(<UserList />);
+    
+    console.log('[Test 2] 로딩 상태 확인');
+    expect(screen.getByText('불러오는 중...')).toBeInTheDocument();
+
+    console.log('[Test 2] 에러 발생 대기');
+    
+    // 2. 컴포넌트가 에러를 감지하고 "에러가 발생했습니다."를 띄울 때까지 기다립니다.
+    const errorMsg = await screen.findByText('에러가 발생했습니다.');
+
+    console.log('[Test 2] 에러 UI 렌더링 확인');
+    screen.debug();
+
+    expect(errorMsg).toBeInTheDocument();
+  });
+});
+```
+
+<Ads4/>
+
+## Step 5: Running and analyzing tests
+
+Run the tests from the terminal.
+
+```bash title="Terminal"
+npm test -- src/components/UserList.test.tsx
+```
+
+### Checking the execution log
+<Img src="/251221-231356.webp" width={600} alt="Checking the execution log"/>
+```text
+[Test 1] 로딩 상태 확인
+[Test 1] MSW 정상 응답 대기
+[Test 1] 데이터 수신 완료
+<body>
+  <div>
+    <ul>
+      <li>Leanne Graham (MSW)</li>
+      <li>Ervin Howell (MSW)</li>
+    </ul>
+  </div>
+</body>
+
+[Test 2] 로딩 상태 확인
+[Test 2] 에러 발생 대기
+[Test 2] 에러 UI 렌더링 확인
+<body>
+  <div>
+    <p>에러가 발생했습니다.</p>
+  </div>
+</body>
+
+PASS src/components/UserList.test.tsx
+```
+
+The logs show that **Test 1** fetched the list normally, while **Test 2** received a 500 response and displayed an error message because of `server.use`.
+We verified the error path without shutting down the real server or breaking application code.
+
+## Conclusion
+
+The source is available at [GitHub — Promleeblog/react-tdd-setup](https://github.com/PROMLEE/my-tdd-app/tree/part9).
+```bash title="Terminal"
+git clone https://github.com/PROMLEE/my-tdd-app.git
+cd my-tdd-app
+git checkout part9
+```
+
+MSW has improved our API-testing strategy.
+- **Introducing MSW**
+  Managing API responses centrally in `handlers.ts` improves maintainability.
+- **Automatic setup**
+  The `setupTests.ts` configuration makes the mock server available automatically to all test files.
+- **Error simulation**
+  `server.use` forces an error in an individual test to verify the component's response.
+<br/>
+We now understand tests that fetch data with GET.
+Forms that accept user input and send it to the server with POST matter too.
+> Next, **Part 10: Form Input and Validation Tests** will test entering text and pressing a submit button.
+
+### References
+- [MSW Network Behavior](https://mswjs.io/docs/network-behavior/rest)
+  How to simulate network conditions such as status codes and delays with MSW.
+- [Testing Library Async](https://testing-library.com/docs/dom-testing-library/api-async/)
+  Core asynchronous-testing APIs such as findBy and waitFor.

@@ -1,0 +1,212 @@
+---
+title_ko: Expo(RN) 앱에서 딥링크를 QR 코드로 만들기 (react-native-qrcode-svg)
+title_en: Generating QR Code for Deep Links in Expo(RN) Apps (react-native-qrcode-svg)
+desc: >-
+  Expo 앱에서 특정 URL 주소, 특히 딥링크를 QR 코드로 생성하여 화면에 표시하는 방법을 알아봅니다.
+  react-native-qrcode-svg 라이브러리를 사용하여 간단하게 구현하는 예제를 살펴봅니다.
+thumbnail_url: /250430-172023.webp
+metatag: >-
+  Expo, React Native, QR Code, 큐알코드, Deep Link, 딥링크, react-native-qrcode-svg,
+  react-native-svg, URL Scheme, 모바일 앱 개발, TypeScript
+post_id: '239'
+locale: zh
+title: 在 Expo（React Native）应用中把深层链接转成二维码
+description: 通过 react-native-qrcode-svg 示例，学习如何在 Expo 应用中将深层链接等 URL 生成二维码并显示出来。
+source_hash: e1764ff4f762f4a6a1b73d14ec5fcbed6b220663cfc8a37942af0dbeb7c36ebd
+---
+
+## 开始之前
+
+今天介绍如何在 Expo 应用中以*二维码*的形式展示特定信息。
+具体来说，我们会把前一篇介绍的*深层链接* URL 转成二维码，方便用户扫码直接打开应用中的指定页面。
+本文使用 Expo 项目中常用的 *react-native-qrcode-svg* 库，详细演示如何将已经创建的深层链接地址转成二维码并显示在屏幕上。
+
+## 安装依赖库
+要生成二维码，需要同时安装 `react-native-qrcode-svg` 和它依赖的 `react-native-svg`。
+在 Expo 项目中，使用以下命令安装。
+```bash
+npx expo install react-native-qrcode-svg react-native-svg
+```
+`expo install` 命令会安装与 Expo 项目环境相匹配的库版本。
+使用 npm 或 yarn 时，可以运行以下命令。
+```bash
+npm i -S react-native-svg react-native-qrcode-svg
+```
+```bash
+yarn add react-native-svg react-native-qrcode-svg
+```
+
+<Ads1 />
+
+## 生成并显示二维码
+
+安装完库后，接下来创建一个在屏幕上显示二维码的组件。
+目录结构如下。
+
+```
+expo-app
+├── app
+│   ├── generateQRScreen.tsx // QR 코드 화면
+│   └── ... // 다른 화면들
+├── components
+│   ├── MyQRCode.tsx // QR 코드 컴포넌트
+│   └── ... // 다른 컴포넌트들
+```
+
+### 1. 基本用法
+
+从 `react-native-qrcode-svg` 库导入 `QRCode` 组件。
+最重要的属性是 `value`，用于接收要转成二维码的字符串，例如 URL 或文本。
+
+```tsx title="/components/MyQRCode.tsx"
+import React from 'react';
+import { View, StyleSheet, Text } from 'react-native';
+import QRCode from 'react-native-qrcode-svg'; // 라이브러리에서 QRCode 컴포넌트 가져오기
+
+interface MyQRCodeProps {
+  value: string; // QR 코드로 만들 값 (URL 등)
+  size?: number;  // QR 코드 크기 (선택적)
+}
+
+const MyQRCode: React.FC<MyQRCodeProps> = ({ value, size = 128 }) => {
+  if (!value) {
+    // value 값이 없을 경우 에러 처리 또는 대체 UI 표시
+    return (
+      <View style={styles.container}>
+        <Text>QR 코드를 생성할 값이 없습니다.</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <QRCode
+        value={value} // QR 코드로 변환할 문자열 전달
+        size={size}   // QR 코드의 가로, 세로 크기 (기본값 128)
+        // --- 추가 옵션들 ---
+        // color="black" // QR 코드 색상 (기본값 black)
+        // backgroundColor="white" // 배경색 (기본값 white)
+        // quietZone={10} // QR 코드 주변의 여백 크기
+      />
+      <Text style={styles.valueText}>데이터: {value}</Text>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  valueText: {
+    marginTop: 10,
+    fontSize: 12,
+    color: '#666',
+  },
+});
+
+export default MyQRCode;
+```
+- 导入 `QRCode` 组件。
+- 将要转成二维码的字符串（例如 URL）传给 `value` 属性。
+- 使用 `size` 属性调整二维码大小，默认值为 128。
+
+### 2. 使用深层链接 URL 生成二维码
+
+接下来用 `MyQRCode` 组件把深层链接地址显示为二维码。
+
+```tsx title="/app/generateQRScreen.tsx"
+import React from 'react';
+import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import MyQRCode from '../components/MyQRCode'; // 위에서 만든 QR 코드 컴포넌트
+
+export default function GenerateQRScreen() {
+  // 예시 딥링크 URL (실제 앱 스킴과 경로에 맞게 수정 필요)
+  const deepLinkUrl = 'myawesomeapp://products/detail?productId=777&source=qrcode';
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <Text style={styles.title}>상품 상세 페이지 딥링크 QR 코드</Text>
+        <Text style={styles.description}>
+          아래 QR 코드를 스캔하면 앱의 상품 상세 페이지(ID: 777)로 이동합니다.
+        </Text>
+
+        {/* MyQRCode 컴포넌트에 딥링크 URL 전달 */}
+        <MyQRCode value={deepLinkUrl} size={200} />
+
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  description: {
+    fontSize: 14,
+    color: '#555',
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+});
+```
+
+- 将要生成二维码的深层链接地址赋给 `deepLinkUrl`。地址必须与应用的 `scheme` 和 Expo Router 路径一致。
+- 使用 `MyQRCode` 组件，把 `deepLinkUrl` 传给 `value` 属性，再通过 `size` 属性指定所需大小，例如 200。
+
+<Img src="/250430-155500.webp" width={300} alt=""/>
+现在，在应用中打开这个页面，就会生成并显示指向该深层链接的二维码。用户可以用另一台设备的相机或二维码扫描应用扫码，打开该链接。
+
+<Ads2 />
+
+## 自定义选项
+`react-native-qrcode-svg` 还提供更多样式选项。
+- `color`：指定二维码的颜色，例如 `color="blue"`。
+- `backgroundColor`：指定二维码的背景颜色，例如 `backgroundColor="#f0f0f0"`。
+- `logo`：在二维码中央插入标志图像，可用 `require` 函数指定本地图像路径。
+- `logoSize`、`logoBackgroundColor`、`logoMargin`、`logoBorderRadius`：用于细调标志的样式。
+- `ecl`：设置纠错级别（Error Correction Level），可选 'L'、'M'、'Q'、'H'。级别越高，二维码部分损坏时越容易识别，但图案也更复杂。添加标志时，有时会建议使用 'H'。
+
+```tsx
+// 로고를 포함한 예시
+import logoImage from '../assets/my_app_logo.png'; // 로고 이미지 import
+
+// ... 컴포넌트 내부 ...
+<QRCode
+  value={deepLinkUrl}
+  size={250}
+  logo={logoImage} // 로고 이미지 전달
+  logoSize={40}
+  logoBackgroundColor="transparent"
+  ecl="H" // 오류 복원 수준 높게 설정
+/>
+// ...
+```
+
+<Img src="/250430-165829.webp" width={300} alt="自定义二维码标志"/>
+
+## 结语
+本文介绍了如何在 Expo 应用中使用 `react-native-qrcode-svg` 库，把指定地址（尤其是深层链接 URL）转为二维码并显示。二维码可以连接线上和线下场景，让用户操作更方便。
+
+### 参考资料
+
+- react-native-qrcode-svg 库（GitHub）：[https://github.com/awesomejerry/react-native-qrcode-svg](https://github.com/awesomejerry/react-native-qrcode-svg)
+- react-native-svg 库（GitHub）：[https://github.com/react-native-svg/react-native-svg](https://github.com/react-native-svg/react-native-svg)
+- Expo 官方文档：[https://docs.expo.dev/](https://docs.expo.dev/)
+

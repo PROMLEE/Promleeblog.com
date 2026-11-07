@@ -1,0 +1,109 @@
+---
+post_id: '114'
+locale: en
+title: Creating a React Native Project on Windows for Android
+description: >-
+  Set up React Native on Windows and run the project in the Android Studio
+  emulator.
+source_hash: 6f1fa6edf971a6b572d31c1d119efdf9735ffba8e73a9edc19e543b73c6860cb
+---
+## Before We Begin
+React Native is an open-source mobile development framework created by Facebook. It lets you build iOS and Android apps using JavaScript and React.
+This guide walks through setting up a React Native development environment on Windows. You can use either Expo CLI or React Native CLI. We'll use React Native CLI here.
+Before setting up the project, install *Node.js*, a *JDK*, and *Android Studio*.
+
+## Install Node.js
+Node.js is the JavaScript runtime you need for React Native development. Download and install the LTS release from the [official Node.js website](https://nodejs.org/ko/).
+Once installed, check the version with this command.
+```bash
+node -v
+```
+
+<Ads1 />
+## Install a JDK
+A Java Development Kit is required to develop React Native apps for Android. Install either Oracle JDK or OpenJDK.
+<Rbox>For the setup in this guide, download JDK 20 or earlier.</Rbox>
+[Download Oracle JDK (recommended)](https://www.oracle.com/java/technologies/javase/jdk20-archive-downloads.html)
+[Download OpenJDK](https://adoptopenjdk.net/)
+
+### Set Environment Variables
+Add the JDK installation path to your environment variables.
+1. Open Control Panel > System and Security > System > Advanced system settings > Environment Variables.
+2. Under System variables, click New. Enter JAVA_HOME as the name and the JDK installation path as the value.
+   - Default: `C:\Program Files\Java\jdk-버전`. Replace the Korean placeholder with your installed version.
+3. Select the Path system variable and click Edit.
+4. Click New and enter %JAVA_HOME%\bin.
+   <Img src="/posts/240711-201602.png" width={400} alt=""/>
+5. Click OK to save.
+
+Check the installed version with this command.
+```bash
+java -version
+```
+
+<Ads2 />
+## Install Android Studio
+Android Studio is the integrated development environment used for Android apps. Install it to set up the tools needed to develop React Native for Android.
+Download it from the [official Android Studio website](https://developer.android.com/studio).
+### Set Environment Variables
+1. Open Android Studio and select More Actions > SDK Manager to find the SDK path.
+2. Open Control Panel > System and Security > System > Advanced system settings > Environment Variables.
+3. Under System variables, click New. Enter ANDROID_HOME as the name and the SDK path as the value.
+   - Default: `C:\Users\사용자명\AppData\Local\Android\Sdk`. Replace the Korean placeholder with your Windows username.
+4. Select the Path system variable and click Edit.
+5. Click New and enter %ANDROID_HOME%\platform-tools.
+6. Click OK to save.
+
+Check the installed version with this command.
+```bash
+adb --version
+```
+
+<Ads3 />
+## Set Up React Native
+### Create a React Native Project
+Create the project with the following command.
+```bash
+npx react-native init {프로젝트명}
+```
+### Start Android Studio
+Open Android Studio and create an Android Virtual Device (AVD).
+1. Click More Actions > VD Manager.
+   <Img src="/posts/240711-215946.png" width={500} alt=""/>
+2. Click Create Virtual Device and choose a device.
+3. Click Next and select a system image.
+4. Click Finish to create the virtual device.
+5. Once the device is created, click Start to launch it.
+   <Img src="/posts/240711-220142.png" width={500} alt=""/>
+
+### Run the Project
+Change to the project directory and run the following command.
+```bash
+npm start
+```
+When prompted, press `a`to run the Android app.
+
+<Img src="/posts/240711-215622.png" width={500} alt="The app installs and launches when the AVD is running."/>
+
+<Ads4 />
+## Troubleshooting
+### Build Error: java.io.UncheckedIOException
+> java.io.UncheckedIOException: Could not move temporary workspace
+<Img src="/posts/240711-210715.png" width={500} alt=""/>
+Follow the example below to edit the file and switch to Gradle 8.5.
+
+```bash title="[YourApp]/android/gradle/wrapper/gradle-wrapper.properties" {3}
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-all.zip  # 8.6 -> 8.5로 변경
+networkTimeout=10000
+validateDistributionUrl=true
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+```
+[Stack Overflow discussion](https://stackoverflow.com/questions/78384724/react-native-error-java-io-uncheckedioexception-could-not-move-temporary-work)
+
+<Ads5 />
+## References
+[Official React Native documentation](https://reactnative.dev/docs/environment-setup)
+[Setting up and testing a React Native development environment on Windows](https://velog.io/@zzxy72/%EC%9C%88%EB%8F%84%EC%9A%B0Windows%EC%97%90-react-native-%EA%B0%9C%EB%B0%9C-%ED%99%98%EA%B2%BD-%EA%B5%AC%EC%B6%95-%EB%B0%8F-Test)

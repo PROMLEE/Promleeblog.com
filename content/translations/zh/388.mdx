@@ -1,0 +1,186 @@
+---
+title_en: Component Refactoring and Maintaining Tests - TDD with React Part 5
+title_ko: 컴포넌트 리팩토링과 테스트 유지 - React로 시작하는 TDD 5편
+url: component-refactoring
+series_no: 5
+desc: >-
+  테스트 코드를 안전장치 삼아 컴포넌트를 분리하고 구조를 개선하는 리팩토링 과정을 다룹니다. 또한 screen.debug()를 통해 테스트
+  진행 상황을 로그로 확인하는 방법을 배웁니다.
+thumbnail_url: /251221-014748.webp
+metatag: >-
+  React, TDD, Refactoring, Component, Props, Debugging, screen.debug, Vitest,
+  TypeScript
+tags: 'React, Javascript, Typescript, Next.js'
+post_id: '388'
+locale: zh
+title: 组件重构与测试维护——用 React 开始 TDD，第 5 篇
+description: 以测试为保障拆分组件、改进代码结构，并通过 screen.debug() 查看测试过程中的渲染结果。
+source_hash: 8a8c202497103da1fb3f536ade4dd273b5695498bd3c19fd3b1c1dbe1654814f
+reviewed_at: '2026-11-07T06:48:22.053Z'
+---
+
+## 开始之前
+
+上一篇创建了 *Counter* 组件，并让测试通过。
+这次将重构这个组件，改善它的结构。
+
+## 故障排查与技巧
+
+### 1. 解决 describe 和 it 的红色下划线
+即使使用 *Vitest*，编辑器（如 VS Code、WebStorm）有时也会按照 *Jest* 的语法检查代码。
+这时可能找不到 `describe` 或 `it` 等函数，并出现红色下划线。
+可以将 *Jest* 的类型定义包安装为开发依赖来解决。
+```bash title="Terminal"
+npm i --save-dev @types/jest
+```
+安装后，红色下划线应该就会消失。
+
+### 2. 查看详细日志（screen.debug）
+
+如果想看到比终端中的 **PASS** 更详细的信息，可以试试 *RTL* 提供的调试工具。
+在测试代码中插入 `screen.debug()`，就会将当时的 HTML 结构输出到控制台。
+
+```tsx title="src/components/Counter.test.tsx" showLineNumbers highlight="{10,17}"
+// ... import 생략
+
+describe('Counter 컴포넌트 동작 테스트', () => {
+  test('...', async () => {
+    const user = userEvent.setup();
+    render(<Counter />);
+
+    // [팁] 클릭하기 전 화면 상태 출력
+    console.log('--- 클릭 전 ---');
+    screen.debug(); 
+
+    const incrementBtn = screen.getByRole('button', { name: '+' });
+    await user.click(incrementBtn);
+
+    // [팁] 클릭한 후 화면 상태 출력
+    console.log('--- 클릭 후 ---');
+    screen.debug(); 
+
+    expect(screen.getByText('현재 숫자: 1')).toBeInTheDocument();
+  });
+});
+```
+
+这样，终端就会以文本形式显示当前渲染出来的 HTML（DOM）。
+不知道测试为什么失败时，这是一种直接的排查方法。
+
+<Ads1/>
+
+## 重构：拆分组件
+
+现在回到正题。
+目前的 *Counter* 组件运行正常，但结构还有改进空间。
+`button` 标签直接写在 *Counter* 内部，因此无法在其他地方复用这个按钮。
+<br/>
+接下来将按钮拆成独立的组件（`CountButton`）。
+关键是，**即使改动了代码结构，验证原有功能的测试也必须继续通过**。
+
+### 1. 创建 CountButton 组件
+
+先创建负责显示按钮的子组件。
+让它从父组件接收 `onClick` 函数和 `label`（按钮名称）。
+
+```tsx title="src/components/CountButton.tsx" showLineNumbers
+// Props 타입을 정의하여 TypeScript의 장점을 살립니다.
+interface Props {
+  label: string;
+  onClick: () => void;
+}
+
+export default function CountButton({ label, onClick }: Props) {
+  return (
+    <button type="button" onClick={onClick}>
+      {label}
+    </button>
+  );
+}
+```
+
+<Ads2/>
+
+### 2. 修改 Counter 组件
+
+现在删除 *Counter* 组件中原有的 `button` 标签，换成刚创建的 *CountButton*。
+
+```tsx title="src/components/Counter.tsx" showLineNumbers highlight="{2,15-16}"
+import { useState } from 'react';
+import CountButton from './CountButton'; // [추가]
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  const handleClick = () => {
+    setCount(prev => prev + 1);
+  };
+
+  return (
+    <div>
+      <p>현재 숫자: {count}</p>
+      
+      {/* [변경] 기존 button 태그 대신 컴포넌트 사용 */}
+      <CountButton label="+" onClick={handleClick} />
+    </div>
+  );
+}
+```
+
+<Ads3/>
+
+## 测试的价值：确认重构没有破坏功能
+
+我们刚才改动了不少代码。
+拆分了文件、增加了导入，还传递了 props。
+万一漏了什么怎么办？
+<br/>
+这正是 TDD 发挥作用的时候。
+我们**一行测试代码都没有修改**。
+直接在终端运行原来的测试。
+
+```bash title="Terminal"
+npm test
+```
+
+### 查看结果
+<Img src="/251221-015216.webp" width={500} alt="查看测试结果"/>
+```text
+ PASS  src/components/Counter.test.tsx
+```
+如果仍然看到绿色的 **PASS**，这次重构就成功了。
+<br/>
+- **原有测试**：`getByRole('button', { name: '+' })`
+- **修改前**：`<button>+</button>`（可以找到）
+- **修改后**：`<CountButton label="+" ... />` → 最终渲染的 HTML 仍是 `<button>+</button>`（可以找到）
+<br/>
+从用户和测试代码的角度来看，组件内部如何拆分并不重要。关键是*界面上有 + 按钮，点击后数字会增加*。
+这就是*避免测试实现细节*的好处。
+
+<Ads4/>
+
+## 结语
+
+源代码可在 [GitHub - Promleeblog/react-tdd-setup](https://github.com/PROMLEE/my-tdd-app/tree/part5) 查看。
+```bash title="Terminal"
+git clone https://github.com/PROMLEE/my-tdd-app.git
+cd my-tdd-app
+git checkout part5
+```
+
+今天介绍了测试环境中的一些技巧，并完成了组件重构。
+- **故障排查**
+  通过 `@types/jest` 消除红色下划线，并用 `screen.debug()` 直观查看 HTML 结构。
+- **重构**
+  将按钮拆成独立组件，提高了可复用性。
+- **测试的保护作用**
+  改变内部结构后，无需修改测试代码，就能立即确认功能仍然正常。
+
+如果需求不只是数字加一，而是要根据不同条件改变界面，该怎么办？
+> 第 6 篇将介绍**状态（State）变化测试**，学习如何测试条件渲染。
+
+### 参考资料
+- [Debugging - Testing Library](https://testing-library.com/docs/dom-testing-library/api-debugging/)
+  介绍 screen.debug() 等调试方法的官方文档。
+- [TypeScript with React](https://react.dev/learn/typescript)
+  介绍如何定义 React 组件 Props 类型的官方指南。

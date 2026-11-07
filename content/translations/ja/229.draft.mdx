@@ -1,0 +1,335 @@
+---
+title_ko: 'React Hooks 심층 탐구 (useEffect, useRef, useReducer) - React, 알고 쓰자 4일차'
+title_en: >-
+  Deep Dive into React Hooks (useEffect, useRef, useReducer) - React Explained
+  Day 4
+desc: >-
+  useEffect와 useLayoutEffect의 차이점, useRef의 다양한 활용법(DOM 참조, mutable container),
+  useReducer의 상태 관리 방식, 커스텀 훅을 이용한 로직 재사용 예시를 알아봅니다.
+thumbnail_url: /react-hooks-deep-dive-day4.webp
+metatag: >-
+  React, Hooks, useEffect, useLayoutEffect, useRef, useReducer, Custom Hooks,
+  커스텀 훅, 상태 관리, React Hooks, 프론트엔드, 면접
+post_id: '229'
+locale: ja
+title: React Hooksを深く学ぶ：Reactを理解して使う4日目
+description: >-
+  useEffectとuseLayoutEffectの違い、useRefのDOM参照と値の保持、useReducer、カスタムフックでのロジック再利用を学びます。
+source_hash: 4cec930676921438c68f1ade27870dbaf43c9f5fbd9f842be6b5f71f59b86f74
+---
+
+## はじめに
+これまで描画パイプライン、useState、バッチ処理、並行性を学びました。
+今日は関数コンポーネントを強力にする、さまざまなフックを詳しく確認します。
+よく使う一方、違いや正確な動作を混同しやすいuseEffect、useLayoutEffect、useRef、useReducerを取り上げ、さらに独自フックの作り方も探ります。
+
+## useEffectとuseLayoutEffect
+どちらも*副作用*を扱います。
+描画自体とは別に行うデータ取得、購読の設定、DOMの直接操作などです。
+機能は似ていますが、*実行するタイミング*が大きく異なります。
+
+### いつ動くのか
+#### useEffect
+描画が完了し、ブラウザーが画面を塗った後に*非同期的に*実行します。
+内部のコードより先に、ユーザーは更新画面を見ます。
+重い作業でも描画を遮らないため、大部分の副作用に適します。
+#### useLayoutEffect
+コンポーネントの描画後、ブラウザーが塗る前に*同期的に*実行します。
+内部処理がすべて終わるまで、ブラウザーは画面の描画を待ちます。
+長い作業を行うと、ちらつきは防げても全体が遅れ、体験を損なう場合があります。
+
+<Img src="/250424-110604.webp" width={500} alt="レンダリングから画面表示までの時間軸"/>
+
+### 選び方
+*通常はuseEffectを使うのがおすすめです。*
+描画を妨げないからです。
+useLayoutEffectは、次のような特別な場合に限定します。
+1. **DOMを直接読み、同期的な再描画が必要な場合**
+  要素の寸法・位置を測って、すぐスタイルや状態へ反映し、ちらつきを防ぐときです。スクロールの調整や、ツールチップの位置計算などがあります。
+2. **componentDidMountやcomponentDidUpdateと同じ時点で必要な処理**
+
+> Q：「useEffectとuseLayoutEffectの違いは何ですか。」
+A：「どちらも副作用を扱いますが、前者は画面が塗られた後に非同期、後者は塗る前に同期実行します。DOM配置を読み、同期的にUIを直す必要がなければ、通常はuseEffectを使います。」
+
+## useRef
+主にDOM要素へ直接アクセスする用途で知られていますが、ほかにも便利な役割があります。
+
+### DOMへのアクセス
+useRefのオブジェクトをJSX要素のrefへ渡し、DOMノードを参照するのが基本です。
+入力欄へのフォーカスや、動画の再生・停止などに使います。
+
+```tsx
+import React, { useRef, useEffect } from 'react';
+
+function TextInputWithFocusButton() {
+  // ref 객체 생성
+  const inputEl = useRef<HTMLInputElement>(null);
+
+  const onButtonClick = () => {
+    // .current 프로퍼티로 실제 DOM 요소에 접근하여 focus() 메서드 호출
+    inputEl.current?.focus();
+  };
+
+  return (
+    <>
+      <input ref={inputEl} type="text" />
+      <button onClick={onButtonClick}>Focus the input</button>
+    </>
+  );
+}
+```
+
+### 描画と無関係な値の保持
+重要な用途の一つが、*描画のサイクルへ影響させずに、変更可能な値を保持すること*です。
+`.current`を持つオブジェクトを返し、その値を変えても再描画しません。
+再描画されても、.currentの値は保たれ、インスタンス変数のように使えます。
+次の場面に便利です。
+
+- 前のpropsやstateを保存し、現在値と比較する。
+- setTimeoutやsetIntervalのIDを保ち、後でclearTimeout・clearIntervalする。
+- 計算結果やフラグなど、変更可能でも再描画は不要な値を保つ。
+
+```tsx
+import React, { useState, useEffect, useRef } from 'react';
+
+function Timer() {
+  const [seconds, setSeconds] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null); // 타이머 ID 저장용 ref
+
+  useEffect(() => {
+    // 컴포넌트 마운트 시 타이머 시작
+    intervalRef.current = setInterval(() => {
+      setSeconds(prevSeconds => prevSeconds + 1);
+    }, 1000);
+
+    // 컴포넌트 언마운트 시 타이머 정리 (Cleanup 함수)
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []); // 빈 의존성 배열: 마운트 시 1회, 언마운트 시 1회 실행
+
+  return (
+    <div>
+      <p>타이머: {seconds}초</p>
+      <button onClick={() => clearInterval(intervalRef.current!)}>타이머 중지</button>
+    </div>
+  );
+}
+```
+.currentはCのポインターや他言語の参照のように、DOMなどの値を指し、それを直接変更する通り道として働きます。
+
+### .current
+
+返すオブジェクトは`{ current: initialValue }`です。
+.currentを直接変えてもReactへ通知しないため、*自動で再描画は起きません。*
+useStateとの最大の違いです。
+変更を画面へ反映したければuseState、描画と無関係に値を保ちたければuseRefを使います。
+
+<Ads1 />
+
+## useReducer：複雑な状態管理
+useStateでも多くを扱えますが、状態のロジックが複雑ならuseReducerが適する場合があります。
+
+### useStateより有利な場面
+1. **複雑な状態ロジック**
+  多くの下位値を含むオブジェクトや、前の状態とアクションから次を決める場合。
+2. **一つの操作に複数更新が関連する場合**
+  フォーム送信など、一度の操作で複数値を変える場合。
+3. **更新ロジックのテストや再利用が重要な場合**
+  Reducerはコンポーネントから分離した純粋関数で、テストしやすく再利用にも適します。
+4. **性能の最適化**
+  dispatchは再描画しても参照の同一性を保つことが多く、子へ渡す際の不要な再描画を防ぐ助けになります。特にuseCallbackとの併用時です。
+
+### ReducerとDispatchの役割
+
+主な構成要素は三つです。
+
+- Reducer：`(state, action) => newState`という純粋関数です。現在の状態と動作のオブジェクトを受け、新しい状態を返します。更新ロジックをここへ定義します。
+- initialState：状態の初期値です。
+- Dispatch：Reducerへ何をするか伝える関数です。actionを渡すと、ReactがReducerを呼んで更新を処理します。
+
+```tsx
+import React, { useReducer } from 'react';
+
+// 1. 액션 타입 정의 (TypeScript 사용 시)
+type Action = { type: 'INCREMENT' } | { type: 'DECREMENT' };
+
+// 2. 초기 상태 정의
+const initialState = { count: 0 };
+
+// 3. Reducer 함수 정의
+function reducer(state: typeof initialState, action: Action): typeof initialState {
+  switch (action.type) {
+    case 'INCREMENT':
+      return { count: state.count + 1 };
+    case 'DECREMENT':
+      return { count: state.count - 1 };
+    default:
+      throw new Error('Unhandled action type');
+  }
+}
+
+function Counter() {
+  // 4. useReducer 사용
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  return (
+    <div>
+      <p>Count: {state.count}</p>
+      {/* 5. Dispatch 함수로 액션 전달 */}
+      <button onClick={() => dispatch({ type: 'INCREMENT' })}>증가</button>
+      <button onClick={() => dispatch({ type: 'DECREMENT' })}>감소</button>
+    </div>
+  );
+}
+```
+
+dispatchを呼ぶと、setState同様に更新を予約します。
+内部でactionを含むUpdateを作り、フックのキューへ追加する形で動作できます。
+その後のレンダーフェーズでReducerを実行し、新しい状態を計算します。
+> Q：「useStateとuseReducerをどう使い分けますか。」
+A：「単一値やトグルなどはuseStateが便利です。複雑なロジック、関連する複数値、更新処理のテストや再利用が重要ならuseReducerが適します。」
+
+## カスタムフック
+フックの強みの一つが、開発者自身で*カスタムフック*を作れることです。
+状態を伴うロジックをコンポーネントから分離し、再利用可能な関数にします。
+
+### なぜ使うのか
+
+- ロジックの再利用：データ取得、フォーム、購読などを複数箇所で使う際、繰り返し書かずに呼ぶだけになります。
+- 抽象化と読みやすさ：細かな実装を分離し、コンポーネントは結果だけを使うため、簡潔になります。
+- 独立したテスト：通常のJavaScript関数のように、独立してテストできます。
+
+作成時の規則は簡単です。
+
+1. 名前を必ずuseで始める。例：useFetch、useWindowScroll。
+2. 内部でuseState、useEffect、useRefなどの組み込みフックや、他のカスタムフックを呼べる。
+
+### 例1：フォーム入力のuseFormInput
+
+単純な入力値を管理する例です。
+
+```tsx
+import { useState, useCallback } from 'react';
+
+// 커스텀 훅 정의
+function useFormInput(initialValue: string) {
+  const [value, setValue] = useState(initialValue);
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setValue(e.target.value);
+  }, []); // useCallback으로 함수 재생성 방지
+
+  const reset = useCallback(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  // 훅은 상태 값과 이벤트 핸들러, 리셋 함수를 반환
+  return {
+    value,
+    onChange: handleChange,
+    reset
+  };
+}
+
+// 컴포넌트에서 커스텀 훅 사용
+function MyForm() {
+  const nameInput = useFormInput('');
+  const emailInput = useFormInput('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Name:', nameInput.value);
+    console.log('Email:', emailInput.value);
+    nameInput.reset();
+    emailInput.reset();
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="text" placeholder="이름" {...nameInput} /> {/* 스프레드 연산자로 props 전달 */}
+      <input type="email" placeholder="이메일" {...emailInput} />
+      <button type="submit">제출</button>
+    </form>
+  );
+}
+```
+
+### 例2：ダークモードのuseDarkMode
+
+システム設定とローカルストレージで、ダークモードを管理する例です。
+
+```typescript
+import { useState, useEffect, useCallback } from 'react';
+
+function useDarkMode(initialValue = false): [boolean, () => void] {
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    // 로컬 스토리지에서 값 읽어오거나 초기값 사용 (Lazy Initial State)
+    try {
+      const storedValue = window.localStorage.getItem('darkMode');
+      return storedValue ? JSON.parse(storedValue) : initialValue;
+    } catch (error) {
+      console.error("Error reading localStorage key 'darkMode':", error);
+      return initialValue;
+    }
+  });
+
+  // 다크 모드 상태 변경 시 로컬 스토리지 업데이트 및 body 클래스 변경
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
+      if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+    } catch (error) {
+       console.error("Error writing to localStorage key 'darkMode':", error);
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = useCallback(() => {
+    setIsDarkMode(prevMode => !prevMode);
+  }, []);
+
+  return [isDarkMode, toggleDarkMode];
+}
+
+// 컴포넌트에서 사용
+function Settings() {
+  const [isDark, toggleDark] = useDarkMode();
+
+  return (
+    <div>
+      <p>현재 모드: {isDark ? '다크 모드' : '라이트 모드'}</p>
+      <button onClick={toggleDark}>모드 전환</button>
+    </div>
+  );
+}
+```
+
+<Img src="/250424-195951.webp" width={600} alt="二つのコンポーネントでロジックを共有する"/>
+<Ads2 />
+
+## まとめ
+
+主要なuseEffect、useLayoutEffect、useRef、useReducerを掘り下げました。
+- Effectは*実行時点*が異なり、Paint後の非同期とPaint前の同期に分かれます。通常はuseEffectを使います。
+- useRefはDOM参照だけでなく、描画と無関係な*変更可能値の保存*にも使えます。.currentの変更は再描画を起こしません。
+- useReducerは複雑な状態に適し、Reducerとdispatchで更新します。
+- *カスタムフック*は状態ロジックを再利用し、コードを整理する強力な方法です。名前はuseで始めます。
+
+特徴と使いどころの理解は、性能、保守性、コード品質を高めるうえで重要です。
+実際のプロジェクトでも効果的に活用してください。
+
+> 次回は*グローバル状態管理*を扱います。Context API、Redux、Zustand、Recoilなどを比較し、最適化戦略を確認します。
+
+### 参考
+
+- React公式ドキュメント：useEffect：[https://reactjs.org/docs/hooks-reference.html#useeffect](https://reactjs.org/docs/hooks-reference.html#useeffect)
+- React公式ドキュメント：useLayoutEffect：[https://reactjs.org/docs/hooks-reference.html#uselayouteffect](https://reactjs.org/docs/hooks-reference.html#uselayouteffect)
+- React公式ドキュメント：useRef：[https://reactjs.org/docs/hooks-reference.html#useref](https://reactjs.org/docs/hooks-reference.html#useref)
+- React公式ドキュメント：useReducer：[https://reactjs.org/docs/hooks-reference.html#usereducer](https://reactjs.org/docs/hooks-reference.html#usereducer)
+- React公式ドキュメント：Building Your Own Hooks：[https://reactjs.org/docs/hooks-custom.html](https://reactjs.org/docs/hooks-custom.html)

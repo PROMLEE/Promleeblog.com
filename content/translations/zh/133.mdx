@@ -1,0 +1,389 @@
+---
+title_ko: 'TypeScript 환경에서 axios 타입 셋팅하기 (React, Next.js, React Native, node.js, ...)'
+title_en: >-
+  Setting up axios types in a TypeScript environment (React, Next.js, React
+  Native, node.js, ...)
+desc: >-
+  TypeScript 환경에서 axios 타입 셋팅하기 (React, Next.js, React Native, node.js, ...),
+  Setting up axios types in a TypeScript environment (React, Next.js, React
+  Native, node.js, ...)
+thumbnail_url: >-
+  https://camo.githubusercontent.com/2ac485b6967b7c38e2b416b2b1e3c2812a79e146eb37a74bced4305a55e282a4/68747470733a2f2f6178696f732d687474702e636f6d2f6173736574732f6c6f676f2e737667
+post_id: '133'
+locale: zh
+title: 在 TypeScript 中配置 Axios 类型（React、Next.js、React Native、Node.js 等）
+description: 用 TypeScript 定义 Axios 请求与响应类型，配置拦截器，并组织 API 服务文件。
+source_hash: 62160e5e216ca6fe88dde87bec35072afe2dce524fced2326ce5d567fe6ca1ef
+reviewed_at: '2026-11-07T12:30:25.674Z'
+---
+## 开始之前
+> 本文基于 axios 1.7.9 编写。
+
+调用服务器接口或开放 API 时，axios 是最常用的 npm 库之一。接口定义明确时，可以为请求和响应指定类型，在 TypeScript 中降低出错概率，并提高开发效率。
+本文以 [Next.js](https://nextjs.org/) 为例。稍微调整目录结构、令牌存储方式等，也可以在 [React](https://ko.react.dev/)、[React Native](https://reactnative.dev/) 和 [Node.js](https://nodejs.org/en) 等环境中使用。
+测试 API 使用 [JSONPlaceholder](https://jsonplaceholder.typicode.com/)。
+下面是我使用 App Router 时的目录结构。可以根据自己的环境提前创建目录。如果没有使用 Next.js，只需参考 util 目录内部的结构。
+```
+📦src
+┣ 📂app
+┃ ┣ 📂test 				// 테스트 페이지(/test)
+┃ ┃ ┗ 📜page.tsx
+┃ ┣ 📜layout.tsx
+┃ ┗ 📜page.tsx				// 홈 페이지(/)
+┗ 📂util
+┃ ┣ 📂apis
+┃ ┃ ┣ 📂@types 				// 타입 폴더
+┃ ┃ ┃ ┣ 📜shared.ts
+┃ ┃ ┃ ┣ 📜test.ts
+┃ ┃ ┣ 📂service 			// api 서비스 폴더
+┃ ┃ ┃ ┣ 📜test.ts
+┃ ┃ ┣ 📜axios.ts 			// axios 설정 파일
+┗ ┗ ┗ 📜index.ts
+```
+## 1. 安装 Axios 并完成基本配置
+在项目根目录中执行以下命令。
+```bash
+npm install axios
+```
+然后创建 `.env` 等环境变量文件，并写入 API 端点 URL。
+```
+NEXT_PUBLIC_SERVER_URL=https://jsonplaceholder.typicode.com
+```
+
+<Ads1 />
+## 2. 编写 axios.ts
+### 2.1. 创建 Axios 实例
+创建 `axios.ts`，并导入以下内容。
+```typescript title="src/util/apis/axios.ts"
+import axios, {
+  AxiosError,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
+```
+首先按下面的方法创建 Axios 实例。baseURL 从环境变量读取，headers 默认设置 `Content-Type`。
+```typescript title="src/util/apis/axios.ts"
+import axios from 'axios';
+
+export const API = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_SERVER_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+```
+
+### 2.2. 管理认证令牌（可选）
+与服务器一起实现登录功能时，有多种管理令牌的方法。我选择把令牌存放在本地存储，并从中读取。
+如果不使用令牌，可以跳过这一部分。
+```typescript title="src/util/apis/axios.ts"
+export const AuthStorage = {
+  async setToken( accessToken: string ) {
+    await localStorage.setItem("accessToken", accessToken);
+  },
+
+  async getToken(): Promise<string | null> {
+    return await localStorage.getItem("accessToken");
+  },
+
+  async clear() {
+    await localStorage.removeItem("accessToken");
+  },
+};
+```
+
+### 2.3. 配置请求拦截器
+请求拦截器能在请求发出前拦截并修改请求，例如先把令牌加入请求头。
+这里也加入记录请求日志的代码。我发现开发时查看这些日志比较方便。没有输出 config 的所有属性，只选了必要的属性记录。
+```typescript title="src/util/apis/axios.ts"
+API.interceptors.request.use(
+  async (config: InternalAxiosRequestConfig) => {
+    const token = await AuthStorage.getToken(); // 토큰 미사용시 무시
+    if (token) {	// 토큰 사용시 헤더에 토큰 추가
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    console.log({
+      headers: config.headers,
+      method: config.method,
+      url: config.url,
+      baseUrl: config.baseURL,
+      data: config.data,
+      params: config.params,
+    });
+    return config;
+  },
+  (error: AxiosError) => {
+    console.log("API request error", error.config);
+    return Promise.reject(error);
+  }
+);
+```
+
+### 2.4. 配置响应拦截器
+响应拦截器可以在收到响应后拦截并修改它。这里也加入日志，用于查看服务器返回的内容。
+仔细检查服务器返回的数据，再从 response 中提取所需内容。有些接口把数据放在 data 属性里，有些则放在 data.data 中。
+发生错误时，会记录更详细的日志。`Shared.ErrorResponse` 类型将在[下文](#31-공통-타입-설정)说明。
+```typescript title="src/util/apis/axios.ts"
+API.interceptors.response.use(
+	(response: AxiosResponse) => {
+		console.log({
+			status: response.status,
+			statusText: response.statusText,
+			data: response.data,
+		});
+		return response.data;	// 서버에서 받는 데이터가 data 속성에 들어있는 경우
+		// return response.data.data;	// 서버에서 받는 데이터가 data.data 속성에 들어있는 경우
+	},
+	async (error: AxiosError) => {
+		console.warn(error.config?.url + " API response error", {
+			response_data: error.response?.data,
+			status: error.response?.status,
+			request_info: {
+				method: error.config?.method,
+				url: error.config?.url,
+				baseUrl: error.config?.baseURL,
+				headers: error.config?.headers,
+				params: error.config?.params,
+				data: error.config?.data,
+			},
+		});
+		const errorData: Shared.ErrorResponse = error.response?.data as Shared.ErrorResponse;
+		alert(`${errorData.error.code}: ${errorData.error.message}`);
+		return Promise.reject(error);
+	}
+);
+```
+
+<Ads2 />
+## 3. 定义类型
+<Bbox>为什么在命名空间中声明类型？</Bbox>
+
+使用 *namespace* 声明类型，是为了避免名称冲突。如果同名类型已声明，再次声明可能报错。将类型放进不同的命名空间，即使类型名相同也不会冲突。全局声明的类型无需另外导入，在各组件中也容易管理。为了提高开发效率，仍应给类型取清楚的名称。
+
+### 3.1. 定义通用类型
+服务器可能返回不同形态的错误。例如，错误响应可能如下所示。
+```json
+{
+  "data": null,
+  "error": {
+    "code": 400,
+    "message": "Bad Request"
+  },
+  "success": false
+}
+```
+这时可以定义通用类型。如果项目配置了 ESLint，相关设置应放在文件最顶部。
+```typescript title="src/util/apis/@types/shared.ts"
+/* eslint-disable @typescript-eslint/no-unused-vars */
+namespace Shared {
+  export interface ErrorResponse {
+    data: null;
+    error: {
+      code: number;
+      message: string;
+    };
+    success: boolean;
+  }
+}
+```
+
+也可以另外定义分页类型和简单消息响应类型。下面是我在项目中使用的类型。
+```typescript title="src/util/apis/@types/shared.ts(예시)"
+/* eslint-disable @typescript-eslint/no-unused-vars */
+namespace Shared {
+  export interface ErrorResponse {
+    data: null;
+    error: {
+      code: number;
+      message: string;
+    };
+    success: boolean;
+  }
+
+  export interface messageResponse {
+    message: string;
+  }
+
+  export interface Pagenation {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    content: any;
+    pageable: Pageable;
+    totalPages: number;
+    totalElements: number;
+    last: boolean;
+    size: number;
+    number: number;
+    sort: Sort;
+    first: boolean;
+    numberOfElements: number;
+    empty: boolean;
+  }
+
+  interface Pageable {
+    sort: Sort;
+    pageNumber: number;
+    pageSize: number;
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  }
+
+  interface Sort {
+    sorted: boolean;
+    unsorted: boolean;
+    empty: boolean;
+  }
+}
+```
+
+### 3.2. 定义请求类型
+参考 [JSONPlaceholder 指南](https://jsonplaceholder.typicode.com/guide/)中的示例设置请求类型。
+例如，向 `GET - https://jsonplaceholder.typicode.com/posts/{id}` 和 `POST - https://jsonplaceholder.typicode.com/posts` 发出请求时，可以像下面这样定义请求类型。
+这是我常用的命名方式：在命名空间中声明请求类型后，按 `{메소드}{API 이름}{요쳥형태}`（方法、API 名称、请求形式）的格式命名。
+```typescript title="src/util/apis/@types/test.ts"
+declare namespace TestRequest {
+	export interface GetPostsParams {
+		id: number;
+	}
+	export interface GetPostsQuery {
+		userId: number;
+	}
+	export interface PostPostsBody {
+		title: string;
+		body: string;
+		userId: number;
+	}
+}
+```
+
+### 3.3. 定义响应类型
+接下来定义响应类型。与请求类型类似，在命名空间中声明后，按 `{메소드}{API 이름}{설명}`（方法、API 名称、说明）的格式命名。
+```typescript title="src/util/apis/@types/test.ts"
+declare namespace TestResponse {
+	export interface GetPosts {
+		id: number;
+		title: string;
+		body: string;
+		userId: number;
+	}
+}
+```
+
+<Ads3 />
+## 4. 编写服务文件
+### 4.1. 编写服务文件
+现在编写使用 Axios 与服务器通信的服务文件。我把服务文件放在 `apis/service` 目录中。
+我会为每个函数添加注释。注释应该描述该函数调用的 API，而不是这个函数被用在哪项功能中。
+```typescript title="src/util/apis/service/test.ts"
+import { API } from "../axios";
+
+export const TestService = () => {
+  const url = "/posts";
+
+  /**
+   * 포스트 상세 조회 - id 별 조회
+   * @api-doc: https://jsonplaceholder.typicode.com/guide/
+   */
+  const getPosts = async (
+    params: TestRequest.GetPostsParams,
+    { userId }: TestRequest.GetPostsQuery,
+  ) => {
+    const response = (await API.get(`${url}/${params.id}`, {
+      params: { userId },
+    })) as TestResponse.GetPosts;
+    return response;
+  };
+
+  /**
+   * 포스트 전체 조회
+   * @api-doc: https://jsonplaceholder.typicode.com/guide/
+   */
+  const getAllPosts = async () => {
+    const response = (await API.get(`${url}`)) as TestResponse.GetPosts[];
+    return response;
+  };
+
+  /**
+   * 포스트 생성
+   * @api-doc: https://jsonplaceholder.typicode.com/guide/
+   */
+  const postPosts = async (body: TestRequest.PostPostsBody) => {
+    const response = (await API.post(`${url}`, body)) as TestResponse.GetPosts;
+    return response;
+  };
+
+  return {
+    getPosts,
+    getAllPosts,
+    postPosts,
+  };
+};
+
+```
+
+### 4.2. 编写 index.ts
+接下来编写 `index.ts`，方便导入和使用服务文件。
+```typescript title="src/util/apis/index.ts"
+export { TestService } from "./service/test";
+```
+
+## 5. 编写测试代码
+现在编写测试代码。我把测试代码放在 `app/test` 目录中。
+```tsx title="src/app/test/page.tsx"
+"use client";
+
+import { TestService } from "@/util/apis";
+import { useEffect, useState } from "react";
+
+export default function TestPage() {
+	const [posts, setPosts] = useState<TestResponse.GetPosts>();
+	const [getAllPosts, setGetAllPosts] = useState<TestResponse.GetPosts[]>();
+	const [postPosts, setPostPosts] = useState<TestResponse.GetPosts>();
+
+	useEffect(() => {
+		const fetchPosts = async () => {  // 포스트 상세 조회
+			const response = await TestService().getPosts({ id: 1 }, { userId: 1 });
+			setPosts(response);
+		};
+		
+		const fetchAllPosts = async () => {  // 포스트 전체 조회
+			const response = await TestService().getAllPosts();
+			setGetAllPosts(response);
+		};
+
+		const postPosts = async () => {  // 포스트 생성
+			const response = await TestService().postPosts({ title: "test123", body: "test123", userId: 1 });
+			setPostPosts(response);
+		};
+
+		fetchPosts();
+		fetchAllPosts();
+		postPosts();
+	}, []);
+
+	return (
+		<div>
+			<div>Test</div>
+			<div>{posts?.title}</div>
+			{getAllPosts?.map((post) => (
+				<div key={post.id}>{post.title}</div>
+			))}
+			<div>{postPosts?.title}</div>
+		</div>
+	);
+}
+```
+<Img src="/posts/250224-205953.png" width={300} alt="测试页面"/>
+
+<Ads4 />
+## 结语
+直接使用 Axios 的基础功能或 fetch 与服务器通信，写起来可能更快。但出现错误时，能否方便地处理则是另一回事。
+本文介绍了如何编写使用 Axios 与服务器通信的服务文件。这样组织服务层，有助于进行类型检查，提高开发效率。
+### 进一步思考
+- 输出过多日志会不会带来安全问题？
+
+### 参考资料
+- [Axios 官方文档](https://github.com/axios/axios)
+- [JSONPlaceholder 指南](https://jsonplaceholder.typicode.com/guide/)
+
+

@@ -1,0 +1,193 @@
+---
+post_id: '118'
+locale: en
+title: 'Initial Expo Setup: Prettier, ESLint, Styled-components, and Recoil'
+description: >-
+  Configure formatting, linting, CSS-in-JS styling, and global state in an Expo
+  project.
+source_hash: 742995ee3f28e6b558d28f18ba0e65490f8e26e2f367c0ecc672f30249c4b70a
+reviewed_at: '2026-11-07T01:40:49.939Z'
+---
+## Before getting started
+> The development environment used Windows, Android Studio, and Visual Studio Code.
+Let's perform the initial configuration for developing an Expo project.
+We will install:
+- **Prettier and ESLint**: Keep code style consistent and improve code quality.
+- **Styled-components**: A CSS-in-JS library for styling components.
+- **Recoil**: A state-management library for global state.
+<Ads1 />
+## Installing ESLint and Prettier
+### Installing ESLint
+Install ESLint in the Expo project with the following command.
+The first run generates *.eslintrc.js*, the ESLint configuration file.
+Later runs of the same command display lint results.
+```bash
+npx expo lint
+```
+<Bbox>If you use VS Code, I also recommend installing the [ESLint extension](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint).</Bbox>
+<br/>
+<br/>
+Edit *.eslintrc.js* to use it alongside Prettier.
+```js title=".eslintrc.js"
+module.exports = {
+  extends: ['expo', 'prettier'],
+  plugins: ['prettier'],
+  rules: {
+    'prettier/prettier': 'error',
+  },
+};
+```
+Create *.eslintignore* with the following contents to ignore unnecessary files.
+```text title=".eslintignore"
+/.expo
+node_modules
+```
+
+<Ads2 />
+### Installing Prettier
+Run the following command in the project directory.
+```bash
+npx expo install -- --save-dev prettier eslint-config-prettier eslint-plugin-prettier
+```
+<Bbox>If you use VS Code, I also recommend the [Prettier extension](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode).</Bbox>
+<br/>
+<br/>
+Create *.prettierrc.js* in the project folder and add this configuration.
+```js title=".prettierrc.js"
+module.exports = {
+  singleQuote: true,  // 문자열은 홑따옴표로
+  parser: "typescript", // 타입스크립트 사용
+  semi: true,         // 세미콜론 사용
+  useTabs: false,    // 탭 사용 금지
+  tabWidth: 2,    // 들여쓰기 2칸
+  printWidth: 120,  // 줄 바꿈 길이
+  arrowParens: "always",  // 화살표 함수 괄호 사용
+};
+```
+To exclude files from formatting, create *.prettierignore* with the following contents.
+```text title=".prettierignore"
+.md
+```
+Saving a file now lets Prettier format it automatically according to the ESLint configuration.
+
+<Ads3 />
+## Styled-components
+### Installing Styled-components
+Using styled-components in Expo works the same way as in a React Native CLI project.
+Install it with the following command.
+```bash
+npm i styled-components
+```
+Also install its React Native type definitions.
+```bash
+npm i @types/styled-components @types/styled-components-react-native
+```
+### Styled-components example
+Update App.tsx to use styled-components.
+```tsx title="App.tsx" {3}
+import React from 'react';
+import { Text, View } from 'react-native';
+import styled from 'styled-components/native';
+
+export default function App() {
+  return (
+      <Container>
+        <Title>Hello, Expo!</Title>
+      </Container>
+    );
+  }
+
+const Container = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+`;
+
+const Title = styled.Text`
+  font-size: 24px;
+  font-weight: bold;
+`;
+```
+You can now use styled-components.
+
+<Ads4 />
+## Recoil
+### Installing Recoil
+Install Recoil in the Expo project with the following command.
+```bash
+npm i recoil
+```
+Add RecoilRoot to app/_layout.tsx.
+```tsx title="app/_layout.tsx" {2, 7, 12}
+import React from 'react';
+import { RecoilRoot } from 'recoil';
+
+export default function App() {
+  return (
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <RecoilRoot>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </RecoilRoot>
+    </ThemeProvider>
+  );
+}
+```
+You can now manage global state with Recoil.
+### Recoil example
+First, create an atom.
+```tsx title="atoms/counter.ts"
+import { atom } from 'recoil';
+
+export const counterState = atom({
+  key: 'counterState',  // 고유한 키
+  default: 0, // 초기값
+});
+```
+Then access the global state from a component.
+Recoil's basic usage resembles useState.
+```tsx title="components/Counter.tsx"
+import React from 'react';
+import { Text, Button } from 'react-native';
+import { useRecoilState } from 'recoil';
+import { counterState } from '../atoms/counter';
+
+export default function Counter() {
+  const [counter, setCounter] = useRecoilState(counterState);
+
+  return (
+    <>
+      <Text>{counter}</Text>
+      <Button title="Increase" onPress={() => setCounter(counter + 1)} />
+    </>
+  );
+}
+```
+<Ads5 />
+## Troubleshooting
+### ESLint: Delete \`cr\` in VS Code
+<Img src="/posts/240729-135653.png" width={400} alt=""/>
+The error above can appear when using ESLint in VS Code.
+It is caused by Windows line-ending characters.
+Adjust *.eslintrc.js* as follows to resolve it.
+```js title=".eslintrc.js" {5}
+module.exports = {
+  extends: ['expo', 'prettier'],
+  plugins: ['prettier'],
+  rules: {
+    'prettier/prettier': ['error', { endOfLine: 'auto' }],
+  },
+};
+```
+
+## Conclusion
+We configured Prettier, ESLint, Styled-components, and Recoil in an Expo project.
+The project is now ready for development.
+
+### References
+[Expo — Use ESLint and Prettier](https://docs.expo.dev/guides/using-eslint/)
+[Styled-components — React Native](https://styled-components.com/docs/basics#react-native)
+[Recoil — Getting Started](https://recoiljs.org/docs/introduction/getting-started)
+[VS Code: Resolving Delete \`CR\` ESLint (prettier/prettier) errors](https://guiyomi.tistory.com/134)

@@ -1,0 +1,119 @@
+---
+post_id: '114'
+locale: zh
+title: 在 Windows 上搭建 React Native CLI 开发环境
+description: >-
+  在 Windows 上安装 Node.js、JDK 和 Android Studio，使用 React Native CLI 创建项目并在 Android
+  虚拟设备上运行。
+source_hash: 6f1fa6edf971a6b572d31c1d119efdf9735ffba8e73a9edc19e543b73c6860cb
+reviewed_at: '2026-11-07T06:55:33.670Z'
+---
+## 开始之前
+React Native 是 Facebook 开发的开源移动应用框架，可以用 JavaScript 和 React 开发 iOS 和 Android 应用。
+下面介绍如何搭建 React Native 开发环境。
+本文在 Windows 上操作。
+可以使用 Expo CLI 或 React Native CLI 两种方式安装。
+本文介绍使用 React Native CLI 的安装方法。
+安装前需要先安装 *Node.js*、*JDK* 和 *Android Studio*。
+
+## 安装 Node.js
+Node.js 是 JavaScript 运行时，也是 React Native 开发所需的环境。
+从 Node.js 官网下载并安装 LTS 版本。
+[Node.js 官网](https://nodejs.org/ko/)
+安装完成后，用以下命令检查版本。
+```bash
+node -v
+```
+
+<Ads1 />
+## 安装 JDK
+JDK 是 Java 开发工具包，也是 React Native 开发所需的环境。
+可以安装 Oracle JDK 或 OpenJDK。
+<Rbox>请下载 JDK 20 或更低版本。</Rbox>
+[下载 Oracle JDK（推荐）](https://www.oracle.com/java/technologies/javase/jdk20-archive-downloads.html)
+[下载 OpenJDK](https://adoptopenjdk.net/)
+
+### 设置环境变量
+将 JDK 安装路径添加到环境变量。
+1. 打开控制面板 → 系统和安全 → 系统 → 高级系统设置 → 环境变量。
+2. 在系统变量中点击“新建”，变量名填 JAVA_HOME，变量值填 JDK 安装路径。
+   - 默认：`C:\Program Files\Java\jdk-버전`
+3. 在系统变量中选择 Path，点击“编辑”。
+4. 点击“新建”，输入 %JAVA_HOME%\bin。
+   <Img src="/posts/240711-201602.png" width={400} alt=""/>
+5. 点击“确定”保存设置。
+
+安装完成后，用以下命令检查版本。
+```bash
+java -version
+```
+
+<Ads2 />
+## 安装 Android Studio
+Android Studio 是用于开发 Android 应用的集成开发环境，也是 React Native 开发所需的工具。
+从 Android Studio 官网下载并安装。
+[Android Studio 官网](https://developer.android.com/studio)
+### 设置环境变量
+1. 启动后，点击 More Action → SDK Manager，查看 SDK 路径。
+2. 打开控制面板 → 系统和安全 → 系统 → 高级系统设置 → 环境变量。
+3. 在系统变量中点击“新建”，变量名填 ANDROID_HOME，变量值填 SDK 路径。
+   - 默认：`C:\Users\사용자명\AppData\Local\Android\Sdk`
+4. 在系统变量中选择 Path，点击“编辑”。
+5. 点击“新建”，输入 %ANDROID_HOME%\platform-tools。
+6. 点击“确定”保存设置。
+
+安装完成后，用以下命令检查版本。
+```bash
+adb --version
+```
+
+
+<Ads3 />
+## 安装 React Native
+### 创建 React Native 项目
+使用以下命令创建 React Native 项目。
+```bash
+npx react-native init {프로젝트명}
+```
+### 启动 Android Studio
+启动 Android Studio，创建 AVD（Android Virtual Device，Android 虚拟设备）。
+1. 点击 More Actions → VD Manager。
+   <Img src="/posts/240711-215946.png" width={500} alt=""/>
+2. 点击 Create Virtual Device，选择所需设备。
+3. 点击 Next，选择系统镜像。
+4. 点击 Finish，创建虚拟设备。
+5. 创建后，点击 Start 启动虚拟设备。
+   <Img src="/posts/240711-220142.png" width={500} alt=""/>
+
+### 运行项目
+进入项目目录，用下面的命令运行项目。
+```bash
+npm start
+```
+出现选择提示时，按 `a` 运行 Android 应用。
+
+<Img src="/posts/240711-215622.png" width={500} alt="启动 AVD 后，应用会自动安装并运行。"/>
+
+
+<Ads4 />
+## 常见问题与解决方法
+### 构建错误 java.io.UncheckedIOException
+> java.io.UncheckedIOException: Could not move temporary workspace
+<Img src="/posts/240711-210715.png" width={500} alt=""/>
+参照下面的示例修改文件，将 Gradle 版本改为 8.5。
+
+```bash title="[YourApp]/android/gradle/wrapper/gradle-wrapper.properties" {3}
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-all.zip  # 8.6 -> 8.5로 변경
+networkTimeout=10000
+validateDistributionUrl=true
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+```
+[参考（Stack Overflow）](https://stackoverflow.com/questions/78384724/react-native-error-java-io-uncheckedioexception-could-not-move-temporary-work)
+
+<Ads5 />
+## 参考资料
+[React Native 官方文档](https://reactnative.dev/docs/environment-setup)
+[在 Windows 上搭建并测试 React Native 开发环境](https://velog.io/@zzxy72/%EC%9C%88%EB%8F%84%EC%9A%B0Windows%EC%97%90-react-native-%EA%B0%9C%EB%B0%9C-%ED%99%98%EA%B2%BD-%EA%B5%AC%EC%B6%95-%EB%B0%8F-Test)

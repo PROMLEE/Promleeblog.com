@@ -1,0 +1,58 @@
+---
+post_id: '84'
+locale: en
+title: Network Layer Overview
+description: >-
+  Network-layer forwarding and routing, data and control planes, and network
+  service models.
+source_hash: 2faf08eabb9eddeee312845f5241cc05a5bf15fa8c5d052502826122a11628ac
+---
+## The network layer
+- Delivers data from the sending host to the receiving host.
+- The sending side encapsulates segments in datagrams.
+- The receiving side passes segments to the transport layer.
+- Network-layer protocols are present in every host and router.
+- Routers inspect header fields in every IP datagram that passes through them.
+
+## Main network-layer functions
+1. **Forwarding**: Moves a packet from a router's input-link interface to the appropriate output-link interface.
+	- A data-plane function that operates within each router.
+	- Usually implemented in hardware.
+	- Uses a *forwarding table* to forward packets.
+	- Packets may be lost or duplicated.
+2. **Routing**: Determines the path from source to destination.
+	- A control-plane function that operates across the network.
+	- Routing algorithms determine which direction to forward packets and build the *forwarding table*.
+	- Implemented in software.
+<Ads1 />
+## Data plane and control plane
+**Data plane**
+- Determines how a datagram arriving at a router's input port is forwarded to an output port.
+- Performs forwarding.
+- Uses a forwarding table.
+
+**Control plane**
+- Network-wide logic.
+- Determines how datagrams are routed between routers along the path from the source host to the destination host.
+- Configures forwarding tables.
+- Two approaches to the control plane:
+	- Traditional routing algorithms: Implemented in routers.
+	- Software-defined networking (SDN): Implemented in a remote server or controller.
+
+## Router-by-router control plane
+> Individual routing-algorithm components in each router interact in the control plane.
+<Img src="/posts/240618-042536.png" width={500}/>
+
+## Logically centralized control plane
+> An independent, usually remote controller interacts with local control agents (CAs).
+<Img src="/posts/240618-042700.png" width={500}/>
+
+## Network service model
+A service model for the *channel* that carries datagrams from sender to receiver.
+- Services for individual datagrams:
+	- Guaranteed delivery.
+	- A delivery-time bound.
+- Services for a flow of datagrams:
+	- In-order delivery.
+	- Guaranteed minimum bandwidth.
+	- A bound on changes in packet spacing.

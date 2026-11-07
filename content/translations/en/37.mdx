@@ -1,0 +1,84 @@
+---
+post_id: '37'
+locale: en
+title: 'MAC: Message Authentication Codes'
+description: >-
+  Message authentication codes, HMAC construction and security, and
+  block-cipher-based CBC-MAC.
+source_hash: 9898415d2552314b846ffb5f815d53fc73807e9e14ebf6f27ae3f6c3d2c92935
+reviewed_at: '2026-11-07T01:39:00.157Z'
+---
+## Message authentication codes: MACs
+> Codes that provide message integrity and authentication.
+
+- Alice and Bob want assurance that a transmitted message $x$ has not been altered.
+- Bob creates MAC(y) as a function of message $x$ and a shared secret key $k$.
+	- $y = \text{MAC}_k(x)$
+	- Send $(x, y)$ to Alice.
+- Alice uses the shared key $k$ and received message $x$ to verify $y$.
+
+Security requirement: It should be impossible to generate a valid MAC without the secret key $k$.
+
+### Properties of MACs
+- A cryptographic checksum.
+	- A MAC ensures message integrity.
+- A symmetric technique.
+- Arbitrary input length and fixed output length.
+- Message integrity.
+- Message authentication.
+- No nonrepudiation.
+
+### Comparison with digital signatures
+Advantage: Faster than digital signatures.
+Disadvantage: No nonrepudiation.
+
+### Designing a MAC
+- Use a hash function.
+- Use a block cipher.
+<Ads1 />
+## Hash-based MAC: HMAC
+- Uses a cryptographic hash function as its building block.
+- Used in IP security suites, Transport Layer Security (TLS), and Secure Electronic Transaction (SET), among others.
+- HMAC's security can be proven under particular assumptions.
+
+## HMAC construction
+<Img src="/posts/240613-152925.png" width={400}/>
+
+1. Add zeros to the left of $K$ to form a $b$-bit string $K^+$.
+2. Calculate $S_i = K^+ \oplus \text{ipad}$, where ipad is 0x36 repeated $b/8$ times.
+3. Take $S_i$ and append $M$.
+4. Calculate $H(S_i \| M)$.
+5. Calculate $S_o = K^+ \oplus \text{opad}$, where opad is 0x5C repeated $b/8$ times.
+6. Append $H(S_i \| M)$ to $S_o$.
+7. Calculate and output $H(S_o \| H(S_i \| M))$.
+
+## HMAC security
+- Can provide provable security; HMAC is secure under certain assumptions.
+- Producing a valid MAC output is equivalent to one of these attacks on the underlying hash function:
+	- Computing a compression-function output when the IV is random, secret, and unknown to the attacker.
+	- Finding a collision in a hash function whose IV is random and secret.
+
+	$\Rightarrow$ Related to finding a collision in the underlying hash function.
+<Ads1 />
+## Block-cipher-based MAC: CBC-MAC
+- Combines a block cipher with a mode of operation.
+- AES and CBC are widely used in practice.
+
+### Review: CBC encryption mode
+- $\text{Enc}(K, P_i) =\begin{cases}\text{EncBlock}(K, IV \oplus P_1) & \text{첫 블록의 경우}\\\text{EncBlock}(K, C_{i-1} \oplus P_i) & \text{다른 블록의 경우}\end{cases}$
+	<Img src="/posts/240613-155144.png" width={500}/>
+- $\text{Dec}(K, C_i) =\begin{cases}\text{DecBlock}(K, C_1) \oplus IV & \text{첫 블록의 경우} \\\text{DecBlock}(K, C_i) \oplus C_{i-1} & \text{다른 블록의 경우}\end{cases}$
+	<Img src="/posts/240613-155155.png" width={500}/>
+
+## CBC-MAC explained
+**Generating CBC-MAC**
+- Given a secret key $k$, initialization value $IV$, and message $x$ split into $n$ blocks $x_1, x_2, \cdots, x_n$:
+	- $y_1 = \text{Enc}_{Block}(k, IV \oplus x_1)$
+	- $y_i = \text{Enc}_{Block}(k, y_{i-1} \oplus x_i)$
+- Calculate for $2\leq i \leq n$ and send $(x, y_n)$.
+
+**Verifying CBC-MAC**
+- Given $(x, y_n)$, check:
+	- $y_n \stackrel{?}{=} \text{CBC-MAC}_k(x)$
+
+CBC-MAC provides message *integrity* and *authentication*.

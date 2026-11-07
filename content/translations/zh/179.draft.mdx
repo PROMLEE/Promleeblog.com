@@ -1,0 +1,85 @@
+---
+title_ko: Next.js 데이터 패칭 완전 정복 2 - fetch 캐싱 전략과 옵션
+title_en: Complete Guide to Data Fetching in Next.js 2 - fetch Caching and Options
+desc: Next.js의 fetch 함수에서 제공하는 다양한 캐싱 옵션과 그 의미에 대해 자세히 알아봅니다.
+thumbnail_url: /250404-093858.webp
+metatag: 'nextjs, fetch, 캐싱, revalidate, no-store, ISR, 데이터 패칭'
+post_id: '179'
+locale: zh
+title: Next.js数据获取指南2：fetch缓存策略与选项
+description: 介绍Next.js fetch的缓存选项、no-store、revalidate，以及缓存键与按周期更新数据的方式。
+source_hash: c226de00e42645e6dd5517916c1cae3f14681ef0772bf2511b6a302e77c59124
+---
+## 开始之前
+> 本文基于Next.js 15，后续版本可能存在变化。
+
+前一篇介绍了`fetch`的基本用法，以及如何在服务器组件中获取数据。本篇进一步讨论*缓存与重新验证*，以及`fetch`的高级选项。
+
+## Next.js中的fetch缓存
+Next.js默认缓存所有`fetch`请求。也就是说，即使相同请求重复发生，也会复用相同响应。这有助于减少服务器资源消耗，提高响应速度。
+但并非任何时候都应该使用缓存。例如，需要展示经常变化的数据时，就应当能够关闭缓存，或定期更新。
+
+## 关闭缓存：cache: 'no-store'
+默认情况下，Next.js倾向于在构建时获取数据，并静态提供这些内容。如果需要实时数据，可以这样关闭缓存。
+```tsx
+const res = await fetch('https://jsonplaceholder.typicode.com/posts', {
+  cache: 'no-store',
+});
+```
+这样，每次请求都会获取新的数据。
+
+<Ads1 />
+## 通过重新验证实现ISR
+Next.js可以通过`next.revalidate`配置，*在一段时间后重新验证静态缓存的数据*。这种方式称为ISR（Incremental Static Regeneration，增量静态再生成）。
+例如：
+```tsx
+const res = await fetch('https://jsonplaceholder.typicode.com/posts', {
+  next: { revalidate: 60 }, // 60초마다 새로 데이터를 가져옵니다
+});
+```
+如上配置后，页面最初请求时使用静态缓存，经过60秒后，会在后台重新获取数据，从而兼顾性能和数据新鲜度。
+
+## 缓存键的生成方式
+Next.js会根据请求URL、请求头、Cookie等信息，在内部生成*唯一缓存键（cache key）*。因此，URL或请求头不同，就会被当作不同的缓存。
+例如，下面两个请求具有不同的缓存键。
+```ts
+// 서로 다른 캐시 키
+fetch('https://api.example.com/data?lang=en')
+fetch('https://api.example.com/data?lang=ko')
+```
+因此，如果需要根据区域语言、用户权限或主题，*为不同请求返回不同内容*，最好通过查询参数或请求头显式区分。
+
+## 缓存策略总结
+| 策略 | 配置方式 | 说明 |
+|------|-----------|------|
+| 静态缓存（默认） | 无 | 构建时执行fetch，使用缓存数据 |
+| 不使用缓存 | cache: 'no-store' | 始终获取最新数据 |
+| ISR方式 | next: \{ revalidate: n \} | 每隔n秒在后台更新缓存 |
+
+<Ads2 />
+## 示例：定期重新验证文章
+```tsx
+export default async function Page() {
+  const res = await fetch('https://jsonplaceholder.typicode.com/posts', {
+    next: { revalidate: 3600 }, // 1시간마다 재검증
+  });
+  const posts = await res.json();
+  return (
+    <ul>
+      {posts.map((post: { id: number; title: string }) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  );
+}
+```
+这段代码在页面请求时使用缓存数据，但经过1小时后，会自动重新获取数据。
+
+## 结论
+本篇详细介绍了`fetch`的高级选项，尤其是缓存策略。理解`no-store`、`revalidate`与内部缓存键生成逻辑，有助于更精细地控制数据流。
+下一篇将介绍*并行fetch*、*顺序fetch*与*动态fetch*等不同模式。
+### 进一步思考
+- 在fetch请求中加入请求头或Cookie，会怎样影响缓存？
+- 静态网站能否局部展示实时数据？
+### 参考资料
+- [Next.js官方文档：fetch caching](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching#caching)

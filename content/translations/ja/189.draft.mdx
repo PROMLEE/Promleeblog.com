@@ -1,0 +1,103 @@
+---
+post_id: '189'
+locale: ja
+title: Visual Studio CodeでMCPサーバーを活用する
+description: >-
+  Visual Studio CodeでMCP（Model Context
+  Protocol）サーバーを設定して使う手順を、公式ドキュメントに沿って紹介します。
+source_hash: fbce60c5f1f6693b716e582b78813f00bef811aa039a33eea5ea11f42a8c038b
+---
+## はじめに
+
+Visual Studio Codeでは、GitHub Copilotと一緒にMCP（Model Context Protocol）を使えます。エージェントモードから外部ツールとやり取りする機能を利用できます。この記事では、公式ドキュメントをもとに、MCPサーバーを設定して利用する流れを順に説明します。
+
+## MCPとは？
+
+*MCP（Model Context Protocol）*は、モデルと開発ツールがやり取りするためのオープンな標準です。AIはテキストで応答するだけでなく、実際にコードファイルを読み書きしたり、コマンドを実行したりできます。VS CodeはMCPを使い、エージェントモードでツールを利用できるようにしています。
+
+<Ads1 />
+## VS CodeでMCPサーバーを設定する
+
+次の手順でMCPサーバーを追加します。
+1. VS Codeでプロジェクトのルートに `.vscode/mcp.json` を作ります。
+2. 次の例の形式でMCPサーバーを登録します。
+
+```json
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "perplexity-key",
+      "description": "Perplexity API Key",
+      "password": true
+    },
+  ],
+  "servers": {
+    "Perplexity": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-perplexity-ask"
+      ],
+      "env": {
+        "PERPLEXITY_API_KEY": "${input:perplexity-key}"
+      }
+    }
+  }
+}
+```
+このように構成すると、CopilotからそのMCPサーバーを使えます。
+すべてのワークスペースで有効にしたい場合は、VS Codeのユーザー設定でサーバーを指定できます。コマンドパレット（Cmd＋Shift＋P）で `MCP: add Server` を実行すると、ユーザー設定に新しい構成が追加されます。
+VS Codeは、Claude Desktopなど別のツールで定義されたMCPサーバーを自動検出し、再利用できます。chat.mcp.discovery.enabledで自動検出を有効にします。コマンドパレットで `MCP: list Servers` を実行すると、構成したサーバーを確認、管理できます。
+
+## 設定ファイルの形式
+MCPサーバーの設定ファイル `mcp.json` は、JSONで記述します。このファイルはMCPサーバーの動作を定義します。`mcp.json` には次の3つの要素があります。
+
+- *inputs*は、APIキーなど、ユーザーに入力してもらう値を定義します。
+- *servers*には、サーバーのコマンド、引数、環境変数などを設定します。
+- *type*は、サーバーの種類（`stdio` または `websocket`）を指定します。
+
+形式の詳細は、[公式ドキュメント](https://code.visualstudio.com/docs/copilot/chat/mcp-servers#_configuration-format)を参照してください。
+
+<Ads2 />
+## エージェントモードを有効にする
+<Img src="https://code.visualstudio.com/assets/docs/copilot/chat/mcp-servers/chat-mode-agent.png" width={300} alt="ツール選択画面"/>
+
+エージェントモードを有効にすると、CopilotがMCPツールを使えるようになります。設定は次のとおりです。
+
+1. VS Codeで `F1` を押し、`Preferences: Open Settings (JSON)` と入力します。
+2. 次の設定を追加します。
+
+```json
+{
+  "chat.agent.enabled": true
+}
+```
+
+チャット画面でエージェントモードを使えるようになります。例えば「テストファイルを作って」と入力すると、Copilotが対応するツールを探して実行します。
+
+<Ads3 />
+## smithery.aiからMCPサーバーを追加する
+
+次の手順でMCPサーバーを取り込んで使います。
+1. [Smithery](https://smithery.ai/)を開きます。
+2. 使いたいMCPサーバーを選びます。
+3. 選んだサーバーの設定をVS Codeに追加します。
+   <Img src="/250407-134548.webp" width={1000} alt="MCPサーバーの設定"/>
+4. VS Codeで `서버 설치`（サーバーをインストール）ボタンを押して、MCPサーバーを有効にします。
+   <Img src="/250407-134713.webp" width={500} alt="MCPサーバーのインストール"/>
+   settings.jsonで追加されたMCPサーバーを確認できます。開始ボタンを押すとサーバーが有効になります。
+   <Img src="/250407-134956.webp" width={500} alt="設定を確認する"/>
+5. エージェントモードでMCPサーバーを使い、目的の作業を行います。
+6. 無効にするには、設定から該当のサーバーを削除します。
+
+## ツールを選ぶ
+ツールは、MCPサーバー単位で選択、管理できます。選択画面には利用可能なツールが表示され、使いたいものを選べます。
+<Img src="https://code.visualstudio.com/assets/docs/copilot/chat/mcp-servers/mcp-list-servers.png" width={500} alt="ツール選択画面"/>
+ツールはMCPサーバーを通じて動的に読み込まれ、プロジェクトの設定によって変わります。
+
+<Ads4 />
+## 参考資料
+- [VS Code公式ドキュメント - MCP Servers](https://code.visualstudio.com/docs/copilot/chat/mcp-servers)
+- [GitHub Copilot Labs](https://copilot.microsoft.com/labs)

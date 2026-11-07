@@ -1,0 +1,71 @@
+---
+post_id: '36'
+locale: zh
+title: 哈希函数
+description: 介绍哈希函数的基本概念、密码学安全要求，以及SHA-1、SHA-2和SHA-3的设计结构。
+source_hash: 12690adf72c9e9f57626d010b8057a5f9f4f88cde50a3fa3e9b34099e9fa2e90
+reviewed_at: '2026-11-07T01:35:20.970Z'
+---
+## 什么是哈希函数（What is a Hash Function）
+> 接受任意大小的数据，返回固定大小输出的函数。
+
+- 示例：按位XOR。
+	| | Bit 1 | Bit 2 | ... | Bit n |
+	| --- | --- | --- | --- | --- |
+	| Block 1 | $x_{11}$ | $x_{12}$ | ... | $x_{1n}$ |
+	| Block 2 | $x_{21}$ | $x_{22}$ | ... | $x_{2n}$ |
+	| ... | ... | ... | ... | ... |
+	| Block m | $x_{m1}$ | $x_{m2}$ | ... | $x_{mn}$ |
+	| Hash Output | $y_1$ | $y_2$ | ... | $y_n$ |
+
+	例如，将两个分组$x_{11}, x_{12}, \ldots, x_{1n}$/ $x_{21}, x_{22}, \ldots, x_{2n}$执行XOR，返回$y_1, y_2, \ldots, y_n$。
+
+## 密码学哈希函数（Cryptographic Hash Function）
+> 函数$h$接受任意长度消息，输出*固定长度的消息摘要*。
+
+密码学哈希函数应满足以下条件。
+1. **计算高效（Computational Efficiency）**
+	- 给定输入$m$，能够高效计算$h(m)$。
+2. **单向性或原像抗性（One-way or Pre-image Resistance）**
+	- 给定$y$，在计算上无法找到满足$h(m')=y$的$m'$。
+3. **第二原像抗性或弱碰撞抗性（Second Pre-image Resistance or Weak Collision Resistance）**
+	- 给定$m$，在计算上无法找到满足$h(m')=h(m)$的$m'$。
+4. **碰撞抗性（Collision Resistance）**
+	- 对$m, m'$，在计算上无法找到满足$h(m)=h(m')$的$m, m'$。
+
+例如：MD5、HAVAL-128、SHA-1、*SHA-2*、SHA-3。
+<Ads1 />
+## SHA-1与SHA-2的设计思路（Design Rationale of SHA-1 and SHA-2）
+<Img src="/posts/240613-143347.png" width={1000}/>
+
+1. 初始化向量（IV：Initialization Vector）。
+2. 消息分组（Message Block）。
+3. 压缩函数c（Compression Function）。
+4. 哈希输出（Hash Output）。
+
+### SHA-1与SHA-2的轮函数（Round Function of SHA-1 and SHA-2）
+<Img src="/posts/240613-144200.png" width={400}/>
+
+1. 初始值。
+	- $A, B, C, D, E$。
+2. 轮函数。
+	- $f_t(B, C, D)$，根据轮数$t$执行不同逻辑操作。
+3. 比特循环移位。
+	- $A$和$B$分别循环移位5位和30位。
+	- 循环移位将比特向左旋转，最左边的比特移到最右边。
+4. 运算与更新。
+	- 每一轮，$A, B, C, D, E$通过$f_t$及其他操作分别更新。
+	- 例如，通过$A = f_t(B, C, D) + K_t + W_t + E$更新。
+
+例如，第一轮执行以下操作。
+- $A = ((A << 5) + f_t(B, C, D) + E + K_t + W_t)$
+- $B = A$，将原来的$A$保存到$B$。
+- $C = B << 30$
+- $D = C$
+- $E = D$
+
+## SHA-3的设计思路（Design Rationale of SHA-3）
+基于海绵结构：先吸收数据，再压缩输出结果。
+<Img src="/posts/240613-144739.png" width={500}/>
+
+- $f$是分组置换函数，由XOR、AND和NOT运算组成。

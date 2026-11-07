@@ -1,0 +1,89 @@
+---
+post_id: '31'
+locale: ja
+title: Diffie–Hellman鍵交換
+description: 公開鍵暗号で使われるDiffie–Hellman鍵交換アルゴリズムを説明します。
+source_hash: ce03e8057a84e1c62534e29b97a98ea1db9a64f0325b0a89f778c8bf6abdcceb
+reviewed_at: '2026-11-07T01:48:06.223Z'
+---
+## 鍵交換 (Key Exchange)
+> 通信用の共通鍵を、安全に交換する方法です。
+AliceとBobは、*公開チャネル*上でデータをやり取りして、共有する秘密鍵を作ります。
+二人以外の第三者は、公開チャネルのデータを傍受しても、その鍵を知ることはできません。
+
+## Diffie–Hellman鍵交換 (Diffie-Hellman Key Exchange)
+> 公開鍵方式の一つで、秘密鍵を安全に交換する方法です。
+事前に共有するパラメーターは、素数$p$と原始根$g$を持つ有限群$\mathbb{Z}_p^*$です。
+
+AliceとBobは、次のように動作します。
+- Alice
+  1. 秘密鍵$a$を生成します。
+  2. $A = g^a \pmod{p}$を計算してBobへ送ります。
+  3. $B$を受信します。
+  4. $K_{AB} = B^a \pmod{p}$を計算します。
+- Bob
+  1. 秘密鍵$a$を生成します。
+  2. $B = g^b \pmod{p}$を計算してAliceへ送ります。
+  3. $B$をAliceへ送ります。
+  4. $A$を受信します。
+  5. $K_{BA} = A^b \pmod{p}$を計算します。
+
+$K_{AB} = B^a = (g^b)^a = g^{ab} = (g^a)^b = A^b = K_{BA}$
+
+### 例：Diffie–Hellman鍵交換
+$p = 31$、$g = 3$
+- Alice
+  1. 秘密鍵$a = 6$を生成します。
+  2. $A = 3^6 \pmod{31} = 729 \pmod{31} = 16$を計算してBobへ送ります。
+  3. $B = 20$を受信し、$K_{AB} = 20^6 \pmod{31} = 64000000 \pmod{31} = 4$を計算します。
+- Bob
+  1. 秘密鍵$b = 8$を生成します。
+  2. $B = 3^8 \pmod{31} = 4,294,967,296 \pmod{31} = 4$を計算してAliceへ送ります。
+  3. $A = 16$を受信し、$K_{BA} = 16^8 \pmod{31} = 4,294,967,296 \pmod{31} = 4$を計算します。
+
+鍵交換の結果
+- $K_{AB} = 4$
+- $K_{BA} = 4$
+
+## Diffie–Hellman鍵交換の安全性 (Security of Diffie-Hellman Key Exchange)
+> 中間者攻撃
+
+- Eveは、AliceとBobの間の秘密鍵を知ろうとします。$K_{AB} = K_{BA}$
+- Eveは、$(p, g), (A = g^a \mod p), (B = g^b \mod p)$を持っています。
+- EveがAliceの秘密鍵$a$、またはBobの秘密鍵$b$を知っていれば、
+  - $K_{AB} = B^a = (g^b)^a = g^{ab} = (g^a)^b = A^b = K_{BA}$
+  - この式により、Eveは$K_{AB}$を計算できます。
+  - DLP（Diffie-Hellman Problem）が難しい問題であるため、Eveは$a$や$b$を計算できません。
+
+<Bbox> 計算Diffie–Hellman問題 (CDH, Computational Diffie-Hellman) </Bbox>
+
+- $(g, g^a, g^b)$が与えられたとき、$g^{ab}$を計算する問題です。
+非形式的には、CDH問題の困難さはDLPの困難さと同等であり、基礎となる群の位数が素数の場合に適用されます。
+<Ads1 />
+## 中間者攻撃のシナリオ (Man-in-the-Middle Attack Scenario)
+1. AliceとBobが鍵交換を行います。
+2. Eveは、AliceとBobの間にいます。
+3. Aliceへ$g^e$を送ります。
+4. Bobへ$g^f$を送ります。
+5. AliceとBobは$g^{ef}$を計算します。
+6. Eveは$g^{ef}$を計算し、二人の通信を傍受します。
+
+## 中間者攻撃の説明と防止 (Man-in-the-Middle Attack Description & Prevention)
+### 中間者攻撃の説明
+1. Eveが秘密鍵$e$を生成し、$E = g^e \mod p$を計算します。
+2. AliceとBobは、それぞれ$A$と$B$を互いに送ります。
+3. Eveがこれを傍受し、二人ともに$E$を送ります。
+4. AliceとBobは$E$を受信し、
+   $K_{AE} = E^a = g^{ea} \mod p$と$K_{BE} = E^b = g^{eb} \mod p$を計算します。
+
+- あとでAliceが$C = \text{Enc}(K_{AE}, M)$をBobへ送っても、Bobは復号できません。
+- Eveは$K_{EA} = A^e = (g^a)^e \mod p$を使って、$M$を得られます。
+
+### 中間者攻撃の防止
+- 証明書を使います。
+  - 例えば、公開鍵に署名を添えてAliceとBobが互いに送ることで、相手の公開鍵を確認できるようにします。
+
+#### まとめ：中間者攻撃
+- Diffie–Hellman鍵交換は、中間者攻撃に弱い性質があります。
+- Eveが、AliceとBobの通信を傍受できる場合があります。
+- 防止するために証明書を使います。

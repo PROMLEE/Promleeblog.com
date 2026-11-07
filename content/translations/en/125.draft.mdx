@@ -1,0 +1,194 @@
+---
+title_ko: 로그인 페이지 분기(FlutterSecureStorage)
+title_en: Log in page branch (FlutterSecureStorage)
+desc: >-
+  플러터 페이지 이동 방식 세팅(로그인 + 라우팅 + 네비게이션 바), 로그인 페이지 분기(FlutterSecureStorage), Log
+  in page branch
+post_id: '125'
+locale: en
+title: Branching to a Login Page with FlutterSecureStorage
+description: >-
+  Store Flutter login state with FlutterSecureStorage and navigate between login
+  and main pages with GetX.
+source_hash: b2089e018452e1915ce9c184ae493ee248f4eb10a627a0871ae4e76a1a153141
+---
+## Before getting started
+> Goals, requirements, initial setup, and overview: [Link](/blog/post/124-goals-init-paging)
+> This post was written for Flutter 3.24.
+
+With the basic development environment ready, let's build a login page.
+It is a core part of the app and the user's first step toward using it.
+We will use *FlutterSecureStorage* and *Get* to store login information and choose which page to show based on login state.
+The following is the file tree inside my lib folder for this post.
+Creating the files in advance makes the process easier.
+```plaintext
+📦 lib
+┣ 📂 model				// 데이터 보관하는 모델 폴더(이번 포스팅에서는 사용하지 않음)
+┣ 📂 view				// 화면을 구성하는 뷰 폴더
+┃ ┣ 📜 login_page.dart
+┃ ┗ 📜 main_page.dart
+┣ 📂 viewModel			// 데이터와 화면을 잇는 viewModel 폴더
+┃ ┗ 📜 auth_service.dart
+┗ 📜 main.dart
+```
+<Ads1 />
+## 1. Creating the AuthService class
+Create AuthService to handle authentication-related work.
+Implement methods for login, logout, and checking login state.
+Use FlutterSecureStorage to store and inspect that state.
+```dart title="lib/viewModel/auth_service.dart"
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+class AuthService {
+  // FlutterSecureStorage 인스턴스 생성 (보안 데이터 저장용)
+  final _storage = const FlutterSecureStorage();
+
+  // 로그인 상태 저장 (isLoggedIn = true 또는 false)
+  Future<void> saveLoginState(bool isLoggedIn) async {
+    await _storage.write(key: 'isLoggedIn', value: isLoggedIn.toString());
+  }
+
+  // 로그인 상태 불러오기 (저장된 값이 'true'인지 확인)
+  Future<bool> getLoginState() async {
+    final value = await _storage.read(key: 'isLoggedIn');
+    return value == 'true';
+  }
+
+  // 로그아웃 처리 (저장된 로그인 상태 삭제)
+  Future<void> logout() async {
+    await _storage.delete(key: 'isLoggedIn');
+  }
+}
+```
+
+## 2. Creating the LoginPage class
+Create LoginPage to build the login screen.
+When the login button is pressed, call AuthService's saveLoginState method to save the login state.
+```dart title="lib/view/login_page.dart"
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'package:navigationbar_example/viewModel/auth_service.dart';
+import 'package:navigationbar_example/view/main_page.dart';
+
+class LoginPage extends StatelessWidget {
+  final AuthService _authService = AuthService(); // AuthService 인스턴스 생성
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Login')), // 로그인 화면 제목
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () async {
+            // 로그인 성공 시 상태를 저장 (true로 설정)
+            await _authService.saveLoginState(true);
+            // 로그인 후 메인 페이지로 이동
+            Get.offAll(() => MainPage());
+          },
+          child: const Text('Login'), // 로그인 버튼 텍스트
+        ),
+      ),
+    );
+  }
+}
+```
+
+<Ads2 />
+## 3. Creating the MainPage class
+Create MainPage to build the main screen.
+When the logout button is pressed, call AuthService's logout method to remove the saved login state.
+```dart title="lib/view/main_page.dart"
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'package:navigationbar_example/view/login_page.dart';
+import 'package:navigationbar_example/viewModel/auth_service.dart';
+
+class MainPage extends StatelessWidget {
+  final AuthService _authService = AuthService(); // AuthService 인스턴스 생성
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Main Page'), // 메인 화면 제목
+        actions: [
+          IconButton(
+            onPressed: () async {
+              // 로그아웃 시 상태 삭제
+              await _authService.logout();
+              // 로그아웃 후 로그인 페이지로 이동
+              Get.offAll(() => LoginPage());
+            },
+            icon: const Icon(Icons.logout), // 로그아웃 버튼 아이콘
+          ),
+        ],
+      ),
+      body: const Center(
+        child: Text('Welcome to Main Page!'), // 메인 화면 환영 메시지
+      ),
+    );
+  }
+}
+```
+
+## 4. Updating main.dart
+```dart title="lib/main.dart"
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'package:navigationbar_example/view/login_page.dart';
+import 'package:navigationbar_example/view/main_page.dart';
+import 'package:navigationbar_example/viewModel/auth_service.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  final AuthService _authService = AuthService();
+  MyApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp( 	// GetMaterialApp으로 변경하여 GetX 사용
+      debugShowCheckedModeBanner: false,
+      home: FutureBuilder<bool>(
+        future: _authService.getLoginState(),	// 로그인 상태 확인 함수 호출 (비동기 처리)
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // 로그인 상태 확인 중일 때 로딩 화면 표시
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.data == true) {
+            // 로그인 상태가 true일 때 MainPage로 이동
+            return MainPage();
+          } else {
+            // 로그인 상태가 false일 때 LoginPage로 이동
+            return LoginPage();
+          }
+        },
+      ),
+    );
+  }
+}
+```
+
+<Ads3 />
+## 5. Checking the result
+The login page appears when the app starts.
+Press Login to move to the main page, and press Logout to return to the login page.
+<Img src="/posts/250113-154658.gif" width={200} alt=""/>
+
+## Conclusion
+We have learned how to store login state with FlutterSecureStorage and implement navigation using Get.
+In the next post, we will configure the main page with a bottom navigation bar after login.
+### Further questions
+How can you show a confirmation dialog when the user logs out?
+- Use the GetX package's Get.defaultDialog() method.
+- Use the [AlertDialog](https://api.flutter.dev/flutter/material/AlertDialog-class.html) widget.
+
+### References
+- [FlutterSecureStorage](https://pub.dev/packages/flutter_secure_storage)
+- [GetX](https://pub.dev/packages/get)
+- [Flutter official documentation](https://flutter.dev/docs)

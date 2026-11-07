@@ -1,0 +1,220 @@
+---
+title_ko: '마이크로 프론트엔드 (대규모 앱 개발 아키텍쳐) - React, 알고 쓰자 10일차'
+title_en: >-
+  Intro to Micro Frontends Solving Large-Scale App Development - React Explained
+  Day 10
+desc: >-
+  마이크로 프론트엔드(MFE) 아키텍처의 개념과 장단점, 구현 전략을 알아봅니다. Webpack Module Federation,
+  Single-SPA 등 핵심 기술과 팀 경계, 배포 모델, 고려사항까지 쉽게 설명합니다.
+thumbnail_url: /250504-010136.png
+metatag: >-
+  React, 마이크로 프론트엔드, Micro Frontend, MFE, Webpack, Module Federation,
+  Single-SPA, 아키텍처, 프론트엔드 개발, 대규모 애플리케이션, MSA, 프론트엔드, 면접
+post_id: '251'
+locale: ja
+title: マイクロフロントエンド（大規模アプリ開発のアーキテクチャ）- Reactを理解して使う10日目
+description: >-
+  マイクロフロントエンド（MFE）の概念、長所と短所、実装戦略を学びます。Webpack Module
+  Federation、Single-SPAなどの主要技術から、チームの境界、デプロイモデル、導入時の検討事項までわかりやすく説明します。
+source_hash: b982ae25520a281c9aceda9607d4e1d07437d97ae54e47a87788d47c57c6319d
+reviewed_at: '2026-11-07T01:50:04.915Z'
+---
+
+## はじめに
+
+アプリケーションの機能が増え、開発チームも大きくなると、従来の*モノリシック（Monolithic）*なフロントエンド、つまり1つの大きな塊として開発、デプロイする方法には、さまざまな課題が生まれます。
+- コードベースが大きくなりすぎて、ビルド時間が長くなります。
+- 小さな修正を1つ公開するだけでも、アプリケーション全体のテストとデプロイが必要です。
+- 複数のチームが同じコードベースで作業すると、コードの競合が増え、技術スタックの選択や更新も難しくなります。
+- 一部のバグや性能低下が、アプリケーション全体に影響する可能性があります。
+
+こうした問題を解決するために、サーバー開発で先に登場した*マイクロサービスアーキテクチャ（MSA）*の考え方をフロントエンドに適用したものが、*マイクロフロントエンド（Micro Frontend、MFE）*です。今回は、その意味、メリット、実装方法、導入時に検討する点を学びます。
+
+## マイクロフロントエンドとは？
+
+マイクロフロントエンドは、大規模なフロントエンドアプリケーションを、*小さく、独立してデプロイできる*複数のフロントエンドアプリケーション（マイクロアプリ）に分けて開発するアーキテクチャスタイルです。ユーザーには一貫した1つのWebサイトやアプリとして見えますが、内部では独立した部分が集まって動作します。
+
+### 主な目的と特徴
+- **独立した開発とデプロイ**
+  各マイクロアプリは独自のコードベースを持ち、他のアプリとは別に開発、テスト、ビルド、デプロイできます。これにより、開発とリリースの速度を高められます。
+- **チームの自律性を高める**
+  各チームが特定のビジネス機能やドメインに対応するマイクロアプリを担当し、技術スタックや開発方法について、より大きな裁量を持てます。もちろん、全体の調整は必要です。
+- **段階的な更新と技術の多様性**
+  新技術の導入や既存の技術スタックの更新では、全体を一度に変える代わりに、特定のマイクロアプリから段階的に適用できます。理論上は、各アプリでReact、Vue、Angularなど異なる技術スタックを使うこともできます。
+- **コードの複雑さを管理する**
+  巨大な単一コードベースを、管理できる大きさの複数のコードベースに分け、複雑さを抑えます。
+
+<Img src="/250504-003603.png" width={500} alt="モノリシックとマイクロアーキテクチャ"/>
+
+### モノリシックとの比較
+
+| 特徴 | モノリシックフロントエンド | マイクロフロントエンド |
+| --- | --- | --- |
+| **コードベース** | 単一の巨大なコードベース | 複数の小さなコードベース |
+| **開発** | 全チームが同じコードベースで作業 | チームごとに独立したコードベースで作業 |
+| **デプロイ** | アプリケーション全体をデプロイ | マイクロアプリ単位で独立してデプロイ可能 |
+| **技術スタック** | 単一の技術スタックで、変更が難しい | 多様な技術を使え、段階的な変更が容易 |
+| **チーム構造** | 機能別のチーム、または巨大な単一チーム | ドメインや機能を軸にした自律的なチーム |
+| **結合度** | 高く、変更の影響が広い | 低く、変更の影響が限定的 |
+| **複雑さ** | 当初は低いが、規模の拡大に伴い急増 | 初期設定は複雑だが、個別のアプリは単純 |
+
+## 統合方法
+
+独立した複数のマイクロアプリを、ユーザーに自然な1つのアプリケーションとして見せるには、どうすればよいでしょうか。これを*統合（Integration）*と呼び、ユーザーのブラウザで行う*実行時統合（Runtime Integration）*がよく使われます。
+
+### 実行時統合の方法
+- **iframe**
+  最も古く、単純な方法です。各マイクロアプリをiframeで読み込み、隔離します。実装は簡単ですが、アプリ間通信が複雑で、URL管理やUI/UXが不自然になりやすいため、近年はあまり好まれません。
+- **Web Components**
+  Web標準のWeb Componentsを使い、各マイクロアプリをカスタムHTML要素としてカプセル化します。フレームワークに依存しない利点がある一方、ブラウザの対応範囲や成熟度を検討する必要があります。
+- **JavaScriptによる統合**
+  JavaScriptで特定のDOM要素にマイクロアプリを動的に読み込み、マウントする方法です。Single-SPAやWebpack Module Federationなどのツールは、この方式を基礎にしています。
+
+### Single-SPA：ルーティングとライフサイクルの管理
+
+Single-SPAは、マイクロフロントエンドの*ルーティング*と、*ライフサイクル（読み込み、マウント、アンマウント）*の管理を支援するJavaScriptフレームワークです。
+#### 役割
+- URLのパスに応じて、どのマイクロアプリを有効にするかを決め、ルーティングを処理します。
+- 各アプリをいつ読み込み、いつ画面に表示（マウント）し、いつ取り除く（アンマウント）かを管理します。
+- React、Angular、Vueなど、異なるフレームワークで作られたマイクロアプリを一緒に使えるようにします。
+#### 動作の流れ
+1. **コンテナアプリ（ルートアプリ）**
+  Single-SPAの設定を含むメインのアプリケーションです。
+2. **アプリケーションの登録**
+  各マイクロアプリをSingle-SPAに登録し、有効になるURLのパスや、アプリのコードの読み込み方などを設定します。
+3. **ルーティング**
+  URLが変わると、登録情報に基づいて該当パスのマイクロアプリを有効にし、不要なアプリを無効化してアンマウントします。
+
+<Img src="/250504-021345.png" width={600} alt="Single-SPAのアーキテクチャ"/>
+
+<Ads1 />
+
+## Webpack Module Federation
+
+マイクロアプリが独立していても、Reactやlodashなどのライブラリ、デザインシステムのボタンなどのコンポーネントを共通で使うことがあります。各アプリにこれらを重複して含めると、全体のサイズが不必要に大きくなります。Webpack 5で導入された*Module Federation*は、この問題を解決する強力な機能です。
+
+### 基本概念
+Module Federationは、別々にビルドした複数のJavaScriptアプリケーション（バンドル）が、*実行時*にコードを動的に共有できるようにします。
+- **Host**
+  別のアプリケーション（Remote）のコードを取り込んで使うアプリです。マイクロフロントエンドでは、通常、全体を包むコンテナアプリ（シェルアプリ）がHostを担います。
+- **Remote**
+  自分のコードを他のアプリケーション（Host）に公開（expose）するアプリです。各マイクロアプリがRemoteになれます。
+- **Shared Dependencies**
+  HostやRemote間で共有する依存ライブラリです。Module Federationは設定された共有依存を、バージョンも考慮しながら管理し、重複読み込みを防ぎます。例えばHostとRemoteの両方がReact v18を使う場合、ブラウザにはReact v18のコードが1回だけ読み込まれます。
+- **Exposed Modules**
+  RemoteがHostに提供すると決めた、コンポーネントや関数などの特定のモジュールです。
+
+### 簡単な設定例
+
+Module FederationはWebpackの設定ファイルで設定します。
+```javascript title="Remote 앱의 webpack.config.js"
+// Remote 앱 (예: 'profileApp')의 webpack.config.js
+const { ModuleFederationPlugin } = require('webpack').container;
+const deps = require('./package.json').dependencies; // 공유 의존성 버전 관리
+
+module.exports = {
+  // ... 기타 설정 ...
+  plugins: [
+    new ModuleFederationPlugin({
+      name: 'profileApp', // Remote 앱의 고유 이름
+      filename: 'remoteEntry.js', // Host가 참조할 진입점 파일
+      exposes: {
+        // 외부에 노출할 모듈 경로 매핑 ('./UserProfile' 키로 접근)
+        './UserProfile': './src/UserProfile',
+      },
+      shared: { // 공유할 의존성 설정
+        ...deps, // package.json의 모든 의존성 공유 (간단 예시)
+        react: { singleton: true, requiredVersion: deps.react },
+        'react-dom': { singleton: true, requiredVersion: deps['react-dom'] },
+      },
+    }),
+  ],
+};
+```
+
+```javascript title="Host 앱의 webpack.config.js"
+// Host 앱 (예: 'containerApp')의 webpack.config.js
+const { ModuleFederationPlugin } = require('webpack').container;
+const deps = require('./package.json').dependencies;
+
+module.exports = {
+  // ... 기타 설정 ...
+  plugins: [
+    new ModuleFederationPlugin({
+      name: 'containerApp',
+      remotes: {
+        // 사용할 Remote 앱 정보 등록 (profileApp@http://localhost:3001/remoteEntry.js)
+        profileApp: 'profileApp@http://localhost:3001/remoteEntry.js',
+      },
+      shared: { // 공유할 의존성 설정 (Remote와 동일하게)
+        ...deps,
+        react: { singleton: true, requiredVersion: deps.react },
+        'react-dom': { singleton: true, requiredVersion: deps['react-dom'] },
+      },
+    }),
+  ],
+};
+```
+```jsx title="Host 앱에서 Remote 컴포넌트 사용"
+// Host 앱의 컴포넌트에서 Remote 컴포넌트 사용
+import React, { lazy, Suspense } from 'react';
+const RemoteUserProfile = lazy(() => import('profileApp/UserProfile'));
+
+function App() {
+  return (
+    <div>
+      <h1>컨테이너 앱</h1>
+      <Suspense fallback="Loading Profile...">
+        <RemoteUserProfile />
+      </Suspense>
+    </div>
+  );
+}
+```
+この設定により、`containerApp` は `profileApp` が公開する `UserProfile` コンポーネントを自分のコードのように取り込めます。Reactなどの共有ライブラリも重複して読み込まれません。
+
+>Q: 「Webpack Module Federationとは何ですか？マイクロフロントエンドのどのような問題を解決しますか？」
+A: 「独立してビルドされた複数のWebpackアプリケーションが、実行時にコードを動的に共有する機能です。MFEにおけるマイクロアプリ間のコンポーネント共有や、共通ライブラリの重複読み込みを効率的に解決します。」
+
+<Ads2 />
+
+## マイクロフロントエンド導入時の検討事項
+
+マイクロフロントエンドには多くの利点がありますが、導入と運用に伴う複雑さや検討事項もあります。
+- **初期設定の複雑さ**
+  Module FederationやSingle-SPAなどのツール設定と、統合環境の構築には初期の作業が必要です。
+- **技術スタックの管理**
+  理論上はさまざまな技術を使えますが、多様性が過剰になると開発者体験の低下、ビルドやデプロイの複雑化、バンドルサイズの増加を招く場合があります。適度な統一やガイドラインが必要です。
+- **共有依存のバージョン管理**
+  複数のマイクロアプリで使う共有ライブラリのバージョンを、一貫して管理する戦略が必要です。Module Federationが支援してくれますが、引き続き注意深い管理が求められます。
+- **UI/UXの一貫性**
+  複数のチームが独立して開発すると、全体のUI/UXが不統一になりがちです。共有のデザインシステムを構築し、適用することが非常に重要です。ライブラリ形式が推奨されます。
+- **状態管理とアプリ間通信**
+  マイクロアプリ間で状態を共有したり通信したりするなら、明確なインターフェースと通信手段を決める必要があります。Custom Events、windowオブジェクト、ルーターの状態、グローバルな状態管理ライブラリなどが候補です。MFEで最も難しい部分の1つになることもあります。
+- **チームの境界**
+  どの基準でマイクロアプリやチームを分けるか、慎重に決めます。ビジネスドメイン、ユーザーの行動の流れ、機能などを基準とし、チーム間の依存を最小限にする設計が望まれます。
+- **独立したデプロイパイプライン**
+  各アプリが独立してビルド、テスト、デプロイできるCI/CDパイプラインの構築が不可欠です。
+- **運用と監視の複雑さ**
+  複数のデプロイ単位を管理、監視するため、運用が複雑になる場合があります。
+
+> Module Federationは内部で依存関係グラフを使い、共有モジュールとバージョンを管理します。Single-SPAはルーティングテーブル（ハッシュテーブルに似た構造）を使って、URLとマイクロアプリを対応づけることができます。
+
+<Ads3 />
+
+## おわりに
+
+今回は、大規模なフロントエンド開発の複雑さに対処するアーキテクチャパターン、マイクロフロントエンドを学びました。
+- **独立した開発とデプロイ**、**チームの自律性**、**段階的な変更**といった利点があります。
+- 複数のアプリの統合には、iframe、Web Components、JavaScriptによる**実行時統合**が主に使われます。
+- **Single-SPA**はルーティングとライフサイクルの管理を助け、**Webpack Module Federation**はコードや依存関係の共有を効率的に解決します。
+- 一方、**初期設定の複雑さ**、**UI/UXの一貫性**、**アプリ間通信**、**運用の複雑さ**という新たな課題も生まれます。
+
+マイクロフロントエンドは、すべてのプロジェクトに適した万能の解決策ではありません。アプリケーションの規模、チーム構造、技術要件を十分に検討し、導入を慎重に判断する必要があります。導入するなら、今回の技術や検討事項を踏まえ、体系的な計画と段階的なアプローチを取ることが大切です。
+> 次回は、フロントエンドでAPI通信を効果的に扱う方法と、非同期処理の管理戦略を学びます。AxiosとFetchの比較からAbortController、GraphQLクライアントまで、さまざまな通信方法を見ていきましょう。
+
+### 参考
+
+- Micro Frontends（martinfowler.com）：[https://martinfowler.com/articles/micro-frontends.html](https://martinfowler.com/articles/micro-frontends.html)
+- Webpack公式ドキュメント - Module Federation：[https://webpack.js.org/concepts/module-federation/](https://webpack.js.org/concepts/module-federation/)
+- Single-SPA公式ドキュメント：[https://single-spa.js.org/](https://single-spa.js.org/)

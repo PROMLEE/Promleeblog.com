@@ -1,0 +1,215 @@
+---
+title_ko: 블로그 포스팅 페이지를 ISR로 전환한 이유와 효과
+title_en: Migrating Blog Post Page to ISR - Reasons and Outcomes
+desc: '정적 생성 방식에서 ISR로 전환하며 얻은 효과와 과정, 그리고 빌드 에러를 해결한 방법까지 자세히 설명합니다.'
+thumbnail_url: /isr-post-thumbnail.webp
+metatag: 'Next.js, ISR, Incremental Static Regeneration, 페이지 최적화, Google Analytics'
+post_id: '195'
+locale: ja
+title: ブログの記事ページをISRへ移行した理由と効果
+description: 静的生成からISRへ移行した経緯と効果、ビルドエラーの解決方法を詳しく紹介します。
+source_hash: bf85d0c9ed7751ce53993d8c3d83205ba604a324c132674bbca26f37a7a2fbc6
+---
+
+## はじめに
+ブログを始めた当初、SEO上の利点を得るには、SSR（Server Side Rendering）でページを生成するのがよいと考えました。
+VercelのEdge Functionとキャッシュを活用するSSRを実装しましたが、Cold Startにより、初回アクセス時の読み込みが遅くなる問題がありました。
+そこで記事ページを静的生成へ変更することにしました。
+SSGはページを事前生成してサーバーから提供する方式で、読み込みが速く、SEOにも有利です。
+一方、記事が増えるたびに全ページを再ビルドする必要があり、ビルド時間が長くなる欠点がありました。
+そのため、Next.jsの**ISR（Incremental Static Regeneration）**を使い、静的ページを生成しつつ、一定時間ごとにバックグラウンドで自動更新する方法を選びました。
+詳しくは[Next.jsのIncremental Static Regeneration（ISR）完全ガイド](/blog/post/190-nextjs-isr)を参照してください。
+その結果、ページの読み込み速度が大きく改善され、SEO上の利点も得られました。
+記事が追加されても全ページを作り直す必要がなくなり、ビルド時間も短縮できました。
+この記事では、ISRへ変更した理由と効果、ビルドエラーの解決方法を詳しく説明します。
+
+## 以前の記事ページの構造
+従来のSSRは、ページが要求されるたびにサーバーからデータを取得し、レンダリングする方式です。
+簡単に言えば、generateMetadataとgetPostを使い、記事のメタデータと本文を取得していました。
+SEOには有利ですが、Edge Functionのサーバー状態によって読み込みが遅くなる問題がありました。
+
+```tsx
+export async function generateMetadata(props: {
+  params: Promise<{ post: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const markdownsource = await PostService().getPostMeta({ // 포스트 메타데이터 가져오기
+    post_id: params.post,
+  });
+  return GenerateMeta({ meta: markdownsource, param: params.post });
+}
+
+const Post = async ({ params }: { params: Promise<{ post: string }> }) => {
+  const { post } = await params;
+
+  const [markdownsource] = await Promise.all([
+    PostService().getPost({ post_id: post }), // 포스트 내용 가져오기
+    PostService().viewIncrement({ post_id: post.split("-")[0] }), // 포스트 조회수 증가
+  ]);
+
+  return (
+    <>
+			{/* ... */}
+    </>
+  );
+};
+
+export default Post;
+```
+
+<Ads1 />
+## ISRへ構造を変更する
+記事ページを**ISRへ移行**しました。
+ページを静的に生成し、一定時間ごとにバックグラウンドで自動更新する方法です。
+これにより読み込みを速め、SEOにも良い効果を得られました。
+データの取得方法は従来のままにし、generateStaticParamsで動的に生成する記事のパスを指定します。
+このメソッドはビルド時にだけ実行され、その後のページ更新にはISRを使います。
+generateMetadataも引き続きサーバー側で実行されるため、SEO上の利点を保てます。
+私はrelativedateを2日に設定し、2日ごとにページを更新するようにしました。
+更新間隔はブログの特性に合わせて調整できます。
+記事ページは次の構造になりました。
+
+```tsx title="/app/blog/[post]/page.tsx"
+export const revalidate = 172800; // 2 days
+export const dynamicParams = true; // 동적 파라미터 사용
+
+export async function generateStaticParams() {
+  const Links = await PostService().getLinks(); // param 목록 가져오는 API 호출
+  const posts: string[] = [];
+  Links.map((category) => { 
+		// 내부 로직을 통해 param 목록을 생성
+		category.posts.map((post) => {
+			posts.push(post.post_id);
+		});
+  });
+  return posts.map((post) => ({ 
+    post: post,
+  }));
+}
+
+// generateMetadata는 유지
+
+const Post = async ({ params }: { params: Promise<{ post: string }> }) => {
+  const { post } = await params;
+
+  const markdownsource = await PostService().getPost({ 
+    post_id: post.split("-")[0],
+  });
+
+  return (
+    <>
+      <ViewIncrement postId={post.split("-")[0]} /> {/* CSR 컴포넌트로 분리 */}
+			{/* ... */}
+    </>
+  );
+};
+
+export default Post;
+```
+
+<Ads2 />
+## 問題と解決
+### ビルド時にGoogle Analytics APIが呼ばれる
+私のページの左側には、Google Analytics APIで閲覧数を表示するコンポーネントがあります。
+ページが読み込まれるたびに閲覧数を増やし、APIを呼んで数値を取得する実装でした。
+ところがISRへ変更すると、このコンポーネントに問題が生じました。
+*ビルド時にGoogle Analytics APIを呼んでしまい*、ビルドエラーになるのです。
+
+```
+RESOURCE_EXHAUSTED: Exhausted concurrent requests quota.
+```
+このエラーは、Google Analytics APIの同時リクエスト数を超えた場合に発生します。
+ISRへの移行によってページをビルドするたびにAPIが呼ばれ、上限を超えました。
+解決するには、Google Analytics APIをクライアント側から呼ぶように変える必要があります。
+#### クライアントリクエストで解決する
+
+サーバー側にAPIルートを作り、クライアントコンポーネントから呼び出す構成にしました。
+
+```ts title="/app/api/analytics/views.ts"
+export default async function handler(req, res) {
+  try {
+    const [total, today] = await Promise.all([totalViews(), todayViews()]);
+    res.status(200).json({ total, today });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch analytics data" });
+  }
+}
+```
+
+```tsx title="/app/components/ViewStats.tsx"
+"use client";
+
+export const ViewStats = () => {
+  const [views, setViews] = useState(null);
+  useEffect(() => {
+    fetch("/api/analytics/views")
+      .then((res) => res.json())
+      .then((data) => setViews(data));
+  }, []);
+  return <div>🔁 Total Views: {views?.total} | 📅 Today: {views?.today}</div>;
+};
+```
+
+これで、Google Analytics APIの呼び出しはユーザーのブラウザーからのみ行われ、ビルドやISRの実行時に影響しなくなりました。
+
+### Promise.allによる非同期処理のエラー
+ビルド時にPromise.allで非同期処理していた部分でも、エラーが発生しました。
+180件以上のリクエストをPromise.allで処理したことが原因でした。
+解決するには、Promise.allを使わず、各リクエストを順次処理する方法があります。
+ただし、性能が下がる可能性もあるため、非同期処理の並行度を適切に調整することが重要です。
+私は、ユーザーが記事を要求するたびに閲覧数を増やす処理をクライアントコンポーネントへ分離し、ページ読み込み時にクライアント側から要求するよう変更しました。
+こうすることでページの生成時にその非同期処理を行わずに済み、ビルド時のエラーを解決できました。
+
+```tsx
+const markdownsource = await PostService().getPost({ post_id: post.split("-")[0] });
+
+<ViewIncrement postId={post.split("-")[0]} />; // 포스트 조회수 증가를 클라이언트 컴포넌트로 분리
+```
+
+<Ads3 />
+## 移行前後の比較
+### ビルド時間
+Vercelで測定したところ、従来のSSRでは約98秒でしたが、ISRへ変更後は132秒に増加しました。
+ただし全ページを再ビルドする必要がないため、記事が増えてもビルド時間が大きく増えるわけではありません。
+また、ISRはページを静的に生成するため、読み込みが速くなる効果があります。
+
+## 性能の改善
+ISRへの変更により、ページの性能は大きく改善しました。
+特にユーザー体験が向上し、SEO対策にも良い影響がありました。
+さらに、データの更新間隔を調整することで、より良い体験を提供できるようになりました。
+SSRのページとISRを適用したページを比較すると、読み込み速度の改善が分かります。
+次の画像はISRを適用したページの性能です。
+<Img src="/250407-230528.webp" width={700} alt=""/>
+
+## 数値の比較
+### SSR方式
+SSRでは、ページが要求されるたびにサーバーからデータを取得して描画していました。
+このため、読み込みが遅くなる問題がありました。
+次の画像はSSR方式の性能を示します。
+サーバーの応答待ちだけで4.12秒かかり、ページの読み込みが遅くなっていました。
+<Img src="/250407-231044.webp" width={500} alt=""/>
+
+### ISR方式
+ISRは事前生成したHTMLを提供するため、読み込みが速くなりました。
+次の画像はISR方式の性能です。
+*サーバーの応答待ちは0.5秒で、SSRに比べて約8倍以上速くなりました。*
+その結果、体感できるほど読み込みが改善し、後続のAPIリクエストも速く処理されました。
+<Img src="/250407-231332.webp" width={500} alt=""/>
+
+## まとめ
+記事ページのISRへの移行では、次のような有意義な改善が得られました。
+
+- ビルド時間の短縮と安定性の向上
+- 閲覧数などの動的データを反映可能
+- SEOとユーザー体験の両立
+- ページ読み込み速度の改善
+- クライアントリクエストによるGoogle Analytics API呼び出し
+- Promise.allによる非同期処理のエラー解消
+- ISRによる性能の改善
+
+Next.jsのISRは、特にコンテンツが多いブログやドキュメントサイトで役立つ戦略です。
+クライアントとサーバーの責務を明確に分離することも、保守性を高めるよい方法だと実感しました。
+
+### 参考
+- [Next.js公式ドキュメント：Incremental Static Regeneration](https://nextjs.org/docs/pages/building-your-application/data-fetching/incremental-static-regeneration)
+- [Google Analytics Data API v1 Docs](https://developers.google.com/analytics)

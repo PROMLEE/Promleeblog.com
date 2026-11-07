@@ -1,0 +1,223 @@
+---
+title_en: Minimum Implementation to Pass Tests - TDD with Spring Boot Part 4
+title_ko: 테스트를 통과시키는 최소 구현 - Spring Boot로 시작하는 TDD 4편
+url: minimum-implementation-for-green
+series_no: 4
+desc: TDD의 Green 단계를 다룹니다. 컴파일 에러를 해결하고 가장 단순한 방법으로 테스트를 통과시키는 최소 구현 원칙을 배웁니다.
+thumbnail_url: /251213-170346.webp
+metatag: >-
+  TDD, SpringBoot, Java, GreenStep, MinimumImplementation, Refactoring, JUnit5,
+  Testing
+tags: 'Spring Boot, JAVA, Software Engineering'
+post_id: '366'
+locale: zh
+title: 让测试通过的最小实现——用 Spring Boot 开始 TDD，第 4 篇
+description: 介绍 TDD 的 Green 阶段，学习如何解决编译错误，并用最简单的实现让测试通过。
+source_hash: 4be277b8c7296db1396de1c6ea84b12e48014adc3bcabfd95544ed0a6fc77ddf
+reviewed_at: '2026-11-07T06:57:07.221Z'
+---
+
+## 开始之前
+
+第 3 篇中，我们定义了需求，并编写了会失败的测试。
+还记得吗？
+编辑器里出现了一连串红色的编译错误。
+<br/>
+今天就来把红灯变成绿灯（Green）。
+目标只有一个：**先想办法让测试通过**。
+
+## Green 阶段的含义
+
+在 TDD 循环中，**Green** 阶段意味着*测试通过*。
+这里有一个重要原则。
+**暂时犯点“罪”（Sin）也没关系。**
+<br/>
+代码不够整洁没关系。
+变量名起得不好也没关系。
+甚至可以硬编码，把固定值直接写进代码。
+因为当前最优先的目标是先让测试通过，做到心里有底。
+
+<Ads1/>
+
+## 解决编译错误
+
+先消除红色下划线，也就是编译错误。
+上次报错，是因为缺少 ProductService 类和 register 方法。
+现在动手创建文件。
+
+### 创建类和方法
+
+在主源码中创建类，包结构与测试代码所在的包保持一致。
+
+```java title="src/main/java/com/example/tdd_study/product/ProductService.java"
+package com.example.tdd_study.product;
+
+public class ProductService {
+
+    public void register(String name, int price) {
+        // 내용은 아직 비워둡니다
+    }
+}
+```
+
+只搭一个空壳，IDE 中的红色下划线就会消失，因为代码已经符合 Java 语法。
+现在运行一下测试。
+<br/>
+IntelliJ 会在测试方法旁显示绿色的运行按钮。
+也可以通过右上角的运行图标启动测试 Application。
+<Img src="/251213-165011.webp" width={500} alt="运行测试方法"/>
+
+### 第一次运行结果
+运行测试后，绿灯亮了！
+<br/>
+“咦，什么逻辑都还没写，怎么就通过了？”
+<br/>
+回头看看刚才编写的测试代码。
+
+```java title="src/test/java/com/example/tdd_study/product/ProductServiceTest.java" {12}
+@Test
+@DisplayName("상품 등록이 성공해야 한다")
+void 상품_등록_성공() {
+  // Given: 테스트를 위한 준비
+  String name = "아메리카노";
+  int price = 4500;
+  ProductService productService = new ProductService();
+
+  // When: 실제 테스트할 동작 수행
+  productService.register(name, price);
+
+  // 검증(Assert) 로직이 아직 없습니다!
+}
+```
+
+这是因为测试还没有断言（Assert），所以没有报错。
+这也是 TDD 过程的一部分。
+现在已经验证了**调用这个方法不会导致程序崩溃**。
+
+<Ads2/>
+
+## 最小实现原则
+
+接下来添加真正的验证逻辑。
+登记商品后，应该能够查看已登记的商品信息。
+稍微修改一下测试代码。
+
+```java title="src/test/java/com/example/tdd_study/product/ProductServiceTest.java"
+package com.example.tdd_study.product;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
+class ProductServiceTest {
+
+    @Test
+    @DisplayName("상품 등록이 성공해야 한다")
+    void 상품_등록_성공() {
+        // Given: 테스트를 위한 준비
+        String name = "아메리카노";
+        int price = 4500;
+        ProductService productService = new ProductService();
+
+        // When: 실제 테스트할 동작 수행
+        productService.register(name, price);
+
+        // 등록된 상품을 가져와서 검증
+        Product product = productService.findProduct();
+        assertThat(product.getName()).isEqualTo("아메리카노");
+    }
+}
+
+```
+
+编译错误又出现了，因为既没有 Product 类，也没有 findProduct 方法。
+现在用**尽可能少的代码**让测试通过。
+
+### 1. 创建所需的类
+先创建 Product 类。
+
+```java title="src/main/java/com/example/tdd_study/product/Product.java"
+package com.example.tdd_study.product;
+
+public class Product {
+    private String name;
+    private int price;
+
+    public Product(String name, int price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+```
+
+### 2. 最小化实现 Service 层
+
+这里有个有趣的做法。
+完整实现需要先写入数据库，再从数据库查询。现在我们只做一个临时实现，*先让测试通过*。
+
+```java title="src/main/java/com/example/tdd_study/product/ProductService.java"
+package com.example.tdd_study.product;
+
+public class ProductService {
+    private Product product;
+
+    // 상품 등록 시, 단순히 멤버 변수에 저장
+    public void register(String name, int price) {
+        this.product = new Product(name, price);
+    }
+
+    // 등록된 상품을 반환
+    public Product findProduct() {
+        return this.product;
+    }
+}
+```
+
+我们还没连接数据库（Repository），只把数据临时存放在内存中的变量里。
+不过，运行测试后就能看到*绿灯（Green）*。
+<br/>
+这就是*最小实现*。
+就像解算法题时，先用简单的循环求出正确答案，复杂的公式可以以后再考虑。
+
+<Ads3/>
+
+## 为什么这样开发？
+
+你可能会问：
+“以后反正要连接数据库，为什么要做两遍？”
+<br/>
+这是为了*保持专注*。
+同时考虑太多事情，容易顾不过来。
+<br/>
+- 数据库表设计
+- JPA 配置
+- 业务逻辑
+- 异常处理
+<br/>
+如果想一次做完这些事，就容易犯错。
+TDD 把问题拆得很小，让我们专注于**眼下需要解决的问题**。
+确认功能能运行后（Green），就可以放心把结构改进留到重构阶段（Refactor）。
+
+## 结语
+
+今天学习了如何用最小实现让测试通过。
+<br/>
+- *Green 阶段*：先想办法让测试通过。
+- *解决编译错误*：创建缺失的类和方法，先让代码能够编译。
+- *最小实现*：暂时省去数据库连接等复杂逻辑，用最简单的方式满足需求。
+<br/>
+现在测试已经亮起了绿灯。
+功能可以运行，代码还比较粗糙。
+> 下一篇将进行重构（Refactoring），把这段代码整理得更清晰。
+届时会看到代码设计真正发挥作用。
+
+### 参考资料
+- [Test Driven Development: By Example](https://www.amazon.com/Test-Driven-Development-Kent-Beck/dp/0321146530)
+  TDD 创始人 Kent Beck 的著作，详细介绍了“临时实现（Fake It）”模式。
+- [KISS Principle](https://en.wikipedia.org/wiki/KISS_principle)
+  “Keep It Simple, Stupid”的缩写，是让系统尽可能简单的软件设计原则。

@@ -1,0 +1,221 @@
+---
+title_ko: >-
+  React Native 드롭다운 커스텀 컴포넌트 만들기 (react-native-picker,
+  react-native-element-dropdown)
+title_en: >-
+  React Native Create a Custom Dropdown Component (react-native-picker,
+  react-native-element-dropdown)
+desc: >-
+  react-native-picker/picker 라이브러리를 설치하고 iOS, Android, Windows, macOS 환경에서 설정하고
+  사용하는 방법을 예제 중심으로 설명합니다.
+thumbnail_url: 'https://reactnative.dev/img/header_logo.svg'
+metatag: >-
+  react-native, picker, react-native-picker, iOS, Android, macOS, Windows, UI
+  컴포넌트, 드롭다운, 리액트 네이티브, 라이브러리 사용법
+post_id: '198'
+locale: en
+title: Build a Custom Dropdown in React Native
+description: >-
+  Install and configure React Native Picker, then compare it with
+  react-native-element-dropdown for a consistent selection control on iOS and
+  Android.
+source_hash: d798efc8aad97b8d1f413279ea00e0a1d6745e797a935f1f701a7c7565f3ee7f
+reviewed_at: '2026-11-07T17:19:21.760Z'
+---
+## Before We Begin
+The `@react-native-picker/picker` library is a common choice for building selection controls in React Native. It supports Android, iOS, Windows, and macOS and offers several ways to configure and customize the control.
+This guide walks through installing the library, applying platform-specific settings, and building a picker.
+
+## Installation and Setup
+### Install the Library
+Run one of the commands below to install the library.
+```bash
+npm install @react-native-picker/picker --save
+ # 또는
+yarn add @react-native-picker/picker
+```
+React Native 0.60 and later support autolinking, so no manual linking is needed. For earlier versions, see the [manual linking instructions](https://github.com/react-native-picker/picker/blob/master/README.md#manual-installation).
+
+### iOS Setup
+On iOS, install the CocoaPods dependencies with the following command.
+```bash
+npx pod-install
+```
+### Android Setup
+Android needs no additional setup for basic use. To support right-to-left (RTL) layouts for languages such as Arabic, add the following to `AndroidManifest.xml`.
+```xml
+<application
+  android:supportsRtl="true"
+  ...>
+```
+<Ads1 />
+## Basic Usage
+Here is a simple example using the Picker component in TypeScript.
+```tsx
+import React, { useRef, useState } from "react";
+import { Picker } from "@react-native-picker/picker";
+
+const App = () => {
+  const pickerRef = useRef<any>();
+  const [selected, setSelected] = useState<string>();
+
+  return (
+    <Picker
+      ref={pickerRef}
+      selectedValue={selected}
+      onValueChange={(itemValue) => setSelected(itemValue)}
+    >
+      <Picker.Item label="Java" value="java" />
+      <Picker.Item label="JavaScript" value="js" />
+      <Picker.Item label="Python" value="python" />
+      <Picker.Item label="C#" value="c#" />
+    </Picker>
+  );
+};
+
+export default App;
+```
+<Img src="/250410-175802.webp" width={300} alt=""/>
+
+Set the current selection with `selectedValue` and listen for changes with `onValueChange`.
+## Advanced Usage: Focus Control and Styling
+On Android, you can open and close the picker programmatically. This example uses `useRef`.
+```tsx
+import React, { useRef, useState } from "react";
+import { Picker } from "@react-native-picker/picker";
+import { Button } from "react-native";
+
+const App = () => {
+  const pickerRef = useRef<any>();
+  const [selected, setSelected] = useState<string>();
+  const open = () => pickerRef.current?.focus();
+  const close = () => pickerRef.current?.blur();
+  return (
+    <>
+      <Picker
+        ref={pickerRef}
+        selectedValue={selected}
+        onValueChange={(itemValue) => setSelected(itemValue)}
+      >
+        <Picker.Item label="Java" value="java" />
+        <Picker.Item label="JavaScript" value="js" />
+      </Picker>
+      <Button title="Open" onPress={open} />
+      <Button title="Close" onPress={close} />
+    </>
+  );
+};
+
+export default App;
+```
+You can also set props such as `label`, `value`, `enabled`, and `color` on each `Picker.Item` to control its behavior, appearance, and accessibility.
+
+## Common Props
+| Prop | Description | Platform |
+|--------|------|--------|
+| selectedValue | Currently selected value | All |
+| onValueChange | Callback when the selection changes | All |
+| mode | 'dialog' or 'dropdown' | Android |
+| itemStyle | Style for picker items | iOS, Windows |
+| enabled | Controls whether selection is enabled | Android, Web, Windows |
+| dropdownIconColor | Color of the dropdown arrow | Android |
+| selectionColor | Color of the selected text | iOS |
+
+Other props include `testID` for tests, `contentDescription` for accessibility, `style` for styling, and `numberOfLines` to limit text to a set number of lines.
+
+<Ads2 />
+## What If You Need a Dropdown on iOS?
+
+The `@react-native-picker/picker` library follows each platform's native appearance. On iOS, it uses the platform's picker presentation instead of the Android-style dropdown. If your design requires a dropdown, `@react-native-picker/picker` may not provide the appearance you want.
+The [react-native-element-dropdown](https://github.com/hoaphantn7604/react-native-element-dropdown) library can give you a consistent dropdown on iOS and Android.
+
+## Install and Use react-native-element-dropdown
+
+### Installation
+
+```bash
+npm install react-native-element-dropdown
+ # 또는
+yarn add react-native-element-dropdown
+```
+
+You can use it immediately after installing it, with no additional setup.
+
+### Example
+
+Here is a basic example.
+
+```tsx
+import React, { useState } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
+
+const data = [
+  { label: 'Java', value: 'java' },
+  { label: 'JavaScript', value: 'js' },
+  { label: 'Python', value: 'python' },
+  { label: 'C#', value: 'c#' },
+];
+
+const App = () => {
+  const [value, setValue] = useState(null);
+
+  return (
+    <View style={styles.container}>
+      <Dropdown
+        style={styles.dropdown}
+        placeholderStyle={styles.placeholderStyle} // 빈 상태의 텍스트 스타일
+        selectedTextStyle={styles.selectedTextStyle} // 선택된 텍스트 스타일
+        data={data} // 표시할 데이터
+        labelField="label" // 표시할 데이터의 레이블 필드
+        valueField="value" // 표시할 데이터의 값 필드
+        placeholder="언어 선택" // 빈 상태의 텍스트
+        value={value} // 선택된 값
+        onChange={(item) => {
+          setValue(item.value); // 선택된 값 업데이트
+        }}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: { padding: 16 },
+  dropdown: {
+    height: 50,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+    color: '#999',
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+    color: '#333',
+  },
+});
+
+export default App;
+```
+<Img src="/250411-091855.webp" width={300} alt=""/>
+Use `labelField` and `valueField` to tell the component which fields supply the display text and the value. The library also gives you more control over styling.
+
+<Ads3 />
+## Which Library Should You Use?
+
+| Library | iOS presentation | Android presentation | Strengths |
+|------------|----------------|-------------------|------|
+| `@react-native-picker/picker` | Native picker | Dropdown or dialog | Familiar native experience and stable behavior |
+| `react-native-element-dropdown` | Dropdown | Dropdown | Consistent cross-platform appearance and flexible styling |
+
+- For **a simple native selection control**, when **an iOS dropdown is optional**, use `@react-native-picker/picker`.
+- If **your design requires a dropdown on iOS**, consider `react-native-element-dropdown`.
+
+## Conclusion
+The `@react-native-picker/picker` library provides selection controls across React Native platforms. Its straightforward installation makes it approachable for beginners, and the configuration options let you adapt it to more advanced project requirements.
+### References
+- Official documentation: https://github.com/react-native-picker/picker
+- React Native Autolinking: https://reactnative.dev/blog/2019/07/03/version-60

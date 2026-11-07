@@ -1,0 +1,112 @@
+---
+title_ko: Visual Studio Code에서 MCP 서버 활용하기
+title_en: Utilizing MCP Servers in Visual Studio Code
+desc: >-
+  Visual Studio Code에서 MCP(Model Context Protocol) 서버를 설정하고 사용하는 방법을 공식 문서를 기반으로
+  단계별 안내합니다.
+thumbnail_url: /250407-141042.webp
+metatag: 'Visual Studio Code, GitHub Copilot, MCP 서버, 에이전트 모드'
+post_id: '189'
+locale: en
+title: Using MCP Servers in Visual Studio Code
+description: >-
+  A step-by-step guide to configuring and using Model Context Protocol servers
+  in Visual Studio Code, based on the official documentation.
+source_hash: fbce60c5f1f6693b716e582b78813f00bef811aa039a33eea5ea11f42a8c038b
+reviewed_at: '2026-11-07T06:55:02.791Z'
+---
+## Before We Begin
+
+Visual Studio Code supports the Model Context Protocol (MCP) with GitHub Copilot. This gives agent mode access to external tools. This guide walks through configuring and using MCP servers based on the official documentation.
+
+## What Is MCP?
+
+*MCP (Model Context Protocol)* is an open standard that lets models interact with development tools. An AI can use those tools to read and write source files or run commands alongside its text responses. VS Code supports MCP tools in agent mode.
+
+<Ads1 />
+## Configure an MCP Server in VS Code
+
+To add a server, follow these steps.
+1. In VS Code, create `.vscode/mcp.json` in the project root.
+2. Register your MCP server using the format below.
+
+```json
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "perplexity-key",
+      "description": "Perplexity API Key",
+      "password": true
+    },
+  ],
+  "servers": {
+    "Perplexity": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-perplexity-ask"
+      ],
+      "env": {
+        "PERPLEXITY_API_KEY": "${input:perplexity-key}"
+      }
+    }
+  }
+}
+```
+Copilot can now use that server.
+To enable a server in every workspace, specify it in the MCP section of VS Code user settings. If you run `MCP: add Server` from the Command Palette (Cmd+Shift+P), VS Code automatically adds the new configuration to your user settings.
+VS Code can discover and reuse servers defined in other tools, such as Claude Desktop. Enable automatic discovery with the chat.mcp.discovery.enabled setting. Run `MCP: list Servers` from the Command Palette to view and manage configured servers.
+
+## Configuration File Format
+The `mcp.json` file uses JSON to define how MCP servers run.
+The `mcp.json` configuration includes the following elements.
+
+- *inputs* defines values to prompt the user for, such as API keys.
+- *servers* specifies server commands, arguments, environment variables, and other settings.
+- *type* specifies the server type, such as `stdio` or `websocket`.
+
+For details, see the [official documentation](https://code.visualstudio.com/docs/copilot/chat/mcp-servers#_configuration-format).
+
+<Ads2 />
+## Enable Agent Mode
+<Img src="https://code.visualstudio.com/assets/docs/copilot/chat/mcp-servers/chat-mode-agent.png" width={300} alt="Tool selection interface"/>
+
+Copilot can use MCP tools when agent mode is enabled. Configure it as follows.
+
+1. In VS Code, press `F1` and enter `Preferences: Open Settings (JSON)`.
+2. Add the setting below.
+
+```json
+{
+  "chat.agent.enabled": true
+}
+```
+
+Agent mode is now available in the chat interface. For example, ask Copilot to create a test file and it can find and run the relevant tool.
+
+<Ads3 />
+## Use an MCP Server from Smithery
+
+To add and use an MCP server from Smithery, follow these steps.
+1. Open the [Smithery](https://smithery.ai/) website.
+2. Select an MCP server.
+3. Add that server's configuration to VS Code.
+   <Img src="/250407-134548.webp" width={1000} alt="MCP server configuration"/>
+4. In VS Code, click the `서버 설치` (Install Server) button to enable the server.
+   <Img src="/250407-134713.webp" width={500} alt="Installing the MCP server"/>
+   The new MCP server appears in settings.json. Click Start to activate it.
+   <Img src="/250407-134956.webp" width={500} alt="Checking the configuration"/>
+5. Use the MCP server to carry out tasks in agent mode.
+6. To disable the server, remove it from your settings.
+
+## Select Tools
+You can select and manage tools by MCP server. The tool picker shows the available tools and lets you select the ones you want to use.
+<Img src="https://code.visualstudio.com/assets/docs/copilot/chat/mcp-servers/mcp-list-servers.png" width={500} alt="Tool selection interface"/>
+Tools are loaded dynamically from MCP servers, so the available list can vary with the project's configuration.
+
+<Ads4 />
+## References
+- [VS Code documentation — MCP Servers](https://code.visualstudio.com/docs/copilot/chat/mcp-servers)
+- [GitHub Copilot Labs](https://copilot.microsoft.com/labs)

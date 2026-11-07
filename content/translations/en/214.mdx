@@ -1,0 +1,92 @@
+---
+title_ko: 교착 상태란? - 하루 10분 운영체제 8일차
+title_en: What is a Deadlock? - 10 Minutes of OS Day 8
+desc: >-
+  교착 상태는 여러 프로세스가 서로 자원을 기다리며 멈춰버리는 상황입니다. 시스템 모델부터 예방과 회복까지, 기술 면접에서 자주 나오는 개념을
+  예시와 함께 정리합니다.
+thumbnail_url: /250420-012955.webp
+metatag: '교착 상태, deadlock, 운영체제 면접, 기술면접, 자원 경쟁, 자원 순환, 데드락 예방, 회피, 탐지, 회복'
+post_id: '214'
+locale: en
+title: 'What Is Deadlock? — 10 Minutes of OS, Day 8'
+description: >-
+  Understand deadlock, the Coffman conditions, and prevention, avoidance,
+  detection, and recovery strategies with process and thread examples.
+source_hash: 291963046e66c67e326033f674224b0a3fcef92291ffeae69f6eff7ead4ab21b
+reviewed_at: '2026-11-07T01:46:42.346Z'
+---
+## Before getting started
+<Img src="/250420-012955.webp" width={300} alt=""/>
+GPT drew the thumbnail as a deadlock: Processes holding resources while waiting on one another in a circle.
+The center looks like the resource, doesn't it?
+It has drawn a surprisingly three-dimensional circuit!
+A computer that suddenly stops responding may be experiencing *deadlock*.
+Several processes wait for resources held by one another, *blocking each other's progress*.
+This post explains the conditions that create deadlock and ways to resolve it.
+Because it is a common interview topic, understanding concrete examples matters.
+<Ads1 />
+## What is deadlock?
+Deadlock occurs when two or more processes each hold resources and wait indefinitely for resources held by the others.
+For example, P1 holds a printer and P2 holds a scanner; each requests the other's resource and waits, so both stop.
+<Img src="/250420-013652.webp" width={300} alt="When will the other one finish…?"/>
+
+P1 has the printer and waits for P2's scanner.
+P2 has the scanner and waits for P1's printer.
+This mutual blocking is deadlock.
+## The Coffman conditions
+Deadlock arises when all four conditions hold.
+1. **Mutual exclusion**: A resource can be used by only one process at a time.
+2. **Hold and wait**: A process holds resources while waiting for others.
+3. **No preemption**: Resources cannot be forcibly taken away.
+4. **Circular wait**: Processes form a cycle, each waiting for another's resource.
+
+Breaking any one condition prevents deadlock.
+Strategies therefore remove at least one of these conditions.
+## Resolving deadlock
+### Prevention
+*Design the system so a Coffman condition cannot arise*.
+- Prevent hold and wait: Allocate all required resources together, or allocate none if they cannot all be obtained.
+- Prevent circular wait: Give resources unique numbers and always request them in numerical order.
+### Avoidance
+Before granting a resource request, check whether the resulting system state will remain safe.
+The *Banker's Algorithm* is a representative example.
+It resembles a bank deciding whether a loan would put its overall available funds at risk.
+### Detection
+Allow deadlock to occur but inspect the system periodically to detect it.
+Use a *resource-allocation graph* or *wait-for graph*.
+Detection algorithms add overhead, so use them carefully.
+### Recovery
+After detecting deadlock, restore normal operation.
+Main approaches include:
+- Process termination: Forcibly terminate deadlocked processes.
+- Resource preemption: Reclaim resources from some processes and allocate them to others.
+<Ads2 />
+
+## Deadlock in multithreaded applications
+Deadlock also occurs frequently with threads.
+For example, two Java threads may each hold one object's lock while waiting for the other object's lock.
+```java title="Java"
+// Thread 1
+synchronized(objA) {
+  synchronized(objB) {
+    // 작업
+  }
+}
+// Thread 2
+synchronized(objB) {
+  synchronized(objA) {
+    // 작업
+  }
+}
+```
+Use a consistent lock-acquisition order or lock timeouts to address this.
+## Summary
+We examined deadlock, its conditions, and prevention, avoidance, detection, and recovery through examples.
+Interviews often check *understanding through examples*, not just definitions, so practice connecting each condition and strategy to a real situation.
+This concludes the long sequence of posts about processes.
+Next, we will explore *main memory*, the computer's basic working-memory structure.
+
+### References
+- Operating System Concepts (10th Edition)
+- https://en.wikipedia.org/wiki/Deadlock
+- https://www.baeldung.com/java-deadlock

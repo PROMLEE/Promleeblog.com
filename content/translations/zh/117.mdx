@@ -1,0 +1,121 @@
+---
+post_id: '117'
+locale: zh
+title: 在 Windows 上创建 Expo 项目
+description: 介绍如何在 Windows 上创建并运行 Expo 项目，用 Expo Go 在真机上预览，以及排查 PowerShell 执行策略错误。
+source_hash: ba4e0de6fc68c2819e557faf7ea29f1671ad8a841629032c8436eeefb38f5589
+reviewed_at: '2026-11-07T07:13:36.927Z'
+---
+## 开始之前
+> 本文使用 Windows、Android Studio 和 Visual Studio Code 作为开发环境。
+### 什么是 Expo？
+[Expo](https://expo.io/)
+用 React Native 开发应用时，Expo 可以简化开发流程。开发 Android 和 iOS 应用所需的许多配置，都可以交给 Expo 处理。Expo 可以免费使用，也能简化构建和发布。安装 Expo Go 后，可以在真机上实时查看正在开发的应用。
+
+
+### Expo 与 React Native CLI
+Expo 可以简化应用的构建和发布，但部分库无法使用，也无法直接添加原生功能。如果想添加 Expo 不支持的功能，可以使用支持原生功能的 React Native CLI。
+> 请先确认项目所需功能是否与 Expo 兼容。如果不兼容，建议使用 React Native CLI。
+
+[安装 React Native CLI](https://www.promleeblog.com/blog/post/114-rn-init)
+
+<Ads1 />
+## 安装 Node 和 npm
+Node.js 是 JavaScript 运行时，也是 React Native 开发所需的环境。请从 Node.js 官网下载并安装 LTS 版本。
+[Node.js 官网](https://nodejs.org/ko/)
+安装完成后，在终端运行 node -v 和 npm -v 检查版本。
+```bash
+node -v
+npm -v
+```
+
+## 安装 Expo 并创建项目
+### 注册 Expo 账号并创建项目
+使用 Expo 需要一个 Expo 账号。先在 Expo 官网注册，再登录。
+[Expo 官网](https://expo.io/)
+登录后就可以创建 Expo 项目。点击 Create a new project，输入项目名称，即可创建项目。
+<Img src="/posts/240729-002615.png" width={400} alt="创建名为 Test 的项目"/>
+
+<Ads2 />
+### 安装 Expo CLI 并创建本地项目
+可以选择在终端全局安装 expo-cli。
+即使没有安装 expo-cli，也可以用 npx expo 命令创建和运行 Expo 项目。
+```bash
+npm install --global eas-cli
+```
+安装 expo-cli 后，用 expo init 命令创建项目。
+```bash
+npx create-expo-app@latest my-new-project
+```
+运行项目之前，先登录 Expo。
+```bash
+npx expo login	# expo 계정 입력
+```
+项目创建完成后，进入项目目录并关联 Expo 项目。项目 ID 可以在 Expo 的项目详情页查看。
+<Img src="/posts/240729-004021.png" width={500} alt=""/>
+
+```bash
+cd my-new-project
+eas init --id {expo 프로젝트 id}
+```
+关联完成后，运行 Expo 项目。
+```bash
+npm start
+```
+
+<Img src="/posts/240729-004744.png" width={300} alt=""/>
+启动后，按 a 可在 Android Studio 模拟器中查看应用，按 w 可在浏览器中查看应用，按 i 可在 Xcode 的 iOS 模拟器中查看应用（仅限 macOS）。
+
+<Ads3 />
+### 2.3. 安装并连接 Expo Go
+在手机上安装 Expo Go。
+[下载 Expo Go（Android）](https://play.google.com/store/apps/details?id=host.exp.exponent&hl=ko&gl=US)
+[下载 Expo Go（iOS）](https://apps.apple.com/kr/app/expo-go/id982107779)
+安装后，扫描二维码即可在真机上实时查看开发中的应用。也可以登录并打开 Expo Go，输入开发应用的链接进行查看。
+
+## 常见问题与解决方法
+### 运行 expo 命令时报错
+<Img src="/posts/240729-011136.png" width={2000} alt=""/>
+> expo：由于系统禁止运行脚本，无法加载 C:\~\expo.ps1 文件。详情请参阅 about_Execution_Policies （[https://go.microsoft.com/fwlink/?LinkID=135170](https://go.microsoft.com/fwlink/?LinkID=135170)）。
+位置：第 1 行，第 1 个字符
+>\+ expo init
+>\+ \~\~\~\~
+>        \+ CategoryInfo          : 安全错误: (:) [], PSSecurityException
+>        \+ FullyQualifiedErrorId : UnauthorizedAccess
+
+运行 expo init 命令时出现了错误。
+这是 PowerShell 执行策略导致的。
+可以通过修改 PowerShell 的执行策略解决。
+以管理员身份运行 PowerShell，然后输入以下命令。
+```bash
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted
+```
+<Img src="/posts/240729-011422.png" width={2000} alt="接着输入 Y"/>
+用下面的命令检查执行策略。
+```bash
+Get-ExecutionPolicy -List
+```
+<Img src="/posts/240729-011520.png" width={400} alt="确认 LocalMachine 项为 Unrestricted"/>
+
+<Ads4 />
+## 结语
+请根据项目需求选择 Expo 或 React Native CLI。Expo 能简化应用开发，但部分库无法使用，也无法直接添加原生功能。要实现 Expo 不支持的功能，可以使用 React Native CLI，或考虑 expo eject。
+
+### 进一步思考
+#### expo eject
+expo eject 曾用于将 Expo 项目转换为 React Native CLI 项目。该命令现已弃用，并由 [prebuild](https://docs.expo.dev/workflow/prebuild/) 取代。详情见官方说明。
+[expo eject 是否已弃用？](https://docs.expo.dev/faq/#is-expo-eject-deprecated)
+
+#### expo prebuild
+简单来说，可以根据应用配置文件生成包含原生源代码的 Expo 项目。
+```bash
+expo prebuild
+```
+它会生成 `android/` 和 `ios/` 目录，让 Expo 项目包含原生代码。
+然后，可以用以下命令运行预构建后的应用。
+```bash
+npx expo run:android
+npx expo run:ios
+```
+### 参考资料
+- [Expo 文档](https://docs.expo.dev/)

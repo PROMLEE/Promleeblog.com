@@ -1,0 +1,16 @@
+---
+post_id: '88'
+locale: zh
+title: 控制平面概述
+description: 介绍网络层的转发、路由，以及按路由器分布式控制和逻辑集中式控制。
+source_hash: 876f7a7c514ee19dccdea6e978e4ad641139b59879ee21cbe9ab31c44cd1051d
+reviewed_at: '2026-11-06T14:43:22.955Z'
+---
+## 网络层功能（Network Layer Functions）
+*回顾*：网络层有两项功能。
+- **转发（Forwarding）**：路由器将分组送往目的地的过程，属于数据平面。
+- **路由（Routing）**：决定分组到达目的地所走路径的过程，属于控制平面。
+
+[组织网络控制平面的两种方式](/blog/post/84-network-layer-overview#라우터-별-제어-평면-router-by-router-control-plane)
+- 按路由器控制（Per-router Control）：传统方式，目前仍被广泛使用。
+- 逻辑集中式控制（Logically Centralized Control）：用于软件定义网络（SDN）。

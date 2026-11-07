@@ -1,0 +1,156 @@
+---
+title_ko: Flutter에서 보상형 전면 광고 적용 및 이벤트 리슨 방법
+title_en: How to Implement Rewarded Interstitial Ads in Flutter
+desc: >-
+  Flutter 앱에 Google AdMob 보상형 전면 광고를 적용하는 방법과 버튼을 통해 광고 이벤트를 리슨하는 과정을 친절하게
+  설명합니다.
+thumbnail_url: /flutter_ad_rewarded.webp
+metatag: >-
+  flutter, admob, 보상형광고, 전면광고, rewarded interstitial, 광고이벤트, 광고버튼, 모바일광고, 구글광고,
+  앱수익화
+post_id: '199'
+locale: zh
+title: 在Flutter中接入激励插屏广告并监听事件
+description: 配置Google AdMob激励插屏广告，通过按钮展示广告，并监听奖励、关闭和失败等事件。
+source_hash: 7655a633ae66e870df9e5970731cd73792d3519a9eeadea1e89884825bb6d983
+reviewed_at: '2026-11-07T01:42:04.726Z'
+---
+
+## 开始之前
+开发应用时，经常需要思考：怎样自然地展示广告，又不损害*用户体验*？激励广告让用户自愿参与，并获得对应奖励，是一种很有用的形式。
+本文介绍如何在Flutter应用中接入Google AdMob的*激励插屏广告（Rewarded Interstitial Ad）*，重点说明点击按钮展示广告，以及根据观看结果处理业务逻辑。
+
+## AdMob配置与基础安装
+首先在Google AdMob申请广告ID，并安装Flutter依赖。
+1. 进入[Google AdMob](https://admob.google.com/)，注册应用。
+2. 创建广告单元ID，本例选择*激励插屏广告*。
+3. 在Flutter项目中添加`google_mobile_ads`。
+  ```bash
+  flutter pub add google_mobile_ads
+  ```
+4. 添加Android与iOS所需配置。
+   - Android需要在`AndroidManifest.xml`中加入以下权限与元数据。
+```xml
+<!-- AndroidManifest.xml -->
+<manifest>
+  <application>
+    <meta-data
+      android:name="com.google.android.gms.ads.APPLICATION_ID"
+      android:value="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy"/>
+  </application>
+</manifest>
+```
+- iOS需要在`Info.plist`中加入以下键。
+```xml
+<key>GADApplicationIdentifier</key>
+<string>ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy</string>
+```
+5. 应用启动时，初始化AdMob SDK。
+```dart title="main.dart"
+import 'dart:developer';
+
+import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+
+class RewardedInterstitialAdExample extends StatefulWidget {
+  const RewardedInterstitialAdExample({super.key});
+
+  @override
+  RewardedInterstitialAdExampleState createState() =>
+      RewardedInterstitialAdExampleState();
+}
+
+class RewardedInterstitialAdExampleState
+    extends State<RewardedInterstitialAdExample> {
+  RewardedInterstitialAd? _rewardedInterstitialAd;
+  bool _isAdLoaded = false;
+  void _loadAd() {
+    RewardedInterstitialAd.load(
+      adUnitId: 'ca-app-pub-3940256099942544/5354046379', // 테스트 ID
+      request: const AdRequest(),
+      rewardedInterstitialAdLoadCallback: RewardedInterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          log('onAdLoaded: 광고 로드 완료');
+          setState(() {
+            _rewardedInterstitialAd = ad;
+            _isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (error) {
+          log('onAdFailedToLoad: 광고 로드 실패: $error');
+        },
+      ),
+    );
+  }
+
+  void _showAd() {
+    if (_isAdLoaded && _rewardedInterstitialAd != null) {
+      _rewardedInterstitialAd!.fullScreenContentCallback =
+          FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (ad) {
+          log('onAdDismissedFullScreenContent: 광고가 닫혔습니다.');
+          ad.dispose();
+        },
+        onAdFailedToShowFullScreenContent: (ad, error) {
+          log('onAdFailedToShowFullScreenContent: 광고 표시 실패: $error');
+        },
+      );
+      _rewardedInterstitialAd!.show(onUserEarnedReward: (ad, reward) {
+        log('onUserEarnedReward: 사용자가 보상을 획득했습니다: ${reward.amount} ${reward.type}');
+        // 보상 로직 처리
+      });
+      _rewardedInterstitialAd = null;
+      _isAdLoaded = false;
+    } else {
+      log('onAdFailedToShowFullScreenContent: 광고가 아직 준비되지 않았습니다.');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAd();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('보상형 전면 광고 예제')),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: _showAd,
+          child: const Text('광고 보기'),
+        ),
+      ),
+    );
+  }
+}
+```
+在示例中，广告准备好后，通过按钮展示。用户完整观看后，会触发*奖励事件onUserEarnedReward*，此时可以发放奖励。
+<Img src="/250411-105031.webp" width={300} alt="显示测试广告"/>
+
+<Ads1 />
+## 监听广告事件并管理状态
+合理管理广告状态，可以改善用户体验。例如，广告结束后重新加载下一条广告，或在没有广告时禁用按钮。
+可以通过`_isAdLoaded`控制按钮是否可用，也应监听加载失败和关闭事件，让应用流程保持自然。
+*广告生命周期管理*可以通过以下回调实现：
+- `onAdLoaded`：广告加载完成时调用。
+- `onAdFailedToLoad`：加载失败时调用。
+- `onAdDismissedFullScreenContent`：观看结束、关闭后重新加载时调用。
+- `onAdFailedToShowFullScreenContent`：展示失败时调用。
+- `onUserEarnedReward`：用户获得奖励时调用。
+<Img src="/250411-120012.webp" width={400} alt="正常运行时的日志"/>
+<Img src="/250411-114358.webp" width={400} alt="AdGuard广告拦截运行时的日志"/>
+```
+onAdFailedToLoad: 광고 로드 실패: LoadAdError(code: 0, domain: com.google.android.gms.ads, message: Error while connecting to ad server: Unable to resolve host "googleads.g.doubleclick.net": No address associated with hostname, responseInfo: ResponseInfo(responseId: null, mediationAdapterClassName: , adapterResponses: [], loadedAdapterResponseInfo: null), responseExtras: {})
+```
+
+合理监听这些事件，设计好广告流程，还可以实现服务器日志记录等功能。
+
+## 结论
+激励插屏广告能够自然地引导用户参与，并为应用创造收入。Flutter通过`google_mobile_ads`可以方便地接入，再结合事件监听和状态管理，形成流畅的广告体验。
+本文覆盖了AdMob配置、Flutter代码和事件监听的整体流程。请先使用测试广告练习，确认正常后再替换为正式广告ID。
+
+### 参考资料
+- [AdMob Flutter官方入门文档](https://developers.google.com/admob/flutter/quick-start?hl=ko)
+- [Rewarded Interstitial Ads官方文档](https://developers.google.com/admob/flutter/rewarded-interstitial?hl=ko)

@@ -1,0 +1,28 @@
+---
+post_id: '59'
+locale: zh
+title: 使用GRASP模式进行对象设计的示例
+description: 从用例实现和操作契约出发，介绍GRASP对象设计中对象的协作与系统操作。
+source_hash: 19c2eb29adfa4644b9b4c1ddf2e23c1940ed6cf4b1cf1f77a360a94b090315ed
+reviewed_at: '2026-11-06T14:43:22.991Z'
+---
+## 用例实现（Use Case Realization）
+从协作对象的角度，说明某个用例在设计模型中*如何实现*。
+设计者可以说明用例中*一个或多个场景*的设计。
+- 每一种设计都称为用例实现。
+
+用例提出SSD中所展示的系统操作。
+*系统操作*会成为进入领域层交互图控制器的*起始消息*。
+
+<Img src="/posts/240617-235107.png" width={500}/>
+领域层交互图展示对象如何交互，以完成实现用例所需的工作。
+<Ads1 />
+## 操作契约（Operation Contracts）
+如前文所述，可以根据用例文本或领域知识*直接设计用例实现*。
+对于某些复杂系统操作，也可以编写包含更多分析细节的*操作契约*。
+**示例**
+| Operation | enterItem(itemID: ItemID, quantity: integer)|
+|-----------|------------|
+| Cross-Reference | 用例：Process Sale|
+| Precondition | 当前正在进行销售|
+| Postcondition | 已创建SalesLineItem实例sli|

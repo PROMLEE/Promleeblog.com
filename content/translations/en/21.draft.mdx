@@ -1,0 +1,41 @@
+---
+post_id: '21'
+locale: en
+title: Symmetric-Key Encryption
+description: >-
+  An introduction to symmetric-key encryption, block ciphers, and stream
+  ciphers.
+source_hash: 47b4f640bf60839103dc33b64f2e1a8942377a8a0de161d6d5960293917178b2
+---
+## What is symmetric-key encryption?
+> An encryption method that uses the same key for encryption and decryption.
+
+It is also known as secret-key encryption.
+Examples include classical ciphers, block ciphers (DES, AES, ARIA, and SEED), and stream ciphers (RC4 and ChaCha).
+Advantages: Faster and more efficient than asymmetric-key encryption.
+Disadvantages: The problem of sharing keys and the need to manage large numbers of them.
+
+## Block ciphers
+> A symmetric-key encryption method that encrypts data in fixed-size blocks.
+
+Input: One block of elements at a time.
+Output: An encrypted block for each input block.
+The key can be reused, and this is a common encryption approach.
+Representative block ciphers: Substitution ciphers, permutation ciphers, DES, AES, ARIA, and SEED.
+![240425-115230](/posts/240425-115230.png)
+
+Periodically renewing the key is recommended for security.
+<Ads1 />
+## Stream ciphers
+> A symmetric-key encryption method that encrypts data bit by bit.
+
+Input: A continuous stream of bits.
+Output: An encrypted bit for each input bit.
+Advantages:
+- Faster than block ciphers.
+- The key is used only once.
+
+Disadvantages:
+- Vulnerable to known-plaintext attacks. $ M \oplus C = M \oplus (M \oplus k) = k$
+
+Representative stream ciphers: RC4, ChaCha, and LFSR.

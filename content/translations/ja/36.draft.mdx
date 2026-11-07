@@ -1,0 +1,70 @@
+---
+post_id: '36'
+locale: ja
+title: ハッシュ関数
+description: 暗号で使われるハッシュ関数について説明します。
+source_hash: 12690adf72c9e9f57626d010b8057a5f9f4f88cde50a3fa3e9b34099e9fa2e90
+---
+## ハッシュ関数とは？ (What is a Hash Function)
+> 任意のサイズのデータを入力し、固定サイズの出力を返す関数です。
+
+- 例：ビットごとのXOR
+
+| | Bit 1 | Bit 2 | ... | Bit n |
+| --- | --- | --- | --- | --- |
+| Block 1 | $x_{11}$ | $x_{12}$ | ... | $x_{1n}$ |
+| Block 2 | $x_{21}$ | $x_{22}$ | ... | $x_{2n}$ |
+| ... | ... | ... | ... | ... |
+| Block m | $x_{m1}$ | $x_{m2}$ | ... | $x_{mn}$ |
+| Hash Output | $y_1$ | $y_2$ | ... | $y_n$ |
+
+例えば、二つのブロック$x_{11}, x_{12}, \ldots, x_{1n}$と$x_{21}, x_{22}, \ldots, x_{2n}$のXORを取り、$y_1, y_2, \ldots, y_n$を返します。
+
+## 暗号学的ハッシュ関数 (Cryptographic Hash Function)
+> 任意長のメッセージを入力し、*固定長のメッセージダイジェスト*を出力する関数$h$です。
+暗号学的ハッシュ関数は、次の条件を満たす必要があります。
+1. **計算効率** (Computational Efficiency)
+   - 入力$m$が与えられたら、$h(m)$を効率よく計算できる必要があります。
+2. **一方向性**、または**原像計算困難性** (One-way or Pre-image Resistance)
+   - $y$が与えられたとき、$h(m')=y$を満たす$m'$を見つけることが、計算量的に不可能である必要があります。
+3. **第二原像計算困難性**、または**弱衝突困難性** (Second Pre-image Resistance or Weak Collision Resistance)
+   - $m$が与えられたとき、$h(m')=h(m)$を満たす$m'$を見つけることが、計算量的に不可能である必要があります。
+4. **衝突困難性** (Collision Resistance)
+   - $m, m'$について、$h(m)=h(m')$を満たす$m, m'$を見つけることが、計算量的に不可能である必要があります。
+
+例：MD5、HAVAL-128、SHA-1、*SHA-2*、SHA-3。
+<Ads1 />
+## SHA-1とSHA-2の設計原理 (Design Rationale of SHA-1 and SHA-2)
+<Img src="/posts/240613-143347.png" width={1000}/>
+
+1. 初期化ベクトル (IV: Initialization Vector)
+2. メッセージブロック (Message Block)
+3. 圧縮関数c (Compression Function)
+4. ハッシュ出力 (Hash Output)
+
+### SHA-1とSHA-2のラウンド関数 (Round Function of SHA-1 and SHA-2)
+<Img src="/posts/240613-144200.png" width={400}/>
+
+1. 初期値
+   - $A, B, C, D, E$
+2. ラウンド関数
+   - $f_t(B, C, D)$は、ラウンド番号$t$に応じて異なる論理演算を行います。
+3. ビットの循環シフト
+   - $A$と$B$を、それぞれ5ビット、30ビット循環シフトします。
+   - ビットを左へ回転させ、最も左のビットは最も右へ移します。
+4. 演算と更新
+   - 各ラウンドで、$A, B, C, D, E$を、それぞれ$f_t$やほかの演算によって更新します。
+   - $A = f_t(B, C, D) + K_t + W_t + E$のような式で更新します。
+
+例：最初のラウンドでは、次の演算を行います。
+- $A = ((A << 5) + f_t(B, C, D) + E + K_t + W_t)$
+- $B = A$：元の$A$の値を$B$へ保存します。
+- $C = B << 30$
+- $D = C$
+- $E = D$
+
+## SHA-3の設計原理 (Design Rationale of SHA-3)
+スポンジ構造に基づき、データを吸収してから結果を圧縮します。
+<Img src="/posts/240613-144739.png" width={500}/>
+
+- $f$はブロックを置換するための関数で、XOR、AND、NOT演算から構成されます。

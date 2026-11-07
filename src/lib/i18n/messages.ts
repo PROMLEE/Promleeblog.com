@@ -1,0 +1,119 @@
+import type { Locale } from "./routing";
+export const homeMessages = {
+  ko: {
+    desktopNote: "이 블로그는 데스크톱과 다크 모드에 최적화되어있습니다",
+    hot: "인기 포스팅",
+    advertise: "광고",
+  },
+  en: {
+    desktopNote: "This blog is optimized for desktop and dark mode.",
+    hot: "Hot posts",
+    advertise: "Advertise",
+  },
+  ja: {
+    desktopNote: "このブログはデスクトップとダークモードに最適化されています。",
+    hot: "人気の記事",
+    advertise: "広告",
+  },
+  zh: {
+    desktopNote: "本博客针对桌面浏览和深色模式进行了优化。",
+    hot: "热门文章",
+    advertise: "广告",
+  },
+};
+
+export const languageNames = {
+  ko: "한국어",
+  en: "English",
+  ja: "日本語",
+  zh: "简体中文",
+};
+export const messages = {
+  ko: {
+    ...homeMessages.ko,
+    menu: "메뉴",
+    about: "소개",
+    sitemap: "사이트맵",
+    home: "홈",
+    posts: "포스팅",
+    categories: "전체 카테고리",
+    recent: "최신 포스팅",
+    pending: "아직 번역되지 않은 글입니다.",
+    original: "한국어 원문 보기",
+    empty: "공개된 글이 없습니다.",
+    updated: "원문이 수정되었습니다. 번역은 이전 원문을 기준으로 합니다.",
+    languages: "언어 선택",
+    recommended: "추천 포스트",
+    intro: "개발하며 배운 내용을 기록합니다.",
+    tags: "태그",
+  },
+  en: {
+    ...homeMessages.en,
+    menu: "Menu",
+    about: "About",
+    sitemap: "Sitemap",
+    home: "Home",
+    posts: "Posts",
+    categories: "All categories",
+    recent: "Recent posts",
+    pending: "This article has not been translated yet.",
+    original: "Read the Korean original",
+    empty: "No published posts yet.",
+    updated:
+      "The original has changed. This translation is based on an earlier version.",
+    languages: "Select language",
+    recommended: "Recommended posts",
+    intro: "Notes on software development and lessons learned.",
+    tags: "Tags",
+  },
+  ja: {
+    ...homeMessages.ja,
+    menu: "メニュー",
+    about: "このブログについて",
+    sitemap: "サイトマップ",
+    home: "ホーム",
+    posts: "記事",
+    categories: "カテゴリー一覧",
+    recent: "最新の記事",
+    pending: "この記事はまだ翻訳されていません。",
+    original: "韓国語の原文を読む",
+    empty: "公開された記事はありません。",
+    updated: "原文が更新されています。この翻訳は更新前の原文に基づいています。",
+    languages: "言語を選択",
+    recommended: "おすすめの記事",
+    intro: "ソフトウェア開発で学んだことを記録しています。",
+    tags: "タグ",
+  },
+  zh: {
+    ...homeMessages.zh,
+    menu: "菜单",
+    about: "关于博客",
+    sitemap: "网站地图",
+    home: "首页",
+    posts: "文章",
+    categories: "所有分类",
+    recent: "最新文章",
+    pending: "这篇文章尚未翻译。",
+    original: "阅读韩语原文",
+    empty: "暂无已发布的文章。",
+    updated: "原文已更新，此译文基于更新前的版本。",
+    languages: "选择语言",
+    recommended: "推荐文章",
+    intro: "记录软件开发中的经验与收获。",
+    tags: "标签",
+  },
+} satisfies Record<Locale, Record<string, string>>;
+
+export function categoryLabel(url: string, locale: Locale) {
+  const labels: Record<string, Record<Locale, string>> = {
+    programming: {
+      ko: "프로그래밍",
+      en: "Programming",
+      ja: "プログラミング",
+      zh: "编程",
+    },
+    study: { ko: "학습", en: "Study", ja: "学習", zh: "学习" },
+    etc: { ko: "기타", en: "Other", ja: "その他", zh: "其他" },
+  };
+  return labels[url.toLowerCase()]?.[locale];
+}

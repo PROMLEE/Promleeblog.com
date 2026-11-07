@@ -1,0 +1,182 @@
+---
+title_ko: Pinia로 간편하게 전역 상태 관리하기 - Vue 기본기 다지기 6편
+title_en: Easy Global State Management with Pinia - Vue Basics Part 6
+desc: >-
+  Vue의 공식 상태 관리 라이브러리 Pinia의 사용법을 배웁니다. 스토어 생성, state, getters, actions를 정의하고
+  컴포넌트에서 사용하는 방법을 예제와 함께 알아봅니다. React의 상태 관리 도구와도 비교합니다.
+thumbnail_url: /250612-163414.webp
+metatag: >-
+  Vue 3, Pinia, Vuex, 상태 관리, State Management, defineStore, state, getters,
+  actions, Vue 전역 상태, 프론트엔드, Vue 기초, Recoil, Zustand
+post_id: '318'
+locale: en
+title: 'Easy Global State Management with Pinia — Vue Basics, Part 6'
+description: >-
+  Install Pinia, define stores with state, getters, and actions, share state
+  between Vue components, and compare React alternatives.
+source_hash: a35292c6088cdaa002c72726cdb99b646366e8b8ad83e62d1382ec3c8d694fea
+---
+## Before getting started
+Part 6 introduces more advanced state management.
+As an app grows, more components need to share the same data.
+For example, login information, a shopping cart, and theme preferences should remain consistent throughout the app.
+Trying to manage this global state only through `props` can make code complicated and untidy.
+
+<br/>
+<br/>
+
+Vue provides its official state-management library, *Pinia*, to address this.
+Pinia is a central store for data shared by components.
+Any component can save and retrieve data there, making complex flows simpler and more intuitive.
+
+## Installing and configuring Pinia
+First, install Pinia by entering the following command in the terminal.
+
+```bash
+npm install pinia
+```
+
+Then create and register a Pinia instance in `main.js` so it is available throughout the Vue app.
+
+```javascript title="src/main.js" {2, 8}
+import { createApp } from 'vue'
+import { createPinia } from 'pinia' // Pinia에서 createPinia를 가져옵니다.
+import App from './App.vue'
+import router from './router'
+
+const app = createApp(App)
+
+app.use(createPinia()) // Pinia 인스턴스를 생성하여 앱에 등록합니다.
+app.use(router)
+
+app.mount('#app')
+```
+
+The app is now ready to use Pinia.
+Store files are usually organized in a `stores` directory under `src`.
+
+<Ads1 />
+
+## Defining a store
+A store groups related state, derived values called getters, and functions that modify state called actions.
+Stores can be organized by feature, such as a counter or user authentication.
+Create `src/stores/counter.js` and define a counter store.
+
+```javascript title="src/stores/counter.js"
+import { defineStore } from 'pinia'
+
+// `defineStore`를 사용하여 스토어를 정의합니다.
+// 첫 번째 인자는 스토어의 고유 ID(문자열)입니다.
+// 두 번째 인자는 state, getters, actions를 포함하는 객체입니다.
+export const useCounterStore = defineStore('counter', {
+  // 1. state: 스토어의 상태(데이터)를 정의합니다. 반드시 화살표 함수로 반환해야 합니다.
+  state: () => ({
+    count: 0,
+    userName: 'promleeblog'
+  }),
+
+  // 2. getters: state를 기반으로 하는 계산된 값입니다. Vue의 computed와 같습니다.
+  getters: {
+    doubleCount: (state) => state.count * 2,
+    doubleCountPlusOne: (state) => {
+      // this를 통해 다른 getter에 접근할 수도 있습니다.
+      return this.doubleCount + 1
+    }
+  },
+
+  // 3. actions: state를 변경하는 함수(메소드)입니다. Vue의 methods와 같습니다.
+  actions: {
+    increment() {
+      // state의 속성에 접근할 때는 'this'를 사용합니다.
+      this.count++
+    },
+    reset() {
+      this.count = 0
+    }
+  }
+})
+```
+
+## Using the store in a component
+Import the store into a component and use it as easily as a Composition API function.
+
+```vue title="src/components/CounterComponent.vue" {3, 6, 10}
+<script setup>
+import { useCounterStore } from '@/stores/counter'
+import { storeToRefs } from 'pinia'
+
+// 정의한 스토어를 호출하여 인스턴스를 만듭니다.
+const counterStore = useCounterStore()
+
+// 중요: 스토어의 상태를 구조 분해 할당하면 반응성을 잃게 됩니다.
+// 반응성을 유지하면서 가져오려면 `storeToRefs`를 사용해야 합니다.
+const { count, doubleCount } = storeToRefs(counterStore)
+
+// actions는 구조 분해 할당해도 괜찮습니다.
+const { increment, reset } = counterStore
+</script>
+
+<template>
+  <div>
+    <h2>카운터</h2>
+    <p>현재 값: {{ count }}</p>
+    <p>두 배 값: {{ doubleCount }}</p>
+    
+    <button @click="increment">증가</button>
+    <button @click="counterStore.reset()">초기화</button>
+  </div>
+</template>
+```
+
+The `storeToRefs` utility is important.
+If you destructure directly with `const { count } = counterStore`, `count` becomes a plain number and loses reactivity.
+`storeToRefs` solves this by wrapping a store's `state` and `getters` properties in reactive `ref` objects.
+
+<Ads2 />
+
+## Sharing state across components
+Pinia's strength is how easily components can share the same state.
+Let's show the count in `DisplayComponent`, separate from the previously created `CounterComponent`.
+
+```vue title="src/components/DisplayComponent.vue"
+<script setup>
+import { useCounterStore } from '@/stores/counter'
+import { storeToRefs } from 'pinia'
+
+// 동일한 스토어를 호출합니다. Pinia가 알아서 같은 인스턴스를 반환합니다.
+const counterStore = useCounterStore()
+const { count } = storeToRefs(counterStore)
+</script>
+
+<template>
+  <div>
+    <h3>다른 컴포넌트에서 본 카운트 값: {{ count }}</h3>
+  </div>
+</template>
+```
+
+Place both components in `App.vue`.
+Pressing a button in `CounterComponent` also updates the number in `DisplayComponent` immediately.
+That is the benefit of centralized state management.
+
+<Ads3 />
+## Comparing other state-management tools
+- **Pinia vs. React Context API**
+React's built-in Context API also solves prop drilling, but large apps with frequent state changes may encounter performance issues.
+Pinia is highly optimized for Vue's reactivity system.
+- **Pinia vs. Recoil/Zustand**
+These are popular React state-management libraries.
+While they focus on atomic state pieces, Pinia takes a structured approach that groups `state`, `getters`, and `actions` in one store.
+The biggest difference is that Pinia is Vue's *official* library, providing close Vue integration and long-term support.
+
+
+## Conclusion
+We learned to manage application-wide state using Pinia.
+It makes complex component data flows simpler and clearer.
+Instead of passing props through multiple levels, components can access the store directly where needed.
+This significantly improves maintainability and extensibility.
+
+> Vue Basics, Part 7 covers API integration and asynchronous operations.
+
+### References
+- [Pinia official documentation](https://pinia.vuejs.org/)

@@ -1,0 +1,165 @@
+---
+title_ko: OSI 7계층과 TCP/IP 모델 - 코딩과 함께 배우는 네트워크 2일차
+title_en: OSI 7 Layer and TCP/IP Model - Learning Network with Coding Day 2
+desc: >-
+  네트워크 통신의 기본 틀인 OSI 7계층과 실제 인터넷 표준인 TCP/IP 모델을 비교하고, 각 계층의 역할과 실제 통신 사례를 쉽게
+  알아봅니다.
+thumbnail_url: /250514-180413.webp
+metatag: 'OSI 7계층, TCP/IP 모델, 네트워크 계층, 프로토콜, 네트워크 통신, 데이터 전송, 네트워크 모델, 개발자, 코딩, IT 기초'
+post_id: '278'
+locale: en
+title: 'The Seven-Layer OSI Model and TCP/IP — Learning Networking with Code, Day 2'
+description: >-
+  Compare the seven-layer OSI model and the TCP/IP model, learn what each layer
+  does, and follow a web request through the layers.
+source_hash: 4107b64fc76ea4ef6477a2f224f796aabba84fb25ee261410f49ff3f9afcfa30
+reviewed_at: '2026-11-07T12:31:14.554Z'
+---
+## Before We Begin
+
+Last time we talked about why developers should understand networks. Today we'll explore two models that help us make sense of network communication: the seven-layer OSI model and the TCP/IP model.
+
+## What Is a Network Model?
+
+Imagine sending a letter to a friend. You write the letter, put it in an envelope, address it, and drop it in a mailbox. The post office sorts it and delivers it. Network data also travels through a series of stages. A network model is a framework for describing those stages consistently.
+<br/>
+Network models help computers and equipment from different manufacturers communicate. Two of the best-known examples are the seven-layer OSI model and the TCP/IP model.
+
+<Img src="/250514-142351.webp" width={300} alt="Comparing letter delivery with network data transmission"/>
+
+<Ads1 />
+## The Seven-Layer OSI Model
+The International Organization for Standardization (ISO) published the OSI reference model in 1984. It describes communication in seven layers. Each layer uses services from the layer below and provides services to the layer above. Picture a seven-story building where each floor has its own job.
+<br/>
+The seven layers are:
+
+- Layer 7: Application
+- Layer 6: Presentation
+- Layer 5: Session
+- Layer 4: Transport
+- Layer 3: Network
+- Layer 2: Data Link
+- Layer 1: Physical
+
+<Img src="/250514-142046.webp" width={600} alt="The seven OSI layers"/>
+<br/>
+To remember them from top to bottom, use “All People Seem To Need Data Processing.” Korean speakers also use the mnemonic “아파서 티내다 피났다,” which echoes the Korean layer names from the bottom up.
+
+### What Each OSI Layer Does
+#### Layer 7: Application
+**Role**  
+This is the point of contact for applications such as browsers, email clients, and file transfer programs. It is where an application accesses network services on the user's behalf.  
+**Examples**  
+HTTP for browsing, SMTP for sending email, and FTP for transferring files.  
+**Data unit**  
+Message or data.
+#### Layer 6: Presentation
+**Role**  
+Represents and translates data from the application layer into a format both sides can understand. This includes character encoding such as ASCII or UTF-8, encryption, and compression.  
+**Examples**  
+In the OSI analogy, SSL/TLS encryption protects data in transit, and formats such as JPEG, GIF, and MPEG represent images and video.  
+**Data unit**  
+Message or data.
+#### Layer 5: Session
+**Role**  
+Starts, maintains, and ends a session between two computers. Think of signing in, keeping the connection open while you work, and signing out. A session can also establish synchronization points to resume a transfer after an interruption.  
+**Examples**  
+Maintaining communication with an online game server or keeping a video call connected.  
+**Data unit**  
+Message or data.
+#### Layer 4: Transport
+**Role**  
+Manages end-to-end delivery. A transport protocol can split data into manageable units, retransmit data after errors, and control the rate at which data flows.  
+**Examples**  
+TCP provides reliable delivery and UDP offers low overhead. TCP can deliver a file download without missing pieces.  
+**Data unit**  
+A segment for TCP or a datagram for UDP.
+#### Layer 3: Network
+**Role**  
+Routes data across networks toward its destination. It uses logical addresses, such as IP addresses, to distinguish hosts.  
+**Examples**  
+When you connect to a distant internet server, routers at this layer choose a path for the data.  
+**Data unit**  
+Packet.
+#### Layer 2: Data Link
+**Role**  
+Transfers data between devices on the same link. It groups data into frames, can detect errors on the link, and uses physical addresses such as MAC addresses. Some links also provide error recovery.  
+**Examples**  
+Network interface cards and switches often operate at this layer.  
+**Data unit**  
+Frame.
+#### Layer 1: Physical
+**Role**  
+Defines the physical connection, including cable types, transfer speeds, voltages, and other electrical or mechanical details. It encodes bits into signals that travel through the medium, such as electrical signals through copper or pulses of light through fiber.  
+**Examples**  
+Ethernet cables, fiber-optic cables, hubs, and repeaters.  
+**Data unit**  
+Bit.
+
+<Ads2 />
+
+## The TCP/IP Model: How the Internet Is Organized
+
+OSI is useful for understanding network communication, but its layers don't always correspond to distinct parts of a real network. The internet uses the simpler **TCP/IP model**, which grew out of work sponsored by the U.S. Department of Defense and predates the OSI model. It reflects the protocols the internet actually uses.
+The models can be compared by mapping OSI's seven layers to the four commonly used TCP/IP layers. Some references describe a five-layer version.
+
+- Layer 4: Application (OSI layers 5, 6, and 7)
+- Layer 3: Transport (OSI layer 4)
+- Layer 2: Internet (OSI layer 3)
+- Layer 1: Network Access or Link (OSI layers 1 and 2)
+
+<Img src="/250514-174008.webp" width={300} alt="Comparing the seven OSI layers with the four TCP/IP layers"/>
+
+### What Each TCP/IP Layer Does
+
+The TCP/IP layers cover functions similar to the corresponding OSI layers.
+1. **Layer 4: Application**  
+   Combines functions from the OSI application, presentation, and session layers. It provides services for exchanging data through protocols such as HTTP, FTP, SMTP, and DNS.
+2. **Layer 3: Transport**  
+   Corresponds roughly to OSI's transport layer and provides end-to-end data transfer. TCP and UDP both run here. TCP handles reliable delivery, segmentation, error recovery, and flow control.
+3. **Layer 2: Internet**  
+   Corresponds to the OSI network layer. It handles addressing and routing so packets can reach their destinations. Its core protocol is IP (Internet Protocol).
+4. **Layer 1: Network Access or Link**  
+   Combines the OSI physical and data link functions. It moves frames between devices on the same network and transmits their data through hardware such as cables and network cards. Ethernet and Wi-Fi belong here.
+
+### Why Learn Both Models?
+
+If TCP/IP is what the internet uses, why learn OSI? OSI breaks communication into detailed stages, which helps you understand the fundamentals and diagnose problems. TCP/IP shows how the internet works in practice. Knowing both gives developers and engineers better ways to analyze complex networks and troubleshoot them.
+
+<Ads3 />
+## The Layers in Practice: Opening a Website
+
+What happens when you enter `www.google.com` in the address bar? Here's a simplified look at how an HTTP request over TCP travels through the OSI layers or their TCP/IP counterparts.
+
+1. **Application layer (7)**  
+   After you enter `www.google.com`, the browser prepares an HTTP request for the page. It may first use DNS to look up the IP address for `www.google.com`.
+2. **Presentation layer (6)**  
+   The request uses a standardized format and, with HTTPS, is encrypted.
+3. **Session layer (5)**  
+   The client and server establish and manage the communication session.
+4. **Transport layer (4)**  
+   TCP divides the request data into segments. TCP headers contain details such as sequence numbers and ports. HTTP commonly uses port 80 and HTTPS port 443.
+5. **Network layer (3)**  
+   An IP header adds the source IP address (your computer) and destination IP address (the server), forming an IP packet. Routers use the destination address to decide where to send the packet.
+6. **Data link layer (2)**  
+   A frame header and trailer wrap the IP packet. The frame can include the MAC address of the next device, such as your home router.
+7. **Physical layer (1)**  
+   The frame is encoded as signals and transmitted over a cable or by radio.
+<br/>
+<Img src="/250514-180117.webp" width={500} alt="Encapsulation and decapsulation"/>
+At the destination, the process runs in reverse through decapsulation. Data moves up from the physical layer, each layer processes and removes its own header information, and the web server's application receives the request and returns the page data.
+
+<Ads4 />
+## Conclusion
+
+The seven-layer OSI model describes networking in logical stages, making the principles easier to learn and problems easier to diagnose. The four-layer TCP/IP model, sometimes presented with five layers, describes the protocol suite behind practical internet communication.
+<br/>
+Learning what each layer does and how the layers interact gives you a foundation for troubleshooting networks and building better applications.
+> Next time we'll look at IP addresses and subnet masks, which help devices locate one another on a network.
+### References
+
+- [Cloudflare — What is the OSI Model?](https://www.cloudflare.com/learning/ddos/glossary/open-systems-interconnection-model-osi/)
+- [GeeksforGeeks — TCP/IP Model](https://www.geeksforgeeks.org/tcp-ip-model/)
+- [Cisco — OSI Model Reference Chart](https://learningnetwork.cisco.com/s/article/osi-model-reference-chart)
+- [Microsoft Learn — Defining Networks with the OSI Model](https://learn.microsoft.com/en-us/shows/networking-fundamentals/02-defining-networks-with-the-osi-model) (Related learning module.)
+- [Wikipedia — OSI model](https://en.wikipedia.org/wiki/OSI_model)

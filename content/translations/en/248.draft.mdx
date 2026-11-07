@@ -1,0 +1,356 @@
+---
+title_ko: 'React Router 원리와 활용법 - React, 알고 쓰자 6일차'
+title_en: React Router Principles and Usage - React Explained Day 6
+desc: >-
+  React Router v6의 동작 원리와 사용법을 알아봅니다. History API, URL 매칭, 중첩 라우트/Outlet, Link,
+  useNavigate 등 주요 기능과 코드 스플리팅까지, SPA 라우팅의 핵심을 설명합니다.
+thumbnail_url: /250502-161806.webp
+metatag: >-
+  React, React Router, React Router v6, 라우팅 원리, History API, SPA, 중첩 라우트,
+  Outlet, Link, useNavigate, useParams, 코드 스플리팅, 프론트엔드, 면접
+post_id: '248'
+locale: en
+title: 'How React Router Works and How to Use It — React Explained, Day 6'
+description: >-
+  Learn React Router v6 through the History API, URL matching, nested routes and
+  Outlet, Link, navigation hooks, and code splitting.
+source_hash: 38d5e27bbda192fb371b5e13e4728fea50e081031d7f3f3b29d993409a8edad7
+---
+## Before We Begin
+
+So far, we've learned to build components, manage state, and update the screen. Most web applications also have several pages, and users need to move between them. Traditional websites fetch a new HTML document from the server for each navigation. A *single-page application (SPA)* built with a tool such as React handles navigation differently.
+An SPA initially loads one HTML page. On later navigations, JavaScript updates what the user sees without requesting a whole new document. React Router is a widely used library for implementing this kind of *routing*. This guide focuses on React Router v6 and explains both how to use its features and how they work.
+
+## Set Up React Router v6
+Install the library and define your basic routes.
+### Installation
+Install react-router-dom with a package manager such as npm or Yarn.
+```bash
+npm install react-router-dom
+ # 또는
+yarn add react-router-dom
+```
+
+### Basic Structure: BrowserRouter, Routes, and Route
+
+A basic setup uses three components.
+- **BrowserRouter**
+  This router uses the HTML5 History API to keep the URL and UI in sync. Wrap the application near the root. BrowserRouter uses the address bar to manage paths.
+- **Routes**
+  This container holds Route components. It finds the best match for the current URL and renders that route's element.
+- **Route**
+  This connects a path to the element to display at that path.
+
+```tsx
+import React from 'react';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'; // Link 추가
+
+// 페이지 컴포넌트 예시
+function HomePage() {
+  return <h2>홈 페이지</h2>;
+}
+
+function AboutPage() {
+  return <h2>소개 페이지</h2>;
+}
+
+// 네비게이션 컴포넌트 예시
+function Navigation() {
+  return (
+    <nav>
+      <ul>
+        <li><Link to="/">홈</Link></li>
+        <li><Link to="/about">소개</Link></li>
+      </ul>
+    </nav>
+  );
+}
+
+
+function App() {
+  return (
+    <BrowserRouter>
+      <h1>나의 앱</h1>
+      <Navigation /> {/* 네비게이션 링크 */}
+      <Routes>
+        {/* path="/"는 홈페이지 경로 */}
+        <Route path="/" element={<HomePage />} />
+        {/* path="/about"은 소개 페이지 경로 */}
+        <Route path="/about" element={<AboutPage />} />
+        {/* 정의되지 않은 다른 모든 경로 처리 (예: 404 페이지) */}
+        <Route path="*" element={<h2>페이지를 찾을 수 없습니다 (404)</h2>} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+```
+Entering `/` in the browser shows HomePage, and entering `/about` shows AboutPage.
+The wildcard `path="*"` handles paths that don't match any of the other routes. It is commonly used for a 404 page.
+
+## How Does React Router Work?
+
+React Router uses the browser's History API and its own matching logic to show the appropriate component when the URL changes.
+
+### History API: Working with Browser History
+BrowserRouter uses the browser's built-in *History API*, which lets JavaScript manipulate the session history stack.
+- **pushState(state, title, url)**
+  Adds an entry to session history and updates the address bar without reloading the document. This is what makes client-side navigation feel like moving between pages. Link uses it internally.
+- **replaceState(state, title, url)**
+  Replaces the current entry. Use it when the replaced entry should not remain available through the Back button.
+- **popstate event**
+  Fires when a history entry is activated using the browser's Back or Forward buttons or calls such as `history.back()` and `history.forward()`. BrowserRouter listens for the event and renders the components for the resulting URL.
+
+BrowserRouter uses the History API to track location changes and render the UI for the current location.
+
+### URL Matching: Which Route Should Render?
+
+When the user clicks a Link or the location changes, React Router compares the current URL with the Route children of Routes.
+- Routes considers its child routes.
+- It compares their path props with the current URL path.
+- React Router v6 uses relative paths and ranks possible matches to find the best one.
+- It renders the component specified by the selected route's element prop.
+- If no other path matches, a wildcard Route with `path="*"` handles it when one is defined.
+
+This is how users see the UI that corresponds to the current URL.
+
+### Rendering and the Role of Outlet
+
+React Router renders the selected route's element. With nested routes, it first renders the parent element. Outlet marks the place inside that element where the matched child element appears.
+This gives you a way to render and organize complex layouts.
+
+## Main Components and Hooks
+
+Let's look at how the main components and hooks work.
+### Navigate with Link
+Use React Router's Link to create a clickable link to another page inside the app in place of a plain HTML `<a>` element.
+#### How It Works
+When a user clicks Link for a normal in-app navigation:
+1. React Router prevents the default `<a>` behavior of loading a new document.
+2. It calls History API's `pushState` to change the URL to the value of the `to` prop and adds an entry to session history.
+3. React Router updates the rendered components to match the new URL.
+
+**Difference from an `<a>` element:** The browser can navigate without reloading the entire document, making the transition faster and smoother.
+
+```tsx
+// Navigation 컴포넌트 예시 (기존과 동일)
+import { Link } from 'react-router-dom';
+
+function Navigation() {
+  return (
+    <nav>
+      <ul>
+        <li>
+          {/* to prop에 이동할 경로 지정 */}
+          <Link to="/">홈</Link>
+        </li>
+        <li>
+          <Link to="/about">소개</Link>
+        </li>
+      </ul>
+    </nav>
+  );
+}
+```
+
+> Q: How does Link differ from an HTML `<a>` element?
+> A: Explain how Link uses the History API and prevents a full page reload.
+
+### Navigate Programmatically with useNavigate
+
+Sometimes you need to navigate after running some logic, such as a button's click handler. Use useNavigate for those cases.
+#### How It Works
+Call the navigate function returned by useNavigate. React Router uses the History API to update the URL and trigger rendering. It calls `pushState` by default or `replaceState` if you request it. Passing a path or a numeric history offset determines which history operation it uses.
+
+```tsx
+import { useNavigate } from 'react-router-dom';
+
+function LoginPage() {
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    const isLoggedIn = true;
+    if (isLoggedIn) {
+      // 내부적으로 history.pushState('/') 와 유사하게 동작
+      navigate('/');
+      // 로그인 페이지 기록을 남기지 않으려면 replace 사용
+      // navigate('/', { replace: true }); // history.replaceState('/') 와 유사
+    } else {
+      alert('로그인 실패!');
+    }
+  };
+
+  return (
+    <div>
+      <h2>로그인</h2>
+      <button onClick={handleLogin}>로그인 하기</button>
+    </div>
+  );
+}
+```
+
+### Read URL Parameters with useParams
+
+Use useParams to get values from dynamic path segments.
+#### How It Works
+As React Router matches a Route path against the current URL, it extracts the values of any dynamic segments. useParams exposes those values in an object your component can use.
+
+```tsx
+import { useParams } from 'react-router-dom';
+
+// Route 설정
+// <Route path="/users/:userId" element={<UserProfilePage />} />
+
+function UserProfilePage() {
+  // URL이 '/users/alice' 라면, params는 { userId: 'alice' } 가 됨
+  const params = useParams<{ userId: string }>();
+
+  return (
+    <div>
+      <h2>사용자 프로필</h2>
+      <p>사용자 ID: {params.userId}</p>
+    </div>
+  );
+}
+```
+
+### Other Useful Hooks
+
+- **useLocation** returns a location object containing pathname, search, hash, and state. React Router updates it when the URL changes, so components using the hook receive the current location.
+- **useSearchParams** parses and updates query strings. It reads location.search, uses the URLSearchParams API to work with parameters, and invokes navigation to update the URL when needed.
+
+<Ads1 />
+
+## Nested Routes and Outlet for Shared Layouts
+
+Nested routes make it easier to reuse layouts.
+#### How It Works
+React Router finds the nested route branch that best matches the URL. For `/dashboard/analytics`, this example matches `/` (MainLayout), then `dashboard` (Outlet), then `analytics` (DashboardAnalytics). MainLayout renders, and nested Outlet components provide the places where the matched child elements appear, down to DashboardAnalytics.
+
+```tsx
+// 중첩 라우트 설정 예시 (기존과 동일)
+import React from 'react'; // React 임포트
+import { BrowserRouter, Routes, Route, Link, Outlet } from 'react-router-dom'; // 필요한 모듈 임포트
+
+// 공통 레이아웃 컴포넌트
+function MainLayout() { /* ... Outlet 포함 ... */ }
+// 페이지 컴포넌트들
+function DashboardHome() { return <h3>대시보드 홈</h3>; }
+function DashboardAnalytics() { return <h3>대시보드 분석</h3>; }
+function SettingsPage() { return <h2>설정</h2>; }
+
+function AppNested() { // 컴포넌트 이름 변경 (App 중복 방지)
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<h2>홈페이지 컨텐츠</h2>} />
+          <Route path="dashboard" element={<Outlet />}>
+            <Route index element={<DashboardHome />} />
+            <Route path="analytics" element={<DashboardAnalytics />} />
+          </Route>
+          <Route path="settings" element={<SettingsPage />} />
+        </Route>
+        <Route path="*" element={<h2>페이지를 찾을 수 없습니다 (404)</h2>} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+```
+
+## Dynamic Routing and Code Splitting
+
+Use React.lazy and Suspense to split code into chunks.
+#### How It Works
+A component wrapped with React.lazy loads asynchronously when its route first matches and the component is rendered. Suspense shows fallback UI while loading and renders the component once it is ready. This works with dynamic import() in tools such as Webpack or Vite, so the bundler can split code into smaller chunks and load them only when needed.
+
+```tsx
+import React, { lazy, Suspense } from 'react'; // lazy, Suspense 임포트
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'; // 필요한 모듈 임포트
+
+// 동적 임포트
+const LazyHomePage = lazy(() => import('./pages/HomePage'));
+const LazyAboutPage = lazy(() => import('./pages/AboutPage'));
+
+function AppLazy() { // 컴포넌트 이름 변경 (App 중복 방지)
+  return (
+    <BrowserRouter>
+      <nav>
+        <Link to="/">홈</Link> | <Link to="/about">소개</Link>
+      </nav>
+      <Suspense fallback={<div>페이지 로딩 중...</div>}>
+        <Routes>
+          <Route path="/" element={<LazyHomePage />} />
+          <Route path="/about" element={<LazyAboutPage />} />
+          <Route path="*" element={<h2>페이지를 찾을 수 없습니다 (404)</h2>} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
+  );
+}
+
+// ./pages/HomePage.tsx 예시 (default export 필요)
+// import React from 'react';
+// function HomePage() { return <h2>홈 페이지</h2>; }
+// export default HomePage;
+```
+
+<Ads2 />
+
+## Fetching Data When URL Parameters Change
+
+Use the dependency array of useEffect to fetch new data when a URL parameter changes.
+### How It Works
+When the URL changes, React Router renders the component with the new parameters. useParams returns the new values. When a value in the dependency array (`[userId]`) changes, useEffect runs the effect again and fetches data for the new parameter.
+
+```tsx
+// useEffect를 사용한 데이터 페칭 예시 (기존과 동일)
+import React, { useState, useEffect } from 'react'; // useState, useEffect 임포트
+import { useParams } from 'react-router-dom'; // useParams 임포트
+
+// 가짜 API 함수
+async function fetchUserData(userId: string): Promise<{ id: string; name: string }> { /* ... */ return { id: userId, name: `사용자 ${userId.toUpperCase()}` }; }
+
+function UserProfilePageFetch() { // 컴포넌트 이름 변경
+  const { userId } = useParams<{ userId: string }>();
+  const [userData, setUserData] = useState</*...*/ | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (userId) {
+      // ... 데이터 요청 로직 ...
+    }
+  }, [userId]); // userId 변경 시 재실행
+
+  // ... 렌더링 로직 ...
+  if (!userData) return null; // 초기 렌더링 또는 오류 시 null 반환
+  return (
+    <div>
+      <h2>사용자 프로필</h2>
+      <p>ID: {userData.id}</p>
+      <p>이름: {userData.name}</p>
+    </div>
+  );
+}
+```
+
+## Conclusion
+
+We looked at how to use React Router v6 for navigation and how it works internally.
+- SPA routing uses the browser's **History API** to change the URL and update the UI without reloading the page.
+- React Router uses **URL matching** to find the route for the current path and render its component.
+- **Link** calls `pushState` to update the URL. **useNavigate** lets you do so programmatically.
+- **useParams** and **useLocation** make URL information available to components.
+- **Nested routes** and **Outlet** organize layouts and determine where child route components render.
+- **Code splitting** with React.lazy, Suspense, and dynamic imports can improve initial loading performance.
+
+Understanding how React Router works helps you troubleshoot routing problems and design a more effective application structure.
+> Next time, we'll cover server-side rendering (SSR), static site generation (SSG), and hydration. We'll compare ways of delivering pages to users and look at how they affect performance and SEO.
+
+### References
+
+- React Router documentation: [https://reactrouter.com/](https://reactrouter.com/)
+- MDN Web Docs — History API: [https://developer.mozilla.org/ko/docs/Web/API/History_API](https://developer.mozilla.org/ko/docs/Web/API/History_API)
+- React documentation — Code Splitting: [https://reactjs.org/docs/code-splitting.html](https://reactjs.org/docs/code-splitting.html)

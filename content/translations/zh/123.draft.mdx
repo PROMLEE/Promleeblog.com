@@ -1,0 +1,277 @@
+---
+title: 在 Flutter 中使用 Dio 和 Retrofit 进行 API 通信
+desc: Flutter에서 Dio와 Retrofit을 사용하여 API 통신하기. 타입 정의의 중요성에 대해 알아보자.
+post_id: '123'
+locale: zh
+description: 介绍在 Flutter 中使用 Dio 和 Retrofit 进行 API 通信的方法，以及类型定义的重要性。
+source_hash: 8625ac00d08317f42e1e3bba09a6fde5118eb65ee9604d23ea0d66c5319aa230
+---
+## 开始之前
+> 本文基于 Flutter 3.24 编写。
+
+开发应用或 Web 前端时，经常需要使用后端接口或开放 API。调用 API 需要进行 HTTP 通信。在 Flutter 中，可以使用 Dio 和 Retrofit 完成 API 通信。
+当然，也可以使用 HTTP 包，但 Dio 和 Retrofit 能让 API 调用更加方便。尤其是 Retrofit，可以通过类型定义轻松处理 API 响应，提高开发效率。
+本文介绍在 Flutter 中使用 Dio 和 Retrofit 进行 API 通信的方法，以及类型定义的重要性。
+<Ads1 />
+## 1. 安装依赖包
+要使用 Retrofit，需要安装包括 Dio、Retrofit 在内的 4 个包。另外，还有 3 个包仅在开发时使用，因此添加到 dev_dependencies 中。
+安装命令如下。
+```
+dart pub add json_annotation dio retrofit
+dart pub add --dev build_runner retrofit_generator json_serializable
+```
+确认 pubspec.yaml 文件中已添加以下内容（版本以撰写时为准）。
+```yaml title="pubspec.yaml"
+dependencies:
+	retrofit: ^4.4.2
+	dio: ^5.7.0
+	json_annotation: ^4.9.0
+
+dev_dependencies:
+	build_runner: ^2.4.13
+	retrofit_generator: ^9.1.5
+	json_serializable: ^6.9.0
+```
+各个包的作用如下。
+- dio：用于 HTTP 通信。
+- retrofit：用于 API 通信。
+- json_annotation：用于 JSON 序列化与反序列化。
+- build_runner：用于生成代码。
+- retrofit_generator：生成使用 Retrofit 所需的代码。
+- json_serializable：生成 API 请求过程中进行 JSON 序列化与反序列化所需的代码。
+
+<Ads2 />
+## 2. 编写请求代码
+编写示例 API 请求所需的模型类与接口。这里使用提供模拟数据的 [JSONPlaceholder](https://jsonplaceholder.typicode.com/)。
+先从最基本的无参数 GET 请求开始，编写发送请求并接收响应的示例。在上述网站中调用 `https://jsonplaceholder.typicode.com/users` API，可以收到以下响应。
+```json
+[
+	{
+		"id": 1,
+		"name": "Leanne Graham",
+		"username": "Bret",
+		"email": "Sincere@april.biz",
+		"address": {
+			"street": "Kulas Light",
+			"suite": "Apt. 556",
+			"city": "Gwenborough",
+			"zipcode": "92998-3874",
+			"geo": {
+				"lat": "-37.3159",
+				"lng": "81.1496"
+			}
+		},
+		"phone": "1-770-736-8031 x56442",
+		"website": "hildegard.org",
+		"company": {
+			"name": "Romaguera-Crona",
+			"catchPhrase": "Multi-layered client-server neural-net",
+			"bs": "harness real-time e-markets"
+		}
+	},
+	// ...
+]
+```
+根据上述响应编写代码。我在 /lib/model 文件夹中创建了 user_dto.dart 和 user.dart 文件。
+### 2.1 编写 API 请求的模型类
+编写 API 请求所需的模型类，示例代码如下。
+```dart title="lib/model/user_dto.dart"
+import 'package:json_annotation/json_annotation.dart';
+part 'user_dto.g.dart';
+
+@JsonSerializable()
+class UserDto {
+	final int id;
+	final String name;
+	final String username;
+	final String email;
+	final Address address;
+	final String phone;
+	final String website;
+	final Company company;
+
+	UserDto({
+		required this.id,
+		required this.name,
+		required this.username,
+		required this.email,
+		required this.address,
+		required this.phone,
+		required this.website,
+		required this.company,
+	});
+
+	factory UserDto.fromJson(Map<String, dynamic> json) => _$UserDtoFromJson(json);
+	Map<String, dynamic> toJson() => _$UserDtoToJson(this);
+} 
+
+@JsonSerializable()
+class Address {
+	final String street;
+	final String suite;
+	final String city;
+	final String zipcode;
+	final Geo geo;
+
+	Address({
+		required this.street,
+		required this.suite,
+		required this.city,
+		required this.zipcode,
+		required this.geo,
+	});
+
+	factory Address.fromJson(Map<String, dynamic> json) => _$AddressFromJson(json);
+	Map<String, dynamic> toJson() => _$AddressToJson(this);
+}
+
+@JsonSerializable()
+class Geo {
+	final String lat;
+	final String lng;
+
+	Geo({
+		required this.lat,
+		required this.lng,
+	});
+
+	factory Geo.fromJson(Map<String, dynamic> json) => _$GeoFromJson(json);
+	Map<String, dynamic> toJson() => _$GeoToJson(this);
+}
+
+@JsonSerializable()
+class Company {
+	final String name;
+	final String catchPhrase;
+	final String bs;
+
+	Company({
+		required this.name,
+		required this.catchPhrase,
+		required this.bs,
+	});
+
+	factory Company.fromJson(Map<String, dynamic> json) => _$CompanyFromJson(json);
+	Map<String, dynamic> toJson() => _$CompanyToJson(this);
+}
+```
+<Ads3 />
+### 2.2 编写 API 请求的接口
+```dart title="lib/model/user.dart"
+import 'package:dio/dio.dart';
+import 'package:retrofit/retrofit.dart';
+import 'user_dto.dart';
+
+part 'user.g.dart'; // 생성될 파일
+
+@RestApi(baseUrl: "https://jsonplaceholder.typicode.com") // base url
+abstract class UserApi {
+	factory UserApi(Dio dio, {String baseUrl}) = _UserApi;
+
+	@GET("/users") // 요청할 API
+	Future<List<UserDto>> getUsers(); // 요청할 API의 응답을 받을 모델 클래스
+}
+```
+## 3. 生成代码
+写好上述代码后，IDE 中可能出现错误（红色下划线）。这表示需要生成代码。
+在项目根目录中运行以下命令来生成代码。
+```
+dart run build_runner build
+```
+确认对应文件夹中已生成以下文件。
+```
+lib/model/user_dto.g.dart
+lib/model/user.g.dart
+```
+如果错误已经消失，就可以准备调用 API 了。
+
+<Ads4 />
+## 4. 调用 API
+现在可以调用 API。在适当位置编写并调用以下函数。
+```dart
+import 'dart:developer';
+
+import 'package:dio/dio.dart';
+import 'package:retrofit/retrofit.dart';
+import 'package:{project명}/model/user/user.dart'; // 작성한 프로젝트의 경로에 맞게 수정해주세요.
+
+void runApiExample() {
+  final dio = Dio();
+  final client = GetUserApi(dio);
+
+  client.getUsers().then((userList) => {
+        for (final user in userList) {log(user.toJson().toString())}
+      });
+}
+
+```
+按照上面的方式编写代码，就可以调用 API。
+```
+[log] {id: 1, name: Leanne Graham, username: Bret, email: Sincere@april.biz, address: Instance of 'Address', phone: 1-770-736-8031 x56442, website: hildegard.org, company: Instance of 'Company'}
+[log] {id: 2, name: Ervin Howell, username: Antonette, email: Shanna@melissa.tv, address: Instance of 'Address', phone: 010-692-6593 x09125, website: anastasia.net, company: Instance of 'Company'}
+[log] {id: 3, name: Clementine Bauch, username: Samantha, email: Nathan@yesenia.net, address: Instance of 'Address', phone: 1-463-123-4447, website: ramiro.info, company: Instance of 'Company'}
+[log] {id: 4, name: Patricia Lebsack, username: Karianne, email: Julianne.OConner@kory.org, address: Instance of 'Address', phone: 493-170-9623 x156, website: kale.biz, company: Instance of 'Company'}
+[log] {id: 5, name: Chelsey Dietrich, username: Kamren, email: Lucio_Hettinger@annie.ca, address: Instance of 'Address', phone: (254)954-1289, website: demarco.info, company: Instance of 'Company'}
+[log] {id: 6, name: Mrs. Dennis Schulist, username: Leopoldo_Corkery, email: Karley_Dach@jasper.info, address: Instance of 'Address', phone: 1-477-935-8478 x6430, website: ola.org, company: Instance of 'Company'}
+[log] {id: 7, name: Kurtis Weissnat, username: Elwyn.Skiles, email: Telly.Hoeger@billy.biz, address: Instance of 'Address', phone: 210.067.6132, website: elvis.io, company: Instance of 'Company'}
+[log] {id: 8, name: Nicholas Runolfsdottir V, username: Maxime_Nienow, email: Sherwood@rosamond.me, address: Instance of 'Address', phone: 586.493.6943 x140, website: jacynthe.com, company: Instance of 'Company'}
+[log] {id: 9, name: Glenna Reichert, username: Delphine, email: Chaim_McDermott@dana.io, address: Instance of 'Address', phone: (775)976-6794 x41206, website: conrad.com, company: Instance of 'Company'}
+[log] {id: 10, name: Clementina DuBuque, username: Moriah.Stanton, email: Rey.Padberg@karina.biz, address: Instance of 'Address', phone: 024-648-3804, website: ambrose.net, company: Instance of 'Company'}
+```
+
+## 5. 其他配置方法
+### 5.1 API 请求中传递参数
+```dart
+@GET('/users/{id}')
+Future<UserDto> getUserByPathId(@Path() int id); // 파라미터 전달
+```
+### 5.2 API 请求中传递查询参数
+```dart
+@GET('/users')
+Future<List<UserDto>> getUserByQueryId(
+	@Query('id') int id,
+); // 쿼리 파라미터 전달
+```
+### 5.3 API 请求中传递请求头
+传递固定请求头时，按如下方式编写。
+```dart
+@GET('/users')
+@Headers(<String, dynamic>{
+	'Content-Type': 'application/json',
+	'Authorization': 'Bearer {token}',
+})
+Future<List<UserDto>> getUsers(); // 헤더 전달
+```
+动态传递请求头时，按如下方式编写。
+```dart
+@GET('/users')
+Future<List<UserDto>> getUsers(
+	@Header('Content-Type') String content_type, 
+	@Header('Authorization') String authorization,
+); // 헤더 전달
+```
+### 5.4 API 请求中传递请求体
+```dart
+@POST('/users')
+Future<UserDto> createUser(@Body() UserDto user); // 바디 전달
+```
+
+<Ads5 />
+## 问题与解决方法
+### 1. 修改类名时
+修改请求接口的类名后，即使重新生成代码，也可能出现错误。
+这时删除生成的 d.dart 文件，再重新生成即可解决。
+```
+rm lib/model/user/user.g.dart
+dart run build_runner build
+```
+
+## 结语
+本文介绍了在 Flutter 中使用 Dio 和 Retrofit 进行 API 通信的方法，以及类型定义的重要性。通过类型定义，可以轻松处理 API 响应，提高开发效率。
+
+### 进一步思考
+接收 API 响应的模型类字段越多，代码就越长，可读性也可能下降。此时使用 [json_to_dart](https://javiercbk.github.io/json_to_dart/) 等工具生成模型类会更方便。
+
+### 参考资料
+- [GitHub - retrofit.dart](https://github.com/trevorwang/retrofit.dart/)
+- [Flutter——使用 Retrofit 进行 HTTP 通信](https://medium.com/@ExplosivePasta/flutter-retrofit%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%98%EC%97%AC-http-%ED%86%B5%EC%8B%A0-7a07a3263bf8)

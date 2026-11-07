@@ -1,0 +1,56 @@
+---
+post_id: '19'
+locale: en
+title: An Overview of Cryptography
+description: An introduction to the basic concepts of cryptography.
+source_hash: 3d8691c1e6529a4e9d3e442b38d816d109962185952d0205d3df79b64e3d7417
+---
+## Encryption
+> A technology that provides data confidentiality.
+Encryption is the process of converting plaintext into ciphertext.
+
+- Symmetric-key cryptography
+  - Block ciphers
+  - Stream ciphers
+- Public-key cryptography
+  - Factoring-based schemes
+  - Discrete-logarithm-based schemes
+  - Post-quantum cryptography: lattice-based, code-based, and other schemes
+
+It consists of the following three algorithms.
+- Setup algorithm: $Setup(\lambda ) → {K_{enc}, K_{dec}}$
+- Encryption algorithm: $Enc({K_{enc}, M}) → CT$
+- Decryption algorithm: $Dec({K_{dec}, CT}) → M$
+
+## Symmetric Encryption
+> An encryption method that uses the same key for encryption and decryption.
+It is also called secret-key cryptography.
+Traditional approaches include block ciphers such as DES, AES, ARIA, and SEED, and stream ciphers such as RC4 and ChaCha.
+Advantage: faster than asymmetric encryption.
+Disadvantage: key distribution is a problem, and many keys are needed: $N(N-1)/2$ keys.
+<Ads1 />
+## Asymmetric Encryption
+> An encryption method that uses different keys for encryption and decryption.
+It is also called public-key cryptography.
+Examples include RSA, ElGamal, and NTRU.
+Advantages: resolves the key-sharing problem and requires fewer keys: $2N$ keys.
+Disadvantage: slower than symmetric encryption.
+
+## Encryption terminology (Terminology for Encryption)
+- Plaintext: the original message or data supplied as input to an algorithm.
+- Ciphertext: the output of an encryption algorithm.
+- Encryption algorithm: an algorithm that converts plaintext into ciphertext.
+- Decryption algorithm: an algorithm that converts ciphertext into plaintext.
+- Public key and private key: a pair of keys selected for encryption and decryption, respectively.
+<Ads2 />
+## Kerckhoffs's Principle
+> An encryption algorithm should remain secure even if it is public. Only the secret key needs to remain protected.
+This increases the system's security and makes it easier to communicate with others using different keys.
+
+## Basic Types of Attacks against Encryption
+1. Brute-force attack: tries every possible key to decrypt the ciphertext.
+2. Cryptanalysis: analyzes the structure of an encryption algorithm to infer the plaintext.
+   - Ciphertext-only attack
+   - Known-plaintext attack
+   - Chosen-plaintext attack
+   - Chosen-ciphertext attack

@@ -1,0 +1,154 @@
+---
+title_ko: 윈도우에서 WSL로 우분투 22.04 LTS 쉽게 설치하기
+title_en: Easily Install Ubuntu 22.04 LTS with WSL on Windows
+desc: >-
+  윈도우 사용자도 리눅스 환경을 쉽게 사용할 수 있게 해주는 WSL(Windows Subsystem for Linux)을 통해 우분투
+  22.04 LTS 버전을 설치하는 방법을 단계별로 알아봅니다. 설치부터 기본 설정까지 친절하게 안내합니다.
+thumbnail_url: /250604-140020.webp
+metatag: >-
+  WSL, Ubuntu, Ubuntu 22.04, Linux, Windows Subsystem for Linux, 윈도우 리눅스, 개발 환경,
+  리눅스 설치, PowerShell, Microsoft Store, 우분투 설치, 듀얼부팅 없이 리눅스, WSL2
+post_id: '312'
+locale: en
+title: Install Ubuntu 22.04 LTS on Windows with WSL
+description: >-
+  Install Ubuntu 22.04 LTS with Windows Subsystem for Linux, create a Linux
+  user, verify the installation, and access Windows files from Ubuntu.
+source_hash: 569e3d2ce24c83c553dd2b77e33689145feb802b7ac93b244f46ab094387d0f2
+reviewed_at: '2026-11-07T12:15:55.285Z'
+---
+## Before We Begin
+
+Ever needed a Linux environment to learn development but wondered how to get one on a Windows PC? In the past, you might have set up dual booting or installed a virtual machine. *Windows Subsystem for Linux (WSL)* makes it easy to use Linux within Windows.
+<br />
+This guide shows how to install *Ubuntu*, a popular Linux distribution, using its stable long-term support release, *22.04 LTS*.
+<Img src="/250604-144231.webp" width={300} alt="WSL and Ubuntu"/>
+## What Is WSL?
+Before installing it, let's look briefly at what WSL does.
+<br />
+**Windows Subsystem for Linux (WSL)** is a Windows feature that lets you run Linux executables directly from Windows. It gives you a Linux environment without having to manage a separate full virtual machine. There are two main versions.
+
+- **WSL 1** translates Linux system calls so the Windows NT kernel can handle them. It has some limitations, including file system performance.
+- **WSL 2** runs a real Linux kernel in a lightweight virtual machine. This greatly improves system call compatibility and file system performance in Linux workloads. WSL 2 is recommended for most users.
+
+The Ubuntu distribution in this guide also works well under WSL 2.
+
+<Ads1/>
+## Step 1: Enable WSL
+
+First, enable the Windows features WSL needs. Think of it like putting batteries into a new toy. The easiest way is to run a command in PowerShell as an administrator.
+
+1.  **Run PowerShell as administrator**
+    - Right-click the Windows Start button.
+    - Select Windows PowerShell (Admin) or Terminal (Admin). The name varies with the Windows version.
+    - Click Yes if prompted by User Account Control.
+2.  **Enter the WSL installation command**
+    Enter the following command in the administrator PowerShell window and press Enter. This enables the components WSL needs and may also install the default Linux distribution, usually a recent Ubuntu LTS release.
+    ```powershell
+    wsl --install
+    ```
+    Running `wsl --install` without specifying a distribution installs the default Ubuntu release. Since we're aiming for *Ubuntu 22.04.1 LTS*, you can let the default installation proceed or pick the release you want from the Microsoft Store later.
+    <br />
+    <br />
+    If `wsl --install` doesn't work, or if you're on an older Windows version with only some WSL components installed, you may need to enable the features manually. Run the following commands in order.
+    <br />
+    First enable **Windows Subsystem for Linux**.
+    ```powershell
+    dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+    ```
+
+    Next enable **Virtual Machine Platform**, which WSL 2 requires.
+    ```powershell
+    dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+    ```
+    *Restart your computer* after running both commands so the changes take effect.
+
+3.  **Restart your computer**
+    Whether you used `wsl --install` or enabled the features manually, restart Windows if the installer asks you to.
+4.  **Optional: Set WSL 2 as the default**
+    The current `wsl --install` command usually sets WSL 2 as the default. If you previously used WSL 1 or want to set the default explicitly, reopen PowerShell as an administrator after restarting and run the following.
+    ```powershell
+    wsl --set-default-version 2
+    ```
+    If you see “WSL 2 requires an update to its kernel component,” follow the link in the message, usually `https://aka.ms/wsl2kernel`, and install the Linux kernel update package.
+
+Your Windows PC is now ready to run Linux.
+
+<Ads2/>
+## Step 2: Install Ubuntu 22.04 LTS from the Microsoft Store
+> If the WSL command installed Ubuntu already, you can proceed to the next step. To choose another Linux distribution or release, use the Microsoft Store.
+
+Now let's install *Ubuntu 22.04 LTS*. The easiest option is the Microsoft Store, much like downloading an app on a phone.
+
+1.  **Open the Microsoft Store**
+    Search for Microsoft Store in the Windows Start menu and open it.
+2.  **Find Ubuntu**
+    Search for Ubuntu in the store. You may see several versions. Choose *Ubuntu 22.04 LTS* for this guide.
+    If you don't see that exact listing, try searching for Ubuntu 22.04 LTS specifically or select Ubuntu, which normally points to the latest LTS release. You can check the exact version after installation.
+3.  **Install it**
+    Click Install or Get on the page for the release you chose. The store downloads and installs it automatically. This may take a while depending on your connection. WSL lets you install and use multiple Linux distributions on the same machine.
+
+## Step 3: Launch Ubuntu and Create a User
+After installing Ubuntu, launch it once to complete setup. Like naming a character when you start a game, you'll need to create a username and password for Linux.
+
+1.  **Launch Ubuntu**
+    - Open Ubuntu 22.04.1 LTS, or the Ubuntu release you installed, from the Windows Start menu.
+    - You can also launch it from PowerShell or Command Prompt with `wsl` or `ubuntu2204.1`. The launcher varies by distribution. Check installed distributions with `wsl -l -v`.
+2.  **Wait for initial setup**
+    On first launch, you may see “Installing, this may take a few minutes...” while setup runs.
+3.  **Choose a username**
+    When you see “Enter new UNIX username:”, enter the name you want to use in Linux. Stick with lowercase English letters and numbers, as in `student`, `myubuntu`, or `devuser`.
+    <Rbox>Avoid spaces and special characters. Your Linux username can differ from your Windows username.</Rbox>
+    Press Enter to continue.
+4.  **Choose a password**
+    At “New password:”, enter a password for the Linux account. Nothing appears on screen as you type, including asterisks (`*`). Type it carefully and press Enter.
+5. **Confirm the password**
+    At “Retype new password:”, enter the same password again and press Enter. The characters will remain hidden. On success, you should see “Password updated successfully” or a similar message, followed by a Linux prompt such as `사용자이름@컴퓨터이름:~$`, where the two parts are your username and computer name.
+<Img src="/250604-153605.webp" width={500} alt="Ubuntu running after setup"/>
+Ubuntu 22.04 LTS is now set up on Windows. If the prompt is visible, you're in the Linux terminal.
+
+<Ads3/>
+## Step 4: Verify the Installation and Try Basic Commands
+
+Now check that everything works and try a few commands.
+
+1.  **Check the Ubuntu version**
+    Run the following command in the Ubuntu terminal.
+    ```bash
+    lsb_release -a
+    ```
+    It shows details about the installed Linux distribution. Check that `Description:` shows `Ubuntu 22.04.5 LTS` or a similar value. The `Codename:` should be `jammy`, short for Jammy Jellyfish.
+    <Img src="/250604-153841.webp" width={400} alt="Checking the Ubuntu version"/>
+2.  **Update the package list and upgrade installed packages**
+    It's a good idea to update a new Linux installation. First refresh the list of available packages.
+    ```bash
+    sudo apt update
+    ```
+    If asked for your Linux password, type it and press Enter. It won't appear on screen. `sudo` stands for “superuser do” and runs the command with administrator privileges.
+    <br />
+    Next upgrade installed packages.
+    ```bash
+    sudo apt upgrade
+    ```
+    This can take a while if many packages need upgrades. When prompted with [Y/n], type `Y` and press Enter.
+3.  **Try a few Linux commands**
+    - `ls` lists files and subdirectories in the current directory.
+    - `pwd` prints the full path of your current directory.
+    - `cd [디렉토리명]` changes to the specified directory. For example, `cd /home` changes to `/home`.
+    - `mkdir [새디렉토리명]` creates a directory with the name you supply.
+    - `clear` clears the terminal.
+4.  **Access Windows files**
+    WSL makes it easy to access the Windows file system. Go to this path in your Ubuntu terminal.
+    ```bash
+    cd /mnt/c
+    ```
+    This takes you to the root of the Windows C drive. Run `ls` to see familiar directories such as `Program Files`, `Users`, and `Windows`. If you have a D drive, you can access it at `/mnt/d`.
+
+## Conclusion
+
+We installed Ubuntu 22.04.1 LTS on Windows with WSL and completed the basic setup. You can now use a Linux development environment alongside your Windows tools.
+
+### References
+
+- [Official Microsoft WSL documentation](https://docs.microsoft.com/ko-kr/windows/wsl/)
+- [Official Ubuntu website](https://ubuntu.com/)

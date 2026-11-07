@@ -1,0 +1,179 @@
+---
+title_ko: Expo Image와 Asset을 활용한 이미지 표시
+title_en: Complete Guide to Image Loading with Expo Image and Asset
+desc: >-
+  Expo의 `expo-image`와 `expo-asset` 라이브러리를 사용하여 이미지 로딩을 최적화하는 방법을 단계별로 소개합니다. 다양한
+  예제와 문제 해결 팁을 함께 제공합니다.
+thumbnail_url: 'https://docs.expo.dev/static/images/packages/expo-image.png'
+metatag: >-
+  expo-image, expo-asset, react-native, 이미지 로딩, blurhash, expo-image 사용법,
+  expo-asset 사용법
+post_id: '183'
+locale: zh
+title: 使用 Expo Image 和 Asset 加载图片
+description: 分步骤介绍如何用 expo-image 和 expo-asset 优化图片加载，并提供示例与排查技巧。
+source_hash: 576d707115d4acc5363229ff75bd997dd04ee31c03df1073b90161c33a6ea38c
+---
+## 开始之前
+使用 React Native 和 Expo 开发应用时，图片会直接影响用户体验。加载缓慢或画面闪烁，都可能让用户不满意。本文将结合 Expo 官方提供的 `expo-image` 与 `expo-asset`，介绍如何高效管理和显示图片。
+这两个库安装简单、用法直观，初学者也能轻松跟着操作。
+## 用 expo-image 加载外部图片
+`expo-image` 是高性能图片组件。它比基础的 `Image` 组件提供更多功能，内置缓存和过渡效果等高级功能，性能也很出色。
+### 安装方法
+在终端运行以下命令。
+```bash
+npx expo install expo-image
+```
+### 基本用法
+下面是从外部 URL 加载图片的基本示例。
+```tsx
+import { Image } from 'expo-image';
+import { View, StyleSheet } from 'react-native';
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <Image
+        style={styles.image}
+        source="https://picsum.photos/seed/picsum/3000/2000"
+        contentFit="cover"
+        transition={1000}
+      />
+    </View>
+  );
+}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  image: {
+    width: '100%',
+    height: 300,
+    backgroundColor: '#ccc',
+  },
+});
+```
+*`contentFit` 属性与 CSS 的 `object-fit` 类似，用来决定图片如何适配容器。*
+<Ads1 />
+## 用 expo-asset 加载应用内图片
+要加载随应用一起打包的静态图片文件，可以使用 `expo-asset`。这个库可以通过 `require()` 加载资源，并支持图片、字体、声音等静态文件。
+### 安装方法
+```bash
+npx expo install expo-asset
+```
+### 简单示例
+```tsx
+import { Asset } from 'expo-asset';
+import { Image } from 'expo-image';
+import { useEffect, useState } from 'react';
+import { View, StyleSheet } from 'react-native';
+export default function App() {
+  const [localUri, setLocalUri] = useState<string | null>(null);
+    useEffect(() => {
+    async function loadImage() {
+      const [asset] = await Asset.loadAsync(require('@/assets/example.png'));
+      setLocalUri(asset.localUri);
+    }
+    loadImage();
+  }, []);
+    return (
+    <View style={styles.container}>
+      {localUri && (
+        <Image
+          style={styles.image}
+          source={localUri}
+          contentFit="contain"
+          transition={500}
+        />
+      )}
+    </View>
+  );
+}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  image: {
+    width: 300,
+    height: 300,
+  },
+});
+```
+*上面的代码把应用内的图片文件作为资源加载，再将文件路径（localUri）传给 `expo-image` 显示。*
+## 使用 useAssets Hook
+`expo-asset` 还提供名为 `useAssets` 的 Hook。它适合一次加载多个资源，也可以同时管理加载和错误状态。
+```tsx
+import { useAssets } from 'expo-asset';
+import { Image } from 'react-native';
+const [assets, error] = useAssets([
+  require('./assets/image1.png'),
+  require('./assets/image2.jpg'),
+]);
+return assets ? <Image source={assets[0]} /> : null;
+```
+这种写法更简洁，适合需要多张图片的组件。
+## 用 Blurhash 改善图片加载体验
+
+加载图片时，白屏或闪烁会显得突兀。为此，`expo-image` 提供了 *blurhash* 功能。Blurhash 可以根据很短的字符串生成模糊图像。它的效果类似*缩略图预览*，但更轻量，显示也更快。
+
+### blurhash 使用示例
+
+```tsx
+import { Image } from 'expo-image';
+import { View, StyleSheet } from 'react-native';
+
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <Image
+        style={styles.image}
+        source="https://picsum.photos/seed/blurimage/3000/2000"
+        contentFit="cover"
+        transition={500}
+        placeholder="blurhash"
+        blurhash="L|LqFGRiWBaz~qWAV@ayt8axf6fR"
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  image: {
+    width: '100%',
+    height: 300,
+    backgroundColor: '#eee',
+  },
+});
+```
+
+这里的 `blurhash="L5H2EC=PM+yV0g-mq.wG9c010J}I"` 是*示例 blurhash 值*。实际使用时，需要用工具或后端服务生成 `blurhash` 字符串。
+*使用 blurhash 后，图片加载期间会先显示柔和的模糊背景，减轻闪烁或延迟带来的视觉不适。*
+
+### 生成 blurhash 值
+
+生成 blurhash 字符串时，需要在服务端分析图片文件并计算出相应的值。常用工具包括：
+
+- [BlurHash Playground（wolt）](https://blurha.sh/)
+- 服务端库：`blurhash`、`sharp + blurhash` 组合等。
+
+在前端应用中，`expo-image` 负责使用这些值，而生成工作通常在后端或构建流程中完成。
+
+<Ads2 />
+## 结语
+`expo-image` 可以高效处理外部和应用内图片，`expo-asset` 则帮助管理资源文件。结合使用，可以明显提升应用图片处理的速度和稳定性。
+加载应用内资源时，推荐通过 `expo-asset` 获得 `localUri`，再交给 `expo-image`。
+在 `expo-image` 和 `expo-asset` 之外，还可以用 `blurhash` 改善体验。即使图片加载较慢，用户也能先看到自然的模糊预览。
+从外部 URL 加载图片时，配合 `blurhash` 能让应用更完善。它也可以与静态资源（`expo-asset`）搭配使用，是值得考虑的应用图片加载方案。
+### 进一步思考
+- 为优化图片，可以考虑使用 WebP 格式。
+- 必要时，可以用 `SplashScreen` 在应用启动时等待图片加载完成。
+- 也可以借助 CDN 加快外部图片的加载。
+### 参考资料
+- [expo-image 官方文档](https://docs.expo.dev/versions/latest/sdk/image/)
+- [expo-asset 官方文档](https://docs.expo.dev/versions/latest/sdk/asset/)
+- [React Native 静态图片文档](https://reactnative.dev/docs/images)

@@ -1,0 +1,112 @@
+---
+title_en: >-
+  Solving 'Sharing is only supported for boot loader classes' Warning in Spring
+  Boot Tests
+title_ko: Spring Boot 테스트 시 'Sharing is only supported for boot loader classes' 경고 해결하기
+url: fixing-jvm-sharing-warning
+series_no: 1
+desc: >-
+  테스트 실행 시 자주 발생하는 JVM 경고 메시지의 원인(CDS)을 이해하고, -Xshare:off 옵션을 통해 경고를 제거하는 방법을
+  알아봅니다.
+thumbnail_url: /251215-230905.webp
+metatag: 'Java, JVM, Gradle, Troubleshooting, ErrorHandling, OpenJDK, Testing'
+tags: 'Java, Troubleshooting, Gradle'
+post_id: '380'
+locale: en
+title: >-
+  Fixing the ‘Sharing is only supported for boot loader classes’ Warning in
+  Spring Boot Tests
+description: >-
+  Learn why Class Data Sharing can trigger a JVM warning during tests and how to
+  suppress it with -Xshare:off.
+source_hash: 6afbec6823b33eb4da21cd5fcb437cdabe0df2d33cfe2c245d2ac549d740fe9b
+---
+## Before We Begin
+While working through the [TDD with Spring Boot](https://www.promleeblog.com/blog/post/363-intro-tdd-usage-spring-boot) series, I kept seeing this red message in the console even when the tests passed.
+<Img src="/251215-230059.webp" width={600} alt="OpenJDK 64-Bit Server VM warning"/>
+> OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+At first glance, it might look like an error. It's a **warning**, and it doesn't affect the functionality being tested. If seeing red text every time bothers you, this extra installment is for you.
+You can also jump straight to [the fix](#해결-방법-경고-숨기기).
+
+<Ads1/>
+
+## Why the Warning Appears
+
+To understand this warning, we need to look at a feature of the Java Virtual Machine (JVM) called **Class Data Sharing (CDS)**.
+
+### What Is CDS?
+
+Loading many classes every time a Java program starts takes time.
+The JVM preprocesses information about commonly used classes and stores it in a *shared archive*.
+The next time the program starts, it can read from that archive and start faster.
+
+### Why Do Tests Trigger the Warning?
+
+Running **tests** changes the situation. Tools such as Mockito and JaCoCo, a test coverage tool, participate in the execution process.
+As part of that process, they append entries to Java's bootstrap class path.
+<br/>
+<br/>
+From the JVM's point of view, it goes something like this.
+> ‘The current environment doesn't match the notes I prepared in the CDS archive.
+> Someone appended something.
+> I can't use those notes, so I'll read the classes myself.’
+
+The JVM issues a warning about the restriction on sharing. It's effectively saying that **an optimization has been disabled**.
+
+<Ads2/>
+
+## How to Suppress the Warning
+
+You can safely ignore this warning.
+If the red text bothers you, configure the JVM to disable CDS.
+It will then skip sharing in the first place, so the warning goes away.
+
+### 1. Configure IntelliJ IDEA for Individual Runs
+
+To apply the change only when running from IntelliJ, follow these steps.
+
+1. Open **Run > Edit Configurations...** from the top menu.
+2. Select your JUnit test configuration on the left.
+3. Enter `-Xshare:off` in **VM options**. If you don't see that field, open `Modify options` and enable `Add VM options`.
+<Img src="/251215-230615.webp" width={600} alt="IntelliJ IDEA run configuration"/>
+### 2. Configure build.gradle for the Whole Project
+
+Change the Gradle configuration to apply the setting across the project so the rest of your team also stops seeing the warning.
+Add this configuration to the `test` task in `build.gradle`.
+
+```groovy title="build.gradle" showLineNumbers highlight="{5}"
+tasks.named('test') {
+    useJUnitPlatform()
+    
+    // [추가] JVM에게 CDS 기능을 끄라고 지시합니다.
+    jvmArgs '-Xshare:off'
+}
+```
+
+Click the elephant icon in the upper-right corner to refresh Gradle, then rerun the tests.
+
+<Ads3/>
+
+## Verify the Result
+
+After applying the setting, run the tests again.
+<Img src="/251215-230757.webp" width={600} alt="Test output after suppressing the warning"/>
+The `OpenJDK 64-Bit Server VM warning` message should disappear, leaving just the test results.
+
+## Conclusion
+
+Today we looked at a JVM warning you may encounter when running tests.
+
+- **Cause**
+  Test tools modify the execution environment, and the JVM warns that the CDS optimization has been disabled.
+- **Fix**
+  Add `-Xshare:off` to turn off CDS explicitly and suppress the warning.
+
+Thank you for reading.
+
+### References
+- [Class Data Sharing (CDS)](https://docs.oracle.com/en/java/javase/17/vm/class-data-sharing.html)
+  Oracle's official explanation of CDS and how it works.
+- [Gradle Test Task Configuration](https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.Test.html)
+  Gradle's documentation on configuring JVM options for test tasks.

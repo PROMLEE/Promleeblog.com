@@ -1,0 +1,109 @@
+---
+title_ko: 가상 메모리란? - 하루 10분 운영체제 11일차
+title_en: What is Virtual Memory? - 10 Minutes of OS Day 11
+desc: >-
+  가상 메모리는 실제 메모리보다 더 큰 주소 공간을 제공하는 기법입니다. 요구 페이징, 페이지 교체, 쓰기 시 복사 등 개념과 예시를 통해
+  쉽게 이해해봅니다.
+thumbnail_url: /250420-024626.webp
+metatag: '가상 메모리, 요구 페이징, 페이지 교체, 쓰기 시 복사, 운영체제 면접, 메모리 압축, 스래싱, 페이징, 커널 메모리'
+post_id: '217'
+locale: en
+title: 'What Is Virtual Memory? — 10 Minutes of Operating Systems, Day 11'
+description: >-
+  Understand how virtual memory provides an address space larger than physical
+  memory, with examples of demand paging, page replacement, and copy-on-write.
+source_hash: 5848bd2efea2a93cbd7a7c702650a6bc9422eb01feeab22717b22fb4a02bcf54
+---
+## Before We Begin
+The programs we use need much more memory than we might expect. Physical RAM, however, is limited. The operating system has a clever technique for this situation: *virtual memory*.
+In this post, we will work through virtual memory, how pages are loaded and replaced, and the often confusing concept of copy-on-write, explaining each step simply enough for a child to follow.
+<Ads1 />
+## What Is Virtual Memory?
+*Virtual memory* is an operating system technique that creates an address space larger than physical memory. A program can behave as though it has an enormous amount of memory, while only part of its data is actually in memory and the rest is stored on disk.
+> Imagine living in a small room, keeping a separate storage unit, and bringing out only the belongings you need.
+### Why Do We Need Virtual Memory?
+- It lets many programs run at once even when memory is limited.
+- It can simulate a space much larger than physical memory.
+- It protects processes from accessing one another's memory.
+## Demand Paging
+Rather than loading every page into memory at the start, virtual memory loads pages *only when they are needed*. This is called *demand paging*.
+> 📦 It is like taking only the items you need out of storage.
+### How It Works
+1. The program starts → only the first few necessary pages are loaded into memory.
+2. Another page is needed during execution → a **page fault** occurs.
+3. That page is retrieved from disk → it is loaded into memory.
+4. Execution resumes.
+### Example Flow
+1. A process has 10 pages, but only 3 are loaded into memory.
+2. When another page is needed, the operating system detects a page fault.
+3. The required page is copied from disk to RAM.
+
+Demand paging lets us make more effective use of memory.
+<Ads2 />
+## Page Replacement
+The problem arises when memory is full. What should we do if a new page needs to be loaded but there is no room?
+> 🎒 If your bag has too many books, you take out one you are not reading and put in a new one.
+The operating system uses a **page replacement algorithm** to decide which page to remove.
+Common algorithms include:
+- **FIFO (First-In, First-Out)**: remove the page that arrived first.
+- **LRU (Least Recently Used)**: remove the page that has gone unused the longest.
+- **Optimal**: remove the page whose next use is farthest in the future (the theoretical optimum).
+### FIFO
+Remove the page that was loaded first.
+```
+페이지 프레임: 3개
+요청: A, B, C, A, D
+
+→ 적재 순서: A, B, C
+→ A는 재사용됨
+→ D 요청 시, A가 가장 먼저 들어왔으므로 A 제거
+→ 페이지 교체: A → D
+```
+### LRU
+Remove the page that has not been used for the longest time.
+```
+페이지 프레임: 3개
+요청: A, B, C, A, D
+
+→ A, B, C 적재
+→ A 재사용됨 → A는 최근 사용됨
+→ D 요청 → B가 가장 오래 사용되지 않음 → B 제거
+→ 페이지 교체: B → D
+```
+### Optimal
+Remove the page that will be used farthest in the future. This is difficult to use in practice because it requires knowing the future.
+```
+페이지 프레임: 3개
+요청: A, B, C, A, D, B
+
+→ A, B, C 적재
+→ A 재사용됨
+→ D 요청 → C는 앞으로 사용되지 않음 → C 제거
+→ B 요청 → A는 안 쓰고 D는 나중에 → D 제거 (미래 기준)
+```
+
+<Ads3 />
+## Copy-on-Write
+When two processes use the same data, they initially *share* the same pages. A page is **copied only when one process attempts to modify it**.
+> 📄 Think of two people reading the same document, with a separate copy made only when one of them wants to edit it.
+### How It Works
+1. A parent process creates a child process, and they share memory.
+2. Both can read the memory.
+3. If either tries to modify data → **only the affected page is copied and separated**.
+
+This technique is very commonly used for efficient memory management after *fork()*.
+## Memory Compression
+Instead of swapping, some operating systems **compress unused data so that more data can stay in memory**.
+- Used in macOS and some Linux distributions.
+- Effective when compression ratios are high and CPU capacity is available.
+## Kernel Memory Allocation
+Virtual memory is used by the kernel as well as user programs.
+The operating system itself must request and release memory, so the kernel has its own memory allocators, such as slab and buddy allocators.
+> Think of the kernel as a small program inside the operating system. It needs memory too!
+## Summary
+We have explored the core concepts of virtual memory and how operating systems use memory efficiently through demand paging, page replacement, and copy-on-write.
+In the next post, we will look at mass-storage structure and disk scheduling.
+### References
+- Operating System Concepts (10th Edition)
+- https://en.wikipedia.org/wiki/Virtual_memory
+- https://opensource.com/article/18/9/page-replacement-algorithms

@@ -1,0 +1,279 @@
+---
+title_ko: MVC 패턴 완벽 이해 화면과 데이터 로직 깔끔하게 분리하기
+title_en: Mastering MVC Pattern Separating View Logic and Data
+desc: >-
+  대표적인 디자인 패턴인 MVC(Model-View-Controller)를 알아봅니다. 모델, 뷰, 컨트롤러 각 요소의 역할과 상호작용을
+  이해하고, 관심사 분리를 통해 유연하고 확장 가능한 애플리케이션을 만드는 방법을 Java 스타일 예제와 함께 설명합니다.
+thumbnail_url: /250528-131235.webp
+metatag: >-
+  MVC 패턴, 디자인 패턴, 모델, 뷰, 컨트롤러, 관심사의 분리, 웹 개발, 소프트웨어 아키텍처, Java, UI 디자인, 애플리케이션
+  구조, 개발 프레임워크
+post_id: '83'
+locale: en
+title: 'Understanding MVC: Separate the User Interface from Data and Logic'
+description: >-
+  Learn the roles of models, views, and controllers and how they interact, with
+  Java examples and comparisons across frameworks.
+source_hash: 74cf559761d2fd07bdce25ace5e7b14cb3708bde770477284641808a1b6350e0
+---
+## Before We Begin
+
+As software grows, its parts can become tangled, making it hard to know where to make a change. When user interface code and data processing logic are mixed together, a small edit can have wide effects.
+<br /><br />
+The *Model–View–Controller (MVC) pattern* gives each part of an application one of three roles. The parts work together while limiting how much a change to one affects the others. Think of an organized kitchen where cooking, serving, and washing dishes are separate jobs. MVC can make software easier to build and maintain in much the same way.
+
+## What Is MVC?
+
+MVC is an established architectural pattern first introduced with Smalltalk at Xerox PARC in the late 1970s. Its goal is *separation of concerns*: divide the application into three roles so each can focus on its own responsibilities.
+
+### Model
+> The model handles the application's *data* and *core business logic*.
+
+It stores, retrieves, updates, and validates data. When data changes, it can notify interested components, typically views. It concentrates on data and the rules that govern it, leaving display and input handling to other parts of the application.
+### View
+> The view handles the *user interface*.
+
+It presents data from the model and receives user interactions, such as button clicks and text input. It focuses on presenting information, leaving data storage and processing to the model.
+### Controller
+> The controller *coordinates* the model and view.
+
+It receives input, usually through the view, interprets it, and asks the model to perform the appropriate operation. It can pass the result to the view and direct it to update. The controller manages the overall application flow.
+<Bbox>The three components depend on one another to work, but their distinct roles help limit the effect of changes.</Bbox>
+
+<Ads4/>
+## MVC Components and How They Interact
+
+Here's a common sequence of messages between the components.
+<Img src="/250528-132454.webp" width={600} alt="Diagram showing how MVC components interact"/>
+1. **The user provides input**
+   The user interacts with the view, for example by clicking a button or entering text on a web page.
+2. **The view forwards an event to the controller**
+   The view detects the action and forwards it. The controller determines how to handle the event.
+3. **The controller requests an operation from the model**
+   The controller interprets the request and asks the model to update data or run business logic, such as saving a new post or retrieving the product list.
+4. **The model processes data and updates its state**
+   The model carries out the request and changes its state if needed. It may access a database or perform calculations.
+5. **The model optionally notifies the view**
+   When its state changes, the model can notify views that observe it, for example through the Observer pattern. The controller can also handle this step.
+6. **The controller directs an update, or the view reads the model**
+   After receiving the result or detecting the model change, the controller determines which view should refresh. The view can read the data directly from the model, or the controller can pass it along.
+7. **The view updates the screen**
+   The view gets the latest data from the model or controller and shows the changes to the user.
+
+Each component can focus on its own responsibility.
+
+<Ads1/>
+
+### Model
+
+The model is the core of MVC. It holds the application's data and the business rules for working with it.
+
+#### Responsibilities
+- Store and manage data, such as by accessing a database or file system.
+- Validate data and execute business logic.
+- Notify related components when data changes, typically views, directly or through the controller.
+#### Characteristics
+- It can work without knowing the view or controller, making it independent and easier to reuse.
+- It can be implemented using POJOs (Plain Old Java Objects), data classes, or service classes.
+
+#### Java Example
+```java title="User.java (데이터를 담는 간단한 모델 객체 - DTO 또는 Entity 역할)"
+public class User {
+    private String id;
+    private String name;
+    private String email;
+
+    public User(String id, String name, String email) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+    }
+
+    // Getters and Setters
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+}
+```
+```java title="UserService.java (비즈니스 로직을 처리하는 모델 - Service 역할)"
+import java.util.HashMap;
+import java.util.Map;
+
+public class UserService {
+    private Map<String, User> userDatabase = new HashMap<>(); // 간단한 인메모리 DB 역할
+
+    public User getUserById(String id) {
+        return userDatabase.get(id);
+    }
+
+    public void createUser(String id, String name, String email) {
+        if (userDatabase.containsKey(id)) {
+            System.out.println("오류: 사용자 ID '" + id + "'는 이미 존재합니다.");
+            return;
+        }
+        User newUser = new User(id, name, email);
+        userDatabase.put(id, newUser);
+        System.out.println("사용자 '" + name + "'이(가) 성공적으로 생성되었습니다.");
+        // 데이터 변경이 발생했으므로, 옵저버에게 알리는 로직이 추가될 수 있음
+    }
+}
+```
+
+### View
+
+The view presents information visually and provides an interface for user input.
+
+#### Responsibilities
+- Present model data through HTML, XML, GUI components, or other forms.
+- Receive user input and pass it to the controller.
+#### Characteristics
+- It does not need to know application logic or how the data is processed.
+- The same model can have several views. A chart and a table can display the same data differently.
+- A view can use a template such as JSP or Thymeleaf, or a GUI library such as Swing, JavaFX, or Android UI.
+
+#### Java Example
+```java title="UserView.java (사용자 정보를 출력하는 간단한 뷰)"
+public class UserView {
+    public void printUserDetails(String userName, String userEmail) {
+        System.out.println("--- 사용자 정보 ---");
+        System.out.println("이름: " + userName);
+        System.out.println("이메일: " + userEmail);
+        System.out.println("------------------");
+    }
+
+    public void showMessage(String message) {
+        System.out.println(message);
+    }
+}
+```
+A production application would generally use HTML or a GUI framework.
+
+### Controller
+The controller receives user input and coordinates interactions between the model and the view.
+
+#### Responsibilities
+- Receive input events from the view.
+- Interpret input and ask the model to retrieve or modify data or execute business logic.
+- Receive the result, choose the view to update, and pass it data or direct it to refresh.
+#### Characteristics
+- It connects the model and the view.
+- It manages the overall application flow.
+- In web frameworks, a servlet or controller class typically fills this role.
+
+#### Java Example
+```java title="UserController.java (모델과 뷰를 연결하는 컨트롤러)"
+public class UserController {
+    private UserService model; // 모델(UserService)에 대한 참조
+    private UserView view;     // 뷰(UserView)에 대한 참조
+
+    public UserController(UserService model, UserView view) {
+        this.model = model;
+        this.view = view;
+    }
+
+    public void handleCreateUserRequest(String id, String name, String email) {
+        model.createUser(id, name, email);
+        // 모델에서 생성 성공/실패 여부를 받아 뷰에 다른 메시지를 보여줄 수도 있음
+        // 여기서는 UserService 내부에서 간단히 출력함
+    }
+
+    public void handleGetUserRequest(String id) {
+        User user = model.getUserById(id);
+        if (user != null) {
+            view.printUserDetails(user.getName(), user.getEmail());
+        } else {
+            view.showMessage("사용자 ID '" + id + "'를 찾을 수 없습니다.");
+        }
+    }
+
+    // main 메서드 (애플리케이션 실행 예시)
+    public static void main(String[] args) {
+        // 1. 모델과 뷰 객체 생성
+        UserService userService = new UserService();
+        UserView userView = new UserView();
+
+        // 2. 컨트롤러 생성 및 모델/뷰 주입
+        UserController userController = new UserController(userService, userView);
+
+        // 3. 사용자 요청 시뮬레이션 (컨트롤러를 통해 상호작용)
+        // 사용자 생성 요청
+        userController.handleCreateUserRequest("user001", "홍길동", "gildong@example.com");
+        userController.handleCreateUserRequest("user002", "이순신", "sunsin@example.com");
+        System.out.println(); // 줄 바꿈
+
+        // 사용자 정보 조회 요청
+        userController.handleGetUserRequest("user001");
+        System.out.println();
+        userController.handleGetUserRequest("user003"); // 존재하지 않는 사용자
+    }
+}
+```
+The `main` method creates the MVC components and simulates user requests handled through the controller.
+
+<Ads2/>
+
+## Benefits and Drawbacks of MVC
+
+MVC offers several advantages, and its suitability depends on the application.
+
+### Benefits
+
+- **Separation of concerns**
+  Distinct responsibilities make the code easier to understand and manage.
+- **Flexibility and extensibility**
+  Changing one component, such as a view, has less effect on another, such as the model. Adding or changing views becomes easier.
+- **Reusability**
+  A model can be reused in other contexts because it does not depend on a particular view.
+- **Team collaboration**
+  Designers can work on views while developers handle models and controllers.
+- **Testability**
+  You can test components independently. In particular, separating business logic from the UI makes the model easier to unit test.
+
+### Drawbacks
+
+- **Additional complexity**
+  A small application may need more classes and a more complicated structure than it warrants.
+- **Difficulty fully separating models and views**
+  Coupling can increase when a view must closely track model changes or when a model is designed around a specific view.
+- **Learning curve**
+  It can take time to learn the roles and how the components interact.
+
+## How Frameworks Implement MVC
+
+MVC is a conceptual model. Languages and frameworks implement it in somewhat different ways.
+
+### Web Frameworks
+- **Spring MVC (Java)**
+  In this widely used Java web framework, DispatcherServlet acts as the front controller. Classes annotated with @Controller handle requests and provide model data to views such as JSP or Thymeleaf.
+- **Ruby on Rails (Ruby)**
+  Rails supports MVC through its convention-over-configuration approach. Active Record handles models, Action View handles views, and Action Controller handles controllers.
+- **Django (Python)**
+  Django's Model–View–Template (MVT) terminology describes a similar approach. The Django view handles requests in a controller-like role, and the template handles presentation.
+- **Express.js (Node.js/JavaScript)**
+  Express is a flexible middleware framework in which developers can organize their own MVC structure.
+### GUI Applications
+- **Java Swing and JavaFX**
+  Event listeners can act as controllers, with data models kept separate from the UI components that serve as views.
+- **Cocoa (macOS and iOS)**
+  Cocoa uses Objective-C or Swift and recommends MVC as a basic design principle.
+
+<Ybox>Many modern frameworks use MVC or a related architecture such as MVP or MVVM. Understanding MVC gives you a foundation for learning those approaches.</Ybox>
+
+<Ads3/>
+
+## Conclusion
+
+MVC helps you structure an application by assigning clear responsibilities to models, views, and controllers. This can make code more flexible, easier to extend, and easier to maintain.
+The project's size and needs determine whether and how to apply MVC. The underlying idea of *separating concerns* is worth keeping in mind regardless of what you build.
+> Next time, we'll look at how to define and document software requirements clearly in a **Software Requirements Specification (SRS)**.
+
+### References
+
+- [MVC (Model–View–Controller) — MDN Web Docs](https://developer.mozilla.org/ko/docs/Glossary/MVC) (Korean. MVC from a web development perspective.)
+- [Model–view–controller — Wikipedia](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller) (English. A detailed overview.)
+- [Understanding the MVC Pattern in Java — Baeldung](https://www.baeldung.com/mvc-pattern-java) (English. An explanation with Java examples.)
+- [Spring MVC Tutorial — Spring Framework Documentation](https://docs.spring.io/spring-framework/reference/web/webmvc.html) (English. The official documentation.)
+- [Learn MVC with Code — OpenTutorials](https://opentutorials.org/course/697/3828) (Korean. A beginner-friendly introduction from Life Coding.)

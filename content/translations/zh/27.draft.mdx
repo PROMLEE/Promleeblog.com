@@ -1,0 +1,52 @@
+---
+post_id: '27'
+locale: zh
+title: 公钥密码概述
+description: 介绍公钥加密的基本概念。
+source_hash: 638e4df735a8c7ce9c8ccd33b148d753b5f5e26dc0aa11083447f86a4c53237e
+---
+## 什么是公钥密码？ (What is Public Key Cryptography?)
+用于加密的密钥与用于解密的密钥不同。
+常见方案有RSA、ElGamal和NTRU等。
+优点：便于共享密钥，需要的密钥数量较少。
+缺点：比对称密钥加密慢。
+
+## 公钥密码的定义 (Definition of Public Key Cryptography)
+定义：公钥加密方案PKE由以下算法构成。
+- KeyGen(λ)：输入安全参数λ，输出(pk, sk)。
+- Enc(pk, M)：输入公钥pk和明文M，输出密文C。
+- Dec(sk, C)：输入私钥sk和密文C，输出明文M。
+
+正确性
+对于安全参数λ和所有明文M，如果以下等式成立，就称公钥加密方案PKE是正确的。
+<Bbox>$$ Dec(sk, Enc(pk, M)) = M $$</Bbox>
+其中，(pk, sk)是KeyGen(λ)的输出。
+<Ads1 />
+## 公钥密码的安全模型 (Security Model for Public Key Cryptography)
+考虑挑战者C与攻击者A之间的一场游戏。
+A的目标是破解公钥加密，也就是从密文中找到明文M。
+
+1. Setup：挑战者C输入安全参数λ，输出(pk, sk)。
+
+   然后将其中的公钥pk交给A。
+2. Phase1：A向C发送解密查询请求。
+
+   也就是说，A将任意密文$C_i$发送给C，C返回$Dec(sk, C_i) = M_i$。
+3. Challenge：A选择两个明文$M_0, M_1$，C从中选一个（$b \in \{1, 2\}$），并返回$Enc(pk, M_b) = C_b$。
+
+   此时，A猜测$b$，判断密文对应的是哪一个明文。
+4. Phase2：A向C发送解密查询请求。
+
+   也就是说，A将任意密文$C_i$发送给C，C返回$Dec(sk, C_i) = M_i$。
+- A猜测$b$，然后检查猜测是否正确。
+
+$Adv_{PKE}(\lambda) = Pr[b = b'] - \frac{1}{2}$
+
+<Ybox>
+
+如果攻击者无法在安全参数下获得不可忽略的优势，则称该公钥加密方案具有IND-XXX安全性。
+</Ybox>
+XXX由攻击者可以访问的解密预言机决定。
+- CPA (Ciphertext Only Attack)：仅利用密文寻找明文的攻击。
+- CCA (Chosen Ciphertext Attack)：对任意密文进行解密的攻击。
+- CCA2：结合密文解密攻击与使用解密预言机的攻击。

@@ -1,0 +1,196 @@
+---
+post_id: '185'
+locale: ja
+title: Model Context Protocol（MCP）をわかりやすく理解する
+description: LLMのコンテキスト管理と外部連携を考え、Model Context Protocol（MCP）の考え方とアプリケーションのコード例を見ていきます。
+source_hash: ddae1a7c46a042666896de805d8d2af93bb4b4be580b4c24161870ed238b98a0
+reviewed_at: '2026-11-07T12:13:27.130Z'
+---
+## はじめに
+ChatGPTなどの大規模言語モデル（LLM、Large Language Model）は進化しています。それでも、いつ、どこで、どの情報を使って動いているのかは把握しにくいものです。モデルがどんな文脈で会話を続け、どこから得たデータを参照しているのかは、ユーザーにはブラックボックスのように見えることがあります。
+こうした問題に関係する概念が、*Model Context Protocol*、略してMCPです。原文では「モデルがどのようなコンテキストをもとに動くかを整理し、伝えるための決まった形式」と説明しています。
+今回はMCPとは何か、なぜ必要か、どのように構成し、実際のアプリケーションにどう取り入れるかを順に見ていきます。
+
+<Ads1 />
+## モデルとコンテキスト - なぜ文脈が重要なのか？
+AIモデルは文章を生成したり質問に答えたりするとき、質問に加え、前に与えられた文脈、ユーザーの意図、設定された環境も考慮します。コンテキストにはさまざまな情報が含まれます。
+- それまでにユーザーが話した内容
+- 会話の話題や明示された作業の目的
+- 外部の文書やデータソースから取得した情報
+- 作業中のプロジェクトの設定値
+
+こうした情報をモデルに渡せるため、*一貫した方法で管理し、つなぐ規則*が必要です。原文はMCPを、これらの情報を標準的な方法でまとめてモデルに届ける*プロトコル*、つまり合意された構造として説明します。
+<Bbox>コンテキストは、ChatGPTが以前の会話の内容を覚えていることに似ています。原文ではMCPを、その記憶を体系的かつ一貫して扱う手段にたとえています。</Bbox>
+
+<Ads2 />
+## MCPとは？
+原文はMCP（Model Context Protocol）を「OpenAIが提案した、モデルに与えるコンテキストを階層的に整理する形式」と説明しています。ここは原文の説明であり、MCPを公開したのはAnthropicです。公式のMCPは、AIアプリケーションと外部のデータやツールをつなぐオープンな標準です。
+原文の説明では、ユーザー情報、会話の履歴、外部文書、システムの指示などを決まった構造にまとめてモデルに渡すと、より一貫した正確な動作につながります。
+以下は原文が挙げるコンテキストの構成例であり、MCPの仕様上の項目ではありません。
+- **system**は、モデルが従うルールや役割です。例えば「親切なTypeScriptの専門家として回答してください」と指定します。
+- **tools**は、コードの実行や検索など、利用できる機能です。
+- **files**は、PDF、コード、メモなど、参照する外部文書です。
+- **threads**は、会話の履歴とコンテキストです。
+- **user**は、氏名、役割、目的などのユーザー情報です。
+
+この情報をもとに、モデルは誰と、どのような状況で、どの役割として話しているかを把握します。
+## なぜ必要なのか？
+従来は、これらの情報をまとめてsystem promptに入れたり、会話ログに混ぜたりすることがありました。こうした方法には次の課題があります。
+- 再利用しにくい。
+- コンテキストが混線しやすい。
+- チーム間での共有や協業が難しい。
+
+原文は、*MCP*がこれらの弱点を補い、**GPTs**、**AIアシスタント**、**ワークフローの自動化**に役立つと説明します。
+## クライアントとサーバーから見たMCP
+実際のサービスでは、対話モデルは単独で動くことは少なく、多くはクライアントとサーバーに分かれています。次は原文が示すアプリケーション構成の例であり、MCPのクライアントとサーバーに関する正式な役割の定義とは区別してください。
+### MCPサーバー
+- クライアントからユーザー入力、設定、アップロードされたファイルなどを受け取ります。
+- 内部でsystem、tools、user、files、threadを組み立てて、モデルを呼び出します。
+- OpenAI APIや別のLLMエンジンへ渡します。
+### MCPクライアント
+- チャット入力、ファイルのアップロード、設定などのUIを提供します。
+- コンテキストの変更要求を処理します。
+- サーバーへの接続を保ち、状態を管理します。
+
+<Ads3 />
+## 活用例
+
+### ChatGPTのカスタムGPT
+
+OpenAIのGPT Builderを使うと、UIでsystem prompt、ツール、ファイル、知識を指定できます。原文はこれらの設定が内部ですべてMCP形式で処理されると述べていますが、この内部実装はここで確認できません。
+
+GPTを作るときに、次のような設定を行えます。
+- 基本の行動指針（system）
+- 外部知識のアップロード（files）
+- ツールの利用可否（tools）
+
+### 企業向けAssistant API
+
+企業はOpenAI APIを使い、社内文書や方針をもとに動くAIアシスタントを作れます。原文では、次のようにコンテキストを構成する例を挙げています。
+- systemには「社内の方針とガイドラインに従ってください」と指定します。
+- filesには、社内文書をアップロードします。
+- userには、社員ごとの役割や権限情報を含めます。
+
+このように構成すれば、AIが個々のユーザーや状況に合う文脈を把握し、より正確で一貫した回答を返せます。
+
+## 自分でMCPの構成を考えてみる
+
+原文は、OpenAIのプラットフォームでカスタムGPTを作るとMCPが自動で生成、管理されると述べています。この内部実装はここで確認できないため、以下はユーザーがコンテキストの要素を自分で定義する例として読み進めてください。
+
+### 例1 - 自分用のコーディングアシスタントを作る
+
+```ts
+const mcp = {
+  system: "당신은 친절한 TypeScript 전문가입니다. 코드를 자세히 설명해 주세요.",
+  tools: ["code_interpreter"],
+  files: ["ts-guide.pdf", "my-project/index.ts"],
+  user: {
+    name: "Lee",
+    role: "학생",
+    goal: "타입스크립트 학습을 돕는 코드 리뷰",
+  },
+  threads: [
+    {
+      role: "user",
+      content: "제 제너릭 함수에서 타입이 왜 추론되지 않는지 모르겠어요"
+    }
+  ]
+}
+```
+このように情報を構成すると、モデルはそれをもとに、親切で具体的な説明を一貫して返します。
+
+### 例2 - 製品企画のGPTを作る
+
+- system: 「シリコンバレーのPMのように、ユーザーを中心に考えてください」
+- tools: \["browser", "web-search"\]
+- files: \["market-research.xlsx", "user-feedback.txt"\]
+- user: \{ name: "Hana", role: "企画担当" \}
+
+このような設定により、ユーザーの目的に応じてモデルの振る舞いや回答のスタイルを変えられます。
+
+## 例 - コードレビュー用GPTを作る
+以下は、Node.jsとExpressのサーバー、Reactクライアントを使い、原文がMCPベースと呼ぶAIコードレビューサービスを作る例です。独自のコンテキスト構成を渡す例として読めます。
+### サーバー（Express）
+```ts
+// server/mcpRouter.ts
+import express from 'express'
+import { OpenAI } from 'openai'
+const router = express.Router()
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
+router.post('/ask', async (req, res) => {
+  const { question, fileContent } = req.body
+    const context = {
+    system: '당신은 친절하고 꼼꼼한 TypeScript 코드 리뷰어입니다.',
+    tools: ['code_interpreter'],
+    files: [
+      {
+        name: 'index.ts',
+        content: fileContent
+      }
+    ],
+    user: {
+      name: 'Lee',
+      role: '학생'
+    },
+    threads: [
+      { role: 'user', content: question }
+    ]
+  }
+    const completion = await openai.chat.completions.create({
+    model: 'gpt-4',
+    messages: [
+      { role: 'system', content: context.system },
+      { role: 'user', content: `파일 내용:
+${fileContent}` },
+      ...context.threads
+    ]
+  })
+    res.json({ answer: completion.choices[0].message.content })
+})
+export default router
+```
+<Ads4 />
+### クライアント（React）
+```tsx
+// client/components/Ask.tsx
+import { useState } from 'react'
+import axios from 'axios'
+export default function Ask() {
+  const [question, setQuestion] = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const [answer, setAnswer] = useState('')
+    const handleSubmit = async () => {
+    const text = await file?.text()
+    const res = await axios.post('/api/ask', {
+      question,
+      fileContent: text
+    })
+    setAnswer(res.data.answer)
+  }
+    return (
+    <div className="space-y-4">
+      <input type="file" onChange={e => setFile(e.target.files?.[0] || null)} />
+      <input
+        value={question}
+        onChange={e => setQuestion(e.target.value)}
+        placeholder="질문을 입력하세요"
+        className="border px-2 py-1"
+      />
+      <button onClick={handleSubmit} className="bg-blue-500 text-white px-4 py-2">요청하기</button>
+      <pre className="bg-gray-100 p-2 whitespace-pre-wrap">{answer}</pre>
+    </div>
+  )
+}
+```
+<Ads5 />
+## おわりに
+原文はMCPを、*AIを実際の業務で使うための設計方針*として捉えています。文脈を明確に分け、再利用できるようにして、モデルの動作を把握しやすくする考え方は、開発者に役立ちます。
+個人でもチームでも、コンテキストを構成する考え方を理解して使えば、安定性と一貫性の高いAIサービスを実装できます。
+### もう少し考えてみる
+- コンテキストの構成をJSON Schemaで保存し、バージョン管理できるでしょうか。
+- ReactとLangChainにつなぐと、どう動くでしょうか。
+- roleやuserの設定を動的に切り替えると、どんな効果があるでしょうか。
+### 参考
+- OpenAIのMCPドキュメント https://openai.github.io/openai-agents-python/mcp/
+- GPT Builder https://chat.openai.com/gpts
+- LangChainでのコンテキスト管理の例 https://docs.langchain.com

@@ -1,0 +1,87 @@
+---
+post_id: '94'
+locale: en
+title: TCP Congestion Control
+description: >-
+  TCP Reno congestion windows, slow start, congestion avoidance, AIMD, and
+  responses to packet loss.
+source_hash: 194fbcb99e991943f32ccab1e8cabdd3592b71ef33f6ec7ef381a3e1c0845317
+---
+## The key questions of TCP congestion control
+**We want to control congestion.**
+- When congestion exists, *reduce the sending rate* to avoid, alleviate, or remove it.
+- When there is no congestion, *increase the sending rate* to use bandwidth more effectively.
+
+Note: We will consider only the main features of **TCP Reno**, one version of TCP.
+- TCP contains much more than we will discuss here.
+
+## TCP congestion-control terminology
+**Main states and mechanisms**
+- *Slow start*: Exponential growth in the sending rate.
+- *Congestion avoidance*: **AIMD**, Additive Increase/Multiplicative Decrease.
+- *Fast recovery*.
+<br/>
+
+**Main parameters**
+- Congestion window: *cwnd*.
+- Slow-start threshold: *ssthresh*.
+- *MSS*: Maximum Segment Size.
+- *RTT*: Round-Trip Time.
+<br/>
+
+**Main events**
+- *ACK received*: Things are proceeding well.
+- *Timeout*: A very bad situation.
+- *Three duplicate ACKs received*: A bad situation, but not as bad as a timeout.
+<Ads1 />
+## The TCP congestion window: cwnd
+> An important parameter adjusted according to network congestion.
+
+It determines the maximum amount of data the sender can have in flight—that is, sent but not yet acknowledged.
+*cwnd* is dynamic and responds to detected congestion.
+> Last byte sent - last byte acknowledged < = cwnd.
+
+*TCP sending rate*:
+- Roughly, send *cwnd* bytes, wait an RTT for acknowledgments, then send more.
+	> **Sending rate** ≈ cwnd / RTT (bytes/sec).
+
+## TCP slow start
+At the start of a connection, increase the sending rate exponentially until the first loss event.
+- Initial congestion window (cwnd) = 1 MSS.
+- Double the congestion window each RTT.
+	- Increase *cwnd* for every received ACK.
+
+The initial rate is slow but grows rapidly.
+Return to **slow start** after every *timeout*.
+Move to **congestion avoidance** after every *triple-duplicate ACK* event.
+
+## TCP: Detecting congestion and reacting to loss
+> Detect congestion from inferred packet loss, using *timeouts* or *three duplicate ACKs*.
+
+Loss inferred from a **timeout**:
+- Similar to returning to *slow start*.
+	- Set *cwnd* to **1 MSS**.
+	- Grow the window exponentially until the ssthresh threshold, as in slow start.
+- Then increase it linearly, entering congestion avoidance.
+
+Loss inferred from **three duplicate ACKs**:
+- Duplicate ACKs show that the network can still deliver some segments.
+- Halve *cwnd*.
+- Then grow it linearly, entering congestion avoidance.
+<Ads2 />
+## TCP congestion avoidance: AIMD
+> The sender explores available bandwidth by increasing its rate, or window size, until loss occurs.
+
+**Additive increase**:
+- Increase *cwnd* by 1 MSS each RTT until loss is detected.
+
+**Multiplicative decrease**:
+- Halve *cwnd* whenever loss is detected.
+
+<Img src="/posts/240618-115412.png" width={300}/>
+AIMD's sawtooth behavior reflects this search for bandwidth.
+
+## Transitioning from slow start to congestion avoidance
+<Img src="/posts/240618-115749.png" width={400}/>
+Transition from exponential to linear increase:
+- Once the *ssthresh* threshold, half the pre-timeout value, is exceeded, increase *cwnd* linearly.

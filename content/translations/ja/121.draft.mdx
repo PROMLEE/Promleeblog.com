@@ -1,0 +1,453 @@
+---
+post_id: '121'
+locale: ja
+title: Tailwindをさまざまな方法でカスタマイズする
+description: Tailwindの設定ファイル、プラグイン、global.cssを使い、スタイルやフォントをカスタマイズする方法を説明します。
+source_hash: b308a196a1b255ba4d8cad89dc163d57b8af957c735f35889307865a2a27d14d
+---
+## はじめに
+> この記事はNext.js 15で使用するTailwind 3.4.1を基準に書いています。
+
+> 2025年4月9日追記：Tailwind 4.xでも、移行後に同じように適用できます。@themeもありますが、私はスニペットに対応するこの方法をより好んでいます。
+
+今回は、tailwindcssでカスタムスタイルを追加する方法を見ていきます。
+CSSファイルに直接追加する方法のほかに、tailwindcssの設定ファイルを使う方法もあります。
+<br/>
+また、一つのクラスで*複数のCSSをまとめて適用*したい場合、プラグインで独自のCSSセットを定義できます。
+カスタムの*タイポグラフィー*やボタンのスタイルを追加するときに便利です。
+<br/>
+- Tailwindのインストール時にCSSファイルへ既定で記述されるbase、components、utilitiesから始めます。3.xの場合です。
+
+```css title="global.css"
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+<Ads1 />
+## tailwind.config.jsを使う
+<Bbox>設定ファイルを使うと、既存のテーマを変更・拡張できる利点があります。</Bbox>
+### screens
+次の例では、既定のsm、md、lg、xlのサイズを変更します。
+
+```ts title="tailwind.config.ts"
+module.exports = {
+	theme: {
+		screens: {
+			sm: '640px',
+			md: '768px',
+			lg: '1024px',
+			xl: '1280px',
+		}
+	}
+}
+```
+
+```tsx title="page.tsx"
+...
+<div class="bg-blue-500 sm:bg-red-500 md:bg-green-500 lg:bg-yellow-500 xl:bg-purple-500">
+	Responsive Design
+</div>
+...
+```
+### colors
+次の例では、既存の色を変更し、新しい色を追加します。
+
+```ts title="tailwind.config.ts"
+module.exports = {
+	theme: {
+		colors: {
+			custom-blue: '#0000ff',
+			custom-red: '#ff0000',
+			gray: {
+				100: '#f7fafc',
+			},
+		}
+	}
+}
+```
+
+```tsx title="page.tsx"
+...
+<div class="bg-custom-blue">
+	Custom Blue
+</div>
+<div class="bg-custom-red">
+	Custom Red
+</div>
+<div class="bg-gray-100">
+	Custom Gray 100
+</div>
+...
+```
+### extend
+次の例では、既存のさまざまな設定を変更・拡張します。
+[フォント設定](#커스텀-폰트-추가)は後で詳しく説明します。
+
+```ts title="tailwind.config.ts"
+module.exports = {
+	theme: {
+		extend: {
+			fontFamily: {
+				custom: ['Noto Sans KR', 'sans-serif'],
+			},
+			fontSize: {
+				'7xl': '5rem',
+			},
+			spacing: {
+				'72': '18rem',
+			},
+			borderRadius: {
+				DEFAULT: '0.25rem',
+				xl: '1rem',
+			},
+		}
+	}
+}
+```
+
+```tsx title="page.tsx"
+...
+<div class="font-custom text-7xl">
+	Custom Font Size
+</div>
+<div class="p-72">
+	Custom Spacing
+</div>
+<div class="rounded">
+	Custom Default Border Radius
+</div>
+<div class="rounded-xl">
+	Custom XL Border Radius
+</div>
+...
+```
+### container
+次の例では、既存のcontainerの設定を変更します。
+
+```ts title="tailwind.config.ts"
+module.exports = {
+	theme: {
+		container: {
+			center: true,
+			padding: '2rem',
+		}
+	}
+}
+```
+
+```tsx title="page.tsx"
+...
+<div class="container mx-auto">
+	Container
+</div>
+...
+```
+### spacing
+次の例では、既存のサイズ設定を変更・拡張します。
+
+```ts title="tailwind.config.ts"
+module.exports = {
+	theme: {
+		spacing: {
+      px: '1px',
+      0: '0',
+      0.5: '0.125rem',
+      1: '0.25rem',
+      1.5: '0.375rem',
+      2: '0.5rem',
+      2.5: '0.625rem',
+      3: '0.75rem',
+      3.5: '0.875rem'
+		}
+	}
+}
+```
+
+```tsx title="page.tsx"
+...
+<div class="p-px">
+	1px
+</div>
+<div class="p-0">
+	0
+</div>
+<div class="p-0.5">
+	0.5
+</div>
+...
+```
+## プラグインでCSSセットを定義する
+プラグインを使って、カスタムのCSSセットを定義できます。
+
+```ts title="tailwind.config.ts"
+import plugin from "tailwindcss/plugin";
+
+module.exports = {
+	plugins: [
+		function ({ addComponents }) {
+			addComponents({
+				'.btn': {
+					padding: '.5rem 1rem',
+					borderRadius: '.25rem',
+					fontWeight: '600',
+				}
+			})
+		}
+	]
+}
+```
+
+```tsx title="page.tsx"
+...
+<div class="btn bg-blue-500 text-white">
+	Button
+</div>
+...
+``` 
+タイポグラフィーを追加するときにも便利です。
+
+```ts title="tailwind.config.ts"
+import plugin from "tailwindcss/plugin";
+
+module.exports = {
+	plugins: [
+		function ({ addComponents }) {
+			addComponents({
+        ".headline-0": {
+          fontFamily: '"Pretendard"',
+          fontSize: "48px",
+          fontWeight: "500",
+          lineHeight: "normal",
+          letterSpacing: "-0.48px",
+        },
+			})
+		}
+	]
+}
+```
+
+```tsx title="page.tsx"
+...
+<div class="headline-0">
+	Headline 0
+</div>
+...
+```
+<Ads2 />
+## global.cssを使う
+> Tailwindの基本設定ファイルから始めます。
+
+```css title="global.css"
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+### カスタムクラスのスタイルを追加する
+global.cssにカスタムクラスのスタイルを追加できます。
+CSSを基準に定義しやすい一方、Tailwind CSSのスニペットによるスタイル補完を使えないという欠点があります。
+
+```css title="global.css"
+.btn {
+	padding: .5rem 1rem;
+	border-radius: .25rem;
+	font-weight: 600;
+}
+```
+
+```tsx title="page.tsx"
+...
+<div class="btn bg-blue-500 text-white">
+	Button
+</div>
+...
+```
+### 設定ファイルとglobal.cssを連携する
+設定ファイルとglobal.cssを連携させて使えます。
+
+```css title="global.css"
+@layer base {
+  :root {
+    --background: #f8f8f8;
+    --foreground: #171717;
+  }
+}
+```
+
+```ts title="tailwind.config.ts"
+module.exports = {
+	darkMode: 'class',
+	theme: {
+		extend: {
+			colors: {
+				background: 'var(--background)',
+				foreground: 'var(--foreground)',
+			}
+		}
+	}
+}
+```
+
+```tsx title="page.tsx"
+...
+<div class="bg-background text-foreground">
+	Background & Foreground
+</div>
+...
+```	
+<Ads3 />
+## カスタムフォントを追加する
+### フォントファイルを追加する
+フォントファイルをダウンロードしてpublicフォルダーに追加します。
+例：Pretendardのダウンロード先：[Pretendard](https://cactus.tistory.com/306)
+
+```plaintext
+public/
+	fonts/
+		Pretendard-Thin.ttf
+		Pretendard-ExtraLight.ttf
+		Pretendard-Light.ttf
+		Pretendard-Regular.ttf
+		Pretendard-Medium.ttf
+		Pretendard-SemiBold.ttf
+		Pretendard-Bold.ttf
+		Pretendard-ExtraBold.ttf
+		Pretendard-Black.ttf
+```
+### CSSファイルを追加する
+
+```css title="/src/util/font.css"
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Thin.ttf") format("truetype");
+  font-weight: 100;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Light.ttf") format("truetype");
+  font-weight: 300;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Medium.ttf") format("truetype");
+  font-weight: 500;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Bold.ttf") format("truetype");
+  font-weight: 700;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Black.ttf") format("truetype");
+  font-weight: 900;
+}
+```
+
+### 設定ファイルにフォントを追加する
+
+```ts title="tailwind.config.ts"
+module.exports = {
+	theme: {
+		extend: {
+			fontFamily: {
+				pretendard: ["Pretendard"],
+			}
+		}
+	}
+}
+```
+
+### レイアウトでCSSをインポートする
+
+```tsx title="/src/app/layout.tsx"
+import '../util/font.css';
+...
+```
+### フォントを使う
+
+```tsx title="/src/app/page.tsx"
+...
+<div class="font-pretendard text-7xl">
+	Pretendard Font
+</div>
+...
+```
+<Ads4 />
+## 問題と解決
+🙅
+
+## まとめ
+Tailwind CSSの設定ファイルでカスタムスタイルを追加する方法を学びました。
+また、プラグインで独自のCSSセットを定義する方法を紹介しました。
+最後に、global.cssでカスタムクラスのスタイルを追加する方法を確認しました。
+
+### さらに考える
+色を16進数コード以外の形式で指定するには、どのような方法があるでしょうか。
+#### rgb/rgbaを使う
+
+```css title="global.css"
+@layer base {
+	:root {
+    --background: 255, 255, 255;
+    --foreground: 240, 240, 240;
+	}
+}
+```
+
+```ts title="tailwind.config.ts"
+module.exports = {
+	theme: {
+		extend: {
+			colors: {
+        background: "rgba(var(--background) , <alpha-value>)",
+        foreground: "rgba(var(--foreground) , <alpha-value>)",
+			}
+		}
+	}
+}
+```
+#### hsl/hslaを使う
+
+```css title="global.css"
+@layer base {
+	:root {
+		--background: 0, 0%, 100%;
+		--foreground: 0, 0%, 94%;
+	}
+}
+```
+
+```ts title="tailwind.config.ts"
+module.exports = {
+	theme: {
+		extend: {
+			colors: {
+				background: "hsla(var(--background) , <alpha-value>)",
+				foreground: "hsla(var(--foreground) , <alpha-value>)",
+			}
+		}
+	}
+}
+```
+### 参考
+[Tailwind CSS - adding custom styles](https://tailwindcss.com/docs/adding-custom-styles)

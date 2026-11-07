@@ -1,0 +1,95 @@
+---
+title_ko: 로컬스토리지와 세션스토리지 - 브라우저 저장소
+title_en: Local Storage and Session Storage - Browser Storage
+desc: >-
+  브라우저 저장소 기술인 로컬스토리지와 세션스토리지의 차이점을 알아봅니다. 데이터의 영속성과 스코프 관점에서 두 기술을 비교하고, 쿠키와의
+  차이점, 그리고 주요 면접 질문까지 학습합니다.
+thumbnail_url: /250624-100507.webp
+metatag: >-
+  Local Storage, Session Storage, Web Storage, Cookie, 로컬스토리지, 세션스토리지, 웹 스토리지,
+  쿠키, 브라우저 저장소, 면접 질문, CS, 프론트엔드
+post_id: '350'
+locale: zh
+title: 浏览器存储：Local Storage 与 Session Storage
+description: 比较 Local Storage 和 Session Storage 的持久性与作用域，介绍它们与 Cookie 的区别和常见面试问题。
+source_hash: acb01befa9d26fc00a7ee2df51123d8ddfdb5500b8ea339599ed2a57226e07f2
+reviewed_at: '2026-11-07T06:49:07.728Z'
+---
+## 开始之前
+这次介绍如何在客户端，也就是用户的浏览器中存储数据。
+以前主要使用 Cookie，但它容量较小，而且会随每次 HTTP 请求自动发送，增加网络负担。
+为了解决这些问题，HTML5 引入了 **Web Storage API**，其中的两种核心机制就是 **Local Storage** 和 **Session Storage**。
+<br/>
+这两种机制用法几乎一样，容易混淆，但在“数据能保留多久”这个问题上有关键区别。
+今天来比较两种存储的特点，看看不同场景下该选哪一种。
+
+## Local Storage：关闭浏览器后仍在的长期存储
+**Local Storage** 是以键值对形式把数据*长期*保存在用户浏览器中的存储机制。
+这里的“长期”是指关闭浏览器窗口或重启电脑后，数据依然存在。
+除非通过 JavaScript 显式删除，否则数据不会被清除。
+- **用法**
+    ```javascript
+    // 데이터 저장
+    localStorage.setItem('username', 'Alice');
+
+    // 데이터 조회
+    const username = localStorage.getItem('username'); // 'Alice'
+
+    // 데이터 삭제
+    localStorage.removeItem('username');
+
+    // 모든 데이터 삭제
+    localStorage.clear();
+    ```
+- **主要用途**
+  适合保存重新打开浏览器后仍需保留的设置，例如自动登录时记住用户 ID，或保存深色、浅色主题偏好。
+
+<Ads1/>
+
+## Session Storage：关闭标签页即消失的临时存储
+**Session Storage** 也以键值对形式保存数据，关键区别在于数据**只在当前会话中**保留。
+这里的“会话”可以简单理解为*一个浏览器标签页*。
+用户关闭标签页时，该标签页 Session Storage 中的所有数据都会立即消失。
+- **用法**：
+  API（方法）与 Local Storage 完全相同。
+  ```javascript
+  // 데이터 저장
+  sessionStorage.setItem('tempData', '이것은 임시 데이터입니다.');
+
+  // 데이터 조회
+  const tempData = sessionStorage.getItem('tempData');
+  ```
+- **主要用途**
+  适合保存只在当前标签页临时需要的信息，例如保存正在填写的表单以防刷新后丢失数据、记住当前页面的滚动位置，以及管理一次性弹窗或提示消息的“今天不再显示”状态。
+<Img src="/250624-100226.webp" width={300} alt="Local Storage 与 Session Storage"/>
+
+## 常见面试问题
+两种存储与 Cookie 的区别，是考查前端开发基本功的常见问题。
+
+### 1. 请说明 Local Storage 与 Session Storage 的区别。
+可以从*持久性*和*作用域*两个角度解释。
+> Local Storage 和 Session Storage 都是 Web Storage API 的一部分，用法相同，但在**数据持久性（生命周期）**与**作用域（有效范围）**上差别很大。
+**Local Storage** 的数据在未显式删除时会*长期*保存，并在同源的所有标签页和窗口中*共享*。
+**Session Storage** 的数据只在*当前标签页的会话期间*保留，关闭标签页后立即消失。
+数据仅限当前标签页，*不会与其他标签页共享*。
+
+### 2. Cookie 与 Web Storage（Local Storage、Session Storage）有什么区别？
+回答时可以着重解释两者在服务器通信方面的区别。
+> 最大的差异是**与服务器通信的方式**以及**容量**。
+**Cookie** 会自动包含在每次 HTTP 请求的请求头中，并发送到服务器，因此可用于维护认证等服务器需要知道的状态。
+这样会增加网络流量，而且容量只有约 4 KB。
+**Web Storage** 仅在客户端使用，数据不会自动发送到服务器。
+要发送这些数据，需要通过 JavaScript 手动读取并发送。
+它的容量约为 5–10 MB，比 Cookie 大得多，因此更适合仅在客户端保存的数据。
+
+<Ads2/>
+## 结语
+本文介绍了在浏览器中保存数据的两种方法：Local Storage 与 Session Storage。
+- **Local Storage** 是保存*长期数据*的*共享存储*。
+- **Session Storage** 是保存*临时数据*的*单个标签页存储*。
+- 两者都不会像 **Cookie** 那样自动发送给服务器，可以用作纯客户端存储。
+
+### 参考资料
+- [MDN - Web Storage API](https://developer.mozilla.org/ko/docs/Web/API/Web_Storage_API)
+- [MDN - Window.localStorage](https://developer.mozilla.org/ko/docs/Web/API/Window/localStorage)
+- [MDN - Window.sessionStorage](https://developer.mozilla.org/ko/docs/Web/API/Window/sessionStorage)

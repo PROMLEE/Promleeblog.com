@@ -1,0 +1,198 @@
+---
+title_ko: 리액트 쿼리(TanStack Query) 사용하기 - 기초
+title_en: Guide to React Query (TanStack Query) - Basic
+desc: >-
+  React에서 비동기 API 데이터를 효율적으로 다루기 위한 TanStack Query의 설치부터 사용법, 고급 캐싱 전략까지 예제 중심으로
+  자세히 설명합니다.
+thumbnail_url: 'https://tanstack.com/_build/assets/logo-color-100w-br5_Ikqp.png'
+metatag: >-
+  react query, tanstack query, 리액트 쿼리, 데이터 패칭, 캐싱, useQuery, 비동기 요청, 상태 관리,
+  JSONPlaceholder, typescript 예제
+post_id: '201'
+locale: ja
+title: React Query（TanStack Query）の基本的な使い方
+description: Reactで非同期APIデータを効率的に扱うため、TanStack Queryの導入、基本操作、高度なキャッシュ戦略を例とともに紹介します。
+source_hash: 90e9c5a23306f74d93da839236d31f7378feb0c7a7676eaf10e39210e256c438
+---
+## はじめに
+Reactでウェブアプリケーションを作ると、外部APIのデータを画面へ表示する場面がよくあります。
+データの取得方法、読み込み中や失敗時の処理、同じデータを繰り返し取得しないための効率的なキャッシュが重要です。
+こうした問題を解決する道具の一つが*TanStack Query*です。
+以前は*React Query*という名前で広く知られていましたが、現在は複数のフレームワークに対応する汎用的な状態管理ツールへ発展しています。
+今回はReactを基準に、基礎から応用まで例を使って順番に説明します。
+## TanStack Queryとは
+TanStack Queryは、サーバーの状態をクライアントアプリケーションで効率的に扱うためのライブラリです。
+サーバーから受け取るデータを管理し、読み込み、エラー処理、キャッシュ、再取得などを簡単に処理します。
+たとえば次のような場合に役立ちます。
+- APIから記事の一覧を取得して表示したい
+- 同じ要求を何度も送らないよう、キャッシュしたい
+- 取得中に読み込みスピナーを表示したい
+- リクエストが失敗したらエラーメッセージを表示したい
+## インストール
+まず、プロジェクトにTanStack Queryをインストールします。
+ターミナルで次のコマンドを実行してください。
+
+```bash
+npm install @tanstack/react-query
+```
+ReactアプリケーションでQueryを使うには、最上位にQueryClientProviderも設定します。
+
+```tsx
+// main.tsx 또는 App.tsx
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+const queryClient = new QueryClient();
+root.render(
+  <QueryClientProvider client={queryClient}>
+    <App />
+  </QueryClientProvider>
+);
+```
+<Ads1 />
+## useQueryの基本
+最も基本的な使い方を確認します。
+JSONPlaceholderの記事API（`/posts`）を例にします。
+
+```tsx {4-7, 10-13}
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+
+const fetchPosts = async () => { // 정보를 fetch하는 함수
+  const res = await axios.get('https://jsonplaceholder.typicode.com/posts');
+  return res.data;
+};
+
+function PostList() {
+  const { data, isLoading, isError, error } = useQuery({ // 쿼리 결과를 가져오는 컴포넌트
+    queryKey: ['posts'], // 쿼리의 고유 식별자
+    queryFn: fetchPosts, // 정보를 fetch하는 함수
+  });
+  
+  if (isLoading) return <p>불러오는 중입니다...</p>;
+  if (isError) return <p>오류가 발생했습니다: {(error as Error).message}</p>;
+  return (
+    <ul>
+      {data.map((post: any) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  );
+}
+```
+最初に、情報をfetchする関数を定義します。
+この関数は非同期でデータを取得し、結果を返します。
+そして、`useQuery`の`queryFn`へ渡します。
+`useQuery`はこの関数を呼び、結果をキャッシュへ保存します。
+
+<Ads2 />
+## queryKeyの重要性
+`queryKey`はTanStack Queryで非常に重要です。
+リクエストを一意に識別し、キャッシュを区別し、再取得の基準となる中心的な要素です。
+### 基本の使い方
+単純なクエリでは文字列で書けます。
+
+```tsx
+useQuery({
+  queryKey: ['posts'],
+  queryFn: fetchPosts,
+});
+```
+APIのパラメーターを含む場合は、配列で構造化するとよいでしょう。
+
+```tsx
+useQuery({
+  queryKey: ['user', userId],
+  queryFn: () => fetchUser(userId),
+});
+```
+こうすると、`userId`が違えば別のクエリとして認識され、それぞれのキャッシュで管理されます。
+### 応用：入れ子のキー
+より複雑な構造なら、次のように`queryKey`を入れ子にできます。
+
+```tsx
+useQuery({
+  queryKey: ['users', userId, 'posts'],
+  queryFn: () => fetchUserPosts(userId),
+});
+```
+特定ユーザーの記事クエリを明確に識別でき、柔軟なキャッシュ管理が可能になります。
+## Suspenseとの統合
+Reactの`Suspense`とTanStack Queryを組み合わせると、読み込み状態をより簡潔かつ宣言的に扱えます。
+クエリを使うコンポーネントをReactの`Suspense`で囲み、`useQuery`に`suspense: true`を指定します。
+
+```tsx
+// App.tsx
+<Suspense fallback={<p>로딩 중입니다...</p>}>
+  <PostList />
+</Suspense>
+```
+
+```tsx
+// PostList.tsx
+const { data } = useQuery({
+  queryKey: ['posts'],
+  queryFn: fetchPosts,
+  suspense: true,
+});
+```
+コードが簡潔になり、読み込み状態を全体で管理できる利点があります。
+ただし、コンポーネントのエラー処理には`ErrorBoundary`も併用するとよいでしょう。
+## React Query Devtoolsを使う
+開発中にクエリの状態をリアルタイムで監視するDevtoolsも用意されています。
+
+```bash
+npm install @tanstack/react-query-devtools
+```
+
+```tsx
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+<QueryClientProvider client={queryClient}>
+  <App />
+  <ReactQueryDevtools initialIsOpen={false} />
+</QueryClientProvider>
+```
+キャッシュ中のデータ、クエリの状態、リクエスト時間などを視覚的に確認できるため、デバッグに便利です。
+## SSRで使う
+Next.jsなどでSSRを使う場合、クエリをサーバーで先に実行し、データをHTMLに含めることで初回表示を速くできます。
+このために`dehydrate`と`Hydrate`を使います。
+
+```tsx
+// 서버에서
+const queryClient = new QueryClient();
+await queryClient.prefetchQuery({ queryKey: ['posts'], queryFn: fetchPosts });
+const dehydratedState = dehydrate(queryClient);
+```
+
+```tsx
+// 클라이언트에서
+<Hydrate state={dehydratedState}>
+  <App />
+</Hydrate>
+```
+サーバーとクライアントで同じキャッシュ状態を共有し、ちらつかずにデータを表示できます。
+## 高度なエラー処理
+クエリやミューテーションが失敗したとき、通知の表示や再試行を行えます。
+次のようなオプションがあります。
+- `retry`：自動再試行の回数
+- `onError`：失敗時のコールバック
+- `useErrorBoundary`：Suspenseと併用する場合、Error Boundaryへエラーを伝える
+
+```tsx
+useQuery({
+  queryKey: ['posts'],
+  queryFn: fetchPosts,
+  retry: 2,
+  onError: (error) => {
+    toast.error('데이터를 불러오는 데 실패했습니다');
+  },
+});
+```
+`useMutation`も同様に扱えます。
+エラーログをコンソールに出したり、Sentryなどの外部サービスへ送ったりすることも可能です。
+<Ads3 />
+## まとめ
+TanStack QueryはReactの非同期データ処理において、強力で柔軟なツールです。
+基本的な`useQuery`から、`useMutation`、キャッシュ、無効化、条件付き実行、無限スクロール、Suspense、SSRまで、多様な機能を備え、複雑な処理を簡潔に実装できます。
+今回の例や戦略を参考に、実際のプロジェクトでも活用してみてください。
+### 参考
+- TanStack Query公式ドキュメント：https://tanstack.com/query
+- JSONPlaceholder API：https://jsonplaceholder.typicode.com

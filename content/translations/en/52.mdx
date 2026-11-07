@@ -1,0 +1,138 @@
+---
+post_id: '52'
+locale: en
+title: Contention-Free Protocols
+description: >-
+  An overview of contention-free protocols in mobile communications, including
+  FDMA, TDMA, CDMA, and radio link duplexing.
+source_hash: 45d524f2c7d5a6abdd53f41fc74d2914170d1376f67105902b6e80ed13b7df90
+reviewed_at: '2026-11-07T06:49:19.086Z'
+---
+## Frequency Division Multiple Access (FDMA)
+
+> FDMA gives each user a separate frequency band so that users can transmit simultaneously.
+
+It requires substantial guard bands to reduce interference between frequencies, which makes it inefficient.
+All first-generation mobile systems used FDMA.
+
+## Time Division Multiple Access (TDMA)
+
+> TDMA gives each user a separate time slot so that multiple users can share the same frequency band.
+
+Because users share a frequency band, interference between their frequency bands is not an issue.
+Most second-generation mobile systems used TDMA.
+
+## Combining FDMA and TDMA
+
+> Each channel is assigned a particular frequency band for a set period of time.
+
+<Img src="/posts/240617-130910.png" width={400}/>
+
+Advantages
+- Resistant to frequency-selective interference.
+- Time compression can improve transmission efficiency.
+- Helps prevent eavesdropping.
+
+Disadvantages
+- Coordinating frequency changes is difficult.
+
+## Code Division Multiple Access (CDMA)
+
+> CDMA assigns each user a unique code so that users can transmit simultaneously.
+
+The transmitter modulates data using a specific code. The receiver demodulates the signal with the same code to recover the data.
+
+<Img src="/posts/240617-131225.png" width={300}/>
+Users share bandwidth by using mutually orthogonal code sequences.
+Some second-generation and most third-generation mobile systems used CDMA.
+
+## Channel Types
+
+*Control channels*
+- Downlink carries control information from the base station to the mobile device.
+- Uplink carries control information from the mobile device to the base station.
+
+*Traffic channels*
+- Downlink carries data from the base station to the mobile device.
+- Uplink carries data from the mobile device to the base station.
+
+## Duplexing for Radio Links
+
+**Frequency Division Duplexing (FDD)**
+- The downlink and uplink use separate frequency bands.
+- Signals can be transmitted continuously on both links in parallel.
+
+**Time Division Duplexing (TDD)**
+- The downlink and uplink share the same frequency band.
+- The two directions alternate, like a game of ping-pong.
+
+## Duplexing in FDMA
+
+The uplink (UL) and downlink (DL) use different frequency bands.
+- UL goes from the user to the base station.
+- DL goes from the base station to the user.
+
+### Channel Structure
+
+The frequency band is split into several channels.
+- The guard band ($W_g$) reduces interference between channels.
+- The sub-band ($W_c$) is the frequency band of a channel.
+- The total bandwidth ($W = NW_c$) is the combined bandwidth of the channels.
+- The protecting band separates the uplink and downlink frequency bands.
+
+## Duplexing in TDMA
+
+In this arrangement, the uplink (UL) and downlink (DL) use the same frequency band.
+- UL goes from the user to the base station.
+- DL goes from the base station to the user.
+- A slot is a unit of time during which only one user can transmit.
+
+### Channel Structure
+
+Time is divided into slots.
+- In TDMA, users share the frequency band, so there is no interference between separate frequency bands assigned to those users.
+- Each frame contains several slots, and each slot is assigned to a user.
+- The uplink and downlink transmit in turn.
+- A slot contains:
+  - Guard time between transmissions.
+  - A header with information about the slot.
+  - User data.
+<Ads1 />
+## Duplexing in CDMA
+
+### Frequency Hopping Spread Spectrum (FHSS)
+
+<Img src="/posts/240617-133134.png" width={300}/>
+- The signal is transmitted by hopping through a sequence of frequency channels.
+- The graph shows how the frequency changes over time.
+- Each color represents a particular frequency band.
+
+### Direct Sequence Spread Spectrum (DSSS)
+
+Data is mapped to a bipolar representation before transmission.
+- $A: (0,0,0,1,1,0,1,1) \rightarrow (-1,-1,-1,+1,+1,-1,+1,+1)$
+
+$\bar{A}$ has the opposite polarity to $A$.
+- $\bar{A}: (+1,+1,+1,-1,-1,+1,-1,-1)$
+
+The sequences of two different stations ($\mathbf{S},\mathbf{T}$) are orthonormal.
+- $\mathbf{S} \cdot \mathbf{T} = \frac{1}{m} \sum_{i=1}^{m} S_i T_i = 0$
+- $\mathbf{S} \cdot \mathbf{S} = \frac{1}{m} \sum_{i=1}^{m} S_i^2 = \frac{1}{m} \sum_{i=1}^{m} (\pm 1)^2 = 1$
+
+A sequence $A$ and its negation $\bar{A}$ satisfy the following relationship.
+- $A \cdot \bar{A} = \frac{1}{m} \sum_{i=1}^{m} A_i \bar{A_i} = -1$
+
+During each bit interval, a station can:
+- Transmit its chip sequence to send a 1.
+- Transmit the negation of its chip sequence to send a 0.
+- Stay silent by transmitting nothing.
+
+When two or more stations transmit at the same time, their bipolar signals add linearly.
+<Img src="/posts/240617-135147.png" width={400}/>
+
+The receiving station ($S_i$) recovers the data using the following calculation, with m = 8.
+- $S_i \cdot C = \frac{1}{m} \sum_{i=1}^{m} S_i A_i = \pm 1$
+
+For example, suppose $S = A + \bar{B} + C$.
+- $S \cdot C = (A + \bar{B} + C) \cdot C = A \cdot C + \bar{B} \cdot C + C \cdot C = 0 + 0 + 1 = 1$
+- The result shows that a 1 was transmitted, independently of the signals from A, B, and D.

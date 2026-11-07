@@ -1,0 +1,262 @@
+---
+title_ko: Expo에서 권한 요청 처리하기
+title_en: Handling Permissions in Expo
+desc: >-
+  Expo에서 카메라, 위치, 미디어 등 다양한 권한을 안전하게 요청하고 사용하는 방법을 친절한 설명과 TypeScript 예시를 중심으로
+  안내합니다.
+thumbnail_url: /expo-permissions.webp
+metatag: >-
+  expo, 권한, permissions, react-native, typescript, 카메라 권한, 위치 권한, 미디어 권한,
+  expo-permissions, react-native-permissions, 모바일 앱 개발
+post_id: '204'
+locale: ja
+title: Expoで権限リクエストを処理する
+description: Expoでカメラ、位置情報、メディアなどの権限を安全に要求し利用する方法を、説明とTypeScriptの例で紹介します。
+source_hash: c28266e361b0bd2fd778d28cad70234a906bda176a2dfcb5aaab6d18053e2542
+---
+## はじめに
+Expoでモバイルアプリを開発するとき、ユーザーの**個人情報や端末の機能**を扱うには、先に権限を要求する必要があります。
+カメラを使うにはカメラ権限、位置情報を取得するには位置情報の権限が必要です。
+Expoには、権限の要求を簡単にする道具があります。
+今回は公式の[Expo Permissionsガイド](https://docs.expo.dev/guides/permissions/)を基に、一つずつ確認します。
+## 権限リクエストの基本構造
+Expoでは、`expo-modules`と`expo-permissions`を通じて、さまざまな権限を要求できます。
+通常は次の順序で処理します。
+1. 現在の権限状態を確認する
+2. 権限を要求する
+3. 結果に応じて機能を実行する
+
+基本的な構造は次のとおりです。
+
+```tsx
+import * as Location from 'expo-location';
+
+const getLocation = async () => {
+  const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+    alert('위치 권한이 필요합니다.');
+    return;
+  }
+    const location = await Location.getCurrentPositionAsync({});
+  console.log(location);
+};
+```
+ユーザーに位置情報の権限を要求し、許可された場合だけ位置情報を取得します。
+<Ads1 />
+## 権限ごとの例
+Expoでは多くの権限を扱えます。
+代表的なものを、例とともに確認します。
+<Rbox>devモードが必要です。各パッケージのインストール後、コマンドでネイティブコードと同期してください。</Rbox>
+
+```bash
+npx expo prebuild --platform ios
+npx expo run:ios
+
+npx expo prebuild --platform android
+npx expo run:android
+```
+### 1. カメラ権限
+参考：[expo-camera公式ドキュメント](https://docs.expo.dev/versions/latest/sdk/camera/)
+次のコマンドでカメラ用パッケージを入れます。
+
+```bash
+npx expo install expo-camera
+```
+app.jsonへ次の設定を追加します。
+
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera", // 카메라 권한 요청 메시지
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone", // 마이크 권한 요청 메시지
+          "recordAudioAndroid": true // 마이크 권한 요청 여부
+        }
+      ]
+    ]
+  }
+}
+```
+カメラ権限を要求するコードはこちらです。
+
+```tsx
+import * as Camera from 'expo-camera';
+const requestCameraPermission = async () => {
+  const { status } = await Camera.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+    alert('카메라 접근 권한이 필요합니다.');
+    return;
+  }
+    console.log('카메라 권한이 승인되었습니다.');
+};
+```
+### 2. メディアライブラリーへのアクセス権限
+参考：[expo-media-library公式ドキュメント](https://docs.expo.dev/versions/latest/sdk/media-library/)
+次のコマンドでメディアライブラリーのパッケージを入れます。
+このパッケージはカメラ権限のパッケージと一緒にもインストールされます。
+
+```bash
+npx expo install expo-media-library
+```
+app.jsonへ次の設定を追加します。
+
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
+          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ]
+    ]
+  }
+}
+```
+メディアライブラリーの権限を要求するコードはこちらです。
+
+```tsx
+import * as MediaLibrary from 'expo-media-library';
+const requestMediaLibraryPermission = async () => {
+  const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status !== 'granted') {
+    alert('사진 접근 권한이 필요합니다.');
+    return;
+  }
+    console.log('사진 권한 승인 완료');
+};
+```
+<Ads2 />
+### 3. 通知権限
+参考：[expo-notifications公式ドキュメント](https://docs.expo.dev/versions/latest/sdk/notifications/)
+次のコマンドで通知用パッケージを入れます。
+
+```bash
+npx expo install expo-notifications
+```
+通知権限を要求するコードはこちらです。
+
+```tsx
+import * as Notifications from 'expo-notifications';
+const requestNotificationPermission = async () => {
+  const { status } = await Notifications.requestPermissionsAsync();
+    if (status !== 'granted') {
+    alert('알림 권한이 필요합니다.');
+    return;
+  }
+    console.log('알림 권한 승인됨');
+};
+```
+### 4. マイク権限
+参考：[expo-av公式ドキュメント](https://docs.expo.dev/versions/latest/sdk/av/)
+次のコマンドでマイク用パッケージを入れます。
+
+```bash
+npx expo install expo-av
+```
+app.jsonへ次の設定を追加します。
+
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+        }
+      ]
+    ]
+  }
+}
+```
+マイク権限を要求するコードはこちらです。
+
+```tsx
+import * as Audio from 'expo-av';
+const requestMicrophonePermission = async () => {
+  const { status } = await Audio.requestPermissionsAsync();
+    if (status !== 'granted') {
+    alert('마이크 권한이 필요합니다.');
+    return;
+  }
+    console.log('마이크 권한이 승인되었습니다.');
+};
+```
+### 5. 位置情報の権限
+参考：[expo-location公式ドキュメント](https://docs.expo.dev/versions/latest/sdk/location/)
+次のコマンドで位置情報用パッケージを入れます。
+
+```bash
+npx expo install expo-location
+```
+app.jsonへ次の設定を追加します。
+
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+        }
+      ]
+    ]
+  }
+}
+```
+位置情報の権限を要求するコードはこちらです。
+
+```tsx
+import * as Location from 'expo-location';
+const requestLocationPermission = async () => {
+  const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+    alert('위치 권한이 필요합니다.');
+    return;
+  }
+    console.log('위치 권한이 승인되었습니다.');
+};
+```
+<Ads3 />
+## 権限状態の確認と区別
+状態は通常、次のいずれかです。
+- `undetermined`：まだ要求していない
+- `granted`：許可済み
+- `denied`：拒否された
+
+```tsx
+const checkCameraPermission = async () => {
+  const { status } = await Camera.getCameraPermissionsAsync();
+    if (status === 'granted') {
+    console.log('이미 권한이 승인됨');
+  } else {
+    console.log('권한이 아직 없거나 거부됨');
+  }
+};
+```
+事前に状態を確認すると、不要な権限要求を減らせます。
+## 権限を要求する際の注意点
+### ユーザーへの説明
+権限を求めるときは、ユーザーが納得できる説明を示すとよいでしょう。
+単に「権限が必要です」ではなく、「写真をアップロードするために写真へのアクセスが必要です」のように、目的の機能と結び付けて説明すると効果的です。
+この説明は、ストア審査で差し戻されやすい点でもあります。
+## まとめ
+Expoの権限処理は直感的ですが、iOSとAndroidの細かな設定やユーザー体験も考えると、慎重な対応が必要です。
+単なる技術処理ではなく、ユーザーの信頼に直結します。
+権限ごとの目的を明確にし、必要なときだけ丁寧に要求する習慣を付けるとよいでしょう。
+今回の例を参考に、プロジェクトに合った権限要求の流れを組み立ててみてください。
+### 参考
+- [Expo Permissions公式ドキュメント](https://docs.expo.dev/guides/permissions/)
+- [Expo Cameraドキュメント](https://docs.expo.dev/versions/latest/sdk/camera/)
+- [Expo Locationドキュメント](https://docs.expo.dev/versions/latest/sdk/location/)
+- [Expo Media Libraryドキュメント](https://docs.expo.dev/versions/latest/sdk/media-library/)
+- [Expo Notificationsドキュメント](https://docs.expo.dev/versions/latest/sdk/notifications/)
+- [expo-avドキュメント（Audio、Video）](https://docs.expo.dev/versions/latest/sdk/av/)

@@ -1,0 +1,77 @@
+---
+post_id: '90'
+locale: en
+title: 'Internet Intra-AS Routing: OSPF'
+description: >-
+  Scaling routing with autonomous systems and the operation of the OSPF
+  link-state protocol.
+source_hash: 65b53e789b2ac570ad815e6c0202a4af9b5a9e45fbf0e2162a1c19e69d1b249c
+reviewed_at: '2026-11-06T14:45:35.429Z'
+---
+## Making routing scalable
+Our discussion of routing so far has been idealized.
+- All routers are identical.
+- The network is *flat*.
+- In reality, it is not.
+
+Scale: With billions of destinations:
+- You cannot store every destination in a routing table.
+- Exchanging routing tables would overwhelm the links.
+
+Administrative autonomy:
+- The Internet is a network of networks.
+- Each network administrator may want to control routing within their own network.
+
+## The Internet's approach to scalable routing
+Group routers into *autonomous systems*.
+- AS stands for Autonomous System, also known as a *domain*.
+
+**Intra-AS routing**
+- Routing between hosts and routers within the same AS, or network.
+- All routers in an AS must run the same intradomain protocol.
+- Routers in different autonomous systems may run different intradomain routing protocols.
+- A gateway router sits at the *edge* of its AS and has a link to a router in another AS.
+
+**Inter-AS routing**
+- Routing between autonomous systems.
+- Gateways perform both intradomain and interdomain routing.
+<Ads1 />
+## Interconnected autonomous systems
+Forwarding tables are configured by intra-AS and inter-AS routing algorithms.
+- Intra-AS routing determines entries for destinations inside the AS.
+- Inter-AS and intra-AS routing together determine entries for external destinations.
+
+## Inter-AS tasks
+<Img src="/posts/240618-072026.png" width={500}/>
+Suppose a router in AS1 receives a datagram destined outside AS1.
+- It must forward the packet to a gateway router, but which one?
+
+AS1 must:
+1. Learn which destinations are reachable through AS2 and which through AS3.
+2. Propagate this reachability information to all routers in AS1.
+
+This is the role of inter-AS routing!
+<Ads2 />
+## Intra-AS routing
+Also known as interior gateway protocols (IGPs).
+The most common intra-AS routing protocols include:
+- **RIP: Routing Information Protocol**
+	- A variation of the Bellman–Ford algorithm.
+- **OSPF: Open Shortest Path First**
+	- IS-IS is essentially similar to OSPF.
+	- A variation of Dijkstra's algorithm.
+- **IGRP: Interior Gateway Routing Protocol**
+	- A Cisco proprietary protocol used for decades, through 2016.
+
+## OSPF (Open Shortest Path First)
+*Open*: Publicly available.
+Uses a link-state algorithm:
+- Flooding link-state packets.
+- A topology map at each node.
+- Computing shortest paths with Dijkstra's algorithm.
+
+A router floods OSPF link-state advertisements to every other router in the AS.
+- They are carried in OSPF messages directly over IP, rather than TCP or UDP.
+- Link state describes each connected link.
+
+The IS-IS routing protocol is very similar to OSPF and has the same goals.

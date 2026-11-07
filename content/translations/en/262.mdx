@@ -1,0 +1,178 @@
+---
+title_ko:
+  - BOJ
+title_en:
+  - BOJ
+desc: A problem related to Making Paper implemented in Python.
+thumbnail_url: 'https://d2gd6pc034wcta.cloudfront.net/tier/9.svg'
+metatag: >-
+  algorithm, python, boj, baekjoon, problem, 반례, solution, making, paper, 2630,
+  color, paper, divide, conquer, recursion
+post_id: '262'
+locale: en
+title: '[BOJ] #2630 Making Colored Paper (Python)'
+description: >-
+  A Python divide-and-conquer solution for counting monochromatic pieces of
+  colored paper.
+source_hash: 916c4247c5661a368803351dd7e0c31e20084efa7ff81dd0b2112054d216c181
+reviewed_at: '2026-11-06T14:40:50.275Z'
+---
+> https://www.acmicpc.net/problem/2630
+## Algorithm categories
+Divide and conquer, recursion.
+
+
+## Problem description
+A square sheet of paper is divided into an N × N grid.
+Its cells are colored blue or white.
+Cut the sheet into squares, each containing only one color.
+Find how many pieces of colored paper can be produced.
+
+### Input
+The first line contains N, where 1 ≤ N ≤ 128.
+The next N lines describe the colors of the paper.
+Each line consists of N values, each either 0 or 1.
+0 represents white, and 1 represents blue.
+```txt
+8
+1 1 0 0 0 0 1 1
+1 1 0 0 0 0 1 1
+0 0 0 0 1 1 0 0
+0 0 0 0 1 1 0 0
+1 0 0 0 1 1 1 1
+0 1 0 0 1 1 1 1
+0 0 1 1 1 1 1 1
+0 0 1 1 1 1 1 1
+```
+
+### Output
+Print the number of white pieces on the first line and the number of blue pieces on the second line.
+```txt
+9
+7
+```
+
+
+## Solution
+1. Store the input paper in a two-dimensional list.
+2. Divide the paper into four regions and inspect them recursively.
+3. Check whether each region contains only one color.
+4. If it does, increment the count for that color.
+5. Otherwise, divide it into four regions and inspect them again.
+6. Finally, print the numbers of white and blue pieces.
+
+<Ads1 />
+
+## Code — Python
+```python
+ # 입력 처리
+N = int(input())
+colors = [list(map(int, input().split())) for _ in range(N)]
+
+ # 정답 저장: answer[0] = 흰색 개수, answer[1] = 파란색 개수
+answer = [0, 0]
+
+
+def count_color(x, y, size):
+    """
+    (x, y)를 시작으로 size x size 정사각형을 검사한다.
+    만약 모든 색이 같다면 색종이 개수 증가,
+    아니면 4등분하여 재귀 처리.
+    """
+    color = colors[x][y]
+    all_same = True
+
+    # 해당 영역 전체가 같은 색인지 확인
+    for i in range(x, x + size):
+        for j in range(y, y + size):
+            if colors[i][j] != color:
+                all_same = False
+                break
+        if not all_same:
+            break
+
+    if all_same: # 모두 같은 색이면 해당 색의 개수 증가
+        answer[color] += 1
+    else:
+        # 4등분하여 재귀 호출
+        half = size // 2
+        count_color(x, y, half)                 # 왼쪽 위
+        count_color(x, y + half, half)          # 오른쪽 위
+        count_color(x + half, y, half)          # 왼쪽 아래
+        count_color(x + half, y + half, half)   # 오른쪽 아래
+
+
+ # 시작 좌표 (0, 0), 전체 크기 N
+count_color(0, 0, N)
+
+ # 출력
+print(answer[0])  # 하얀색 색종이 개수
+print(answer[1])  # 파란색 색종이 개수
+```
+## Key points
+- The input is an N × N square sheet, where N is a power of 2.
+- Each cell is 0 (white) or 1 (blue).
+- If the cells are not all the same color, divide the square into four regions and process them recursively.
+- Repeat until no further division is necessary, counting *pieces of paper, or monochromatic blocks*.
+
+### Time complexity
+- Inspecting a region visits all its cells: At most N × N = 128 × 128 = 16,384 cells.
+- Each cell is inspected once.
+- Worst case: All colors differ, so subdivision continues; recursion depth is at most log₂N.
+
+Overall time complexity: O(N²).
+
+
+## Additional test cases, excluding the examples
+The counts below are in white-then-blue order.
+```txt title="answer: 1 0"
+2
+0 0
+0 0
+```
+
+```txt title="answer: 0 1"
+2
+1 1
+1 1
+```
+
+```txt title="answer: 2 2"
+2
+0 1
+1 0
+```
+
+```txt title="answer: 3 1"
+2
+0 1
+0 0
+```
+
+```txt title="answer: 8 8"
+4
+0 1 0 1
+1 0 1 0
+0 1 0 1
+1 0 1 0
+```
+
+```txt title="answer: 0 1"
+4
+1 1 1 1
+1 1 1 1
+1 1 1 1
+1 1 1 1
+```
+
+```txt title="answer: 9 1"
+8
+0 0 0 0 0 0 0 1
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+```

@@ -1,0 +1,77 @@
+---
+post_id: '113'
+locale: zh
+title: 了解Next.js App Router
+description: 介绍Next.js App Router的根页面、文件系统路由、动态路由与API路由处理器。
+source_hash: ead922b4a5aed61e31f547f4578b19cf5c9d935ead8f11c67605d23d12dcdebd
+---
+## 开始之前
+> 来试试Next.js从版本13开始支持的App Router。
+
+Next.js采用文件系统路由，因此应用的路由由文件结构决定。
+App Router支持Server Components、Server Actions和Suspense等技术。
+这篇文章介绍它的基本用法。
+
+## 设置根页面
+可以使用默认生成的`app/`目录中的`page.tsx`和`layout.tsx`文件，配置根路径（`/`）。
+<img src="https://nextjs.org/_next/image?url=%2Fdocs%2Fdark%2Fapp-getting-started.png&w=1920&q=75"/>
+
+```tsx title="app/layout.tsx"
+export default function RootLayout({children,}: {children: React.ReactNode}) {
+  return (
+    <html lang="en">
+      <body>{children}</body> 
+	{/* html, body 태그를 사용하여 레이아웃을 구성*/}
+	{/* children은 page.tsx 내부의 컴포넌트를 받아서 레이아웃을 구성한다. */}
+    </html>
+  )
+}
+```
+
+```tsx title="app/page.tsx"
+export default function Page() {
+	return <p>Root Page</p>
+}
+```
+<Bbox>即使没有*layout.tsx*文件，Next.js也会在启动时自动生成布局。</Bbox>
+执行`npm run dev`后访问[http://localhost:3000/](http://localhost:3000/)，页面会显示`Root Page`。
+
+<Ads1 />
+## 定义路由
+如前文所述，Next.js采用文件系统路由，因此路由由文件和文件夹结构决定。
+在`app/`下创建子文件夹，就可以建立路由。
+<img src="https://nextjs.org/_next/image?url=%2Fdocs%2Fdark%2Fdefining-routes.png&w=1920&q=75"/>
+
+```tsx title="app/example/page.tsx"
+export default function ExamplePage() {
+	return <p>Example Page</p>
+}
+```
+执行`npm run dev`后访问[http://localhost:3000/example](http://localhost:3000/example)，页面会显示`Example Page`。
+
+### 动态路由
+在文件夹名称中使用方括号，就可以定义动态路由。
+```tsx title="app/example/[slug]/page.tsx"
+export default function SlugPage({ params }: { params: { slug: string } }) {
+	return <p>{params.slug} Page</p>
+}
+```
+执行`npm run dev`后访问[http://localhost:3000/example/hello](http://localhost:3000/example/hello)，页面会显示`hello Page`。
+
+## 使用路由处理器创建API路由
+创建`app/api/`目录，就可以使用API路由。
+<img src="https://nextjs.org/_next/image?url=%2Fdocs%2Fdark%2Froute-special-file.png&w=1920&q=75"/>
+
+```tsx title="app/api/hello.ts"
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  return NextResponse.json({ message: "Hello World" });
+}
+```
+
+执行`npm run dev`后访问[http://localhost:3000/api/hello](http://localhost:3000/api/hello)，会返回`{"message":"Hello World"}`。
+<Rbox>route.ts文件不能与page.tsx文件放在同一路径下。</Rbox>
+
+## 参考资料
+[Next.js官方文档](https://nextjs.org/docs)

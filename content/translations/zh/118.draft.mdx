@@ -1,0 +1,189 @@
+---
+post_id: '118'
+locale: zh
+title: Expo项目基础配置：Prettier、ESLint、Styled-components与Recoil
+description: 为Expo配置代码检查与格式化、组件样式和全局状态，并处理Windows换行符相关的ESLint错误。
+source_hash: 742995ee3f28e6b558d28f18ba0e65490f8e26e2f367c0ecc672f30249c4b70a
+---
+## 开始之前
+> 开发环境使用Windows、Android Studio和Visual Studio Code。
+下面完成Expo项目开发前的初始配置，将安装：
+- **Prettier与ESLint**：统一代码风格，提高代码质量。
+- **Styled-components**：用于组件样式的CSS-in-JS库。
+- **Recoil**：用于管理全局状态的状态管理库。
+<Ads1 />
+## 安装ESLint与Prettier
+### 安装ESLint
+在Expo项目中执行以下命令。
+首次执行时会生成*.eslintrc.js*，它是ESLint配置文件。
+之后再次执行相同命令，就可以查看检查结果。
+```bash
+npx expo lint
+```
+<Bbox>使用VS Code时，建议额外安装[ESLint插件](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)。</Bbox>
+<br/>
+<br/>
+为了与Prettier配合使用，修改*.eslintrc.js*。
+```js title=".eslintrc.js"
+module.exports = {
+  extends: ['expo', 'prettier'],
+  plugins: ['prettier'],
+  rules: {
+    'prettier/prettier': 'error',
+  },
+};
+```
+另外，创建*.eslintignore*，加入以下内容，忽略不需要检查的文件。
+```text title=".eslintignore"
+/.expo
+node_modules
+```
+
+<Ads2 />
+### 安装Prettier
+在项目文件夹中执行以下命令。
+```bash
+npx expo install -- --save-dev prettier eslint-config-prettier eslint-plugin-prettier
+```
+<Bbox>使用VS Code时，建议额外安装[Prettier插件](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)。</Bbox>
+<br/>
+<br/>
+创建*.prettierrc.js*，加入以下配置。
+```js title=".prettierrc.js"
+module.exports = {
+  singleQuote: true,  // 문자열은 홑따옴표로
+  parser: "typescript", // 타입스크립트 사용
+  semi: true,         // 세미콜론 사용
+  useTabs: false,    // 탭 사용 금지
+  tabWidth: 2,    // 들여쓰기 2칸
+  printWidth: 120,  // 줄 바꿈 길이
+  arrowParens: "always",  // 화살표 함수 괄호 사용
+};
+```
+如果需要指定Prettier忽略的文件，创建*.prettierignore*并添加以下内容。
+```text title=".prettierignore"
+.md
+```
+现在，保存文件时，Prettier就会按照ESLint配置自动整理代码。
+
+<Ads3 />
+## Styled-components
+### 安装Styled-components
+在Expo项目中使用styled-components，方式与React Native CLI项目相同。
+执行以下命令安装。
+```bash
+npm i styled-components
+```
+为了在React Native中使用，还需要安装类型定义。
+```bash
+npm i @types/styled-components @types/styled-components-react-native
+```
+### Styled-components示例
+修改App.tsx，使用styled-components。
+```tsx title="App.tsx" {3}
+import React from 'react';
+import { Text, View } from 'react-native';
+import styled from 'styled-components/native';
+
+export default function App() {
+  return (
+      <Container>
+        <Title>Hello, Expo!</Title>
+      </Container>
+    );
+  }
+
+const Container = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+`;
+
+const Title = styled.Text`
+  font-size: 24px;
+  font-weight: bold;
+`;
+```
+现在已经可以使用styled-components。
+
+<Ads4 />
+## Recoil
+### 安装Recoil
+在Expo项目中执行以下命令。
+```bash
+npm i recoil
+```
+为了使用Recoil，在app/_layout.tsx中添加RecoilRoot。
+```tsx title="app/_layout.tsx" {2, 7, 12}
+import React from 'react';
+import { RecoilRoot } from 'recoil';
+
+export default function App() {
+  return (
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <RecoilRoot>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </RecoilRoot>
+    </ThemeProvider>
+  );
+}
+```
+现在可以用Recoil管理全局状态。
+### Recoil示例
+首先创建atom。
+```tsx title="atoms/counter.ts"
+import { atom } from 'recoil';
+
+export const counterState = atom({
+  key: 'counterState',  // 고유한 키
+  default: 0, // 초기값
+});
+```
+然后，在组件中使用全局状态。
+基本用法与useState相似。
+```tsx title="components/Counter.tsx"
+import React from 'react';
+import { Text, Button } from 'react-native';
+import { useRecoilState } from 'recoil';
+import { counterState } from '../atoms/counter';
+
+export default function Counter() {
+  const [counter, setCounter] = useRecoilState(counterState);
+
+  return (
+    <>
+      <Text>{counter}</Text>
+      <Button title="Increase" onPress={() => setCounter(counter + 1)} />
+    </>
+  );
+}
+```
+<Ads5 />
+## 遇到的问题与解决方法
+### VSCode中ESLint的Delete \`cr\`错误
+<Img src="/posts/240729-135653.png" width={400} alt=""/>
+在VSCode使用ESLint时，可能出现上面的错误。
+原因与Windows使用的换行符有关。
+修改*.eslintrc.js*中的以下配置即可解决。
+```js title=".eslintrc.js" {5}
+module.exports = {
+  extends: ['expo', 'prettier'],
+  plugins: ['prettier'],
+  rules: {
+    'prettier/prettier': ['error', { endOfLine: 'auto' }],
+  },
+};
+```
+
+## 结论
+本文介绍了Expo项目中Prettier、ESLint、Styled-components与Recoil的配置方式。
+现在，项目已经准备好开始开发。
+
+### 参考资料
+[Expo：Use ESLint and Prettier](https://docs.expo.dev/guides/using-eslint/)
+[Styled-components：React Native](https://styled-components.com/docs/basics#react-native)
+[Recoil：Getting Started](https://recoiljs.org/docs/introduction/getting-started)
+[解决VSCode中Delete \`CR\` eslint(prettier/prettier)错误](https://guiyomi.tistory.com/134)

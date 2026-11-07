@@ -1,0 +1,134 @@
+---
+title_ko: Vue 커스텀 디렉티브와 컴포저블 - Vue 심화 외전 1편
+title_en: Vue Custom Directives and Composables - Vue Advanced Part 1
+desc: >-
+  Vue의 고급 기능인 커스텀 디렉티브와 컴포저블(Composable)에 대해 알아봅니다. v-focus와 같은 직접적인 DOM 제어 방법을
+  배우고, useMouse 같은 함수로 재사용 가능한 로직을 캡슐화하는 방법을 학습합니다.
+thumbnail_url: /250613-144411.webp
+metatag: >-
+  Vue, Vue.js, Custom Directive, Composable, Composition API, v-focus, useMouse,
+  Vue 심화, 프론트엔드, 뷰, 재사용성, Vue 고급
+post_id: '323'
+locale: zh
+title: Vue 自定义指令与组合式函数——Vue 进阶番外篇 1
+description: 介绍 Vue 的自定义指令与组合式函数，学习用 v-focus 直接控制 DOM，以及通过 useMouse 等函数封装可复用逻辑。
+source_hash: 5b19e6a7f507c47bbe80645bc6cf430acb6830653173a77d4572160bf0996e35
+---
+
+## 开始之前
+这篇番外篇将学习两种充分提升代码*复用性*的强大模式：**自定义指令**与**组合式函数（Composable）**。
+合理运用它们，可以大幅减少重复代码，构建更加整洁、易于维护的应用。
+
+## 自定义指令
+我们已经熟悉 Vue 的内置指令，例如 `v-if`、`v-model`。
+指令是带有 `v-` 前缀的特殊属性，直接添加到 HTML 元素上，以声明式方式操作 DOM。
+<br/>
+如果需要 Vue 默认未提供的 DOM 操作，该怎么办呢？
+例如，有时我们希望页面一加载，就让某个输入框自动获得焦点。
+这时就可以使用**自定义指令**。
+<br/>
+下面亲手创建一个名为 `v-focus` 的自定义指令。
+
+```vue
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+
+// 'vFocus'라는 이름으로 커스텀 디렉티브를 정의합니다.
+// Vue는 카멜 케이스(vFocus)를 케밥 케이스(v-focus)로 자동 변환해 줍니다.
+const vFocus = {
+  // 디렉티브가 바인딩된 요소가 DOM에 삽입되었을 때 호출됩니다.
+  mounted: (el: HTMLElement) => {
+    el.focus()
+  }
+}
+</script>
+
+<template>
+  <!-- 이제 어떤 입력창이든 v-focus만 추가하면 자동으로 포커스됩니다. -->
+  <input v-focus placeholder="페이지 로드 시 포커스됩니다." />
+</template>
+```
+上面的代码创建了一个名为 `vFocus` 的对象，并使用 `mounted` 钩子。
+应用该指令的 `<input>` 元素实际绘制到屏幕后，这个钩子就会被调用。
+原理非常简单：通过参数 `el` 直接接收该元素，然后执行 `el.focus()`。
+<br/>
+当需要超出 Vue 声明式模板语法的范围，直接访问某个元素的 DOM 并进行操作时，自定义指令就非常实用。
+
+<Ads1/>
+
+## 组合式函数
+开发应用时，经常需要在多个组件中反复使用完全相同的逻辑。
+例如“追踪当前鼠标坐标”“检测窗口尺寸变化”“获取 API 数据”等功能。
+<br/>
+将这些重复逻辑复制粘贴到每个组件中，效率很低。
+Vue 3 的 Composition API 为解决这个问题，提供了一种优雅的模式：**组合式函数（Composable）**。
+<br/>
+简单来说，组合式函数就是**利用 Vue 的响应式 API，封装和复用有状态逻辑的函数**。
+按照惯例，函数名以 `use` 开头。
+<br/>
+下面创建一个追踪鼠标位置的 `useMouse` 组合式函数。
+首先新建 `src/composables` 文件夹，并在其中创建 `useMouse.ts` 文件。
+
+```typescript title="src/composables/useMouse.ts "
+import { ref, onMounted, onUnmounted } from 'vue'
+
+// 컴포저블 함수는 특별한 것이 아니라, 그냥 함수입니다.
+export function useMouse() {
+  // 컴포저블 내부에서 상태를 관리합니다.
+  const x = ref(0)
+  const y = ref(0)
+
+  // 컴포저블 내부에서 생명주기 훅을 사용하여 이벤트를 관리할 수 있습니다.
+  function update(event: MouseEvent) {
+    x.value = event.pageX
+    y.value = event.pageY
+  }
+
+  onMounted(() => window.addEventListener('mousemove', update))
+  onUnmounted(() => window.removeEventListener('mousemove', update))
+
+  // 관리하던 상태를 객체로 반환하여 외부 컴포넌트에서 사용할 수 있도록 합니다.
+  return { x, y }
+}
+```
+### 使用组合式函数
+现在，无论在哪个组件中，都可以轻松导入并使用刚才创建的 `useMouse` 组合式函数。
+
+```vue title="src/components/MouseTracker.vue"
+<script setup lang="ts">
+// 우리가 만든 컴포저블을 임포트합니다.
+import { useMouse } from '@/composables/useMouse'
+
+// 함수를 호출하여 마우스 위치 상태를 가져옵니다.
+const { x, y } = useMouse()
+</script>
+
+<template>
+  <div>
+    마우스 위치: {{ x }}, {{ y }}
+  </div>
+</template>
+```
+复杂的事件监听器添加、移除逻辑，都隐藏在 `useMouse` 函数内部。
+组件只需获取并使用 `x` 和 `y` 这两个状态。
+<br/>
+现在，任何需要*追踪鼠标坐标*的组件，都可以复用同一个 `useMouse` 函数。
+这就是组合式函数的强大之处。
+<Img src="/250613-144544.webp" width={500} alt="组合式函数"/>
+<Ads2/>
+
+## 结语
+今天学习了两种提升 Vue 应用代码复用性的重要方法。
+- **自定义指令**
+当需要对特定 DOM 元素进行直接、底层的操作时使用。
+适合封装像 `v-focus` 这样职责清晰的 DOM 功能。
+- **组合式函数**
+它是 Vue 3 复用各类有状态逻辑的标准方式。
+无论是获取数据、追踪事件，还是与浏览器 API 交互，几乎都可以使用这种灵活而强大的模式。
+
+今后在代码中发现重复部分时，不妨先想想：“能否把它写成组合式函数？”
+> 下一篇番外篇将介绍让组件更加灵活的 `Slot` 和 `Teleport`。
+
+### 参考资料
+- [Vue.js 官方文档——自定义指令](https://vuejs.org/guide/reusability/custom-directives.html)
+- [Vue.js 官方文档——组合式函数](https://vuejs.org/guide/reusability/composables.html)

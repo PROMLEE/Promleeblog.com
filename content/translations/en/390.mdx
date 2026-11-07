@@ -1,0 +1,190 @@
+---
+title_en: Testing Custom Hooks - TDD with React Part 7
+title_ko: Custom Hook 테스트 - React로 시작하는 TDD 7편
+url: testing-custom-hooks
+series_no: 7
+desc: >-
+  비즈니스 로직을 분리하여 Custom Hook으로 만들고, renderHook과 act 함수를 사용하여 Hook을 독립적으로 테스트하는
+  방법을 배웁니다.
+thumbnail_url: /251221-213540.webp
+metatag: >-
+  React, TDD, CustomHook, renderHook, act, TestingLibrary, Refactoring,
+  SeparationOfConcerns
+tags: 'React, Javascript, Typescript, Next.js'
+post_id: '390'
+locale: en
+title: 'Testing Custom Hooks — TDD with React, Part 7'
+description: >-
+  Extract business logic into a custom hook and test it independently with
+  renderHook and act.
+source_hash: b8380f9385a14c4234f5276c42c957fd5a9959b42c7dfc06f858b6e83394b1ac
+reviewed_at: '2026-11-07T01:45:03.083Z'
+---
+
+## Before getting started
+
+So far, our *Counter* component has used `useState` to count and display a warning under certain conditions.
+Look at its code again: JSX for the screen and logic for the calculation are mixed together.
+<br/>
+What if another page needs the same counting behavior?
+Should we copy and paste it?
+This is where a *custom hook* helps.
+Today we will separate the brain, the hook, from the body, the component, and test that brain independently.
+
+<Ads1/>
+
+## Step 1: Extracting the logic through refactoring
+
+Create `src/hooks` and move the component's logic into `useCounter.ts`.
+This is a *refactoring* step: We change the internal structure without changing the tests.
+
+### Creating a custom hook
+
+```typescript title="src/hooks/useCounter.ts" showLineNumbers
+import { useState } from 'react';
+
+// [로직] 숫자를 관리하고 증가시키는 기능만 담당합니다.
+export default function useCounter() {
+  const [count, setCount] = useState(0);
+
+  const increment = () => {
+    setCount((prev) => prev + 1);
+  };
+
+  // 컴포넌트에서 필요한 값과 함수를 반환합니다.
+  return {
+    count,
+    increment,
+  };
+}
+```
+
+### Updating the component
+
+`Counter.tsx` no longer performs calculations itself; it simply uses the new hook.
+
+```tsx title="src/components/Counter.tsx" showLineNumbers highlight="{2,5-6}"
+import CountButton from './CountButton';
+import useCounter from '../hooks/useCounter'; // Hook import
+
+export default function Counter() {
+  // [수정] 직접 useState를 쓰지 않고 Hook을 사용합니다.
+  const { count, increment } = useCounter();
+
+  return (
+    <div>
+      <p>현재 숫자: {count}</p>
+      {/* 함수 이름이 handleClick에서 increment로 바뀌었음에 주의하세요 */}
+      <CountButton label="+" onClick={increment} />
+
+      {count >= 3 && (
+        <p style={{ color: 'red' }}>
+          숫자가 너무 커요!
+        </p>
+      )}
+    </div>
+  );
+}
+```
+
+<Ads2/>
+
+## Step 2: Testing the hook with renderHook and act
+
+Now test whether the extracted `useCounter` works correctly.
+A hook is not a component, so we cannot use `render(<useCounter />)`.
+We need `renderHook` and `act`.
+
+- **renderHook**
+  Creates a test component and runs the hook inside it.
+- **act**
+  Tells *React* that an important state-changing operation is about to happen, such as a simulated click.
+
+### Writing the test
+
+Create `src/hooks/useCounter.test.ts` with the following code.
+Again, use logs to track state changes.
+
+```typescript title="src/hooks/useCounter.test.ts" showLineNumbers
+import { renderHook, act } from '@testing-library/react';
+import useCounter from './useCounter';
+import { describe, test, expect } from 'vitest';
+
+describe('useCounter Hook 동작 테스트', () => {
+  
+  test('초기값은 0이며, increment 함수를 호출하면 값이 1 증가한다', () => {
+    // 1. Hook 렌더링 (가상 환경)
+    const { result } = renderHook(() => useCounter());
+
+    console.log(`[Step 1] 초기값 확인: ${result.current.count}`);
+    
+    // 초기값 검증
+    expect(result.current.count).toBe(0);
+
+    // 2. 상태 변경 (act 사용 필수!)
+    console.log('[Step 2] increment 함수 실행');
+    act(() => {
+      result.current.increment();
+    });
+
+    console.log(`[Step 3] 변경된 값 확인: ${result.current.count}`);
+
+    // 3. 결과 검증
+    expect(result.current.count).toBe(1);
+  });
+});
+```
+
+<Ads3/>
+
+## Step 3: Running and analyzing the tests
+
+Run the hook tests.
+
+```bash title="Terminal"
+npm test
+```
+
+### Checking the execution log
+<Img src="/251221-213511.webp" width={600} alt="Checking the execution log"/>
+
+```text
+[Step 1] 초기값 확인: 0
+[Step 2] increment 함수 실행
+[Step 3] 변경된 값 확인: 1
+
+ PASS  src/hooks/useCounter.test.ts
+ PASS  src/components/Counter.test.tsx
+```
+
+The logs show that calling `increment` inside `act` changes `result.current.count` from 0 to 1.
+<br/>
+Notice that the existing `Counter.test.tsx` also still **passes**.
+We changed the implementation from useState inside the component to a custom hook, but the screen and behavior seen by users remain unchanged, so the original tests keep working.
+<Ads4/>
+
+## Conclusion
+
+The source is available at [GitHub — Promleeblog/react-tdd-setup](https://github.com/PROMLEE/my-tdd-app/tree/part7).
+```bash title="Terminal"
+git clone https://github.com/PROMLEE/my-tdd-app.git
+cd my-tdd-app
+git checkout part7
+```
+
+We learned to separate logic and test it independently.
+- **renderHook**
+  Runs and verifies a hook without writing a component around it.
+- **act**
+  Wrap state-changing actions in `act` so *React* detects and applies the updates.
+- **Separation of concerns**
+  The component focuses on presentation and the hook on calculations, making the code much cleaner.
+
+Both the application's internal logic, the hook, and its external screen, the component, are now covered by tests.
+> Next, Part 8 covers **testing asynchronous logic**, a core part of real web applications.
+
+### References
+- [Testing Custom Hooks](https://testing-library.com/docs/react-testing-library/api/#renderhook)
+  The official React Testing Library documentation for renderHook.
+- [When to use act()](https://reactjs.org/docs/test-utils.html#act)
+  The React team's explanation of act and when it is needed.

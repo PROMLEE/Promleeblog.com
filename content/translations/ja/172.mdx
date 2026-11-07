@@ -1,0 +1,441 @@
+---
+post_id: '172'
+locale: ja
+title: Expoで言語パックを用意して多言語対応する（expo-localization、i18next）
+description: Expoで端末の言語を取得し、i18nextで翻訳とアプリ内の言語切り替えを実装します。
+source_hash: 24c2b8e4ae5430d85f3df97223fbdc861207d6c0a6f386376acf5c0231c14aea
+reviewed_at: '2026-11-07T12:24:01.435Z'
+---
+## はじめに
+> この記事では、基本的なExpoプロジェクトを作成済みとします。作成方法は[Windows版](/blog/post/117-expo-proj-init)、[Mac版](/blog/post/143-expo-init-mac)を参照してください。
+
+### Expoで多言語の言語パックを使う
+異なる言語を使い、異なる文化圏にいるユーザーにも使いやすくするには、アプリをローカライズします。端末のロケールに合わせて、ユーザーになじみのある言語や通貨を表示できるようになります。
+Expoの[expo-localization](https://docs.expo.dev/guides/localization/)を使うと、[i18n-js](https://github.com/fnando/i18n)などの翻訳ライブラリを使う前に、端末の言語設定を簡単に取得できます。世界向けに提供する場合、多言語対応は欠かせません。
+従来のi18nベースのライブラリとExpoのSDKを組み合わせれば、さらに実装しやすくなります。
+<br/><br/>
+今回は[i18next](https://www.i18next.com/)と組み合わせます。i18nextの基本は、[i18nextで多言語翻訳を実装する（React、Expo、React Native）](/blog/post/171-i18next-init)を参照してください。
+
+<Ads1 />
+## expo-localizationとreact-i18nextをインストールする
+### インストール
+次のコマンドで `expo-localization`、`react-i18next`、`i18next`、`@react-native-async-storage/async-storage` をインストールします。
+```bash
+npx expo install expo-localization react-i18next i18next @react-native-async-storage/async-storage
+```
+その後、`expo-localization` をインポートし、端末の現在の言語設定を取得できます。
+
+```tsx title="/app/index.tsx"
+import React from "react";
+import { View, Text } from "react-native";
+import { getLocales } from "expo-localization";
+
+const App = () => {
+  const deviceLanguage = getLocales()[0].languageCode;
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Text style={{ fontSize: 20 }}>현재 기기 언어: {deviceLanguage}</Text>
+    </View>
+  );
+};
+
+export default App;
+```
+<Img src="/posts/250328-110529.webp" width={300} alt=""/>
+
+上のコードの `getLocales()` は、端末の*システム設定*に基づいて現在のロケール情報を返します。アプリは、ユーザーが希望する言語を自動で判定できます。
+<Bbox>新しいAndroidやiOSでは、アプリごとに言語設定を変えられることがあります。アプリ内に言語切り替えボタンが必要か、検討してください。</Bbox>
+
+<Ads2 />
+## i18nextで翻訳を実装する
+
+<Toggle title="/app/index.tsのコード全体を表示する">
+
+```tsx title="/app/index.ts"
+import React from "react";
+import { View, Text, Button } from "react-native";
+import { initReactI18next, useTranslation } from "react-i18next";
+import { getLocales } from "expo-localization";
+import i18n from "i18next";
+
+const resources = {
+  en: {
+    translation: {
+      welcome: "Welcome to the app!",
+    },
+  },
+  ko: {
+    translation: {
+      welcome: "앱에 오신 것을 환영합니다!",
+    },
+  },
+  ar: {
+    translation: {
+      welcome: "مرحبًا بك في التطبيق!",
+    },
+  },
+};
+
+i18n.use(initReactI18next).init({
+  resources,
+  lng: getLocales()[0].languageCode || "ko",
+	fallbackLng: {
+		"en-*": ["en"],
+		"ko-*": ["ko"],
+		"ar-*": ["ar"],
+		default: ["en"],
+	},
+  interpolation: {
+    escapeValue: false,
+  },
+  react: {
+    useSuspense: false,
+  },
+});
+
+const App = () => {
+  const { t, i18n } = useTranslation();
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 20,
+      }}
+    >
+      <Text>{t("welcome")}</Text>
+      <Button title="English" onPress={() => i18n.changeLanguage("en")} />
+      <Button title="Korean" onPress={() => i18n.changeLanguage("ko")} />
+      <Button title="Arabic" onPress={() => i18n.changeLanguage("ar")} />
+    </View>
+  );
+};
+
+export default App;
+```
+</Toggle>
+
+### 翻訳データを作る
+アプリで対応する言語と、翻訳データを定義します。
+```tsx title="/app/index.ts"
+// 컴포넌트 밖에 번역 데이터 정의
+const resources = {
+  en: {
+    translation: {
+      welcome: "Welcome to the app!",
+    },
+  },
+  ko: {
+    translation: {
+      welcome: "앱에 오신 것을 환영합니다!",
+    },
+  },
+  ar: {
+    translation: {
+      welcome: "مرحبًا بك في التطبيق!",
+    },
+  },
+};
+// ...
+```
+### i18nextを初期化する
+i18nを初期化するコードを書きます。`getLocales()[0].languageCode` を使い、端末の言語を初期値にします。
+fallbackLngで、使用する言語が指定されていない場合の代替言語を設定できます。
+```tsx title="/app/index.ts"
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+
+i18n.use(initReactI18next).init({
+  resources,
+  lng: getLocales()[0].languageCode || "ko",
+	fallbackLng: {
+		"en-*": ["en"],
+		"ko-*": ["ko"],
+		"ar-*": ["ar"],
+		default: ["en"],
+	},
+  interpolation: {
+    escapeValue: false,
+  },
+  react: {
+    useSuspense: false,
+  },
+});
+```
+<Ads3 />
+### 翻訳を表示し、言語切り替えボタンを追加する
+最後に翻訳を表示し、言語を切り替えるボタンを追加します。`useTranslation` フックで翻訳を使えます。 `
+```tsx title="/app/index.ts"
+import React from "react";
+import { View, Text, Button } from "react-native";
+import { initReactI18next, useTranslation } from "react-i18next";
+import { getLocales } from "expo-localization";
+import i18n from "i18next";
+
+//... i18n 초기화 코드
+
+const App = () => {
+  const { t, i18n } = useTranslation();
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 20,
+      }}
+    >
+      <Text>{t("welcome")}</Text>
+      <Button title="English" onPress={() => i18n.changeLanguage("en")} />
+      <Button title="Korean" onPress={() => i18n.changeLanguage("ko")} />
+      <Button title="Arabic" onPress={() => i18n.changeLanguage("ar")} />
+    </View>
+  );
+};
+
+export default App;
+```
+<Img src="/posts/250328-163950.webp" width={300} alt=""/>
+各ボタンを押すと、対応する言語に表示が切り替わります。
+
+## 言語パックとi18nの初期化を別ファイルに分ける
+上のコードでは、コンポーネントの外側に翻訳データを変数として定義しました。翻訳が増えるとコードが長くなり、管理しにくくなります。ここでは翻訳データを別ファイルに分けます。
+ターミナルで次のコマンドを実行し、保存用のディレクトリとファイルを作ります。
+```bash
+mkdir -p src/i18n/locales/{en-US,ko-KR,ar-SA} && \
+touch src/i18n/index.ts \
+src/i18n/locales/en-US/translations.json \
+src/i18n/locales/ko-KR/translations.json \
+src/i18n/locales/ar-SA/translations.json
+```
+次のような構成になります。
+```
+📦 src
+ ┣ 📂 i18n
+ ┃ ┣ 📂 locales
+ ┃ ┃ ┣ 📂 ar-SA
+ ┃ ┃ ┃ ┗ 📜 translations.json
+ ┃ ┃ ┣ 📂 en-US
+ ┃ ┃ ┃ ┗ 📜 translations.json
+ ┃ ┃ ┗ 📂 ko-KR
+ ┃ ┃ ┃ ┗ 📜 translations.json
+ ┗ ┗ 📜 index.ts
+```
+各JSONファイルに翻訳データを書きます。
+```json title="/src/i18n/locales/en-US/translations.json"
+{
+	"welcome": "Welcome to the app!"
+}
+```
+```json title="/src/i18n/locales/ko-KR/translations.json"
+{
+	"welcome": "앱에 오신 것을 환영합니다!"
+}
+```
+```json title="/src/i18n/locales/ar-SA/translations.json"
+{
+	"welcome": "مرحبًا بك في التطبيق!"
+}
+```
+`src/i18n/index.ts` に、翻訳データを読み込むコードを書きます。
+```tsx title="/src/i18n/index.ts"
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import { getLocales } from "expo-localization";
+import translationEn from "./locales/en-US/translations.json";
+import translationKo from "./locales/ko-KR/translations.json";
+import translationAr from "./locales/ar-SA/translations.json";
+
+const resources = {
+  en: { translation: translationEn },
+  ko: { translation: translationKo },
+  ar: { translation: translationAr },
+};
+
+const initI18n = async () => {
+	i18n.use(initReactI18next).init({
+		resources,
+		lng: getLocales()[0].languageCode || "ko",
+		fallbackLng: {
+			"en-*": ["en"],
+			"ko-*": ["ko"],
+			"ar-*": ["ar"],
+			default: ["en"],
+		},
+		interpolation: {
+			escapeValue: false,
+		},
+		react: {
+			useSuspense: false,
+		},
+	});
+};
+
+initI18n();
+
+export default i18n;
+```
+
+最後に `src/i18n/index.ts` をインポートして使います。これで翻訳データを管理しやすくなりました。`/app/_layout.tsx` に適用すると、プロジェクト全体に反映できます。
+```tsx title="/app/index.ts" {1}
+import "@/src/i18n";
+
+// ... App 컴포넌트 밖의 i18n 초기화 코드 제거
+```
+
+<Ads4 />
+## 言語設定を保持する
+変更した言語をアプリの再起動後も保つには、`AsyncStorage` に保存します。`AsyncStorage` は、アプリのデータを非同期で保存し、読み込めます。
+`/src/i18n/index.ts` で `AsyncStorage` を使い、言語設定を保存、取得します。
+1. AsyncStorageに保存済みの言語設定を確認します。
+2. 設定がなければ、端末の言語を取得して適用します。
+3. 設定があれば、その言語を適用します。
+4. 言語設定をAsyncStorageに保存します。
+
+言語コードは \{言語コード\}-\{国コード\} の形式で扱います。例えば韓国語は `ko-KR`、英語は `en-US` です。ただし、今回の翻訳データのキーは `ko`、`en`、`ar` なので、端末の設定から言語コード部分だけを取り出して保存します。問題が起きた場合に備え、既定の言語を `en` にします。
+<Toggle title="/src/i18n/index.tsのコード全体">
+
+```tsx title="/src/i18n/index.ts"
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import * as Localization from "expo-localization";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import translationEn from "./locales/en-US/translations.json";
+import translationKo from "./locales/ko-KR/translations.json";
+import translationAr from "./locales/ar-SA/translations.json";
+
+const resources = {
+  en: { translation: translationEn },
+  ko: { translation: translationKo },
+  ar: { translation: translationAr },
+};
+
+const LANGUAGE_KEY = "@app_language";
+
+const initI18n = async () => {
+  try {
+    const savedLanguage = await AsyncStorage.getItem(LANGUAGE_KEY);
+    let selectedLanguage = savedLanguage;
+
+    if (!selectedLanguage) {
+      const deviceLocales = Localization.getLocales();
+      const deviceLocale = deviceLocales[0]?.languageTag || "en-US";
+      const languageCode = deviceLocale.split("-")[0];
+
+      if (languageCode in resources) {
+        selectedLanguage = languageCode;
+      } else {
+        selectedLanguage = "en";
+      }
+    }
+
+    await i18n.use(initReactI18next).init({
+      resources,
+      lng: selectedLanguage,
+      fallbackLng: {
+        "en-*": ["en"],
+        "ko-*": ["ko"],
+        "ar-*": ["ar"],
+        default: ["en"],
+      },
+      interpolation: {
+        escapeValue: false,
+      },
+      react: {
+        useSuspense: false,
+      },
+    });
+
+    if (!savedLanguage) {
+      await AsyncStorage.setItem(LANGUAGE_KEY, selectedLanguage);
+    }
+  } catch (error) {
+    await i18n.use(initReactI18next).init({
+      resources,
+      lng: "en",
+      fallbackLng: "en",
+      interpolation: {
+        escapeValue: false,
+      },
+      react: {
+        useSuspense: false,
+      },
+    });
+  }
+};
+
+initI18n();
+
+export default i18n;
+```
+</Toggle>
+
+`/app/index.tsx` で言語切り替えボタンを押すたび、AsyncStorageに言語設定を保存します。
+<Toggle title="/app/index.tsのコード全体">
+
+```tsx title="/app/index.ts"
+import React from "react";
+import "@/src/i18n";
+import { View, Text, Button } from "react-native";
+import { useTranslation } from "react-i18next";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const App = () => {
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = async (language: "en" | "ko" | "ar") => {
+    i18n.changeLanguage(language);
+    await AsyncStorage.setItem("@app_language", language);
+  };
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 20,
+      }}
+    >
+      <Text>{t("welcome")}</Text>
+      <Button title="English" onPress={() => changeLanguage("en")} />
+      <Button title="Korean" onPress={() => changeLanguage("ko")} />
+      <Button title="Arabic" onPress={() => changeLanguage("ar")} />
+    </View>
+  );
+};
+
+export default App;
+```
+</Toggle>
+これで、アプリを終了しても設定が残ります。言語を切り替え、アプリを閉じてから起動し直し、確認してください。
+<Img src="/posts/250328-173431.webp" width={300} alt=""/>
+
+<Ads5 />
+## 問題と対処方法
+### Cannot find native module 'ExpoLocalization'
+<Img src="/posts/250328-181515.webp" width={300} alt=""/>
+
+開発モードで、設定がネイティブコードに反映されていないと発生します。次のコマンドを実行して対処できます。
+```bash
+cd ios && pod install && cd ..
+npx expo run:ios
+```
+## おわりに
+今回は、Expoで言語パックを使って多言語対応する方法を学びました。`expo-localization` で端末の設定を取得し、`i18next` で翻訳を実装しました。
+さらに、翻訳データを別ファイルで管理し、AsyncStorageで言語設定を保存する方法も学びました。世界に向けてアプリを提供する場合は多言語対応が欠かせません。ユーザーが使いやすいよう、言語パックの導入を検討してみてください。
+
+### 参考
+- [Expo Localizationの公式ドキュメント](https://docs.expo.dev/guides/localization/)
+- [React Nativeの多言語対応例](https://lokalise.com/blog/multilingual-support/)
+- [expo-multi-language-support](https://launchtoday.dev/blog/expo-multi-language-support)

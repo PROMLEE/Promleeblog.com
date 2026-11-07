@@ -1,0 +1,144 @@
+---
+title_ko: 'VCode, Cursor에서 MCP로 피그마에 그림 그리고 디자인하기 ( cursor-talk-to-figma-mcp )'
+title_en: >-
+  draw and design on figma with MCP in VCode, Cursor ( cursor-talk-to-figma-mcp
+  )
+desc: >-
+  AI 코드 편집기 Cursor와 디자인 도구 Figma를 연결하는 강력한 도구인 cursor-talk-to-figma-mcp에 대해
+  알아보세요. 이 프로젝트를 활용하면 단순 반복적인 디자인 작업을 자동화하고, 코드와 디자인 사이의 간극을 줄여 훨씬 효율적으로 작업할 수
+  있습니다.
+thumbnail_url: /250512-161216.webp
+metatag: >-
+  Cursor, Figma, MCP, Windows, PowerShell, 디자인 자동화, AI 코딩, Figma 플러그인, Bun,
+  WebSocket, TypeScript, API
+post_id: '274'
+locale: zh
+title: 在 VS Code 和 Cursor 中通过 MCP 操作 Figma 设计（cursor-talk-to-figma-mcp）
+description: 使用 cursor-talk-to-figma-mcp 连接 AI 代码编辑器与 Figma，自动完成重复设计操作，减少代码和设计之间的切换。
+source_hash: 4a99c80316e85087b887ba1fa93a9d3ef0509974dcc182a655096d77d9244051
+reviewed_at: '2026-11-07T07:03:16.281Z'
+---
+## 开始之前
+> 如果要在 VS Code 中使用 MCP，建议先阅读上一篇[在 VS Code 中使用 MCP](/blog/post/189-vscode-mcp)。
+
+大家好，今天来安装和使用 `cursor-talk-to-figma-mcp`，把 AI 代码编辑器连接到设计工具 *Figma*。
+这个项目提供了一个能在 Cursor 和 VS Code 中使用的 MCP 服务器。借助它，可以连接 Figma，自动执行设计任务。
+本文将介绍 `cursor-talk-to-figma-mcp` 是什么、如何安装与使用，以及它提供了哪些功能。
+[cursor-talk-to-figma-mcp GitHub 仓库](https://github.com/sonnylazuardi/cursor-talk-to-figma-mcp)
+<Img src="/250512-145537.webp" width={300} alt="cursor-talk-to-figma-mcp"/>
+
+<Ads1 />
+## 环境配置
+本文以 *macOS 和 Linux* 为例。Windows 用户需要使用 WSL，请参阅 [Windows + WSL 指南](https://github.com/sonnylazuardi/cursor-talk-to-figma-mcp?tab=readme-ov-file#windows--wsl-guide)。
+先从 GitHub 克隆项目。
+```bash
+git clone https://github.com/sonnylazuardi/cursor-talk-to-figma-mcp
+cd cursor-talk-to-figma-mcp
+```
+### 1. 安装 Bun
+Bun 是一个速度很快的 JavaScript 运行时、打包工具和包管理器，可以用来运行和管理 JavaScript 代码。
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+> 此命令从网上下载安装脚本并运行，以安装 Bun。
+
+### 2. 运行项目配置
+安装好 Bun 后，开始配置项目。在终端中输入以下命令。
+```bash
+bun setup
+```
+此过程也会在 Cursor 当前打开的项目中配置 MCP。
+如果希望在 VS Code 中通过 Copilot 发出指令，可以在 settings.json 中添加以下配置。
+```json
+{
+  "mcpServers": {
+    "TalkToFigma": {
+      "command": "bunx",
+      "args": ["cursor-talk-to-figma-mcp@latest"]
+    }
+  }
+}
+```
+### 3. 启动 WebSocket 服务器
+接下来启动 WebSocket 服务器，让 MCP 服务器与 Figma 插件能够通信。在终端中输入以下内容。
+```bash
+bun socket
+```
+看到下面的输出就表示启动成功。
+```
+bun run src/socket.ts
+WebSocket server running on port 3055
+New client connected
+```
+
+#### 4. 启动 MCP 服务器
+现在启动用于与 Figma 通信的 MCP 服务器。打开一个新的终端，输入以下命令。
+```bash
+bunx cursor-talk-to-figma-mcp
+```
+此命令会启动 MCP 服务器。看到以下消息就表示成功。
+```
+[INFO] Connecting to Figma socket server at ws://localhost:3055...
+[INFO] FigmaMCP server running on stdio
+[INFO] Connected to Figma socket server
+[DEBUG] Received message: "Please join a channel to start chatting"
+[LOG] myResponse"Please join a channel to start chatting"
+[INFO] Received broadcast message: "Please join a channel to start chatting"
+```
+
+<Img src="/250512-151403.webp" width={500} alt="上方是 WebSocket 服务器，下方是 MCP 服务器"/>
+
+### 5. 安装 Figma 插件
+最后安装 Figma 插件。
+打开所需的 Figma 文件，在菜单中选择“插件 → 新建插件”，然后选择 cursor talk to figma mcp 插件。
+<Img src="/250512-152217.webp" width={500} alt="安装插件"/>
+在插件界面选择 use localhost，再点击 connect 按钮。
+<Img src="/250512-153558.webp" width={500} alt="点击 connect 按钮后的画面"/>
+现在 Figma 和 Cursor 已经连接。接下来可以通过频道代码，在 IDE 中读取并修改 Figma 设计。
+点击右上角的分享按钮，复制 Figma 页面链接。将权限设为“任何人均可编辑”。
+<Img src="/250512-153824.webp" width={400} alt="分享链接"/>
+
+<Ads2 />
+
+## 在 IDE 中进行 Figma 设计
+Figma 与 Cursor 连接后，可以直接在 IDE 中读取和修改 Figma 设计。
+如果连接失败，请完全退出 IDE 后再打开。
+### 1. 连接频道
+提供在[第 5 步：安装 Figma 插件](#5-figma-플러그인-설치하기)中获得的频道代码，指示 IDE 连接该频道。
+```text
+connect to figma channel : <채널코드>
+```
+<Img src="/250512-154720.webp" width={500} alt="连接频道"/>
+
+### 2. 读取 Figma 设计
+接下来指示 IDE 读取 Figma 设计文件。粘贴刚才复制的页面链接，让它读取页面。
+```text
+read figma page : <링크>
+```
+<Img src="/250512-155023.webp" width={500} alt="读取页面"/>
+
+### 3. 在 Figma 中创建设计
+现在可以让 IDE 在 Figma 中绘制你需要的设计。下面是一个示例。
+```text
+큰 원을 그려 줘
+```
+<Img src="/250512-155202.webp" width={400} alt="绘制圆形的指令"/>
+它依次执行 create_frame、create_rectangle 和 set_corner_radius 来画圆。
+回到 Figma 页面，可以看到如下所示的圆形。
+<Img src="/250512-155138.webp" width={300} alt="成功绘制圆形"/>
+
+
+<Ads3 />
+
+## 结语
+
+本文详细介绍了用于连接 AI 代码编辑器 Cursor 和设计工具 Figma 的 `cursor-talk-to-figma-mcp`。
+利用这个项目，可以自动执行重复的设计工作，缩小代码与设计之间的差距，提高工作效率。
+
+### 参考资料
+- [原始 GitHub 仓库](https://github.com/sonnylazuardi/cursor-talk-to-figma-mcp)
+- [Figma 社区插件页面](https://www.figma.com/community/plugin/1485687494525374295/cursor-talk-to-figma-mcp-plugin)
+- [快速视频教程（Sonny Lazuardi）](https://www.linkedin.com/posts/sonnylazuardi_just-wanted-to-share-my-latest-experiment-activity-7307821553654657024-yrh8)
+- [批量替换文本演示（@dusskapark）](https://www.youtube.com/watch?v=j05gGT3xfCs)
+- [传播实例覆盖设置演示（@dusskapark）](https://youtu.be/uvuT8LByroI)
+- [Bun 官网](https://bun.sh/)

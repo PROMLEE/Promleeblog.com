@@ -1,0 +1,140 @@
+---
+title_ko: 리액트 쿼리를 커스텀 훅으로 효율적으로 사용하는 방법
+title_en: Efficient Pattern of Using React Query with Custom Hooks
+desc: React Query를 여러 페이지와 컴포넌트에서 재사용 가능하게 만들기 위해 커스텀 훅으로 추상화하는 방법을 실제 예제와 함께 설명합니다.
+thumbnail_url: /react-query-hooks.webp
+metatag: >-
+  react query, tanstack query, useQuery, custom hook, 커스텀 훅, 쿼리 재사용, 상태 관리,
+  React 패턴, 리팩토링, JSONPlaceholder, 타입 안전성, 타입 확인, React Native, React Query,
+  TanStack Query, 타입 확인, 타입 안전성, 타입 확인, 타입 안전성
+post_id: '203'
+locale: ja
+title: React Queryをカスタムフックで効率的に使う
+description: React Queryのクエリ処理をカスタムフックへ抽象化し、複数のページやコンポーネントで再利用する方法を実例で説明します。
+source_hash: bb22038b1ae825ecad03450a96e280e4a05f2123aea968ab7b6cf7ab582303f2
+reviewed_at: '2026-11-06T14:46:45.974Z'
+---
+## はじめに
+> ReactとReact Nativeのどちらにも適用できるパターンです。
+React Queryのデータ取得機能は強力ですが、同じクエリを複数のページやコンポーネントに繰り返し書くと、コードが長くなり保守も難しくなります。
+クエリの処理をカスタムフックへ分離すると、再利用性と読みやすさを同時に高められます。
+今回は、*React Queryをカスタムフックへ抽象化*して効率的に使う方法を紹介します。
+JSONPlaceholderを例に、実際の開発ですぐに使える形で説明します。
+## 基本構造の復習：useQuery
+まず、`useQuery`を直接使う基本構造を確認します。
+
+```tsx title="components/UserList.tsx"
+const fetchUsers = async () => {
+  const res = await axios.get('https://jsonplaceholder.typicode.com/users');
+  return res.data;
+};
+
+function UserList() {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['users'],
+    queryFn: fetchUsers,
+  });
+
+  if (isLoading) return <div>로딩 중...</div>;
+  if (error) return <div>에러 발생!</div>;
+
+  return <div>{data.map((user) => user.name)}</div>;
+}
+```
+一つか二つのコンポーネントなら問題ありませんが、複数箇所で同じように使うと重複が増えます。
+<Ads1 />
+## カスタムフックへ抽象化する
+このパターンをカスタムフックにします。
+たとえば、`useUsers.ts`を作り、次のように構成できます。
+
+```tsx title="hooks/useUsers.ts"
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+
+const fetchUsers = async () => {
+  const res = await axios.get('https://jsonplaceholder.typicode.com/users');
+  return res.data;
+};
+
+export function useUsers() {
+  return useQuery({
+    queryKey: ['users'],
+    queryFn: fetchUsers,
+  });
+}
+```
+コンポーネント側では、次のように使います。
+
+```tsx title="components/UserList.tsx"
+import { useUsers } from '../hooks/useUsers';
+
+export function UserList() {
+  const { data, isLoading, error } = useUsers();
+
+  if (isLoading) return <div>로딩 중...</div>;
+  if (error) return <div>에러 발생!</div>;
+
+  return <div>{data.map((user) => user.name)}</div>;
+}
+```
+## パラメーターを受け取るフック
+次は、特定ユーザーの記事を取得する`useUserPosts(userId)`というフックです。
+
+```tsx title="hooks/useUserPosts.ts"
+export function useUserPosts(userId: number) {
+  return useQuery({
+    queryKey: ['user', userId, 'posts'],
+    queryFn: async () => {
+      const res = await axios.get(`https://jsonplaceholder.typicode.com/users/${userId}/posts`);
+      return res.data;
+    },
+    enabled: !!userId,
+  });
+}
+```
+`enabled: !!userId`は、`userId`が未定義のときにクエリが実行されることを防ぎます。
+<Ads2 />
+## クエリのオプションを外部から渡す
+使用側から柔軟に設定を渡したければ、次のように`options`を引数として受け取れます。
+
+```tsx title="hooks/useUsers.ts"
+export function useUsers(options?: UseQueryOptions) {
+  return useQuery({
+    queryKey: ['users'],
+    queryFn: fetchUsers,
+    ...options,
+  });
+}
+```
+利用する側で`staleTime`、`onSuccess`、`onError`などを自由に設定でき、柔軟性が高まります。
+### 型安全性を確保する
+fetch結果の型を定義すると、型安全性を確保できます。
+
+```tsx title="hooks/useUserPosts.ts"
+interface FetchUserPostsResponse {
+  id: number;
+  title: string;
+  body: string;
+}
+
+export function useUserPosts(userId: number, options?: UseQueryOptions<FetchUserPostsResponse, Error>) {
+  return useQuery({
+    queryKey: ['user', userId, 'posts'],
+    queryFn: async () => {
+      const res = await axios.get(`https://jsonplaceholder.typicode.com/users/${userId}/posts`);
+      return res.data;
+    },
+    ...options,
+  });
+}
+```
+<Ads3 />
+
+## まとめ
+React Queryは強力ですが、カスタムフックに抽象化しないと重複コードが生まれやすくなります。
+繰り返し使う`queryKey`や`queryFn`などをフックへ分離すれば、複数ページで効率的に再利用でき、テストや保守も簡単になります。
+フックを適切に設計すると、チーム全体のコード品質と一貫性を高められます。
+今後React Queryを使うときは、*フックを中心とした構造*を基本として設計してみてください。
+### 参考
+- TanStack Query公式ドキュメント：https://tanstack.com/query
+- JSONPlaceholder API：https://jsonplaceholder.typicode.com

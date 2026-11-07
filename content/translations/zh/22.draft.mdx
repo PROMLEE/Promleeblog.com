@@ -1,0 +1,24 @@
+---
+post_id: '22'
+locale: zh
+title: 分组密码
+description: 介绍分组密码的结构、设计参数与计算安全性的判断标准。
+source_hash: 3e2b1dea5ff6782007be327e34a20e1b007d0262d0dc95a9293747ccbc25cbc6
+---
+# 分组密码（Block Cipher）
+## 分组密码的结构（Design of Block Cipher）
+对称分组密码由多个**轮次**组成，每一轮包含由**密钥**控制的**代换**和**置换**。
+对称分组密码的参数与设计特性包括：
+- 分组大小（Block Size）
+- 密钥大小（Key Size）
+- 轮数（Number of Rounds），是**加密的核心要素**
+- 子密钥生成算法（Subkey Schedule Algorithm）
+- 轮函数（Round Function）
+- 软件或硬件中的加密与解密速度（Encryption/Decryption Speed）
+- 安全分析的便利程度（Ease of Security Analysis）
+![240425-124053](/posts/240425-124053.png)
+<Ads1 />
+## 计算安全性（Computational Security）
+当产生的密文满足以下一项或两项标准时，可以认为该加密方案在计算上是安全的。
+- 破解密码的成本超过被加密信息的价值。
+- 破解密码所需的时间超过该信息的有效寿命。

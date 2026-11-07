@@ -1,0 +1,76 @@
+---
+post_id: '23'
+locale: en
+title: 'DES: Data Encryption Standard'
+description: >-
+  Feistel structure, DES permutations, S-boxes, key scheduling, security, and
+  Triple DES.
+source_hash: 62cdcac54e166d3020ccdbcfbcee5dfd3dac6e78324174152001a5218d6d80bb
+---
+## Feistel cipher structure
+Input: A plaintext block of $2w$ bits and a key $K$.
+Split the plaintext into two $w$-bit blocks: $L_0, R_0$.
+After n rounds, combine the blocks to produce the ciphertext block.
+Every round has the same structure.
+### The structure of one Feistel round
+![240425-125848](/posts/240425-125848.png)
+
+## DES (Data Encryption Standard)
+Plaintext: 64 bits → $2w$ = 64 bits.
+Key: 56 bits → $K$ = 56 bits.
+Number of rounds: 16.
+A 48-bit subkey is generated for each round.
+<Ads1 />
+## DES: Initial permutation
+Takes 64 bits of plaintext and produces a 64-bit block.
+The bits are rearranged using a table, with the inverse table applied at the end.
+For example, if the first table entry is 58, the first output bit comes from input bit 58.
+This corresponds to the first and final stages of DES and provides additional scrambling of the data.
+
+## DES: Permutation tables E and P
+Table E, the expansion permutation, converts a 32-bit input into a 48-bit output.
+- The first output bit comes from the kth input bit indicated by the table.
+Table P converts a 32-bit input into a 32-bit output.
+- The first output bit comes from the kth input bit indicated by the table.
+
+The expansion permutation converts 32 bits to 48 bits so they can be XORed with the subkey.
+The permutation table rearranges the S-box results to create a more complex data structure.
+
+## DES: S-boxes
+After XOR, the expanded 48-bit data is passed into eight S-boxes.
+Each S-box converts six input bits to four output bits: ${\{0, 1\}}^6 \rightarrow {\{0, 1\}}^4$.
+$$a_1a_2a_3a_4a_5a_6 \rightarrow a_1a_6 : row, a_2a_3a_4a_5 : col$$
+Rows and columns start at 0.
+Converting the selected table value back to binary gives the four-bit output.
+
+## DES: Key schedule, part 1
+Permutation Choice 1 (PC-1) transforms the 56-bit key K into $$C_0, D_0$$, each containing 28 bits.
+These provide the basis for generating subkeys in later stages.
+The DES key K contains 64 bits, but eight are parity bits, leaving 56 bits in use.
+Parity bits serve to detect errors.
+<Ads2 />
+## DES: Key schedule, part 2
+Use $$C_{i-1}, D_{i-1}$$ to generate $$C_i, D_i$$.
+Shift $$C_i, D_i$$ left according to the shift amount defined for the round.
+Permutation Choice 2 (PC-2) rearranges the shifted $$C_i, D_i$$ into a 48-bit subkey.
+For example, the subkey's first bit comes from the kth bit of C and D specified in the table.
+
+## DES: Security analysis
+Every part is linear except the S-boxes.
+The encryption key is short: 56 bits makes it vulnerable to brute-force attacks.
+It is no longer used and has been replaced by AES.
+<Ads3 />
+## Triple DES
+Applies encryption three times to strengthen DES.
+$Enc(K=(K_1, K_2, K_3), M)=Enc(K = K_3, Dec(K = K_2, Enc(K = K_1, M)))$
+$Dec(K=(K_1, K_2, K_3), C)=Dec(K = K_1, Enc(K = K_2, Dec(K = K_3, C)))$
+
+## Properties of Triple DES
+Plaintext size = ciphertext size: 64 bits.
+Key size = three DES keys: 168 bits.
+Advantages:
+- Resists brute-force attacks against DES.
+- Uses DES as its underlying encryption algorithm.
+Disadvantages:
+- A 64-bit block size, small relative to its 168-bit key.
+- Slow encryption.

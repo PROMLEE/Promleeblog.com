@@ -1,0 +1,112 @@
+---
+post_id: '98'
+locale: en
+title: Independence of Random Variables
+description: >-
+  Learn how to check independence and compute the expectation and variance of
+  independent random variables through worked examples.
+source_hash: b1ab789a4f61a56f96a24a8de593181a36a356adaf9244aa21cf7cb392c0f6b0
+reviewed_at: '2026-11-07T06:57:31.508Z'
+---
+## Independence of Random Variables
+> When the random variables $X$ and $Y$ are independent,
+> $p_{X,Y}(x, y) = p_X(x) \cdot p_Y(y)\;\;\; \forall x, y$
+
+Independence is equivalent to the following condition.
+$p_{X, Y}(x|y) = p_X(x)\;\;\; \forall y \text{ with } p_Y(y) > 0 \text{ and } \forall x$
+conditional PMF = marginal PMF (when $X$ and $Y$ are independent)
+
+### Example: Independence of Random Variables
+#### Problem
+Roll 12 fair six-sided dice.
+Let $X$ be the number of ones and $Y$ the number of sixes.
+Are $X$ and $Y$ independent?
+
+#### Solution
+> $P(X=12, Y=12) = 0 \neq P(X=12) \cdot P(Y=12)$ must be shown.
+
+$X, Y$: binomial random variable (n = 12, p = 1/6)
+$P(X = k) = \binom{12}{k} \left(\frac{1}{6}\right)^k \left(\frac{5}{6}\right)^{12-k}$
+$P(X = 12) = \left(\frac{1}{6}\right)^{12}$
+$P(Y = 12) = \left(\frac{1}{6}\right)^{12}$
+
+Answer: $X$ and $Y$ are dependent.
+<Ads1 />
+## Expectation of Independent Random Variables
+> If $X$ and $Y$ are independent, $E[XY] = E[X] \cdot E[Y]$.
+
+### Proof
+$E[XY] = \sum_{x}\sum_{y}xy\cdot p_{X,Y}(x, y) \\
+= \sum_{x}\sum_{y}xy\cdot p_X(x)\cdot p_Y(y) \\
+= \sum_{x}xp_X(x)\sum_{y}yp_Y(y) \\
+= E[X] \cdot E[Y]$
+
+### Example: Expectation of Independent Random Variables
+#### Problem
+Suppose $X$ and $Y$ have the following joint probability mass function (PMF):
+| $X$ \\ $Y$ | -1 | 0 | 1 |
+| --- | --- | --- | --- |
+| 0 | 0 | $\frac{1}{2}$ | 0 |
+| 1 | $\frac{1}{4}$ | 0 | $\frac{1}{4}$ |
+
+$E[X]$, $E[Y]$, $E[XY]$ are the quantities to find.
+
+#### Solution
+Find the marginal distributions and check for independence.
+$E[X] = \sum xP_X(x) = 0 \cdot \frac{1}{2} + 1 \cdot \frac{1}{2} = \frac{1}{2}$
+$E[Y] = \sum yP_Y(y) = -1 \cdot \frac{1}{4} + 0 \cdot \frac{1}{2} + 1 \cdot \frac{1}{4} = 0$
+$E[XY] = E[X] \cdot E[Y] = \frac{1}{2} \cdot 0 = 0$
+
+**Answer**: $E[X] = \frac{1}{2}$, $E[Y] = 0$, $E[XY] = 0$
+The original concludes that $X, Y$ are independent. The table actually shows dependence: when X is zero, Y is always zero, whereas the marginal probability of Y being zero is one half. The stated expectation of the product is still zero, as the contributions from the two nonzero products cancel.
+
+## Variance of Independent Random Variables
+> For independent variables $X, Y$, let $Z = X + Y$. Then $Var(Z) = Var(X) + Var(Y)$.
+
+### Proof
+$Var(Z) = E[(X+Y-E[X+Y])^2]\\
+= E[(X+Y-E[X]-E[Y])^2]\\
+= E[((X-E[X]) + (Y-E[Y]))^2] \\
+= E[(X-E[X])^2] + 2E[(X-E[X])(Y-E[Y])] + E[(Y-E[Y])^2] \\
+= Var(X) + 0 + Var(Y)$
+
+($2E[(X-E[X])(Y-E[Y])]  = \\
+E[XY - XE[Y] - YE[X] + E[X]E[Y]] = \\
+E[XY] - E[X]E[Y] - E[Y]E[X] + E[X]E[Y] = 0$)
+
+### Example: Variance of Independent Random Variables
+#### Problem
+Suppose $X$ and $Y$ are independent, with $\text{Var}(X) = 3$ and  $\text{Var}(Y) = 5$.
+Find the following.
+1. $\text{Var}(X + Y)$
+2. $\text{Var}(3X + 4)$
+3. $\text{Var}(X + X)$
+4. $\text{Var}(X + 3Y)$
+
+#### Solution
+1. $\text{Var}(X + Y) = \text{Var}(X) + \text{Var}(Y) = 3 + 5 = 8$
+2. $\text{Var}(3X + 4) = 3^2\text{Var}(X) = 9 \cdot 3 = 27$
+3. $\text{Var}(X + X) = 2^2\text{Var}(X) = 4 \cdot 3 = 12$
+4. $\text{Var}(X + 3Y) = \text{Var}(X) + 3^2\text{Var}(Y) = 3 + 9 \cdot 5 = 48$
+<Ads2 />
+## Summary
+If $X$ and $Y$ are independent, $p_{X,Y}(x, y) = p_X(x) \cdot p_Y(y)$.
+If $X$ and $Y$ are independent, $E[XY] = E[X] \cdot E[Y]$.
+If $X$ and $Y$ are independent, $Var(X + Y) = Var(X) + Var(Y)$.
+
+## Additional Exercise
+#### Problem
+Suppose $X$ and $Y$ are independent and identically distributed geometric random variables.
+Their parameter is $p$.
+Prove the following.
+$P(X = i \mid X + Y = n) = \frac{1}{n-1}, \quad i = 1, \ldots, n-1$
+
+#### Solution
+$P(X = i \mid X + Y = n)$ is the probability that, given the second head occurs on toss $n$, the first occurs on toss $i$.
+Intuitively, if the second head occurs on toss $n$, the first head is equally likely on any toss from $1$ to $n-1$.
+For a formal proof, start with the following.
+$$ P(X = i \mid X + Y = n) = \frac{P(X = i \text{ and } X + Y = n)}{P(X + Y = n)} = \frac{P(X = i)P(Y = n - i)}{P(X + Y = n)} $$
+Also, $P(X = i) = p(1-p)^{i-1}$ ($i \geq 1$) and , $P(Y = n - i) = p(1-p)^{n-i-1}$ ($n - i \geq 1$).
+Therefore, $P(X = i)P(Y = n - i) = p^2(1 - p)^{n-2}$ ($i = 1, \ldots, n-1$) and , zero otherwise.
+Therefore, $P(X = i \mid X + Y = n) = P(X = j \mid X + Y = n)$ holds for any $i$ and $j$ from $1$ to $n-1$.
+$P(X = i \mid X + Y = n) = \frac{1}{n-1}, \quad i = 1, \ldots, n-1$

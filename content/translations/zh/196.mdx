@@ -1,0 +1,290 @@
+---
+title_ko: Tailwind CSS 4.0으로의 마이그레이션 및 변경점
+title_en: Tailwind CSS 4.0 Migration and Changes
+desc: >-
+  Tailwind CSS 3.0에서 4.0으로 마이그레이션하는 방법과 주요 변경 사항을 공식 가이드를 바탕으로 완전하고 자세하게 설명합니다.
+  브라우저 지원 변화, 설정 구조, Breaking Changes, 기능별 비교 등을 모두 예제와 함께 안내합니다.
+thumbnail_url: /250409-112450.webp
+metatag: >-
+  Tailwind CSS 마이그레이션, Tailwind 4.0 변경사항, tailwind 브라우저 지원, 마이그레이션 가이드, tailwind
+  breaking changes, tailwind config 변화, tailwind 4.0 CLI, tailwind 최신버전 특징,
+  tailwind 설치 가이드, tailwindcss 전체 변경사항
+post_id: '196'
+locale: zh
+title: Tailwind CSS 4.0 迁移与主要变更
+description: 依据官方指南，结合示例介绍如何从 Tailwind CSS 3.0 迁移到 4.0，包括浏览器支持、配置结构、不兼容变更及功能对比。
+source_hash: 69a9639fb0554b3d65ed4c509f6514e0821f458e419a6d5fc78f11454c695602
+reviewed_at: '2026-11-07T12:20:08.810Z'
+---
+
+## 开始之前
+Tailwind 4.0 于 2025 年 1 月 23 日发布。我原来的项目使用 3.x，于是决定在从 Next.js 14 迁移到 15 时也升级 Tailwind CSS。建议先升级 Tailwind CSS，测试通过后再升级 Next.js 15。
+本文根据官方文档详细梳理 **Tailwind CSS 从 3.0 迁移到 4.0** 的过程。对于 Tailwind CSS 用户，升级到 4.0 在性能和开发效率方面都有明显收益。下面开始。
+> Tailwind CSS v4.0 面向现代浏览器，支持 Safari 16.4、Chrome 111 和 Firefox 128。如需支持较旧的浏览器，请使用 v3.4。
+
+<Ads1 />
+## 使用自动升级工具
+Tailwind 团队提供 `@tailwindcss/upgrade` CLI 来简化升级。
+开始前检查是否有未提交的改动，并使用 `git stash` 或 `git commit` 安全保存。
+```bash
+npx @tailwindcss/upgrade
+```
+工具会自动执行以下操作。
+- 更新 tailwindcss 版本。
+- 移除或转换 tailwind.config.js。
+- 转换 postcss.config.js。
+- 整理模板中的类名。
+- 必要时将配置迁移到基于 theme API 的方式。
+
+如果自动升级失败，请参阅[手动升级](https://tailwindcss.com/docs/upgrade-guide#upgrading-manually)。
+
+## 主要变更
+*升级工具*可以自动完成迁移，但我们仍需要了解新的用法与变更。下面逐项整理 Tailwind CSS 4.0 的变化。
+
+### 移除 @tailwind 指令
+此前，Tailwind 使用 CSS 文件中的 @tailwind 指令引入 Tailwind CSS。v4 已移除该指令，应直接在 CSS 文件中导入 Tailwind CSS。
+```css
+/* v3 */
+/* @tailwind base; */
+/* @tailwind components; */
+/* @tailwind utilities; */
+
+/* v4 */
+@import "tailwindcss";
+```
+现在无需再使用 @tailwind 指令，请从 CSS 文件中删除它。
+
+### 移除已弃用的工具类
+v3 中已弃用的工具类已被移除。以下是被移除的工具类及其替代写法。
+| 旧写法 | 新写法 | 用途 |
+| --- | --- | --- |
+| bg-opacity-* | 使用 bg-black/50 等透明度修饰符 | 设置背景不透明度 |
+| text-opacity-* | 使用 text-black/50 等透明度修饰符 | 设置文字不透明度 |
+| border-opacity-* | 使用 border-black/50 等透明度修饰符 | 设置边框不透明度 |
+| divide-opacity-* | 使用 divide-black/50 等透明度修饰符 | 设置分隔线不透明度 |
+| ring-opacity-* | 使用 ring-black/50 等透明度修饰符 | 设置外环不透明度 |
+| placeholder-opacity-* | 使用 placeholder-black/50 等透明度修饰符 | 设置占位文字不透明度 |
+| flex-shrink-* | shrink-* | 设置 Flex 项目的收缩 |
+| flex-grow-* | grow-* | 设置 Flex 项目的扩展 |
+| overflow-ellipsis | text-ellipsis | 设置溢出文本的省略号 |
+| decoration-slice | box-decoration-slice | 设置盒装饰切片 |
+| decoration-clone | box-decoration-clone | 设置盒装饰复制 |
+
+### 工具类重命名
+v4 对下列工具类进行了重命名。这些变更适用于 Tailwind CSS v4.0。
+shadow、drop-shadow、blur、backdrop-blur、rounded、outline 和 ring 的变更如下。
+| 旧写法 | 新写法 | 用途 |
+| --- | --- | --- |
+| shadow-sm | shadow-xs | 设置阴影大小 |
+| shadow | shadow-sm | 设置阴影大小 |
+| drop-shadow-sm | drop-shadow-xs | 设置投影大小 |
+| drop-shadow | drop-shadow-sm | 设置投影大小 |
+| blur-sm | blur-xs | 设置模糊程度 |
+| blur | blur-sm | 设置模糊程度 |
+| backdrop-blur-sm | backdrop-blur-xs | 设置背景模糊程度 |
+| backdrop-blur | backdrop-blur-sm | 设置背景模糊程度 |
+| rounded-sm | rounded-xs | 设置圆角半径 |
+| rounded | rounded-sm | 设置圆角半径 |
+| outline-none | outline-hidden | 隐藏轮廓线 |
+| ring | ring-3 | 设置外环宽度 |
+
+#### 更新阴影、圆角和模糊的等级
+默认的 shadow、blur 和 rounded 等级已重命名，使每个工具类都有明确的等级名称。为兼容旧版，原有写法仍可使用，但如果不将 -sm 更新为 -xs，外观会有所不同。
+```html
+{/* v3 버전 */}
+<input class="shadow-sm" />
+{/* v4 버전 */}
+<input class="shadow-xs" />
+
+{/* v3 버전 */}
+<input class="shadow" />
+{/* v4 버전 */}
+<input class="shadow-sm" />
+```
+
+#### outline 工具类的变化
+`outline` 现在默认同时包含 `outline-width: 1px` 和 `outline-style: solid`。此前 `outline` 只包含 `outline-style: solid`。现在 `outline` 默认会设置 `outline-width: 1px` 与 `outline-style: solid`。
+```html
+{/* v3 버전 */}
+<input class="outline outline-2" />
+
+{/* v4 버전 */}
+<input class="outline-2" />
+```
+此外，由于 `outline-none` 实际上不会应用 `outline-style: none`，它已重命名为 `outline-hidden`。
+```html
+{/* v3 버전 */}
+<input class="focus:outline-none" />
+
+{/* v4 버전 */}
+<input class="focus:outline-hidden" />
+```
+#### 更改 ring 的默认宽度
+`ring` 的默认宽度由 `3px` 改为 `1px`。
+```html
+{/* v3 버전 */}
+<input class="ring ring-blue-500" />
+
+{/* v4 버전 */}
+<input class="ring-3 ring-blue-500" />
+```
+#### 改进渐变与 variant 组合使用的行为
+现在深色模式也会保留 `to-*` 设置，必要时可以用 `via-none` 移除中间色标。
+**修改后：**
+```html
+<div class="bg-gradient-to-r from-red-500 via-orange-400 to-yellow-400 dark:via-none dark:from-blue-500 dark:to-teal-400"></div>
+```
+#### 更改 container 配置方式
+`container` 的 center、padding 等配置项已移除，需要自行定义。
+```css
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+}
+```
+#### 更改默认 border-color
+`border-*` 和 `divide-*` 现在默认使用 `currentColor`。如果希望保留 `gray-200`，请按下面的方式配置。
+```css
+@layer base {
+  *, ::after, ::before, ::backdrop, ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+```
+#### 更改占位文字颜色
+占位文字现在默认使用不透明度为 50% 的文本颜色。要保留原有样式，可以添加以下内容。
+```css
+@layer base {
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-gray-400);
+  }
+}
+```
+#### 更改按钮光标样式
+按钮的默认光标从 `pointer` 改为 `default`。要保留原有样式，可以添加以下内容。
+```css
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+```
+#### 移除 dialog 的默认外边距
+```css
+@layer base {
+  dialog {
+    margin: auto;
+  }
+}
+```
+
+#### 更改自定义工具类注册方式
+使用 `@utility` 代替 `@layer utilities`。
+```css
+@utility tab-4 {
+  tab-size: 4;
+}
+```
+
+#### 更改变体叠加方向
+叠加的变体现在按**从左到右**的顺序解析。
+```html
+{/* v3 버전 */}
+<ul class="py-4 first:*:pt-0 last:*:pb-0">
+
+{/* v4 버전 */}
+<ul class="py-4 *:first:pt-0 *:last:pb-0">
+```
+#### 更改变量引用语法
+写法从 `bg-[--color]` 改为 `bg-(--color)`。
+```html
+<div class="bg-(--brand-color)"></div>
+```
+
+#### hover 样式仅在支持悬停的设备上应用
+如需兼容触屏设备，可以注册自定义变体。
+```css
+@custom-variant hover (&:hover);
+```
+
+#### 将 outline-color 纳入 transition
+```html
+<button class="transition hover:outline-2 hover:outline-cyan-500"></button>
+```
+
+#### 移除 corePlugins 选项
+不再支持通过 `corePlugins` 禁用工具类。
+
+#### 建议使用变量替代 theme() 函数
+```css
+.my-class {
+  background-color: var(--color-red-500);
+}
+```
+#### 4-18. 必须显式加载 JavaScript 配置文件
+```css
+@config "../../tailwind.config.js";
+```
+#### 4-19. 从 JavaScript 访问 theme 值
+现在无需 `resolveConfig`，也可以用 `getComputedStyle` 读取变量值。
+```js
+let styles = getComputedStyle(document.documentElement);
+let shadow = styles.getPropertyValue("--shadow-xl");
+```
+
+<Ads2 />
+## 新配置结构示例
+```css
+@import 'tailwindcss';
+@theme {
+  --color-primary: #1da1f2;
+  --font-sans: 'Inter', sans-serif;
+}
+@utilities {
+  .btn {
+    @apply px-4 py-2 rounded bg-primary text-white;
+  }
+}
+```
+
+## 各功能的修改前后示例
+#### 扩展颜色
+```js
+// Before (3.x)
+theme: {
+  extend: {
+    colors: {
+      brand: '#3490dc',
+    },
+  },
+}
+
+// After (4.x)
+@theme {
+  --color-brand: #3490dc;
+}
+```
+#### 在模板中使用
+```html
+{/* Before (3.x) */}
+<div class="text-slate-900/80"></div>
+
+{/* After (4.x) */}
+<div class="text-slate-900 text-opacity-80"></div>
+```
+## 7. 迁移后的测试提示
+- 检查所有模板路径中的样式是否正常。
+- 确认运行 `npm run build` 时没有错误或警告。
+- 检查 PostCSS 配置是否生效。
+- 在开发环境与部署环境中分别测试。
+## 结语
+Tailwind CSS 4.0 对配置结构、支持环境和使用方式进行了**全面重新设计**。借助自动升级工具，或按上面的指南手动逐项检查，可以安全、高效地完成迁移。
+以 CSS 为中心的配置和对现代浏览器的支持，将有助于今后的 Web 开发。希望本文能帮助准备升级 Tailwind 的读者规划迁移。
+## 参考资料
+
+- 官方升级指南：[https://tailwindcss.com/docs/upgrade-guide](https://tailwindcss.com/docs/upgrade-guide)
+- Tailwind CSS v4 介绍：[https://tailwindcss.com/blog/tailwindcss-v4](https://tailwindcss.com/blog/tailwindcss-v4)
+- GitHub 仓库：[https://github.com/tailwindlabs/tailwindcss](https://github.com/tailwindlabs/tailwindcss)
+

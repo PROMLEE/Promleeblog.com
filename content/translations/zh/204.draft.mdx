@@ -1,0 +1,239 @@
+---
+title_ko: Expo에서 권한 요청 처리하기
+title_en: Handling Permissions in Expo
+desc: >-
+  Expo에서 카메라, 위치, 미디어 등 다양한 권한을 안전하게 요청하고 사용하는 방법을 친절한 설명과 TypeScript 예시를 중심으로
+  안내합니다.
+thumbnail_url: /expo-permissions.webp
+metatag: >-
+  expo, 권한, permissions, react-native, typescript, 카메라 권한, 위치 권한, 미디어 권한,
+  expo-permissions, react-native-permissions, 모바일 앱 개발
+post_id: '204'
+locale: zh
+title: 在 Expo 中处理权限请求
+description: 结合 TypeScript 示例，介绍如何在 Expo 中安全地请求和使用相机、位置、媒体等权限。
+source_hash: c28266e361b0bd2fd778d28cad70234a906bda176a2dfcb5aaab6d18053e2542
+---
+## 开始之前
+使用 Expo 开发移动应用时，如果要访问用户的**个人信息或设备功能**，需要先请求权限。例如，使用相机需要请求相机权限，获取用户位置则需要位置权限。
+Expo 提供了简化权限请求的工具。本文将参考[官方权限指南](https://docs.expo.dev/guides/permissions/)，逐步介绍如何处理权限。
+## Expo 权限请求的基本流程
+Expo 通过 `expo-modules` 和 `expo-permissions` 软件包提供多种权限请求功能。通常按以下顺序处理。
+1. 检查权限状态。
+2. 请求权限。
+3. 根据结果执行相应功能。
+
+下面是最基本的结构。
+```tsx
+import * as Location from 'expo-location';
+
+const getLocation = async () => {
+  const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+    alert('위치 권한이 필요합니다.');
+    return;
+  }
+    const location = await Location.getCurrentPositionAsync({});
+  console.log(location);
+};
+```
+这段代码向用户请求位置权限，只有获得授权后才会获取位置信息。
+<Ads1 />
+## 常见权限示例
+Expo 支持多种权限。下面结合示例介绍几种常见权限。
+<Rbox>需要使用开发模式。安装各个软件包后，请运行命令同步原生代码。</Rbox>
+```bash
+npx expo prebuild --platform ios
+npx expo run:ios
+
+npx expo prebuild --platform android
+npx expo run:android
+```
+### 1. 相机权限
+参考 [expo-camera 官方文档](https://docs.expo.dev/versions/latest/sdk/camera/)。
+用以下命令安装相机权限所需的软件包。
+```bash
+npx expo install expo-camera
+```
+在 app.json 中添加以下配置。
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera", // 카메라 권한 요청 메시지
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone", // 마이크 권한 요청 메시지
+          "recordAudioAndroid": true // 마이크 권한 요청 여부
+        }
+      ]
+    ]
+  }
+}
+```
+下面是请求相机权限的代码。
+```tsx
+import * as Camera from 'expo-camera';
+const requestCameraPermission = async () => {
+  const { status } = await Camera.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+    alert('카메라 접근 권한이 필요합니다.');
+    return;
+  }
+    console.log('카메라 권한이 승인되었습니다.');
+};
+```
+### 2. 媒体库权限（访问照片）
+参考 [expo-media-library 官方文档](https://docs.expo.dev/versions/latest/sdk/media-library/)。
+用以下命令安装媒体库软件包。媒体库软件包会与相机权限软件包一起安装。
+```bash
+npx expo install expo-media-library
+```
+在 app.json 中添加以下配置。
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
+          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ]
+    ]
+  }
+}
+```
+下面是请求媒体库权限的代码。
+```tsx
+import * as MediaLibrary from 'expo-media-library';
+const requestMediaLibraryPermission = async () => {
+  const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status !== 'granted') {
+    alert('사진 접근 권한이 필요합니다.');
+    return;
+  }
+    console.log('사진 권한 승인 완료');
+};
+```
+<Ads2 />
+### 3. 通知权限
+参考 [expo-notifications 官方文档](https://docs.expo.dev/versions/latest/sdk/notifications/)。
+用以下命令安装通知软件包。
+```bash
+npx expo install expo-notifications
+```
+下面是请求通知权限的代码。
+```tsx
+import * as Notifications from 'expo-notifications';
+const requestNotificationPermission = async () => {
+  const { status } = await Notifications.requestPermissionsAsync();
+    if (status !== 'granted') {
+    alert('알림 권한이 필요합니다.');
+    return;
+  }
+    console.log('알림 권한 승인됨');
+};
+```
+### 4. 麦克风权限
+参考 [expo-av 官方文档](https://docs.expo.dev/versions/latest/sdk/av/)。
+用以下命令安装麦克风功能所需的软件包。
+```bash
+npx expo install expo-av
+```
+在 app.json 中添加以下配置。
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+        }
+      ]
+    ]
+  }
+}
+```
+下面是请求麦克风权限的代码。
+```tsx
+import * as Audio from 'expo-av';
+const requestMicrophonePermission = async () => {
+  const { status } = await Audio.requestPermissionsAsync();
+    if (status !== 'granted') {
+    alert('마이크 권한이 필요합니다.');
+    return;
+  }
+    console.log('마이크 권한이 승인되었습니다.');
+};
+```
+### 5. 位置权限
+参考 [expo-location 官方文档](https://docs.expo.dev/versions/latest/sdk/location/)。
+用以下命令安装位置软件包。
+```bash
+npx expo install expo-location
+```
+在 app.json 中添加以下配置。
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+        }
+      ]
+    ]
+  }
+}
+```
+下面是请求位置权限的代码。
+```tsx
+import * as Location from 'expo-location';
+const requestLocationPermission = async () => {
+  const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+    alert('위치 권한이 필요합니다.');
+    return;
+  }
+    console.log('위치 권한이 승인되었습니다.');
+};
+```
+<Ads3 />
+## 检查并区分权限状态
+权限通常有以下几种状态。
+- `undetermined`：尚未决定，首次请求时会遇到。
+- `granted`：已授权。
+- `denied`：已拒绝。
+```tsx
+const checkCameraPermission = async () => {
+  const { status } = await Camera.getCameraPermissionsAsync();
+    if (status === 'granted') {
+    console.log('이미 권한이 승인됨');
+  } else {
+    console.log('권한이 아직 없거나 거부됨');
+  }
+};
+```
+提前检查状态，可以减少不必要的权限请求。
+## 请求权限时的注意事项
+### 向用户解释为什么需要权限
+请求权限时，最好同时说明原因，让用户更愿意授权。比起只说“需要权限”，结合具体功能解释更有效，例如“上传照片需要访问照片的权限”。
+这也是之后应用商店审核中常见的驳回原因。
+## 结语
+在 Expo 中处理权限的方式很直观。不过，考虑到 iOS、Android 的各自配置和用户体验，仍需仔细设计。
+请求权限不仅是技术操作，也直接关系到用户的信任。因此，最好明确每项权限的用途，只在必要时礼貌地请求授权。
+可以参考上面的示例，设计适合自己项目的权限请求流程。
+### 参考资料
+- [Expo Permissions 官方文档](https://docs.expo.dev/guides/permissions/)
+- [Expo Camera 文档](https://docs.expo.dev/versions/latest/sdk/camera/)
+- [Expo Location 文档](https://docs.expo.dev/versions/latest/sdk/location/)
+- [Expo Media Library 文档](https://docs.expo.dev/versions/latest/sdk/media-library/)
+- [Expo Notifications 文档](https://docs.expo.dev/versions/latest/sdk/notifications/)
+- [expo-av 文档（音频、视频）](https://docs.expo.dev/versions/latest/sdk/av/)
+

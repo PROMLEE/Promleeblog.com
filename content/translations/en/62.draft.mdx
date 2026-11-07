@@ -1,0 +1,196 @@
+---
+post_id: '62'
+locale: en
+title: Test-Driven Development with Unit Tests
+description: >-
+  Unit testing, regression tests, drivers and stubs, JUnit assertions, fixtures,
+  and test-method structure.
+source_hash: 915ca57a17ecfe953a66cd079880f3a81cb9c18074782a7f2505136319146256
+---
+## Why unit testing?
+**Practical reasons**
+- Most programmers rely on tests.
+	For example, Microsoft assigns one tester per developer.
+- You may work as a tester.
+
+**A divide-and-conquer approach**
+- Split the system into units for testing.
+- Debug each unit separately.
+- Identify where bugs may exist.
+- Avoid having to trace a bug through other units.
+<Ads1 />
+## Test suites
+> A collection of test cases used to check that software behaves correctly.
+
+**Ad-hoc testing**
+- Developers test whatever comes to mind.
+
+**Test suite**
+- Test cases are defined in advance and executed.
+
+**Test framework**
+- A program that executes test suites.
+- Examples include JUnit and TestNG.
+
+## Regression testing
+> Checking that existing functionality still works after software changes.
+
+Changes may include enhancements, patches, or configuration updates.
+Regression testing is essential for a stable and maintainable codebase.
+
+## Drivers and stubs in testing
+<Img src="/posts/240618-010225.png" width={300}/>
+**Driver**
+- Runs tests and collects results.
+- Supplies test cases to the unit under test, then receives and analyzes the results.
+
+**Stub**
+- A fake object used when the unit under test interacts with other units.
+- Supplies the simple responses the unit under test needs in place of a real module.
+<Ads2 />
+## JUnit
+> A unit-testing framework for the Java programming language.
+- A test case is an individual test of one method.
+- A test suite is a collection of test cases.
+
+Unit tests play an important role in an agile approach.
+- Code often needs refactoring to reflect changes.
+- Unit tests ensure that the refactored code continues to work.
+
+### JUnit methods
+| Method | Description |
+| --- | --- |
+| assertEquals(expected, actual) | Checks that two values are equal |
+| assertTrue(condition) | Checks that a condition is true |
+| assertFalse(condition) | Checks that a condition is false |
+| assertNull(object) | Checks that an object is null |
+| assertNotNull(object) | Checks that an object is not null |
+| assertSame(expected, actual) | Checks that two references point to the same object |
+| assertNotSame(expected, actual) | Checks that two references point to different objects |
+
+**Caution**
+Java provides `x.equals(y)` for comparing objects.
+- It works well for `String` and several other Java classes.
+- Define `equals` for objects of your own classes.
+	```java
+	public boolean equals(Object obj) { ... }
+	```
+	The argument must have type Object. Since that is not the desired concrete type, cast it to the correct type, such as Person.
+	```java
+	public boolean equals(Object something) {
+			Person p = (Person)something;
+			return this.name == p.name; // 원하는 대로 비교할 수 있다.
+	}
+	```
+
+
+### JUnit test case example
+#### Traditional test case
+```java
+/** IMath 클래스를 테스트하는 클래스이다. */
+public class IMathTestNoJUnit {
+    /** 테스트를 실행한다. */
+    public static void main(String[] args) {
+        printTestResult(0);
+        printTestResult(1);
+        printTestResult(2);
+        printTestResult(3);
+        printTestResult(4);
+        printTestResult(7);
+        printTestResult(9);
+        printTestResult(100);
+    }
+
+    private static void printTestResult(int arg) {
+        System.out.print("isqrt(" + arg + ") ==> ");
+        System.out.println(IMath.isqrt(arg));
+    }
+}
+
+// 실행 결과
+// isqrt(0) ==> 0
+// isqrt(1) ==> 1
+// isqrt(2) ==> 2
+// isqrt(3) ==> 2
+// isqrt(4) ==> 2
+// isqrt(7) ==> 3
+// isqrt(9) ==> 3
+// isqrt(100) ==> 10
+```
+
+#### JUnit test case
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class IMathTest extends TestCase{
+		@Test
+		public void testIsqrt() {
+				assertEquals(0, IMath.isqrt(0));
+				assertEquals(1, IMath.isqrt(1));
+				assertEquals(2, IMath.isqrt(2));
+				assertEquals(2, IMath.isqrt(3));
+				assertEquals(2, IMath.isqrt(4));
+				assertEquals(3, IMath.isqrt(7));
+				assertEquals(3, IMath.isqrt(9));
+				assertEquals(10, IMath.isqrt(100));
+		}
+}
+
+// 실행 결과
+// 테스트 케이스가 성공하면 아무것도 출력되지 않음
+
+// 테스트 케이스가 실패하면 다음과 같이 출력됨
+// java.lang.AssertionError: expected:<0> but was:<1>
+```
+
+### JUnit exercise
+Test the following code using JUnit.
+```java
+public class ForYou {
+	public static int min(int x, int y){
+		if(x < y) return x;
+		else return y;
+	}
+}
+```
+
+#### Answer
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class ForYouTest extends TestCase{
+		@Test
+		public void testMin() {
+				assertEquals(1, ForYou.min(1, 2));
+				assertEquals(1, ForYou.min(2, 1));
+				assertEquals(0, ForYou.min(0, 0));
+				assertEquals(-1, ForYou.min(-1, 0));
+				assertEquals(-1, ForYou.min(0, -1));
+		}
+}
+```
+<Ads3 />
+## Fixtures
+> Code you want to run before or after a test case.
+
+Obtain a fixture by overriding methods.
+```java
+protected void setUp() { ... }
+protected void tearDown() { ... }
+```
+Test execution rules:
+```java
+protected void runTest() {
+    setUp();
+    // <run the test>;
+    tearDown();
+}
+```
+
+## The structure of test methods
+- A test method returns no result.
+- If a test succeeds, the method takes no further action.
+- If it fails, it throws `AssertionFailedError`.
+- The JUnit framework catches and handles this error, so you do not need to handle it separately.

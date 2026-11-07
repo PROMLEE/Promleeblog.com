@@ -1,0 +1,189 @@
+---
+title_en: Testing Custom Hooks - TDD with React Part 7
+title_ko: Custom Hook 테스트 - React로 시작하는 TDD 7편
+url: testing-custom-hooks
+series_no: 7
+desc: >-
+  비즈니스 로직을 분리하여 Custom Hook으로 만들고, renderHook과 act 함수를 사용하여 Hook을 독립적으로 테스트하는
+  방법을 배웁니다.
+thumbnail_url: /251221-213540.webp
+metatag: >-
+  React, TDD, CustomHook, renderHook, act, TestingLibrary, Refactoring,
+  SeparationOfConcerns
+tags: 'React, Javascript, Typescript, Next.js'
+post_id: '390'
+locale: zh
+title: 测试自定义 Hook——用 React 开始 TDD，第 7 篇
+description: 将业务逻辑抽离为自定义 Hook，并学习使用 renderHook 与 act 独立测试 Hook。
+source_hash: b8380f9385a14c4234f5276c42c957fd5a9959b42c7dfc06f858b6e83394b1ac
+reviewed_at: '2026-11-07T01:50:25.614Z'
+---
+
+## 开始之前
+
+前面，我们在 *Counter* 组件中使用 `useState` 计数，并根据条件显示警告信息。
+不过，让我们重新看看组件代码。
+绘制界面的代码（JSX）和计算数字的代码（Logic）混在同一个地方。
+<br/>
+如果其他页面也需要这个“计数”功能，该怎么办？
+要复制粘贴代码吗？
+这时就可以使用*自定义 Hook（Custom Hook）*。
+今天，我们将逻辑作为大脑（Hook）、界面作为身体（Component）分离，并学习如何单独测试这个大脑。
+
+<Ads1/>
+
+## 第 1 步：分离逻辑（Refactoring）
+
+首先创建 `src/hooks` 文件夹，将组件中的逻辑移到名为 `useCounter.ts` 的文件中。
+这个过程不修改测试代码，只改变内部结构，属于*重构（Refactoring）*阶段。
+
+### 创建自定义 Hook
+
+```typescript title="src/hooks/useCounter.ts" showLineNumbers
+import { useState } from 'react';
+
+// [로직] 숫자를 관리하고 증가시키는 기능만 담당합니다.
+export default function useCounter() {
+  const [count, setCount] = useState(0);
+
+  const increment = () => {
+    setCount((prev) => prev + 1);
+  };
+
+  // 컴포넌트에서 필요한 값과 함수를 반환합니다.
+  return {
+    count,
+    increment,
+  };
+}
+```
+
+### 修改组件
+
+现在，`Counter.tsx` 不再直接计算，只需使用刚才创建的 Hook。
+
+```tsx title="src/components/Counter.tsx" showLineNumbers highlight="{2,5-6}"
+import CountButton from './CountButton';
+import useCounter from '../hooks/useCounter'; // Hook import
+
+export default function Counter() {
+  // [수정] 직접 useState를 쓰지 않고 Hook을 사용합니다.
+  const { count, increment } = useCounter();
+
+  return (
+    <div>
+      <p>현재 숫자: {count}</p>
+      {/* 함수 이름이 handleClick에서 increment로 바뀌었음에 주의하세요 */}
+      <CountButton label="+" onClick={increment} />
+
+      {count >= 3 && (
+        <p style={{ color: 'red' }}>
+          숫자가 너무 커요!
+        </p>
+      )}
+    </div>
+  );
+}
+```
+
+<Ads2/>
+
+## 第 2 步：编写 Hook 测试（renderHook 与 act）
+
+接下来，需要测试抽离出来的 `useCounter` 是否正常工作。
+不过，Hook 不是组件，不能像 `render(<useCounter />)` 那样使用。
+这时需要的工具就是 `renderHook` 和 `act`。
+
+- **renderHook**
+  创建一个虚拟组件，并在其中运行 Hook。
+- **act**
+  告诉 *React*“现在要执行改变状态的重要操作”的函数。模拟点击事件等操作时使用。
+
+### 编写测试代码
+
+创建 `src/hooks/useCounter.test.ts` 文件，写入以下代码。
+这次也通过日志追踪状态变化。
+
+```typescript title="src/hooks/useCounter.test.ts" showLineNumbers
+import { renderHook, act } from '@testing-library/react';
+import useCounter from './useCounter';
+import { describe, test, expect } from 'vitest';
+
+describe('useCounter Hook 동작 테스트', () => {
+  
+  test('초기값은 0이며, increment 함수를 호출하면 값이 1 증가한다', () => {
+    // 1. Hook 렌더링 (가상 환경)
+    const { result } = renderHook(() => useCounter());
+
+    console.log(`[Step 1] 초기값 확인: ${result.current.count}`);
+    
+    // 초기값 검증
+    expect(result.current.count).toBe(0);
+
+    // 2. 상태 변경 (act 사용 필수!)
+    console.log('[Step 2] increment 함수 실행');
+    act(() => {
+      result.current.increment();
+    });
+
+    console.log(`[Step 3] 변경된 값 확인: ${result.current.count}`);
+
+    // 3. 결과 검증
+    expect(result.current.count).toBe(1);
+  });
+});
+```
+
+<Ads3/>
+
+## 第 3 步：运行测试并分析结果
+
+现在运行 Hook 测试。
+
+```bash title="Terminal"
+npm test
+```
+
+### 查看运行日志
+<Img src="/251221-213511.webp" width={600} alt="查看运行日志"/>
+
+```text
+[Step 1] 초기값 확인: 0
+[Step 2] increment 함수 실행
+[Step 3] 변경된 값 확인: 1
+
+ PASS  src/hooks/useCounter.test.ts
+ PASS  src/components/Counter.test.tsx
+```
+
+从日志可以看到，在 `act` 函数中调用 `increment` 后，`result.current.count` 的值立即从 0 变为 1。
+<br/>
+还请注意，原来的 `Counter.test.tsx` 依然 **PASS**。
+虽然我们彻底修改了内部实现（useState → 自定义 Hook），但用户看到的界面与行为完全相同，所以原来的测试并未失效，仍能正常通过。
+<Ads4/>
+
+## 结语
+
+源代码可在 [GitHub - Promleeblog/react-tdd-setup](https://github.com/PROMLEE/my-tdd-app/tree/part7) 查看。
+```bash title="Terminal"
+git clone https://github.com/PROMLEE/my-tdd-app.git
+cd my-tdd-app
+git checkout part7
+```
+
+今天学习了如何分离逻辑并独立测试。
+- **renderHook**
+  无需组件，也能单独运行、验证 Hook 的工具。
+- **act**
+  所有改变状态（State）的操作都应包裹在 `act` 函数中，让 *React* 检测到变化并反映更新。
+- **关注点分离**
+  组件专注于“展示”，Hook 专注于“计算”，代码因此更加清晰。
+
+现在，我们的应用内部逻辑（Hook）与外部界面（Component）都由测试来保障。
+> 下一篇将介绍实际 Web 应用的核心：**第 8 篇，异步逻辑测试**。
+
+### 参考资料
+- [Testing Custom Hooks](https://testing-library.com/docs/react-testing-library/api/#renderhook)
+  RTL 官方文档介绍的 renderHook API 用法。
+- [When to use act()](https://reactjs.org/docs/test-utils.html#act)
+  React 官方团队对 act 函数原理及使用时机的说明。

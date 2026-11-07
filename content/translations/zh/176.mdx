@@ -1,0 +1,117 @@
+---
+title_ko: Next.js 15 버전으로 안전하게 업그레이드하는 방법
+title_en: How to Safely Upgrade to Next.js 15
+desc: >-
+  Next.js 15 버전으로의 업그레이드는 몇 가지 주요 변경 사항을 포함하고 있습니다. 이 글에서는 업그레이드 방법과 발생할 수 있는 문제
+  해결 방법을 단계별로 설명드립니다.
+thumbnail_url: /posts/250402-222541.webp
+metatag: 'nextjs, upgrade, next15, migration guide'
+post_id: '176'
+locale: zh
+title: 安全升级到Next.js 15的方法
+description: 逐步介绍从Next.js 14升级到15的准备工作、依赖更新、API变化和迁移问题处理。
+source_hash: f22f6790dd5fb98fbbe079b8646790740f5f4795d42c40b7dba0393bc182fdbd
+reviewed_at: '2026-11-06T14:40:34.481Z'
+---
+## 开始之前
+Next.js持续演进，为Web应用开发提供更快速、高效的环境。2024年发布的**Next.js 15**包含几项重要变化，因此升级已有项目之前，需要认真做好准备。
+这篇文章通过示例，逐步介绍从Next.js 14升级到15的方法。如果当前使用的版本低于14，建议先升级到14。
+## 主要变化概览
+升级之前，先简单了解一下发生了哪些变化：
+- `next/image`的`priority`属性被弃用
+- `next/font`的`fallback`属性发生变化
+- Turbopack更新
+- 新的MDX支持方式
+- Strict Mode加强
+- **正式引入Async Request API**
+- **提供官方Codemod工具，支持自动化迁移**
+下面会进一步介绍这些项目。
+## 检查版本并整理依赖
+首先确认当前项目的Next.js版本，并整理相关依赖包。
+```bash
+npm list next
+```
+如果使用的是14.x，可以执行以下命令升级到15：
+```bash
+npm install next@latest react@latest react-dom@latest
+```
+如果使用yarn，则执行：
+```bash
+yarn add next@latest react@latest react-dom@latest
+```
+> *注意*：Next.js与React、ReactDOM的版本紧密相关，最好一起更新，以减少错误。
+<Ads1 />
+## 遇到的问题与解决方法
+### 1. 移除`next/image`的`priority`属性
+从Next.js 15开始，不再使用`priority`属性。假如原来的代码如下：
+```tsx
+<Image src="/logo.png" alt="logo" width={100} height={100} priority />
+```
+需要移除`priority`属性，考虑直接使用`<link rel="preload">`，或改用`loading="eager"`：
+```tsx
+<Image src="/logo.png" alt="logo" width={100} height={100} loading="eager" />
+```
+### 2. `next/font`的fallback配置变化
+假如原来的fallback配置如下：
+```ts
+const inter = Inter({ subsets: ['latin'], fallback: ['Arial'] });
+```
+现在，`fallback`不再按原有字符串数组方式处理，可能会出现警告。这种情况下，最好遵循官方文档的字体配置指南。
+### 3. 使用Turbopack的项目
+Next.js 15进一步增强了Turbopack，可以在`next.config.js`中显式配置：
+```js
+const nextConfig = {
+  experimental: {
+    turbo: true,
+  },
+};
+module.exports = nextConfig;
+```
+不过，并非所有功能都已经稳定，如果遇到问题，也应考虑暂时禁用。
+### 4. 引入Async Request API
+Next.js 15正式引入了**Async Request API**，用于简化在Server Components中对`request.cookies`、`request.headers`等异步API的访问。
+原本需要使用`headers()`等辅助函数：
+```tsx
+import { headers } from 'next/headers';
+export default async function Page() {
+  const headerList = headers();
+  const token = headerList.get('Authorization');
+  return <div>Header 확인</div>;
+}
+```
+现在则可以通过props传入的`request`对象，直接进行异步访问：
+```tsx
+export default async function Page({ request }) {
+  const token = await request.headers.get('Authorization');
+  return <div>Header 확인</div>;
+}
+```
+这可以让代码更简洁，也能访问`cookies`、`headers`、`url`和`body`等多种属性。不过，它仍属于实验性功能，实际应用时，建议参考[官方文档](https://nextjs.org/docs/app/building-your-application/upgrading/codemods#next-async-request-api)，逐步引入。
+### 5. 使用Codemod自动化迁移
+Next.js 15同时提供了**Codemod工具**，可以自动处理重复且容易出错的代码修改。Codemod主要用于：
+- 自动移除或修改被弃用的属性，例如`priority`
+- 根据新的API方式重构代码
+- 自动应用Async Request API相关修改
+使用方式如下：
+```bash
+npx @next/codemod <transform> <path>
+```
+例如，移除`priority`属性时：
+```bash
+npx @next/codemod remove-priority-image ./src
+```
+完整的Codemod列表可以在[官方文档](https://nextjs.org/docs/app/building-your-application/upgrading/codemods)中查看。执行之前，最好先通过git等版本控制系统做好备份。
+<Ads2 />
+## 结论
+升级到Next.js 15有一些需要注意的地方，但只要逐项检查，就可以比较顺利地完成迁移。尤其是被弃用的属性和配置，需要仔细阅读发布说明后再应用。
+如果遇到意外的构建错误或运行问题，建议先围绕与旧版本相比发生变化的功能，检查相关代码。
+### 进一步思考
+- 是否也将`eslint-config-next`更新到了对应的新版本？
+- 如果在项目中体验过Turbopack的优缺点，可以把经验整理下来。
+- 使用Async Request API后，哪些地方更方便，哪些地方与预期不同，也值得记录。
+- 比较通过Codemod自动完成的部分和需要手动修改的部分，也会有所帮助。
+### 参考资料
+- [Next.js官方升级指南](https://nextjs.org/docs/app/building-your-application/upgrading/version-15)
+- [Next.js GitHub发布说明](https://github.com/vercel/next.js/releases)
+- [Async Request API文档](https://nextjs.org/docs/app/building-your-application/upgrading/codemods#next-async-request-api)
+- [Next.js Codemods官方指南](https://nextjs.org/docs/app/building-your-application/upgrading/codemods)

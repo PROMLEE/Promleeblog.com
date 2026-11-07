@@ -1,7 +1,15 @@
+import { PHASE_DEVELOPMENT_SERVER } from "next/constants.js";
 // import withPlaiceholder from "@plaiceholder/next";
 // import withImages from "next-images";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  outputFileTracingIncludes: {
+    "/*": ["./content/translations/**/*.mdx"],
+  },
+  outputFileTracingExcludes: {
+    "/*": ["./content/translations/**/*.draft.mdx", "./content/translations/**/*.source.json"],
+    "/api/**": ["./content/translations/**"],
+  },
   images: {
     dangerouslyAllowSVG: true,
     minimumCacheTTL: 31536000, // 1년
@@ -53,4 +61,8 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+// Keep development artifacts separate from builds running in the same checkout.
+export default (phase) => ({
+  ...nextConfig,
+  distDir: phase === PHASE_DEVELOPMENT_SERVER ? ".next-dev" : ".next",
+});

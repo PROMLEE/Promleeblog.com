@@ -1,0 +1,277 @@
+---
+post_id: '83'
+locale: ja
+title: MVCパターンを理解する - 画面とデータ処理を分ける設計
+description: モデル、ビュー、コントローラーの役割と連携の流れを、Javaの例とともに説明します。
+source_hash: 74cf559761d2fd07bdce25ace5e7b14cb3708bde770477284641808a1b6350e0
+reviewed_at: '2026-11-07T12:15:54.444Z'
+---
+## はじめに
+
+ソフトウェアを作るうちにコードが複雑になり、別の処理が混ざり合って、どこを直せばよいかわからなくなることがあります。特に、ユーザーに見える画面（UI）と中核のデータ処理が絡み合っていると、小さな変更が広い範囲に影響しかねません。
+<br /><br />
+今回は、その問題に対処する設計パターンの1つ、*MVCパターン*を学びます。
+MVCはModel、View、Controllerの略です。アプリケーションを3つの役割に分け、互いへの影響を抑えながら連携させます。
+整った厨房で調理、配膳、皿洗いを分担すれば効率よく料理を提供できるように、MVCも開発の効率と保守性を高めます。
+
+## MVCパターンとは？
+
+MVCは、1970年代後半、Xerox PARCでSmalltalkの開発とともに紹介された、実績のあるアーキテクチャパターンです。
+主な目的は*関心の分離（Separation of Concerns）*です。アプリケーションの構成要素を次の3つに分け、それぞれが自分の責務に集中できるようにします。
+
+### モデル（Model）
+> アプリケーションの*データ*と*中核のビジネスロジック*を担当します。
+
+データを保存、検索、更新し、妥当性を確認します。データが変わったら、主にビューなどの関連部分に知らせます。
+画面の見た目やユーザー入力の処理には関与せず、データとその扱い方に集中します。
+### ビュー（View）
+> ユーザーに*表示される部分（UI）*を担当します。
+
+モデルから受け取ったデータを画面に表示し、ボタンのクリックやテキスト入力などの操作を受け付けます。
+データの保存や処理は自分で行わず、主にモデルのデータをどう見せるかに集中します。
+### コントローラー（Controller）
+> モデルとビューを*仲介*します。
+
+主にビューを介してユーザー入力を受け取り、内容を解釈し、必要な処理をモデルに依頼します。
+処理結果を受け取り、ビューに渡して画面の更新を指示します。こうしてアプリケーション全体の流れを制御します。
+<Bbox>3つの要素は連携します。役割を明確に分けることで、一部の変更がほかに及ぼす影響を抑えられます。</Bbox>
+
+<Ads4/>
+## MVCの構成要素と連携の流れ
+
+MVCの各要素は、どのようにメッセージをやり取りするのでしょうか。一般的な流れは次のとおりです。
+<Img src="/250528-132454.webp" width={600} alt="MVCパターンで各要素が連携する流れ"/>
+1. **ユーザーが入力する**
+   Webページのボタンを押す、フォームに入力するなど、ビューを操作します。
+2. **ビューがコントローラーにイベントを渡す**
+   ビューは操作を検知し、コントローラーへ渡します。イベントをどう処理するかは判断しません。
+3. **コントローラーがモデルに作業を依頼する**
+   コントローラーは要求を解釈し、データの変更やビジネスロジックの実行をモデルに依頼します。例えば、新しい投稿の保存や商品一覧の取得です。
+4. **モデルがデータを処理して状態を変更する**
+   モデルは依頼に沿って処理し、必要なら自分の状態を変更します。データベースを操作したり、複雑な計算を行ったりできます。
+5. **モデルがビューへ変更を通知する（任意）**
+   状態が変わると、モデルは自分を監視しているビューに、データが変わったことを知らせます。Observerパターンなどで実装できます。コントローラーが代わりに通知することもあります。
+6. **コントローラーが更新を指示するか、ビューがモデルを参照する**
+   コントローラーはモデルの処理結果や変更通知を受け、更新するビューを決めて画面の更新を指示します。ビューが必要なデータをモデルから直接取得することも、コントローラーがモデルから受け取ったデータを渡すこともできます。
+7. **ビューが画面を更新する**
+   ビューはモデルから最新データを取得するか、コントローラーから受け取り、変更後の内容を表示します。
+
+この流れに沿えば、各要素は担当する責務に集中できます。
+
+<Ads1/>
+
+### モデル（Model）
+
+モデルはMVCの中核であり、アプリケーションのデータと、そのデータを扱うビジネスルールを持ちます。
+
+#### 役割
+- データを保存し、管理します。データベースとの連携やファイルシステムへのアクセスなどです。
+- データの妥当性を確認し、ビジネスロジックを実行します。
+- データの変更を関連する要素に通知します。主な通知先はビューで、コントローラーを介す場合もあります。
+#### 特徴
+- ビューやコントローラーの詳細を知らないため、再利用しやすく独立性が高まります。
+- POJO（Plain Old Java Object）、データクラス、サービスクラスなどで実装できます。
+
+#### Javaの例
+```java title="User.java (데이터를 담는 간단한 모델 객체 - DTO 또는 Entity 역할)"
+public class User {
+    private String id;
+    private String name;
+    private String email;
+
+    public User(String id, String name, String email) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+    }
+
+    // Getters and Setters
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+}
+```
+```java title="UserService.java (비즈니스 로직을 처리하는 모델 - Service 역할)"
+import java.util.HashMap;
+import java.util.Map;
+
+public class UserService {
+    private Map<String, User> userDatabase = new HashMap<>(); // 간단한 인메모리 DB 역할
+
+    public User getUserById(String id) {
+        return userDatabase.get(id);
+    }
+
+    public void createUser(String id, String name, String email) {
+        if (userDatabase.containsKey(id)) {
+            System.out.println("오류: 사용자 ID '" + id + "'는 이미 존재합니다.");
+            return;
+        }
+        User newUser = new User(id, name, email);
+        userDatabase.put(id, newUser);
+        System.out.println("사용자 '" + name + "'이(가) 성공적으로 생성되었습니다.");
+        // 데이터 변경이 발생했으므로, 옵저버에게 알리는 로직이 추가될 수 있음
+    }
+}
+```
+
+### ビュー（View）
+
+ビューは、情報を表示してユーザー入力を受けるインターフェースです。
+
+#### 役割
+- モデルから受け取ったデータをユーザーに表示します。HTML、XML、GUIコンポーネントなどを使います。
+- ユーザーの入力を受け、コントローラーに渡します。
+#### 特徴
+- アプリケーションロジックやデータの処理方法を知る必要はありません。
+- 1つのモデルに複数のビューを用意できます。例えば、同じデータをグラフと表で表せます。
+- JSPやThymeleafなどの画面テンプレート、またはSwing、JavaFX、Android UIなどのGUIライブラリで実装します。
+
+#### Javaの例
+```java title="UserView.java (사용자 정보를 출력하는 간단한 뷰)"
+public class UserView {
+    public void printUserDetails(String userName, String userEmail) {
+        System.out.println("--- 사용자 정보 ---");
+        System.out.println("이름: " + userName);
+        System.out.println("이메일: " + userEmail);
+        System.out.println("------------------");
+    }
+
+    public void showMessage(String message) {
+        System.out.println(message);
+    }
+}
+```
+実際のアプリケーションでは、HTMLやGUIフレームワークなどを使います。
+
+### コントローラー（Controller）
+ユーザー入力を受け取り、モデルとビューの間の連携を調整し、制御します。
+
+#### 役割
+- ビューからユーザーの入力イベントを受け取ります。
+- 入力を解釈し、データの参照、変更、ビジネスロジックの実行などをモデルに依頼します。
+- モデルの処理結果から更新するビューを決め、データを渡すか、画面の更新を指示します。
+#### 特徴
+- モデルとビューをつなぎます。
+- アプリケーション全体の流れを管理します。
+- Webフレームワークでは、Servletやコントローラークラスが担当します。
+
+#### Javaの例
+```java title="UserController.java (모델과 뷰를 연결하는 컨트롤러)"
+public class UserController {
+    private UserService model; // 모델(UserService)에 대한 참조
+    private UserView view;     // 뷰(UserView)에 대한 참조
+
+    public UserController(UserService model, UserView view) {
+        this.model = model;
+        this.view = view;
+    }
+
+    public void handleCreateUserRequest(String id, String name, String email) {
+        model.createUser(id, name, email);
+        // 모델에서 생성 성공/실패 여부를 받아 뷰에 다른 메시지를 보여줄 수도 있음
+        // 여기서는 UserService 내부에서 간단히 출력함
+    }
+
+    public void handleGetUserRequest(String id) {
+        User user = model.getUserById(id);
+        if (user != null) {
+            view.printUserDetails(user.getName(), user.getEmail());
+        } else {
+            view.showMessage("사용자 ID '" + id + "'를 찾을 수 없습니다.");
+        }
+    }
+
+    // main 메서드 (애플리케이션 실행 예시)
+    public static void main(String[] args) {
+        // 1. 모델과 뷰 객체 생성
+        UserService userService = new UserService();
+        UserView userView = new UserView();
+
+        // 2. 컨트롤러 생성 및 모델/뷰 주입
+        UserController userController = new UserController(userService, userView);
+
+        // 3. 사용자 요청 시뮬레이션 (컨트롤러를 통해 상호작용)
+        // 사용자 생성 요청
+        userController.handleCreateUserRequest("user001", "홍길동", "gildong@example.com");
+        userController.handleCreateUserRequest("user002", "이순신", "sunsin@example.com");
+        System.out.println(); // 줄 바꿈
+
+        // 사용자 정보 조회 요청
+        userController.handleGetUserRequest("user001");
+        System.out.println();
+        userController.handleGetUserRequest("user003"); // 존재하지 않는 사용자
+    }
+}
+```
+上の `main` メソッドは、MVCの要素を作り、ユーザーの要求をシミュレーションして、コントローラーを介したやり取りを示す例です。
+
+<Ads2/>
+
+## MVCパターンの長所と短所
+
+MVCには多くの利点があり、導入時には用途に応じた短所も考慮します。
+
+### 長所
+
+- **関心の分離**
+  各要素が独立した責務を持つため、コードを理解し、管理しやすくなります。
+- **柔軟性と拡張性**
+  ビューなど、ある要素の変更がモデルなどの別の要素に与える影響を抑えます。ビューの追加や修正も容易です。
+- **再利用しやすい**
+  モデルは特定のビューに依存せず、別の用途でも再利用できます。
+- **チームで協力しやすい**
+  ビューを担当するデザイナーと、モデルやコントローラーを担当する開発者で役割を分け、並行して作業できます。
+- **テストしやすい**
+  要素ごとに独立してテストできます。特にビジネスロジックを持つモデルは、UIから分離されているため単体テストが容易です。
+
+### 短所
+
+- **コードが複雑になる場合がある**
+  単純なアプリでは、MVCにするとクラスが増え、構造がかえって複雑に見えることがあります。過剰設計になる場合があります。
+- **モデルとビューを十分に分離できない場合がある**
+  ビューがモデルの状態変化に細かく反応する必要があったり、特定のビューを想定してモデルを設計したりすると、結合度が上がる場合があります。
+- **学習に時間がかかる**
+  最初はMVCの考え方や、各要素がどのように連携するかの理解に時間がかかることがあります。
+
+## フレームワークごとのMVCの実装
+
+MVCは概念的なモデルです。言語やフレームワークによって、実装の形には少しずつ違いがあります。
+
+### Webフレームワーク
+- **Spring MVC（Java）**
+  代表的なJavaのWebフレームワークです。DispatcherServletがコントローラーの役割を担い、@Controllerを付けたクラスが要求を処理し、モデルのデータをJSPやThymeleafなどのビューに渡します。
+- **Ruby on Rails（Ruby）**
+  Convention over Configuration（設定より規約）の考え方でMVCをサポートします。ActiveRecordがモデル、ActionViewがビュー、ActionControllerがコントローラーです。
+- **Django（Python）**
+  MVT（Model-View-Template）と呼ぶこともあり、MVCによく似ています。Model、View（コントローラーに相当）、Template（ビューに相当）から成ります。
+- **Express.js（Node.js／JavaScript）**
+  ミドルウェアを使う柔軟なフレームワークで、開発者がMVCの構造を自分で組み立てられます。
+### GUIアプリケーション
+- **Java Swing／JavaFX**
+  イベントリスナーでコントローラーの役割を実装し、データモデルとUIコンポーネント（ビュー）を分けてMVCを適用できます。
+- **Cocoa（macOS／iOS）**
+  Objective-CまたはSwiftを使い、基本的な設計原則としてMVCを推奨します。
+
+<Ybox>多くのフレームワークはMVCや、その派生であるMVPやMVVMなどを基本アーキテクチャに採用しています。MVCを理解すると、さまざまな技術を学ぶ土台になります。</Ybox>
+
+<Ads3/>
+
+## おわりに
+
+今回は、アプリケーションの構造を体系的に設計するためのMVCパターンを学びました。
+モデル、ビュー、コントローラーに役割を分けると、責務が明確になり、コードの柔軟性、拡張性、保守性を高められます。
+どのように適用するか、そもそも必要かは、プロジェクトの規模と性質によって変わります。
+*関心を分離する*というMVCの考え方は、どのようなソフトウェアを作るときにも役立つ原則です。
+> 次回はソフトウェアの要求を明確に定義し、文書にまとめる方法を学びます。テーマは**ソフトウェア要求仕様書（SRS）の書き方**です。
+
+### 参考
+
+- [MVC（Model-View-Controller）- MDN Web Docs](https://developer.mozilla.org/ko/docs/Glossary/MVC)（韓国語。Web開発から見たMVCの説明）
+- [Model-view-controller - Wikipedia](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller)（英語。MVCパターンの詳しい説明）
+- [Understanding the MVC Pattern in Java - Baeldung](https://www.baeldung.com/mvc-pattern-java)（英語。Javaの例でMVCを説明）
+- [Spring MVC Tutorial - Spring Framework Documentation](https://docs.spring.io/spring-framework/reference/web/webmvc.html)（英語。Spring MVCの公式ドキュメント）
+- [MVCデザインパターンとは？ - コードで学ぶMVC](https://opentutorials.org/course/697/3828)（韓国語。生活コーディングによるMVCの入門解説）

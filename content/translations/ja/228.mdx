@@ -1,0 +1,170 @@
+---
+title_ko: 'React 18 자동 배칭과 동시성 - React, 알고 쓰자 3일차'
+title_en: React 18 Automatic Batching & Concurrency - React Explained Day 3
+desc: >-
+  React 18의 핵심 기능인 자동 배칭과 동시성의 원리를 알아봅니다. React 17과의 차이점, Micro-task와의 관계,
+  flushSync 사용법, startTransition API 활용법 등을 쉽게 설명합니다.
+thumbnail_url: /250424-101605.webp
+metatag: >-
+  React, React 18, Automatic Batching, 자동 배칭, Concurrency, 동시성, setState,
+  flushSync, startTransition, Micro-task, 성능 최적화, 프론트엔드, 면접
+post_id: '228'
+locale: ja
+title: React 18の自動バッチ処理と並行性：Reactを理解して使う3日目
+description: React 17との違い、マイクロタスク、flushSync、startTransitionから、React 18の自動バッチ処理と並行性を学びます。
+source_hash: f7ebf01dffb442584e8d82de7ddd5d16e3e84bc865b592fb63b6b2721abc8eb9
+reviewed_at: '2026-11-07T01:40:19.638Z'
+---
+
+## はじめに
+Reactを探る3日目です。
+昨日はuseStateとsetStateによる記憶と更新処理を確認し、複数の呼び出しをまとめる*バッチ処理*にも触れました。
+今日はReact 18でこれがどう強化されたか、さらに滑らかで応答性の高いUIを作るための*並行性*を詳しく学びます。
+
+## 自動バッチ処理
+複数の状態更新を一つにまとめ、一度だけ再描画する最適化です。
+不要な描画を減らし、性能を高める重要な役割を果たします。
+### React 17以前：限定的なバッチ処理
+17までは、主にReactのイベントハンドラー内でだけ自動的にまとめられました。
+ボタンクリック内で複数のsetStateを呼ぶ場合などです。
+setTimeout、setInterval、Promiseのコールバック、ネイティブイベント内では、それぞれ個別の再描画を起こしました。
+
+```typescript
+// React 17 이하 예시
+function handleClick() {
+  // 이벤트 핸들러 내: 자동으로 배칭됨 (리렌더링 1번)
+  setCount(c => c + 1);
+  setFlag(f => !f);
+}
+setTimeout(() => {
+  // setTimeout 콜백 내: 배칭 안 됨 (리렌더링 2번 발생)
+  setCount(c => c + 1); // 리렌더링 발생
+  setFlag(f => !f);      // 또 리렌더링 발생
+}, 1000);
+```
+### React 18以降：どこでも自動化
+React 18では*Automatic Batching*が導入されました。
+setTimeout、Promise、ネイティブイベントなど、どこからsetStateを呼んでも、基本的に自動でまとめます。
+
+```typescript
+// React 18 예시
+function handleClick() {
+  // 이벤트 핸들러 내: 당연히 자동 배칭 (리렌더링 1번)
+  setCount(c => c + 1);
+  setFlag(f => !f);
+}
+setTimeout(() => {
+  // setTimeout 콜백 내: 이제 자동으로 배칭 (리렌더링 1번)
+  setCount(c => c + 1);
+  setFlag(f => !f);
+  // 모든 업데이트가 모아져서 단 한 번의 리렌더링만 발생
+}, 1000);
+```
+開発者が特別に意識せずとも不要な描画が減り、全体の性能改善を期待できます。
+<Img src="/250423-232344.png" width={500} alt="描画方式の比較"/>
+
+> Q：「React 18の自動バッチ処理は、従来とどう異なりますか。」
+A：「イベントだけでなく、setTimeoutやPromiseなどの非同期処理内でも、複数の更新を一回の再描画へまとめます。以前はイベントハンドラーの外では、基本的にまとめられませんでした。」
+
+### マイクロタスクとの関係
+React 18は、内部で更新を扱う際にブラウザーの*マイクロタスクキュー*を活用します。
+setStateを呼んですぐ描画するのではなく、通常は現在のコードが終わった後、次のマイクロタスク処理時点で描画するよう予約します。
+この短い遅延中に追加されたsetStateも、同じバッチへ含められます。
+#### マイクロタスクとは
+現在のスクリプトの直後、次の描画やsetTimeoutなどのマクロタスクより前に処理する、小さな作業の待ち行列です。
+Promiseの*then/catch/finally*が代表例です。
+> **図の案：** Call Stack、Micro-task Queue、Macro-task Queue、Renderingを示し、React 18でsetStateがキューを経由して描画につながる簡単なイベントループ図。
+
+### バッチを解除するflushSync
+通常は便利ですが、更新直後にDOMを*すぐ*確認したい場面が、まれにあります。
+特定入力欄へフォーカスを移す場合、描画が先送りされると処理が正しく動かないことがあります。
+そのためのAPIがflushSyncです。
+中で呼ぶsetStateは自動バッチ処理から外れ、*同期的に*DOMへ反映します。
+
+```typescript
+import { flushSync } from 'react-dom'; // react-dom에서 import
+
+function handleClick() {
+  flushSync(() => {
+    setCount(c => c + 1); // 이 업데이트는 즉시 처리되어 DOM에 반영됨
+  });
+  // 여기서는 DOM 업데이트가 완료된 상태임
+  // (예: 업데이트된 DOM 요소에 접근하거나 포커스를 설정할 수 있음)
+  // setFlag(f => !f); // 이 업데이트는 flushSync 밖에 있으므로 다시 자동 배칭 규칙을 따름
+}
+```
+性能へ影響するため、本当に必要な場合だけ慎重に使います。
+通常は、自動バッチ処理の利点を活用するとよいでしょう。
+<Img src="/250423-233404.png" width={300} alt="flushSync使用時の描画の違い"/>
+<Ads1 />
+
+## 並行性
+ConcurrencyはReact 18の主要概念で、Fiberが目指すものの一つです。
+複数の状態更新を、*重ね合わせたり中断したり*しながら処理する能力です。
+### なぜ重要なのか
+Fiber以前や並行機能を無効にしたReactは、描画を始めると完了まで止めませんでした。
+長い処理中はブラウザーが入力やアニメーションを扱えず、停止や引っかかりに見えることがありました。
+並行性を使うと、大きな描画を小さな単位で進め、入力などの緊急更新が来たら、一時停止してそちらを先に処理できます。
+その後、元の描画を再開します。
+同時にいろいろ行うマルチタスクに似ていますが、実際には細かな作業を優先度に応じて素早く切り替える方式です。
+複雑な更新中も応答性を保ち、ユーザー体験を大きく改善できます。
+### Transition APIで優先度を付ける
+React 18は、並行性を直接利用するAPIを提供します。
+代表例がstartTransitionです。
+更新を*緊急ではないもの*として指定します。
+ユーザー入力などの緊急更新で中断でき、描画中もUIが反応し続けます。
+
+```tsx
+import React, { useState, useTransition } from 'react';
+function SearchResults({ query }) {
+  // ... 데이터 로딩 및 결과 표시 로직 ...
+  return <div>{query} 검색 결과...</div>;
+}
+function App() {
+  const [inputValue, setInputValue] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isPending, startTransition] = useTransition(); // useTransition 훅 사용
+
+  const handleChange = (e) => {
+    // 1. 입력값 업데이트 (긴급)
+    setInputValue(e.target.value);
+    // 2. 검색 쿼리 업데이트 (긴급하지 않음 - Transition으로 감싸기)
+    startTransition(() => {
+      setSearchQuery(e.target.value);
+    });
+  };
+
+  return (
+    <div>
+      <input type="text" value={inputValue} onChange={handleChange} />
+      {isPending ? " 로딩 중..." : <SearchResults query={searchQuery} />}
+    </div>
+  );
+}
+```
+入力するとsetInputValueがすぐ実行され、欄へ即座に反映されます。**緊急な更新**です。
+検索結果用のsetSearchQueryはstartTransitionで囲むため、優先度が低くなります。
+検索結果の描画が長くても、入力の処理を妨げません。
+useTransitionはstartTransitionと、真偽値のisPendingを返します。
+これを使い、転換中に読み込み状態を見せるなど、UIを改善できます。
+<Img src="/250424-095806.png" width={300} alt="startTransitionによる更新の流れ"/>
+
+> Q：「Reactの並行性とは何で、startTransitionの役割は何ですか。」
+A：「更新を中断可能にして応答性を保つ能力です。startTransitionは特定の更新を緊急でないと指定し、重要な更新を妨げないよう優先度を下げます。」
+<Ads2 />
+
+## まとめ
+React 18の自動バッチ処理と並行性を学びました。
+**自動バッチ処理**：イベント、setTimeout、Promiseなどの場所に関係なく、一回の再描画へまとめて不要な処理を減らします。React 17以前は限定的でした。
+**flushSync**：意図的にバッチを解除し、同期的に即座に反映するAPIです。慎重に使います。
+**並行性**：長い描画を中断して緊急更新を優先し、応答性を保ちます。Fiberの重要な目標です。
+**startTransition**：更新を緊急でない転換として指定し、UIを妨げないよう優先度を下げます。useTransitionからisPendingも確認できます。
+これらは、賢くユーザーに優しいUIを作る強力な道具です。
+とくに並行性は、今後のデータ取得や*コード分割*にも大きく関わる概念です。
+> 次回はuseEffect、useLayoutEffect、useRef、useReducerと、カスタムフックによる再利用を掘り下げます。
+
+### 参考
+- React Blog：React v18.0：[https://reactjs.org/blog/2022/03/29/react-v18.html](https://reactjs.org/blog/2022/03/29/react-v18.html)
+- React公式ドキュメント：flushSync：[https://reactjs.org/docs/react-dom.html#flushsync](https://reactjs.org/docs/react-dom.html#flushsync)
+- React公式ドキュメント：useTransition：[https://reactjs.org/docs/hooks-reference.html#usetransition](https://reactjs.org/docs/hooks-reference.html#usetransition)
+- React Working Group：Concurrency Explained：[https://github.com/reactwg/react-18/discussions/46](https://github.com/reactwg/react-18/discussions/46)

@@ -1,0 +1,239 @@
+---
+title_en: >-
+  Improving Component Structure from a Testing Perspective - TDD with React Part
+  11
+title_ko: 테스트 관점에서 본 컴포넌트 구조 - React로 시작하는 TDD 11편
+url: improving-component-structure
+series_no: 11
+desc: >-
+  테스트 작성이 어려워지는 컴포넌트의 특징을 분석하고, 관심사의 분리(UI vs Logic)와 전역 상태(Provider) 처리를 통해
+  테스트하기 쉬운 구조로 개선하는 방법을 배웁니다.
+thumbnail_url: /251227-163657.webp
+metatag: >-
+  React, TDD, Refactoring, ContainerPresenter, CleanArchitecture, Testing,
+  ContextAPI, CustomRender, Frontend
+tags: 'React, Javascript, Typescript, Next.js'
+post_id: '394'
+locale: zh
+title: 从测试视角审视组件结构——用 React 开始 TDD，第 11 篇
+description: 分析难以测试的组件特征，学习通过分离 UI 与逻辑、处理全局 Provider，将结构改进为更易测试的形式。
+source_hash: 60b5958cbcdb3714b4a5ecf7cf6522747dba56da25dea7e5fbaa5a4094d34c34
+reviewed_at: '2026-11-07T01:53:00.608Z'
+---
+
+## 开始之前
+
+编写测试时，你是否有过这些经历？
+<br/>
+1. “只是测试这一个组件，就有 10 个东西需要 Mock……”
+2. “只改了界面颜色，所有测试都失败了。”
+3. “一直报错，说缺少 Context Provider。”
+<br/>
+这些痛苦源于代码结构**难以测试（Untestable）**。
+TDD 最大的优点之一，就是*拒绝难以测试的代码*。
+今天来看看如何改进结构，同时改善测试和维护。
+
+<Ads1/>
+
+## 不好的例子：包办一切的组件
+
+最常见的反模式（Anti-Pattern），就是让一个组件同时负责**获取数据、处理数据、绘制界面**。
+
+### 难以测试的组件（Bad）
+
+```tsx title="src/components/BadUserProfile.tsx" showLineNumbers
+import { useEffect, useState } from 'react';
+
+interface User {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+export default function BadUserProfile() {
+  const [user, setUser] = useState<User | null>(null);
+
+  // [문제 1] 컴포넌트가 '데이터 가져오기'를 직접 수행함 (의존성 높음)
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/users/1')
+      .then((res) => res.json())
+      .then((data) => {
+        // [문제 2] 데이터를 변환하는 '비즈니스 로직'이 섞여 있음
+        const formattedData = {
+          ...data,
+          // 이름은 대문자로 변환해야 한다는 규칙
+          firstName: data.name.split(' ')[0].toUpperCase(),
+          lastName: data.name.split(' ')[1].toUpperCase(),
+        };
+        setUser(formattedData);
+      });
+  }, []);
+
+  if (!user) return <div>로딩 중...</div>;
+
+  return (
+    <div>
+      {/* [문제 3] 화면 그리기 로직 (UI) */}
+      <h1>{user.firstName} {user.lastName}</h1>
+      <p>{user.email}</p>
+    </div>
+  );
+}
+```
+
+测试这个组件时，必须模拟 `fetch`，还得等待异步处理（`findBy`）。
+即使只是想确认“姓名是否以粗体（h1）显示”，也得这样做。
+
+<Ads2/>
+
+## 改进策略 1：分离 UI 与逻辑
+
+解决这个问题的经典而强大的模式，就是 **Container - Presentational 模式**。
+简单来说，就是分为负责思考的部分（逻辑）和只负责展示的部分（UI）。
+（如今通常通过 Hook 分离逻辑，但让 UI 保持纯粹的原则不变。）
+### 1. Presentational 组件（负责 UI）
+
+这个组件不知道数据来自哪里，只负责通过 `props` 接收并展示。
+**测试难度：最低**
+
+```tsx title="src/components/UserProfileView.tsx" showLineNumbers
+// 데이터 타입 정의
+export interface UserProfileProps {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+export default function UserProfileView({ firstName, lastName, email }: UserProfileProps) {
+  return (
+    <div>
+      <h1>{firstName} {lastName}</h1>
+      <p>{email}</p>
+    </div>
+  );
+}
+```
+
+### 2. Container 组件（负责逻辑）
+
+获取、处理数据，再传给 UI 组件。
+
+```tsx title="src/components/UserProfileContainer.tsx" showLineNumbers
+import { useEffect, useState } from 'react';
+import UserProfileView from './UserProfileView';
+
+export default function UserProfileContainer() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // ... fetch 및 데이터 가공 로직 (혹은 Custom Hook 사용)
+    // 여기서는 생략합니다.
+  }, []);
+
+  if (!user) return <div>로딩 중...</div>;
+
+  // 가공된 데이터를 UI 컴포넌트에 주입
+  return <UserProfileView {...user} />;
+}
+```
+
+## 编写并运行测试
+
+现在测试分离后的 UI 组件（`UserProfileView`）。
+完全不需要 `fetch` 或 `MSW` 等复杂配置。
+
+### 编写 UI 测试代码
+
+```tsx title="src/components/UserProfileView.test.tsx" showLineNumbers highlight="{8-12,17-18,22}"
+import { render, screen } from '@testing-library/react';
+import { describe, test, expect } from 'vitest';
+import UserProfileView from './UserProfileView';
+
+describe('UserProfileView UI 테스트', () => {
+  test('props로 받은 이름과 이메일을 정확히 표시한다', () => {
+    // 1. 가짜 데이터(Mock Data) 준비
+    // API 호출 없이 우리가 원하는 데이터를 직접 주입합니다.
+    const mockUser = {
+      firstName: 'KIM',
+      lastName: 'CHULSU',
+      email: 'test@example.com'
+    };
+
+    render(<UserProfileView {...mockUser} />);
+    
+    // 2. 로그 확인
+    console.log('[UI Test] 순수 컴포넌트 렌더링 확인');
+    screen.debug();
+
+    // 3. 검증
+    // h1 태그 안에 이름이 들어있는지 확인
+    expect(screen.getByRole('heading')).toHaveTextContent('KIM CHULSU');
+    // 이메일이 문서에 존재하는지 확인
+    expect(screen.getByText('test@example.com')).toBeInTheDocument();
+  });
+});
+```
+
+<Ads3/>
+
+## 运行测试并分析结果
+
+在终端中运行测试。
+
+```bash title="Terminal"
+npm test -- src/components/UserProfileView.test.tsx
+```
+
+### 查看成功日志
+<Img src="/251227-163122.webp" width={500} alt="查看成功日志"/>
+
+```text
+[UI Test] 순수 컴포넌트 렌더링 확인
+<body>
+  <div>
+    <div>
+      <h1>
+        KIM CHULSU
+      </h1>
+      <p>
+        test@example.com
+      </p>
+    </div>
+  </div>
+</body>
+
+PASS src/components/UserProfileView.test.tsx
+```
+
+### 结果分析
+
+- **验证纯粹性：**从日志可以看到，没有 `fetch` 的加载状态或错误信息，注入的 `KIM CHULSU` 数据直接清晰地渲染出来。
+- **移除依赖：**不论 API 服务器是否运行，这个 UI 组件的测试始终能够通过。
+- **速度快：**无需异步等待（`await findBy...`），测试瞬间完成。
+
+<Ads4/>
+
+## 结语
+
+源代码可在 [GitHub - Promleeblog/react-tdd-setup](https://github.com/PROMLEE/my-tdd-app/tree/part11) 查看。
+```bash title="Terminal"
+git clone https://github.com/PROMLEE/my-tdd-app.git
+cd my-tdd-app
+git checkout part11
+```
+
+今天改进了妨碍测试的不良结构，并确认了结果。
+- **关注点分离**
+  分离数据逻辑（Container）与 UI（View），让 UI 测试变得简单、快速。
+- **结果分析**
+  通过日志确认，没有不必要的加载过程，数据即可立即渲染。
+<br/>
+如果测试很难写，不要勉强硬写，应把它视为*需要改进结构*的信号。
+结构改善之后，测试自然会更容易。
+> 下一篇将通过**第 12 篇：支持重构的测试组织方式**，介绍如何编写在设计或内部实现改变后仍不会失效的测试。
+
+### 参考资料
+- [Container/Presentational Pattern](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0)
+  Dan Abramov 曾介绍的模式，其“关注点分离”理念仍然适用。
+- [Setup Custom Render](https://testing-library.com/docs/react-testing-library/setup#custom-render)
+  RTL 官方文档建议的、用于配置全局 Provider 的自定义 Render 编写方法。

@@ -1,0 +1,92 @@
+---
+post_id: '119'
+locale: ja
+title: macOSにHomebrewをインストールする
+description: macOSへのHomebrewのインストール方法です。
+source_hash: 8f00d5400796fd7c7db10f8128278a806d6f7fc6284f5d1fd95b3a610006ceb1
+reviewed_at: '2026-11-07T01:51:40.050Z'
+---
+## はじめに
+### Homebrewとは？
+> Homebrew is the easiest and most flexible way to install the UNIX tools Apple didn’t include with macOS.
+It can also install software not packaged for your Linux distribution without requiring sudo.
+> Homebrewは、macOSに含まれていないUNIXツールを、簡単かつ柔軟にインストールするための方法です。
+sudoを必要とせず、利用中のLinuxディストリビューションで提供されていないソフトウェアもインストールできます。
+
+[Homebrewドキュメント](https://docs.brew.sh/Manpage)
+macOSで、各種パッケージやcask（アプリ）をインストールする際に便利です。
+### 対応するパッケージ
+対応するパッケージやcaskは、次のリンクから確認できます。
+[Homebrewのパッケージ一覧](https://formulae.brew.sh/formula/)
+[Homebrewのcask一覧](https://formulae.brew.sh/cask/)
+[Homebrewで検索](https://formulae.brew.sh/)
+
+#### 例
+- [visual-studio-code](https://formulae.brew.sh/cask/visual-studio-code)
+- [node](https://formulae.brew.sh/formula/node)
+- [python](https://formulae.brew.sh/formula/python@3.9)
+- [yarn](https://formulae.brew.sh/formula/yarn)
+などがあります。
+
+## Homebrewのインストール
+ターミナルを開き、次のコマンドを実行します。
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+インストールが始まると、続行の確認やパスワード入力などが求められるので、案内に従います。
+完了したら、次のコマンドで確認します。
+```bash
+brew --version
+```
+正常にインストールされていれば、次のようにバージョンが表示されます。
+```bash
+Homebrew 4.3.18
+```
+<Ads1 />
+
+## パッケージのインストール
+[対応するパッケージ](#지원하는-패키지)から、使いたいものを検索してインストールします。
+例えばNotionなら、パッケージを検索し、表示されているコマンドをコピーして、ターミナルで実行します。
+<Img src="/posts/240831-151225.png" width={500} alt="https://formulae.brew.sh/cask/notion"/>
+```bash
+brew install --cask notion
+```
+<Img src="/posts/240831-151506.png" width={800} alt="Notionのインストール完了"/>
+完了すると、上のようにインストール完了のメッセージが表示されます。
+Launchpadでも、インストールされたアプリを確認できます。
+
+## 問題が起きた場合
+### 環境変数の設定
+インストール後にbrewコマンドが動かない場合は、環境変数の設定が必要かもしれません。
+ターミナルで、次のコマンドを実行します。
+```bash
+echo "eval "$(/opt/homebrew/bin/brew shellenv)"" >> ~/.zshrc
+source ~/.zshrc
+```
+もう一度ターミナルを開き、brewが正常に動作するかを確認します。
+```bash
+brew --version
+brew doctor # 홈브루의 상태 확인
+```
+<Ads2 />
+## おわりに
+Homebrewには、パッケージのインストール、削除、更新、検索などの機能があります。
+パッケージや、そのバージョンを管理しやすくなり、自分でパッケージを作ることもできます。
+MacBookでは、ほぼ必須ともいえるツールなので、使ってみることをおすすめします。
+
+### さらに考えてみる
+#### パッケージを作ってみる
+- [Homebrewのパッケージ作成 (Formula)](https://docs.brew.sh/Formula-Cookbook)
+- [Homebrewのパッケージ作成 (Cask)](https://docs.brew.sh/Cask-Cookbook)
+#### その他のHomebrewコマンド
+> brew update：Homebrew自体の更新
+> brew upgrade [パッケージ名]：インストール済みパッケージの更新
+> brew list：インストール済みパッケージの一覧
+> brew search [パッケージ名]
+> brew uninstall [パッケージ名]
+> brew info [パッケージ名]
+> brew cleanup：使っていないパッケージの削除
+> brew doctor：Homebrewの状態確認
+
+### 参考
+[Homebrew公式ドキュメント](https://docs.brew.sh/Manpage)

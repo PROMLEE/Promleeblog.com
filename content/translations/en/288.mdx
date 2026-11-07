@@ -1,0 +1,156 @@
+---
+title_ko: 패킷 캡처와 분석 Wireshark 활용 - 코딩과 함께 배우는 네트워크 10일차
+title_en: >-
+  Packet Capture and Analysis Using Wireshark - Learning Network with Coding Day
+  10
+desc: >-
+  네트워크 통신을 직접 눈으로 확인하는 강력한 도구, Wireshark의 기본 개념과 설치 방법, 사용법을 알아봅니다. 실제 HTTP 요청
+  패킷을 캡처하고 분석하며 네트워크의 동작을 깊이 이해합니다.
+thumbnail_url: /250515-174745.webp
+metatag: 'Wireshark, 패킷 캡처, 패킷 분석, 네트워크 분석, 프로토콜 분석, HTTP 분석, 네트워크 문제 해결, 개발자, 코딩, IT 기초'
+post_id: '288'
+locale: en
+title: >-
+  Capture and Analyze Packets with Wireshark — Learning Networking with Code,
+  Day 10
+description: >-
+  Install Wireshark, learn the capture interface and display filters, and
+  analyze a real HTTP request to see how network communication works.
+source_hash: 23ea60f27f119a2a6b2c79630b5c3aad10ec11175a2f0933b3e4255c27e5f89e
+reviewed_at: '2026-11-07T12:14:38.829Z'
+---
+## Before We Begin
+Last time, we learned how firewalls and NAT protect networks. Today we'll capture the pieces of data that travel across a network, known as *packets*, and inspect what they contain. We'll use *Wireshark* to see how the OSI layers, TCP/IP, HTTP, and other concepts we've covered appear in real network traffic.
+
+<Ads1 />
+## What Is Packet Capture?
+Packet capture records the packets passing through a network interface, such as an Ethernet or Wi-Fi adapter, so you can inspect and analyze them. It's like opening letters in transit to see what they contain, in this case for authorized, educational purposes.
+<br/>
+Developers and network administrators use packet capture for several tasks.
+
+- **Troubleshooting**
+  Find out why an internet connection is slow or why a particular service is unreachable.
+- **Learning how protocols work**
+  Observe the TCP handshake or the structure of HTTP requests and responses in real traffic.
+- **Security analysis**
+  Detect and investigate suspicious traffic or malware activity.
+- **Performance analysis**
+  Measure network latency and traffic volume to evaluate performance and find areas for improvement.
+
+<Ads2 />
+## Wireshark
+
+Wireshark is a widely used open-source network protocol analyzer. It's free and offers powerful features for everyone from students to professionals.
+
+<Img src="/250515-172934.webp" width={400} alt="Wireshark"/>
+
+### Install Wireshark
+
+Wireshark supports Windows, macOS, and Linux.
+1. **Visit the official website**  
+   Open [www.wireshark.org](https://www.wireshark.org).
+2. **Download Wireshark**  
+   Choose the latest stable release for your operating system.
+3. **Install Wireshark**  
+   Run the installer and follow the prompts.
+   - **Windows**
+     The installer offers to install the Npcap packet capture library (or WinPcap in older versions). Keep this option selected so Wireshark can capture packets. It is usually selected by default.
+   - **macOS**
+     You may see a permissions prompt when launching Wireshark for the first time. Follow the instructions to grant the required permissions. Install ChmodBPF for packet capture access. You can start the installation from Wireshark.
+     <Img src="/250515-173227.webp" width={300} alt="Installing ChmodBPF"/>
+
+<Ads3 />
+
+## Wireshark Basics
+Wireshark may look complicated at first, but the basic workflow is straightforward. We'll walk through a full exercise shortly. First, here's how the interface works.
+
+1. **Select a network interface**
+   - Wireshark lists your computer's network interfaces, such as Ethernet and Wi-Fi.
+   - Pick the interface that is connected to the internet and carrying traffic. If you're unsure, look for activity in the small graph next to each interface name.
+   - Double-click the interface or select it and click the blue shark fin icon labeled Start capturing packets.
+2. **Start and stop capture**
+   - Packets appear in real time after the capture starts.
+   - Once you have enough data, click the red square labeled Stop capturing packets.
+3. **Explore the Wireshark window**
+   The capture view is usually split into three panes.
+   - **Packet List Pane**
+     Each row summarizes a packet in chronological order. It shows the packet number, time, source and destination IP addresses, protocol, length, and a brief description.
+   - **Packet Details Pane**
+     Select a packet to see its protocol layers, such as the Ethernet, IP, and TCP headers and the HTTP data, in a tree. Expand each layer to inspect individual fields.
+   - **Packet Bytes Pane**
+     This shows the selected packet's actual bytes in hexadecimal and ASCII. Selecting a field in the details pane highlights the corresponding bytes.
+   <Img src="/250515-175806.webp" width={500} alt="Wireshark capture window"/>
+4. **Use filters**
+   - If the capture contains too many packets, a *display filter* lets you show only those that match a condition.
+   - Enter the condition in the filter bar at the top and press Enter.
+   - **Common filters**
+     - `ip.addr == 192.168.0.1` displays packets with `192.168.0.1` as the source or destination IP address.
+     - `tcp.port == 80` displays packets with source or destination TCP port 80, commonly used for HTTP.
+     - `tcp.port == 443` displays packets with source or destination TCP port 443, commonly used for HTTPS.
+     - `http` displays HTTP packets.
+     - `dns` displays DNS packets.
+     - `!(arp)` excludes ARP packets. The exclamation mark means “not.”
+     - `tcp.flags.syn == 1 && tcp.flags.ack == 1` displays SYN-ACK packets, part of the TCP three-way handshake.
+
+## Exercise: Analyze an HTTP Request
+
+Let's use Wireshark to see which packets are exchanged when you visit a website.
+
+1. **Prepare**
+   Open Wireshark and choose a network interface.
+   - If there are several interfaces, choose the one currently connected to the internet.
+   <Img src="/250516-091231.webp" width={600} alt="Selecting Wi-Fi because it carries the active connection"/>
+   Choose a simple HTTP website to analyze.
+   > HTTPS is encrypted, which makes the contents difficult to inspect. This exercise uses plain HTTP. If you don't have a test site, look for an older site that still supports HTTP or run a simple local web server. Public HTTP sites are becoming less common.
+   - If you can't find a suitable site, try `http://example.com`, which is reserved for examples, or `http://info.cern.ch`, the first website.
+2. **Start the capture**
+   Select the network interface and start capturing. Click the blue shark fin icon or select `Capture > Start`.
+   <Img src="/250516-091513.webp" width={300} alt="Start capture button"/>
+3. **Open the HTTP site in your browser**
+   Visit the address you chose and wait for the page to finish loading.
+4. **Stop the capture**
+   Return to Wireshark and click the red square or select `Capture > Stop`.
+   <Img src="/250516-091731.webp" width={600} alt="Packet capture in progress"/>
+5. **Filter for HTTP packets**
+   Type `http` into the filter bar and press Enter to display only HTTP packets.
+   <Img src="/250516-092239.webp" width={300} alt="Filtering for HTTP packets"/>
+6. **Analyze the packets**
+   - **Find the HTTP GET request**
+     In the packet list, select the `GET / HTTP/1.1` request or a similar message from your client IP address to the web server's IP address.
+   - **Inspect the request**
+     Expand Hypertext Transfer Protocol in the details pane and examine the request line and headers, such as `Host` and `User-Agent`.
+   - **Find the HTTP response**
+     Select the `HTTP/1.1 200 OK` response, or a similar message, from the server to the client.
+   - **Inspect the response**
+     Look at the status line, headers, and response body if present. The HTML may appear as Line-based text data.
+   - **Optional: inspect the TCP handshake**
+     Clear the HTTP filter and look for the SYN, SYN-ACK, and ACK packets just before the request. Try `tcp.port == 80 && (tcp.flags.syn == 1 || tcp.flags.ack == 1)`.
+     <Img src="/250516-094952.webp" width={500} alt="TCP handshake"/>
+
+The exercise shows how a browser communicates with a web server at the packet level and gives you a closer look at the structure of HTTP.
+
+<Ads4 />
+
+## Wireshark Tips
+
+- **Save and reopen captures**
+  Save captured packets with `File > Save As` and reopen them later with `File > Open`.
+- **Explore statistics**
+  The `Statistics` menu offers views such as protocol hierarchy, conversations, and endpoints. Use them to understand the overall traffic.
+- **Apply coloring rules**
+  Wireshark colors rows by protocol or other conditions so you can pick out important packets. Find these settings under `View > Coloring Rules`.
+- **Use the right-click menu**
+  Right-click a packet or a field to see analysis options such as Follow > TCP Stream, which reconstructs the data flow for a TCP connection.
+
+## Conclusion
+
+We learned the basics of Wireshark and captured and analyzed a real HTTP exchange. Seeing what happens inside a network connection helps you diagnose problems and understand how protocols work.
+<br/>
+Wireshark can look complex at first. Practice with different display filters and captures to deepen your understanding of networks.
+> Next time, we'll look at ways to improve network performance and address bottlenecks.
+
+### References
+
+- [Wireshark — Official Website](https://www.wireshark.org/)
+- [Wireshark Wiki — Npcap](https://wiki.wireshark.org/Npcap)
+- [GeeksforGeeks — Display Filter Expression Dialog Box in Wireshark](https://www.geeksforgeeks.org/display-filter-expression-dialog-box-in-wireshark/)

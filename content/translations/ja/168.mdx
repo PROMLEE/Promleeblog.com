@@ -1,0 +1,440 @@
+---
+post_id: '168'
+locale: ja
+title: アプリ用のボトムシートコンポーネントを作る（React Native）
+description: React Nativeで、画面をまたいで再利用できるボトムシートコンポーネントを作ります。
+source_hash: dfcbc4ae8aa02418f7ec3fc5bf31d5fbace8dadb22d36aa8ff471e2c243c225a
+reviewed_at: '2026-11-07T07:14:09.630Z'
+---
+## はじめに
+> この記事では、基本的なExpoプロジェクトを作成済みとします。作成方法は[Windows版](/blog/post/117-expo-proj-init)、[Mac版](/blog/post/143-expo-init-mac)を参照してください。
+> 基本的なReact Native CLI環境でも、設定を追加すれば使えます。
+### ボトムシートとは？
+ボトムシートは、モバイルアプリでよく使うUIパターンです。画面の下から追加情報を示し、ユーザーに次の操作を促すために使います。モーダルに似ていますが、画面の下から現れるのが特徴です。今回は、どの画面でも再利用できるコンポーネントとして作ります。
+<Img src="https://raw.githubusercontent.com/gorhom/react-native-bottom-sheet/HEAD/preview.gif" width={400} alt="参考画像の出典 https://gorhom.dev/react-native-bottom-sheet"/>
+
+この記事で使うExpoのファイル構成です。
+```
+📦 app
+ ┣ 📜 _layout.tsx
+ ┣ 📜 index.tsx
+ 📦 components
+ ┣ 📂 ui
+ ┗ ┗ 📜 CustomBottomSheet.tsx
+```
+
+<Ads1 />
+## gorhom/bottom-sheetのインストールと設定
+利用する環境に合わせてライブラリを選び、依存パッケージもインストールします。
+### 1. ライブラリをインストールする
+```bash title="npm"
+npm install @gorhom/bottom-sheet
+```
+```bash title="yarn"
+yarn add @gorhom/bottom-sheet@^5
+```
+### 2. 依存パッケージをインストールする
+Expo環境では、すでに入っていることが多い項目です。
+```bash title="Expo"
+npx expo install react-native-reanimated react-native-gesture-handler
+```
+```bash title="React Native CLI - npm"
+npm install react-native-reanimated react-native-gesture-handler
+```
+```bash title="React Native CLI - yarn"
+yarn add react-native-reanimated react-native-gesture-handler
+```
+### 3. babel.config.jsを設定する
+Expoでbabel.config.jsがなければ、次のコマンドで作ります。スペースキーでbabel.config.jsを選び、Enterを押して生成します。
+```bash
+npx expo customize
+```
+<Img src="/posts/250326-101430.webp" width={400} alt=""/>
+
+Expo以外の環境では、プロジェクトのルートにbabel.config.jsを作り、次のように `react-native-reanimated/plugin` をプラグインに追加します。
+<Rbox>プラグイン一覧の最後に追加してください。</Rbox>
+
+```js {7} title="babel.config.js"
+module.exports = {
+	presets: [
+		... // don't add it here :)
+	],
+	plugins: [
+		...
+		'react-native-reanimated/plugin',
+	],
+};
+```
+### 4. metro.config.jsを設定する
+ファイルがなければ、babel.config.jsと同じ手順で作ります。次に、`metro.config.js` の既存のMetro設定を `wrapWithReanimatedMetroConfig` で包みます。
+```js {3-5, 10} title="metro.config.js"
+// Learn more https://docs.expo.io/guides/customizing-metro
+const { getDefaultConfig } = require("expo/metro-config");
+const {
+  wrapWithReanimatedMetroConfig,
+} = require("react-native-reanimated/metro-config");
+
+/** @type {import('expo/metro-config').MetroConfig} */
+const config = getDefaultConfig(__dirname);
+
+module.exports = wrapWithReanimatedMetroConfig(config);
+```
+次のコマンドでキャッシュを消します。
+```bash title="expo"
+npx expo start -c
+```
+```bash title="npm"
+npm start -- --reset-cache
+```
+```bash title="yarn"
+yarn start --reset-cache
+```
+
+<Ads2 />
+### 5. GestureHandlerRootViewを追加する
+GestureHandlerRootViewでルートコンポーネントを包みます。
+```tsx title="/app/_layout.tsx" {1, 5, 9}
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+export default function Layout({ children }) {
+  return (
+    <GestureHandlerRootView>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Stack/>
+      </ThemeProvider>
+    </GestureHandlerRootView>
+  );
+}
+```
+
+### 6. 設定を仕上げる
+iOS向けに開発する場合は、次のコマンドでpod installを実行します。
+```bash
+cd ios && pod install && cd ..
+```
+Expoの開発ビルドを使う場合は、次のコマンドでネイティブコードと同期します。
+```bash
+npx expo prebuild
+```
+
+<Ads3 />
+## ボトムシートを使う
+まず空のページに、ボトムシートを開閉するだけの機能を実装します。BottomSheetをインポートし、refを作ります。expandとcloseのメソッドでボトムシートを開閉します。
+```tsx title="/app/index.tsx"
+import React, { useCallback, useRef } from "react";
+import { Text, StyleSheet, View, Button } from "react-native";
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+
+const App = () => {
+  // ref
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  // callbacks
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log("handleSheetChanges", index);
+  }, []);
+
+  // renders
+  return (
+    <View style={styles.container}>
+      <Button title="expand" onPress={() => bottomSheetRef.current?.expand()} />
+      <BottomSheet ref={bottomSheetRef} onChange={handleSheetChanges}>
+        <BottomSheetView style={styles.contentContainer}>
+          <Text>Awesome 🎉</Text>
+          <Button
+            title="close"
+            onPress={() => bottomSheetRef.current?.close()}
+          />
+        </BottomSheetView>
+      </BottomSheet>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 36,
+    alignItems: "center",
+  },
+});
+
+export default App;
+```
+<Img src="/posts/250326-105818.webp" width={300} alt=""/>
+
+### ボトムシートのprops
+カスタムコンポーネントを作る前に、よく使うpropsを見ていきます。
+
+| props | 説明 | type | default | required |
+| --- | --- | --- | --- | --- |
+| index | ボトムシートの初期状態（0、-1） | number | 0 | NO |
+| snapPoints | スナップ位置を設定 <br/> 数値や文字列の配列で、固定する高さを指定 <br/> 例 [200, "60%"] <br/> enableDynamicSizingがfalseの場合は必須 | [] | - | YES |
+| animateOnMount | マウント時にアニメーションするか | boolean | true | NO |
+| backdropComponent | ボトムシートの背景コンポーネント | BottomSheetBackdrop | - | NO |
+| enablePanDownToClose | 下にドラッグして閉じられるか | boolean | true | NO |
+
+ほかのpropsは[公式ドキュメント](https://gorhom.dev/react-native-bottom-sheet/props)を参照してください。
+
+<Ads4 />
+## カスタムボトムシートを作る
+最初に条件を決めます。
+1. すべての設定をpropsで受け取り、変更できるようにします。
+2. childrenで受け取ったコンポーネントを、ボトムシートの内側に描画します。
+3. 既定のスタイルを適用しつつ、変更できるようにします。
+4. 内側と外側で発生するイベントを、propsで受け取って処理できるようにします。
+
+まず、インターフェースを定義し、propsを受け取るBottomSheetコンポーネントを作ります。
+snapPointsの既定値は ["30%"] にし、受け取ったpropsをそのまま渡します。外側からもrefを使えるように、*bottomSheetModalRef*を渡します。続いて、*BottomSheetView*でchildrenを包みます。
+```tsx title="/app/components/ui/CustomBottomSheet.tsx"
+import React from "react";
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+
+interface CustomBottomSheetProps extends BottomSheetProps {
+  bottomSheetModalRef: React.RefObject<BottomSheet>;
+  children: React.ReactNode;
+  snapPoints?: string[];
+}
+
+const CustomBottomSheet: React.FC<CustomBottomSheetProps> = ({
+  bottomSheetModalRef,
+  children,
+  snapPoints = ["30%"],
+  ...props
+}) => {
+
+  return (
+    <BottomSheet
+      ref={bottomSheetModalRef}
+      index={0}
+      snapPoints={snapPoints}
+      style={{
+        zIndex: 10,
+        elevation: 10,
+      }}
+      enableDynamicSizing={false}
+      enablePanDownToClose={false}
+      {...props}
+    >
+      <BottomSheetView style={{ flex: 1 }}>{children}</BottomSheetView>
+    </BottomSheet>
+  );
+};
+
+export default CustomBottomSheet;
+```
+index.tsxに戻り、作ったBottomSheetを使います。
+```tsx title="/app/index.tsx"
+import React, { useRef } from "react";
+import { Text, StyleSheet, View, Button } from "react-native";
+import BottomSheet from "@gorhom/bottom-sheet";
+import CustomBottomSheet from "@/components/ui/CustomBottomSheet";
+
+const App = () => {
+  // ref
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  // renders
+  return (
+    <View style={styles.container}>
+      <Button title="expand" onPress={() => bottomSheetRef.current?.expand()} />
+      <CustomBottomSheet
+				children={
+          <View style={styles.contentContainer}>
+            <Text>Awesome 🎉</Text>
+            <Button
+              title="close"
+              onPress={() => bottomSheetRef.current?.close()}
+            />
+          </View>
+        }
+        bottomSheetModalRef={bottomSheetRef}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 36,
+    alignItems: "center",
+  },
+});
+
+export default App;
+```
+<Img src="/posts/250326-105818.webp" width={300} alt=""/>
+<Bbox>先ほどと同じ動作をするボトムシートができました。</Bbox>
+
+<Ads5 />
+### backdropComponentを追加する
+背景も調整できるように、backdropComponentを追加します。propsで受け取る代わりに、コンポーネント内部で固定して使います。
+useCallbackでrenderBackdrop関数を作り、BottomSheetBackdropを返します。この関数をBottomSheetのbackdropComponentに渡します。
+ほかのpropsの動作も確認できるように、snapPointsを ["30%", "60%"] にし、enablePanDownToCloseをtrueにします。また、BottomSheetBackdropのpressBehaviorを「close」にして、タップで閉じられるようにします。「none」なら何も起こりません。
+```tsx title="/app/components/ui/CustomBottomSheet.tsx" {20-30, 41}
+//...
+const CustomBottomSheet: React.FC<BottomSheetProps> = ({
+  bottomSheetModalRef,
+  children,
+  snapPoints = ["30%", "60%"],
+  ...props
+}) => {
+  const renderBackdrop = useCallback(
+    (backdropProps: any) => (
+      <BottomSheetBackdrop
+        {...backdropProps}
+        pressBehavior="close"
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+      />
+    ),
+    []
+  );
+
+  return (
+    <BottomSheet
+      ref={bottomSheetModalRef}
+      index={0}
+      snapPoints={snapPoints}
+      style={{
+        zIndex: 10,
+        elevation: 10,
+      }}
+      backdropComponent={renderBackdrop}
+      enableDynamicSizing={false}
+      enablePanDownToClose={true}
+      {...props}
+    >
+      <BottomSheetView style={{ flex: 1 }}>{children}</BottomSheetView>
+    </BottomSheet>
+  );
+};
+
+export default CustomBottomSheet;
+```
+<Img src="/posts/250326-115929.webp" width={300} alt=""/>
+背景に色が付き、タップするとボトムシートが閉じます。高さは2段階に固定され、下までドラッグしても閉じられます。
+
+<Ads6 />
+## おわりに
+### コード全体
+<Toggle title="コード全体を表示する">
+
+```tsx title="/app/components/ui/CustomBottomSheet.tsx"
+import BottomSheet, {
+  BottomSheetView,
+  BottomSheetBackdrop,
+  BottomSheetProps,
+} from '@gorhom/bottom-sheet';
+import { BottomSheetDefaultBackdropProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types';
+import React, { useCallback } from 'react';
+
+interface CustomBottomSheetProps extends BottomSheetProps {
+  bottomSheetModalRef: React.RefObject<BottomSheet>;
+  children: React.ReactNode;
+  snapPoints?: string[];
+}
+
+const CustomBottomSheet: React.FC<CustomBottomSheetProps> = ({
+  bottomSheetModalRef,
+  children,
+  snapPoints = ['30%'],
+  ...props
+}) => {
+  const renderBackdrop = useCallback(
+    (backdropProps: BottomSheetDefaultBackdropProps) => (
+      <BottomSheetBackdrop
+        {...backdropProps}
+        pressBehavior="close"
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+      />
+    ),
+    [],
+  );
+
+  return (
+    <BottomSheet
+      ref={bottomSheetModalRef}
+      index={0}
+      snapPoints={snapPoints}
+      style={{
+        zIndex: 10,
+        elevation: 10,
+      }}
+      backdropComponent={renderBackdrop}
+      enableDynamicSizing={false}
+      enablePanDownToClose={true}
+      {...props}
+    >
+      <BottomSheetView style={{ flex: 1 }}>{children}</BottomSheetView>
+    </BottomSheet>
+  );
+};
+
+export default CustomBottomSheet;
+```
+```tsx title="/app/index.tsx"
+import BottomSheet from '@gorhom/bottom-sheet';
+import React, { useRef } from 'react';
+import { Text, StyleSheet, View, Button } from 'react-native';
+
+import CustomBottomSheet from '@/components/atoms/CustomBottomSheet';
+
+const App = () => {
+  // ref
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  // renders
+  return (
+    <View style={styles.container}>
+      <Button title="expand" onPress={() => bottomSheetRef.current?.expand()} />
+      <CustomBottomSheet
+        index={0}
+        children={
+          <View style={styles.contentContainer}>
+            <Text>Awesome 🎉</Text>
+            <Button
+              title="close"
+              onPress={() => bottomSheetRef.current?.close()}
+            />
+          </View>
+        }
+        bottomSheetModalRef={bottomSheetRef}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 36,
+    alignItems: 'center',
+  },
+});
+
+export default App;
+```
+</Toggle>
+
+### もう少し考えてみる
+- [React Native Bottom Sheet Modal](https://gorhom.dev/react-native-bottom-sheet/modal)は、さらに多くの機能を備えるモーダル型のボトムシートです。これを使ってカスタムボトムシートを作ってみましょう。
+- ボトムシートの内側にスクロールできるコンポーネントを置くには、どうすればよいでしょうか。
+### 参考
+- [React Native Bottom Sheet](https://gorhom.dev/react-native-bottom-sheet/)
+- [npm - @gorhom/bottom-sheet](https://www.npmjs.com/package/@gorhom/bottom-sheet)
+- [babel.config.js](https://docs.expo.dev/versions/latest/config/babel/)

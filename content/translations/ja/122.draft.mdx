@@ -1,0 +1,56 @@
+---
+post_id: '122'
+locale: ja
+title: 画像プレースホルダーAPIいろいろ
+description: 複数の画像プレースホルダーAPIを紹介します。
+source_hash: 36efa280c386993f26b0bb156fd47458672f8dee10a1f6b8aed6b1951f344dd2
+---
+## はじめに
+フロントエンド開発では、サーバーが完成する前に、仮の画像を取得して使いたいことがあります。
+そのようなときには、ランダムな画像を返すAPIが便利です。
+この記事では、私がよく使うランダム画像APIを紹介します。
+
+## via.placeHolder
+via.placeholderは、空のグレーの画像を提供するAPIです。
+とても簡単に使うことができ、画像のサイズを指定できます。
+ただし、残念ながら公式ウェブサイトがなくなっており、正確な仕様が見つからないようです。
+<Img src="https://via.placeholder.com/450x120" width="450" alt="https://via.placeholder.com/450x120" />
+
+## loremflickr
+loremflickrは、ランダムな猫の画像を提供するAPIです。
+詳しい使い方は公式サイトで確認できます。
+[loremflickr](https://loremflickr.com)
+1. URLの後ろに縦横のサイズとキーワードを付けて検索できます。
+   `https://loremflickr.com/320/240/paris`
+2. ランダムなシード値を付けて、ランダム画像を取得できます。
+   `https://loremflickr.com/320/240?random=1`
+
+<Img src="https://loremflickr.com/320/240/brazil,rio" width="320" alt="https://loremflickr.com/320/240/brazil,rio" />
+
+<Ads1 />
+## placedog
+placedogは、ランダムな犬の画像を提供するAPIです。
+詳しい使い方は公式サイトで確認できます。
+[placedog](https://placedog.net)
+<Img src="https://placedog.net/500/280?r" width="300" alt="https://placedog.net/500/280?r" />
+
+## Avatar placeHolder
+Avatar placeHolderは、ランダムなアバター画像を提供するAPIです。
+詳しい使い方は公式サイトで確認できます。
+[Avatar placeHolder](https://avatar-placeholder.iran.liara.run/)
+<Img src="https://avatar.iran.liara.run/public" width="300" alt="https://avatar.iran.liara.run/public" />
+
+## おわりに
+今回は、ランダムな画像を提供するAPIを紹介しました。
+サーバーへ接続する前に、単調な画面を彩ってくれる画像APIを使い、開発をもっと楽しくしてみてはいかがでしょうか。
+
+### さらに考えてみる
+> プレースホルダーを提供する、ほかのAPIサービス
+
+- [Lorem Picsum](https://picsum.photos/)
+- [dummyimage](https://dummyimage.com/)
+- [assets.so](https://assets.so/) こちらも面白そうです 😏
+- [baconmockup](https://baconmockup.com/) お肉が好きな方におすすめです 🥓
+
+### 参考
+[21 best placeholder image generators](https://loremipsum.io/21-of-the-best-placeholder-image-generators)

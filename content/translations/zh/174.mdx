@@ -1,0 +1,72 @@
+---
+title_ko: Expo 인앱 브라우저 열기 (expo-web-browser)
+title_en: Expo In-app Browser (expo-web-browser)
+desc: Expo에서 외부 링크를 앱 내에서 열 수 있는 WebBrowser API 사용법과 WebView와의 차이를 알아봅니다.
+thumbnail_url: /posts/250402-094328.webp
+metatag: 'expo, in-app browser, webbrowser, react-native, webview'
+post_id: '174'
+locale: zh
+title: 使用expo-web-browser打开应用内浏览器
+description: 介绍Expo WebBrowser的基本用法、关闭事件与WebView的区别，以及适合使用它的场景。
+source_hash: 7f14c5f8720ee78072fced0ba91feb89247ab01fda295741b544aa54e1acae8d
+reviewed_at: '2026-11-06T14:54:55.101Z'
+---
+
+## 开始之前
+移动应用经常需要打开外部链接。如果用户不必完全离开应用，就能查看链接内容，体验会更好。Expo为此提供`expo-web-browser`模块。本文介绍WebBrowser的用法，以及它与功能相近的WebView之间的区别。
+
+## 什么是WebBrowser
+`expo-web-browser`是Expo提供的库，可以通过**应用内浏览器**打开外部网页。简单来说，用户无需关闭应用，就能查看网页。
+它基于*iOS的Safari View Controller*或*Android的Chrome Custom Tabs*，既保留系统浏览器快速、安全的UI，又让用户感觉仍在应用内。
+
+## 使用WebBrowser
+
+首先安装`expo-web-browser`。
+```bash
+npx expo install expo-web-browser
+```
+安装完成后，可以这样使用。
+```tsx
+import * as WebBrowser from 'expo-web-browser';
+import { Button } from 'react-native';
+export default function App() {
+  const openLink = async () => {
+    await WebBrowser.openBrowserAsync('https://example.com');
+  };
+  return <Button title="링크 열기" onPress={openLink} />;
+}
+```
+示例中点击按钮后，会通过**应用内浏览器**打开`https://example.com`。用户可以查看网页，完成后再回到应用。
+<Ads1 />
+## 与WebView有什么区别
+**WebBrowser**和**WebView**很容易混淆，但它们的功能和用途有些不同。
+| 项目 | WebBrowser | WebView |
+|------|------------|---------|
+| UI | 系统浏览器UI（Safari或Chrome） | 应用内部的浏览器组件 |
+| 安全性 | 较高，利用系统浏览器功能 | 应用自行渲染，需要安全配置 |
+| 使用目的 | 打开外部链接 | 将Web应用集成到原生应用中 |
+| 用户体验 | 像浏览器，有地址栏 | 完全集成于应用中，没有地址栏 |
+| 复杂度 | 很简单 | 需要配置和维护 |
+
+例如，打开登录链接或展示服务条款时，WebBrowser更合适。反过来，如果需要持续在应用中展示基于Web的UI，使用WebView更合适。
+## 遇到的问题与解决方法
+使用WebBrowser时，需要注意：
+1. **iOS模拟器中，Safari View Controller可能无法正常工作。**最好在真机上测试。
+2. `openBrowserAsync`返回Promise，因此可以在浏览器关闭后处理相关事件。
+例如，在浏览器关闭后执行指定操作。
+```tsx
+const result = await WebBrowser.openBrowserAsync('https://example.com');
+if (result.type === 'dismiss') {
+  console.log('브라우저가 닫혔습니다.');
+}
+```
+
+<Ads2 />
+## 结论
+Expo的`WebBrowser`可以方便地在应用中展示外部链接。它比`WebView`配置更简单，安全性也较高，因此只是打开链接时，适合使用WebBrowser。
+### 进一步思考
+- 可以通过WebBrowser打开登录页面，并实现认证完成后返回应用的流程。
+- 使用`openAuthSessionAsync`，也能实现专门针对OAuth登录的方式。
+### 参考资料
+- [官方文档：expo-web-browser](https://docs.expo.dev/versions/latest/sdk/webbrowser/)
+- [React Native WebView](https://github.com/react-native-webview/react-native-webview)

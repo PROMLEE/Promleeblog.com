@@ -1,0 +1,80 @@
+---
+post_id: '113'
+locale: en
+title: Getting Started with Next.js App Router
+description: >-
+  Learn basic file-system routing, dynamic routes, and API route handlers with
+  Next.js App Router.
+source_hash: ead922b4a5aed61e31f547f4578b19cf5c9d935ead8f11c67605d23d12dcdebd
+reviewed_at: '2026-11-06T14:36:26.372Z'
+---
+## Before getting started
+> Let's try App Router, available since Next.js 13.
+
+Next.js uses file-system routing, so an application's routes are determined by its file structure.
+App Router supports features such as Server Components, Server Actions, and Suspense.
+This post covers its basic usage.
+
+## Setting up the root page
+You can configure the root route (`/`) with the `page.tsx` and `layout.tsx` files in the generated `app/` directory.
+<img src="https://nextjs.org/_next/image?url=%2Fdocs%2Fdark%2Fapp-getting-started.png&w=1920&q=75"/>
+
+```tsx title="app/layout.tsx"
+export default function RootLayout({children,}: {children: React.ReactNode}) {
+  return (
+    <html lang="en">
+      <body>{children}</body> 
+	{/* html, body 태그를 사용하여 레이아웃을 구성*/}
+	{/* children은 page.tsx 내부의 컴포넌트를 받아서 레이아웃을 구성한다. */}
+    </html>
+  )
+}
+```
+
+```tsx title="app/page.tsx"
+export default function Page() {
+	return <p>Root Page</p>
+}
+```
+<Bbox>Even without a *layout.tsx* file, Next.js automatically generates a layout when it starts.</Bbox>
+Start the app with `npm run dev`, then visit http://localhost:3000/ to see `Root Page`.
+
+<Ads1 />
+## Defining routes
+As mentioned earlier, Next.js uses file-system routing, so routes are determined by the file and folder structure.
+Create a subdirectory under `app/` to define a route.
+<img src="https://nextjs.org/_next/image?url=%2Fdocs%2Fdark%2Fdefining-routes.png&w=1920&q=75"/>
+
+```tsx title="app/example/page.tsx"
+export default function ExamplePage() {
+	return <p>Example Page</p>
+}
+```
+Start the app with `npm run dev`, then visit http://localhost:3000/example to see `Example Page`.
+
+### Dynamic routes
+Define a dynamic route by using square brackets in the folder name.
+```tsx title="app/example/[slug]/page.tsx"
+export default function SlugPage({ params }: { params: { slug: string } }) {
+	return <p>{params.slug} Page</p>
+}
+```
+Start the app with `npm run dev`, then visit http://localhost:3000/example/hello to see `hello Page`.
+
+## API routing with route handlers
+Create an `app/api/` directory to use API routing.
+<img src="https://nextjs.org/_next/image?url=%2Fdocs%2Fdark%2Froute-special-file.png&w=1920&q=75"/>
+
+```tsx title="app/api/hello.ts"
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  return NextResponse.json({ message: "Hello World" });
+}
+```
+
+Start the app with `npm run dev`, then visit http://localhost:3000/api/hello to see `{"message":"Hello World"}`.
+<Rbox>A route.ts file cannot exist at the same route as a page.tsx file.</Rbox>
+
+## References
+[Next.js official documentation](https://nextjs.org/docs)

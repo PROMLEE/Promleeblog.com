@@ -1,0 +1,225 @@
+---
+title_ko: React Native(Expo)에서 SVG 이미지 사용하기 (react-native-svg-transformer)
+title_en: Using SVG images in React Native(Expo) (react-native-svg-transformer)
+desc: >-
+  React Native(Expo)에서 SVG 이미지 사용하기 (react-native-svg-transformer)를 사용하여 SVG
+  이미지를 사용하는 방법을 알아보자. Let's find out how to use SVG images using React
+  Native(Expo) (react-native-svg-transformer).
+thumbnail_url: /posts/250310-100159.png
+metatag: >-
+  SVG 이미지를 리액트 컴포넌트로 변환, convert SVG images to React components, svg 속성 props로
+  전달, pass svg attributes as props, Svg
+  fill/stroke/circle/rect/line/polygon/polyline, react-native-svg,
+  react-native-svg-transformer
+post_id: '151'
+locale: en
+title: Using SVG Images in React Native and Expo with react-native-svg-transformer
+description: >-
+  Render SVGs in an Expo app, configure react-native-svg-transformer, and pass
+  SVG attributes as React props.
+source_hash: c0340913c6c46dbf968029b45dddffc9bd7e9ecd7480485a154adb9ed61b6dc9
+reviewed_at: '2026-11-07T12:13:30.181Z'
+---
+## Before We Begin
+> This guide assumes you already have a basic Expo project. To create one, see the guides for [Windows](/blog/post/117-expo-proj-init) and [Mac](/blog/post/143-expo-init-mac).
+### Why Use SVG Images?
+SVG images scale without losing sharpness. On the web, you can style them with CSS, and their small file sizes can improve site performance. React Native can also display SVGs. This guide shows how to use them in an Expo project.
+
+## Install react-native-svg
+<Bbox>This library is included in Expo Go, so you do not need to install it separately to use it there.</Bbox>
+In a React Native project without Expo, install `react-native-svg` with the following command.
+```bash
+npm install react-native-svg
+```
+The library lets you use interactive and animated SVGs in your app.
+
+<Ads1 />
+## Use an SVG Image
+Start by downloading an SVG image. Open the file and copy its markup. This example uses the SVG circle and line elements.
+```xml title="/assets/image/example.svg (예시 svg 파일)"
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+	<circle cx="12" cy="12" r="10"/>
+	<line x1="12" y1="8" x2="12" y2="16"/>
+	<line x1="8" y1="12" x2="16" y2="12"/>
+</svg>
+```
+<Img src="/posts/250310-103804.png" width={100} alt="Example SVG image"/>
+
+Use the `Svg` component to render the copied SVG. The `Svg` component comes from `react-native-svg`. Convert the markup to React Native by placing the `Circle` and `Line` components inside `Svg`, as shown below.
+```jsx title="/assets/image/example.tsx"
+import Svg, { Circle, Line } from 'react-native-svg';
+
+export default function SvgComponent() {
+	return (
+		<Svg width="100" height="100" viewBox="0 0 24 24">
+			<Circle cx="12" cy="12" r="10" fill="none" stroke="black" strokeWidth="2"/>
+			<Line x1="12" y1="8" x2="12" y2="16" stroke="black" strokeWidth="2"/>
+			<Line x1="8" y1="12" x2="16" y2="12" stroke="black" strokeWidth="2"/>
+		</Svg>
+	);
+}
+```
+You can now render the image on screen with `SvgComponent`.
+```jsx title="/app/index.tsx"
+import React from 'react';
+import { View } from 'react-native';
+import SvgComponent from './example';
+
+export default function App() {
+	return (
+		<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+			<SvgComponent />
+		</View>
+	);
+}
+```
+
+<Ads2 />
+## Convert SVG with React SVGR
+You can also use the [React SVGR playground](https://react-svgr.com/playground/?native=true&typescript=true) to convert SVG images to React components. Paste your SVG markup and the playground generates the component for you. Here's what it produces for the example above.
+```jsx title="/assets/image/example-svgr.tsx"
+import * as React from "react"
+import Svg, { SvgProps, Circle, Path } from "react-native-svg"
+const SvgComponent = (props: SvgProps) => (
+  <Svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    stroke="currentColor"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth={2}
+    viewBox="0 0 24 24"
+    {...props}
+  >
+    <Circle cx={12} cy={12} r={10} />
+    <Path d="M12 8v8M8 12h8" />
+  </Svg>
+)
+export default SvgComponent
+```
+The result looks a little different from the manual conversion. In particular, it uses `SvgProps` so you can pass props through. That's why I recommend using the playground when converting an SVG to a component.
+
+## Use react-native-svg-transformer
+Converting each SVG manually can get tedious, especially when you have to change file extensions. The `react-native-svg-transformer` library converts SVG files into components automatically.
+### Installation and Configuration
+#### Install the Library
+Install `react-native-svg-transformer`.
+```bash
+npm install --save-dev react-native-svg-transformer
+
+  # yarn add --dev react-native-svg-transformer
+```
+#### Configure metro.config.js
+Add the configuration to `metro.config.js` in the project root. A plain React Native project might not have a `metro.config.js` file yet. If it doesn't, create `metro.config.js` in the root and add the configuration below. Include the code that sets module.exports.
+```js title="metro.config.js (Expo 프로젝트 기준)"
+/* eslint-env node */
+const { getDefaultConfig } = require('expo/metro-config');
+
+/** @type {import('expo/metro-config').MetroConfig} */
+
+module.exports = (() => {
+	const config = getDefaultConfig(__dirname);
+
+	const { transformer, resolver } = config;
+
+	config.transformer = {
+		...transformer,
+		babelTransformerPath: require.resolve('react-native-svg-transformer/expo'),
+	};
+	config.resolver = {
+		...resolver,
+		assetExts: resolver.assetExts.filter((ext) => ext !== 'svg'),
+		sourceExts: [...resolver.sourceExts, 'svg'],
+	};
+
+	return config;
+})();
+```
+```js title="metro.config.js (React Native 프로젝트 기준)"
+const { getDefaultConfig, mergeConfig } = require("@react-native/metro-config");
+
+const defaultConfig = getDefaultConfig(__dirname);
+const { assetExts, sourceExts } = defaultConfig.resolver;
+
+/**
+ * Metro configuration
+ * https://reactnative.dev/docs/metro
+ *
+ * @type {import('metro-config').MetroConfig}
+ */
+const config = {
+  transformer: {
+    babelTransformerPath: require.resolve(
+      "react-native-svg-transformer/react-native"
+    )
+  },
+  resolver: {
+    assetExts: assetExts.filter((ext) => ext !== "svg"),
+    sourceExts: [...sourceExts, "svg"]
+  }
+};
+
+module.exports = mergeConfig(defaultConfig, config);
+```
+#### Configure TypeScript
+If you use TypeScript, add the following declaration to `declarations.d.ts` so TypeScript recognizes SVG files as modules. If the file doesn't exist, create `declarations.d.ts` in the project root.
+```ts title="declarations.d.ts"
+declare module '*.svg' {
+  import React from 'react';
+  import { SvgProps } from 'react-native-svg';
+  const content: React.FC<SvgProps>;
+  export default content;
+}
+```
+
+<Ads3 />
+### Render the SVG Image
+You can now import an SVG directly. Add the SVG file to the `assets` folder and load its path with `require` when using it, as in this example.
+```jsx title="/app/index.tsx"
+import React from 'react';
+import { View } from 'react-native';
+import SvgComponent from '@/assets/image/example.svg';
+
+export default function App() {
+	return (
+		<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+			<SvgComponent />
+		</View>
+	);
+}
+```
+## Pass SVG Attributes as Props
+Style an SVG by passing attributes such as `fill`, `stroke`, and `strokeWidth` as props. In this example, the SVG's fill attribute takes the `fill` prop, and its stroke attribute takes the `stroke` prop. Use “currentColor” when you want to supply a variable color.
+```jsx title="/assets/image/example.svg" {"currentColor"}
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+	<circle cx="12" cy="12" r="10"/>
+	<line x1="12" y1="8" x2="12" y2="16"/>
+	<line x1="8" y1="12" x2="16" y2="12"/>
+</svg>
+```
+Then pass those props when rendering the SVG.
+```jsx title="/app/index.tsx"
+import { View } from 'react-native';
+import SvgComponent from '@/assets/image/example.svg';
+
+export default function App() {
+	return (
+		<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+			<SvgComponent fill={'blue'} stroke={'green'} width={100} height={100} />
+		</View>
+	);
+}
+```
+<Img src="/posts/250310-115319.png" width={100} alt="Changing the fill and stroke attributes"/>
+You can also pass attributes such as `width`, `height`, and `viewBox` as props.
+
+<Ads4 />
+## Conclusion
+### Further Considerations
+- What are the benefits and drawbacks of using SVG images?
+
+### References
+- [Expo — React Native SVG](https://docs.expo.dev/versions/latest/sdk/svg/)
+- [react-native-svg](https://github.com/software-mansion/react-native-svg)
+- [react-native-svg-transformer](https://github.com/kristerkari/react-native-svg-transformer)
+- [React SVGR](https://react-svgr.com/playground/?native=true&typescript=true)

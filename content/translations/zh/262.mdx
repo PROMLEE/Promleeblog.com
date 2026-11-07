@@ -1,0 +1,175 @@
+---
+title_ko:
+  - BOJ
+title_en:
+  - BOJ
+desc: A problem related to Making Paper implemented in Python.
+thumbnail_url: 'https://d2gd6pc034wcta.cloudfront.net/tier/9.svg'
+metatag: >-
+  algorithm, python, boj, baekjoon, problem, 반례, solution, making, paper, 2630,
+  color, paper, divide, conquer, recursion
+post_id: '262'
+locale: zh
+title: '[BOJ] #2630：制作彩纸（Python）'
+description: 通过分治与递归，将双色正方形纸张划分成单色块，并统计白色和蓝色彩纸数量。
+source_hash: 916c4247c5661a368803351dd7e0c31e20084efa7ff81dd0b2112054d216c181
+reviewed_at: '2026-11-06T14:45:00.092Z'
+---
+> https://www.acmicpc.net/problem/2630
+## 算法分类
+分治、递归。
+
+
+## 题目说明
+有一张N×N大小的正方形纸，各个格子被涂成蓝色或白色。
+需要切开这张纸，制作颜色一致的正方形彩纸。
+求最终能够得到多少张彩纸。
+
+### 输入
+第一行给出N（1 ≤ N ≤ 128）。
+之后N行给出彩纸颜色。
+每行包含N个0或1。
+0表示白色，1表示蓝色。
+```txt
+8
+1 1 0 0 0 0 1 1
+1 1 0 0 0 0 1 1
+0 0 0 0 1 1 0 0
+0 0 0 0 1 1 0 0
+1 0 0 0 1 1 1 1
+0 1 0 0 1 1 1 1
+0 0 1 1 1 1 1 1
+0 0 1 1 1 1 1 1
+```
+
+### 输出
+第一行输出白色彩纸数量，第二行输出蓝色彩纸数量。
+```txt
+9
+7
+```
+
+
+## 解题思路
+1. 将输入的彩纸保存在二维列表中。
+2. 将彩纸分为四份，递归检查。
+3. 判断每一份是否全部为同一种颜色。
+4. 如果颜色一致，增加对应颜色的计数。
+5. 如果不一致，继续分成四份并检查。
+6. 最后输出白色和蓝色的数量。
+
+<Ads1 />
+
+## Python代码
+```python
+ # 입력 처리
+N = int(input())
+colors = [list(map(int, input().split())) for _ in range(N)]
+
+ # 정답 저장: answer[0] = 흰색 개수, answer[1] = 파란색 개수
+answer = [0, 0]
+
+
+def count_color(x, y, size):
+    """
+    (x, y)를 시작으로 size x size 정사각형을 검사한다.
+    만약 모든 색이 같다면 색종이 개수 증가,
+    아니면 4등분하여 재귀 처리.
+    """
+    color = colors[x][y]
+    all_same = True
+
+    # 해당 영역 전체가 같은 색인지 확인
+    for i in range(x, x + size):
+        for j in range(y, y + size):
+            if colors[i][j] != color:
+                all_same = False
+                break
+        if not all_same:
+            break
+
+    if all_same: # 모두 같은 색이면 해당 색의 개수 증가
+        answer[color] += 1
+    else:
+        # 4등분하여 재귀 호출
+        half = size // 2
+        count_color(x, y, half)                 # 왼쪽 위
+        count_color(x, y + half, half)          # 오른쪽 위
+        count_color(x + half, y, half)          # 왼쪽 아래
+        count_color(x + half, y + half, half)   # 오른쪽 아래
+
+
+ # 시작 좌표 (0, 0), 전체 크기 N
+count_color(0, 0, N)
+
+ # 출력
+print(answer[0])  # 하얀색 색종이 개수
+print(answer[1])  # 파란색 색종이 개수
+```
+## 核心要点
+- 输入为N×N的正方形纸，N是2的幂。
+- 每个格子是0（白色）或1（蓝色）。
+- 如果不是所有格子颜色都相同，则把正方形分成四份，递归处理。
+- 不断重复，直到不能继续划分，统计*彩纸数量，也就是单色块数量*。
+
+### 时间复杂度
+- 每次检查都遍历整个区域，最大为128×128 = 16,384个格子。
+- 每个格子只检查一次。
+- 最坏情况下，各处颜色都不同，需要持续划分，递归深度最大为log₂N。
+
+最终时间复杂度：O(N²)。
+
+
+## 额外测试用例（不含题目示例）
+依次给出白色和蓝色彩纸数量。
+```txt title="answer: 1 0"
+2
+0 0
+0 0
+```
+
+```txt title="answer: 0 1"
+2
+1 1
+1 1
+```
+
+```txt title="answer: 2 2"
+2
+0 1
+1 0
+```
+
+```txt title="answer: 3 1"
+2
+0 1
+0 0
+```
+
+```txt title="answer: 8 8"
+4
+0 1 0 1
+1 0 1 0
+0 1 0 1
+1 0 1 0
+```
+
+```txt title="answer: 0 1"
+4
+1 1 1 1
+1 1 1 1
+1 1 1 1
+1 1 1 1
+```
+
+```txt title="answer: 9 1"
+8
+0 0 0 0 0 0 0 1
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+```

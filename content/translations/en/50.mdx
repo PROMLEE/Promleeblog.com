@@ -1,0 +1,63 @@
+---
+post_id: '50'
+locale: en
+title: Computer Communications
+description: >-
+  Network architecture, SDUs and PDUs, and the OSI, TCP/IP, and hybrid reference
+  models.
+source_hash: 987b5fde78d1f0f2162564f4e6ca7bd26ae0c354f169e107135d828149642d51
+reviewed_at: '2026-11-06T14:39:19.272Z'
+---
+## Network software
+Layered network architecture:
+- Most networks are organized into layers to reduce design complexity.
+- Each layer provides specific services to the layer above while shielding it from the implementation details of those services.
+- A protocol is an agreement between communicating parties about how communication proceeds.
+A layer provides services to its users while hiding its internal state and algorithms.
+
+### Terms
+- **Peer**: An entity that forms a corresponding layer on a different machine.
+- **Interface**: The operations and services that a lower layer provides to the layer above it.
+- **Network architecture**: A set of layers and protocols.
+- **Protocol stack**: The list of protocols used in a particular system.
+
+## Service data units (SDUs) vs. protocol data units (PDUs)
+<Img src="/posts/240617-124120.png" width={500}/>
+
+- **SDU**: A unit of data delivered from a service-providing layer to the layer above.
+	For example, the SDU of layer k becomes the PDU of layer k+1.
+- **PDU**: A unit of data used by a protocol.
+
+## OSI reference model
+OSI stands for Open Systems Interconnection.
+- A network model developed by the International Organization for Standardization (ISO).
+
+A network model consisting of seven layers:
+1. Physical Layer
+2. *Data Link Layer*
+	- Provides reliable information transfer over a physical link.
+	- Transfers data blocks, or frames, with the necessary synchronization, error control, and flow control.
+	- MAC (Medium Access Control).
+	- LLC (Logical Link Control).
+3. Network Layer
+4. Transport Layer
+5. Session Layer
+6. Presentation Layer
+7. Application Layer
+
+## TCP/IP reference model
+The protocol stack for the Internet.
+A network model consisting of four layers:
+1. Host-to-Network Layer
+2. Internet Layer
+3. Transport Layer
+4. Application Layer
+
+## Hybrid reference model
+A model that combines the OSI and TCP/IP models.
+A network model consisting of five layers:
+1. Physical Layer
+2. Data Link Layer
+3. Network Layer
+4. Transport Layer
+5. Application Layer

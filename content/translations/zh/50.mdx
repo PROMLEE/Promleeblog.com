@@ -1,0 +1,61 @@
+---
+post_id: '50'
+locale: zh
+title: 计算机通信
+description: 介绍无线移动通信中与MAC层、多路复用相关的计算机通信内容。
+source_hash: 987b5fde78d1f0f2162564f4e6ca7bd26ae0c354f169e107135d828149642d51
+reviewed_at: '2026-11-06T14:43:37.807Z'
+---
+## 网络软件 (Network Software)
+网络分层体系结构 (Network Layered Architecture)
+- 大多数网络由多个层次组成，以降低设计复杂度。
+- 每一层向上层提供特定服务，同时屏蔽这些服务的实现细节。
+- 协议是通信双方关于通信应如何进行的约定。
+某个层次向用户提供服务，但隐藏内部状态和算法。
+
+### 术语 (Terms)
+- **peer**：不同机器上构成对应层次的实体。
+- **interface**：下层向上层提供的操作和服务。
+- **network architecture**：多个层次与协议的集合。
+- **protocol stack**：某个特定系统使用的协议列表。
+
+## 服务数据单元SDU与协议数据单元PDU
+<Img src="/posts/240617-124120.png" width={500}/>
+
+- **SDU**：提供服务的层次向上层传递的数据单元。
+  例如：第k层的SDU会成为第k+1层的PDU。
+- **PDU**：协议所使用的数据单元。
+
+## OSI参考模型 (OSI Reference Model)
+OSI：Open Systems Interconnection
+- 由ISO（国际标准化组织）制定的网络模型。
+
+该模型由七层组成。
+1. Physical Layer
+2. *Data Link Layer*
+   - 通过物理链路提供可靠的信息传输。
+   - 传送数据块（帧），并包含必要的同步、差错控制和流量控制。
+   - MAC (Medium Access Control)
+   - LLC (Logical Link Control)
+3. Network Layer
+4. Transport Layer
+5. Session Layer
+6. Presentation Layer
+7. Application Layer
+
+## TCP/IP参考模型 (TCP/IP Reference Model)
+面向互联网的协议栈。
+这是一个由四层组成的网络模型。
+1. Host-to-Network Layer
+2. Internet Layer
+3. Transport Layer
+4. Application Layer
+
+## 混合参考模型 (Hybrid Reference Model)
+结合OSI模型与TCP/IP模型的模型。
+这是一个由五层组成的网络模型。
+1. Physical Layer
+2. Data Link Layer
+3. Network Layer
+4. Transport Layer
+5. Application Layer

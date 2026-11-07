@@ -1,0 +1,117 @@
+---
+title_en: Considerations for Applying TDD in Practice - TDD with Spring Boot Part 14
+title_ko: 실무에서의 TDD 적용 시 고려사항 - Spring Boot로 시작하는 TDD 14편
+url: tdd-in-practice
+series_no: 14
+desc: 'TDD를 실무에 도입할 때 마주하는 현실적인 문제(개발 비용, 일정, 팀 설득)들과 효율적인 테스트 범위를 설정하는 기준에 대해 알아봅니다.'
+thumbnail_url: /251216-194930.webp
+metatag: >-
+  TDD, Agile, TestingStrategy, TeamCulture, LegacyCode, ROI, Refactoring,
+  BestPractices
+tags: 'Spring Boot, JAVA, Software Engineering, Testing'
+post_id: '382'
+locale: en
+title: 'Applying TDD in Practice — TDD with Spring Boot, Part 14'
+description: >-
+  Explore the costs, schedule pressures, and team buy-in involved in adopting
+  TDD at work, and learn how to choose what to test.
+source_hash: 22c18fb2af57f7009a837b3d029fd29704b4001acc8f66136a7369e4fe4a4792
+---
+## Before We Begin
+
+Over 13 installments, we've learned the technical side of TDD. You now have the *skills* to write tests and implement features on your own.
+<br/>
+Things feel different at work than they do at school or on a personal project.
+‘We're already swamped. When are we supposed to write tests?’
+‘Won't writing tests double the schedule?’
+<br/>
+These are the kinds of questions you'll face. Today we'll talk candidly about the *costs* and *trade-offs* of applying TDD at work.
+
+<Ads1/>
+
+## The Cost of Writing Tests and Its Effect on Productivity
+
+A common assumption is that TDD makes development take longer. **It does take longer at first, but it can save time over the life of the project.**
+
+### How Productivity Changes Over Time
+
+- **Early development**
+  It's much faster to start coding without tests. You can just type out an implementation. TDD feels slower because you spend time on both design and tests.
+- **Maintenance**
+  As features accumulate and the code gets more complex, the situation reverses. Changing code without tests can introduce bugs that take nights to fix. With TDD, you have a *safety net* that lets you make changes faster and with more confidence.
+
+TDD is an investment in your future self. An hour spent today can save ten hours of overtime later.
+
+## What Should You Test, and What Can You Skip?
+
+At work, it's often impractical to test every line of code. **Pick the areas that need your attention most.** Which code should you always test, and which can you skip?
+<br/>
+
+- **Core code to test**
+  Financial logic, such as payments, settlements, and discount calculations.
+  Complex business rules, such as checking business hours and determining customer tiers.
+  Code that changes frequently or would have serious consequences if it failed.
+- **Straightforward code you can skip**
+  Simple getters and setters.
+  Configuration the framework handles, such as basic bean registration.
+  Simple integrations with other systems. You don't need to test the external library itself.
+  Basic UI layout and styling.
+
+> If a piece of code worries you, test it. If it's so simple that you can hardly imagine it breaking, you can skip the test.
+
+<Ads2/>
+
+## Introducing TDD to a Team
+
+You may know the benefits of TDD while your teammates have yet to see them. A question I hear often is, ‘My team doesn't write tests. Is it okay if I start on my own?’
+
+### Start on Your Own
+
+*Start with your own work before trying to change the team's process.*
+
+1. When you find a bug, first write a test that reproduces it.
+2. Fix the code and confirm the test passes.
+3. Deploy with confidence.
+
+Over time, teammates may notice that your code has fewer bugs and that you seem comfortable changing it.
+<br/>
+When they show interest, share your experience with TDD. That's how the practice can spread naturally. The strongest case you can make is to show the *results*.
+
+<Ads3/>
+
+## Working with Legacy Code
+
+Sometimes you'll inherit a large codebase that already exists and has no tests. Trying to cover the entire thing with tests is unrealistic.
+
+### The Boy Scout Rule
+
+> Leave the place cleaner than you found it.
+
+Apply that rule to code by writing tests for **the area you need to change today**.
+<br/>
+1. Put a *safety net of tests* around the code you're about to change.
+2. Make the change and refactor.
+3. Commit your work.
+<br/>
+Growing coverage bit by bit is a practical, safe way to handle legacy code.
+
+<Ads4/>
+
+## Conclusion
+
+TDD is a *habit* and a *tool* for building better software. Give yourself room to use it where it helps.
+<br/>
+- **Cost** — There is an upfront investment, and it can substantially reduce maintenance costs.
+- **Scope** — Focus on core business logic and skip trivial code.
+- **Teamwork** — Start with your own work and demonstrate that it makes changes safer.
+- **Legacy code** — Improve the parts you touch a little at a time.
+<br/>
+TDD gives you a powerful tool. With experience, you'll get better at judging when and how to use it.
+<br/>
+> In the final installment, we'll review **everything we've learned about TDD with Spring Boot** and close the series with ideas for what to learn next.
+
+### References
+- [Working Effectively with Legacy Code (Michael Feathers)](https://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052)
+  A classic book on safely changing legacy code that lacks tests.
+- [The Pareto Principle (80/20 Rule)](https://en.wikipedia.org/wiki/Pareto_principle)
+  The idea that 80% of outcomes come from 20% of causes can also inform a test coverage strategy.

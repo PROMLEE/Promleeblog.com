@@ -1,0 +1,171 @@
+---
+post_id: '183'
+locale: ja
+title: Expo ImageとAssetで画像を表示する
+description: Expoのexpo-imageとexpo-assetを使い、画像の読み込みを最適化する手順を、例と問題解決のヒントとともに説明します。
+source_hash: 576d707115d4acc5363229ff75bd997dd04ee31c03df1073b90161c33a6ea38c
+reviewed_at: '2026-11-07T12:13:27.110Z'
+---
+## はじめに
+React NativeとExpoでアプリを開発するとき、画像はユーザー体験を左右する重要な要素です。読み込みが遅かったり画像がちらついたりすると、使い心地が悪くなります。今回はExpo公式の画像処理ツール、`expo-image` と `expo-asset` を組み合わせ、画像を効率よく管理して表示する方法を学びます。
+どちらもインストールが簡単で使い方もわかりやすく、初めての方でも試せます。
+## expo-imageで外部画像を読み込む
+`expo-image` は高性能な画像ビューアーです。標準の `Image` より多くの機能があり、内部でキャッシュや切り替え効果などに対応します。
+### インストール
+ターミナルで次のコマンドを実行します。
+```bash
+npx expo install expo-image
+```
+### 基本的な使い方
+外部URLから画像を読み込む基本例は次のとおりです。
+```tsx
+import { Image } from 'expo-image';
+import { View, StyleSheet } from 'react-native';
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <Image
+        style={styles.image}
+        source="https://picsum.photos/seed/picsum/3000/2000"
+        contentFit="cover"
+        transition={1000}
+      />
+    </View>
+  );
+}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  image: {
+    width: '100%',
+    height: 300,
+    backgroundColor: '#ccc',
+  },
+});
+```
+*`contentFit` はCSSの `object-fit` のように動き、表示領域に画像をどう合わせるかを決めます。*
+<Ads1 />
+## expo-assetでアプリ内の画像を読み込む
+アプリに含めた静的画像を読み込むには `expo-asset` を使います。`require()` でアセットを読み込めます。画像、フォント、音声などの静的ファイルに対応しています。
+### インストール
+```bash
+npx expo install expo-asset
+```
+### 簡単な使用例
+```tsx
+import { Asset } from 'expo-asset';
+import { Image } from 'expo-image';
+import { useEffect, useState } from 'react';
+import { View, StyleSheet } from 'react-native';
+export default function App() {
+  const [localUri, setLocalUri] = useState<string | null>(null);
+    useEffect(() => {
+    async function loadImage() {
+      const [asset] = await Asset.loadAsync(require('@/assets/example.png'));
+      setLocalUri(asset.localUri);
+    }
+    loadImage();
+  }, []);
+    return (
+    <View style={styles.container}>
+      {localUri && (
+        <Image
+          style={styles.image}
+          source={localUri}
+          contentFit="contain"
+          transition={500}
+        />
+      )}
+    </View>
+  );
+}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  image: {
+    width: 300,
+    height: 300,
+  },
+});
+```
+*上のコードでは、アプリ内の画像をアセットとして読み込み、ファイルのパス（localUri）を `expo-image` に渡して表示します。*
+## useAssetsフックを使う
+`expo-asset` は `useAssets` フックも提供します。複数のアセットをまとめて読み込むのに便利で、読み込みやエラーの状態も管理できます。
+```tsx
+import { useAssets } from 'expo-asset';
+import { Image } from 'react-native';
+const [assets, error] = useAssets([
+  require('./assets/image1.png'),
+  require('./assets/image2.jpg'),
+]);
+return assets ? <Image source={assets[0]} /> : null;
+```
+この方法ならコードが簡潔になり、複数の画像が必要なコンポーネントで役立ちます。
+## BlurHashで読み込み中の表示を滑らかにする
+
+画像を読み込むときに白い画面やちらつきが出ると、不自然に見えることがあります。`expo-image` は、これを改善する*BlurHash*に対応しています。BlurHashは、とても短い文字列からぼかした画像を生成する技術です。*サムネイルのプレビュー*のように使え、より軽量で素早く表示できます。
+
+### BlurHashの使用例
+
+```tsx
+import { Image } from 'expo-image';
+import { View, StyleSheet } from 'react-native';
+
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <Image
+        style={styles.image}
+        source="https://picsum.photos/seed/blurimage/3000/2000"
+        contentFit="cover"
+        transition={500}
+        placeholder="blurhash"
+        blurhash="L|LqFGRiWBaz~qWAV@ayt8axf6fR"
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  image: {
+    width: '100%',
+    height: 300,
+    backgroundColor: '#eee',
+  },
+});
+```
+
+ここで `blurhash="L5H2EC=PM+yV0g-mq.wG9c010J}I"` は*例として用意した値*です。実際には、`blurhash` 文字列を作るツールやバックエンドサービスで生成します。
+*BlurHashを使うと、読み込み中は自然なぼかし画像が背景に出るため、ちらつきや待ち時間が目立ちにくくなります。*
+
+### BlurHashの値を生成する
+
+BlurHash文字列を生成するには、サーバーで画像ファイルを解析して値を作ります。主なツールは次のとおりです。
+
+- [BlurHash Playground（Wolt）](https://blurha.sh/)
+- サーバー側のライブラリでは、`blurhash` 単体や、`sharp + blurhash` の組み合わせを使えます。
+
+フロントエンドの表示は `expo-image` が担当します。文字列の生成は、通常バックエンドかビルド時に行います。
+
+<Ads2 />
+## おわりに
+`expo-image` は外部と内部の画像を高速に処理できるコンポーネントで、`expo-asset` はアセットファイルを整理して管理するツールです。併用すれば、アプリの画像処理の速度と安定性を高められます。
+アプリ内のアセットを読むときは、`expo-asset` から `localUri` を得て、`expo-image` に渡す方法がおすすめです。
+`expo-image` と `expo-asset` に加えて、`blurhash` は使い心地を改善する技術です。読み込みが遅い環境でも、自然なぼかし画像をプレビューとして表示できます。
+特に外部URLの画像に `blurhash` を併用すると、アプリの表示を改善できます。静的アセット（`expo-asset`）との組み合わせも可能で、画像の表示品質を高める方法としておすすめです。
+### もう少し考えてみる
+- 画像の最適化にはWebP形式も検討できます。
+- 必要に応じて、起動時に `SplashScreen` を使い、画像の読み込み完了を待つ方法もあります。
+- CDNを使って外部画像の読み込みを速くすることもできます。
+### 参考
+- [expo-imageの公式ドキュメント](https://docs.expo.dev/versions/latest/sdk/image/)
+- [expo-assetの公式ドキュメント](https://docs.expo.dev/versions/latest/sdk/asset/)
+- [React Native static image reference](https://reactnative.dev/docs/images)

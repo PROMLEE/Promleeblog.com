@@ -1,0 +1,130 @@
+---
+title_en: Expressing Requirements in Test Code - TDD with Spring Boot Part 3
+title_ko: 요구사항을 테스트 코드로 표현하기 - Spring Boot로 시작하는 TDD 3편
+url: expressing-requirements-in-test
+series_no: 3
+desc: 실제 구현에 앞서 요구사항을 테스트 코드로 정리하는 방법과 실패하는 테스트(Red)를 작성하는 과정을 구체적으로 알아봅니다.
+thumbnail_url: /251213-164255.webp
+metatag: >-
+  TDD, SpringBoot, Java, JUnit5, Testing, Requirements, GivenWhenThen, BDD,
+  개발방법론
+tags: 'Spring Boot, JAVA, Software Engineering'
+post_id: '365'
+locale: zh
+title: 用测试代码表达需求——用 Spring Boot 开始 TDD，第 3 篇
+description: 学习如何在实现功能前将需求整理为测试代码，并编写会失败的测试（Red）。
+source_hash: dbaa7ca2d4f959e3fbb7fcaeacbeaabd0ab3231e4726406baecd21ec433ddd25
+---
+
+## 开始之前
+
+上一篇介绍了如何在 Spring Boot 中配置测试环境。
+TDD 的核心是*先明确要实现什么，再编写代码*。
+<br/>
+很多人到了这一步会觉得无从下手，心想：“测试代码到底该写什么？”
+今天详细看看如何分析需求，并把需求转化为代码。
+
+## 用测试代码梳理需求
+
+开发开始时，首先要确定*要做什么*。
+这里以一个简单的*商品登记功能*为例。
+假设产品策划提出以下需求。
+
+> 系统应支持登记商品。商品名称和价格都是必填项，价格必须大于 0 韩元。
+
+如果直接照这句话开始写代码，可能会遗漏某些情况。
+因此，TDD 会先把需求整理成测试用例列表。
+<br/>
+- **商品登记成功**
+  名称和价格都有效时，应能成功登记商品。
+- **价格异常处理**
+  价格小于或等于 0 韩元时，登记应失败。
+- **名称异常处理**
+  未提供商品名称时，登记应失败。
+<br/>
+列出这些用例，就像解算法题时*确认输入与输出的范围*。
+先定义输入和输出，才能写出符合要求的函数。
+
+## 编写会失败的测试（Red）
+
+接下来把上面整理的内容写成 Java 代码。
+虽然还没有实现任何功能，但可以先编写测试。
+这就是 TDD 的第一步：*Red（失败）*阶段。
+
+### 测试方法的命名
+
+创建测试类时，最让人费心的往往是方法名。
+英语开发者有时会使用 `should_RegisterProduct_When_ValidInput` 这类长名称。
+不少韩国开发者也会直接使用*韩文方法名*。
+<br/>
+从 JUnit 5 开始，框架完整支持韩文方法名。
+还可以用 `@DisplayName` 注解，以一句话写明测试意图，让测试报告更易读。
+
+### Given-When-Then 模式
+
+测试代码通常遵循 *Given-When-Then* 三段式结构。
+它与状态机（State Machine）的原理类似。
+从初始状态（Given）出发，执行一个操作（When），然后达到预期状态（Then）。
+<br/>
+下面按这种结构编写测试代码。
+在 tdd_study 项目中创建 product 包，再在其中创建名为 ProductServiceTest 的测试类。
+
+```java title="src/test/java/com/example/tdd_study/product/ProductServiceTest.java"
+package com.example.tdd_study.product;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
+
+class ProductServiceTest {
+
+    @Test
+    @DisplayName("상품 등록이 성공해야 한다")
+    void 상품_등록_성공() {
+        // Given: 테스트를 위한 준비
+        String name = "아메리카노";
+        int price = 4500;
+        ProductService productService = new ProductService();
+
+        // When: 실제 테스트할 동작 수행
+        productService.register(name, price);
+
+        // Then: 결과 검증 (다음 편에서 다룸)
+    }
+}
+```
+
+### 为什么测试应当失败？
+
+如果把上面的代码复制到 IntelliJ 或 Eclipse，会发生什么？
+编辑器当然会显示*红色提示（编译错误）*。
+<Img src="/251213-164010.webp" width={500} alt="出现编译错误"/>
+因为既没有 ProductService 类，也没有 register 方法。
+<br/>
+刚接触 TDD 的开发者看到*红色提示*时，可能会慌忙去创建 ProductService 类。
+但这个阶段的目标，恰恰是看到这个*红色提示*。
+<br/>
+这次失败告诉我们两件事。
+* 需要一个名为 ProductService 的类。
+* 这个类需要一个接收 name 和 price 的 register 方法。
+<br/>
+也就是说，测试代码充当了待实现功能的*设计蓝图（Interface）*。
+
+## 结语
+
+今天分析了需求，并编写了会失败的测试代码。
+<br/>
+- **拆分需求**：将要实现的功能拆成一项项小任务。
+- **韩文命名**：使用韩文测试方法名，或通过 @DisplayName 清楚表达意图。
+- **Given-When-Then**：按照准备、执行、验证三个阶段编写测试。
+- **有意失败**：通过编译错误明确需要实现的类和方法。
+<br/>
+现在我们面前还有一连串红色错误。
+下一篇将介绍如何通过*最小实现*，把红灯变成绿灯（Green）。
+
+### 参考资料
+- [JUnit 5 User Guide](https://junit.org/junit5/docs/current/user-guide/)
+  JUnit 5 官方文档，介绍各种注解和配置方法。
+- [AssertJ Core Documentation](https://assertj.github.io/doc/)
+  AssertJ 官方指南，介绍如何在测试中进行断言。
+- [Given-When-Then Pattern (Martin Fowler)](https://martinfowler.com/bliki/GivenWhenThen.html)
+  Martin Fowler 介绍 Given-When-Then 模式的原文。

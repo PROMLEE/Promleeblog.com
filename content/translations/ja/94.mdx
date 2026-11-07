@@ -1,0 +1,85 @@
+---
+post_id: '94'
+locale: ja
+title: TCPの輻輳制御
+description: TCPの輻輳制御を説明します。
+source_hash: 194fbcb99e991943f32ccab1e8cabdd3592b71ef33f6ec7ef381a3e1c0845317
+reviewed_at: '2026-11-07T01:44:57.970Z'
+---
+## TCPの輻輳制御で考えること (TCP's Congestion Control Key Questions)
+**輻輳を制御したいと考えます。**
+- 輻輳している場合は、*送信レートを下げ*、輻輳を回避・緩和・解消します。
+- 輻輳していない場合は、*送信レートを上げ*、帯域幅をより有効に使います。
+
+ここでは、TCPの一つのバージョンである**TCP Reno**の、主な特徴だけを取り上げます。
+- TCPには、この説明以外にも、はるかに多くの内容があります。
+
+## TCP輻輳制御の主要な用語 (TCP's Congestion Control Keywords)
+**主な状態と仕組み**
+- *slow start*：送信レートを指数的に増やします。
+- *congestion avoidance*（輻輳回避）：**AIMD**（Additive Increase/Multiplicative Decrease）を使います。
+- *fast recovery*：高速回復です。
+<br/>
+
+**主なパラメーター**
+- 輻輳ウィンドウ：*cwnd*
+- スロースタートのしきい値：*ssthresh*
+- *MSS*：Maximum Segment Size
+- *RTT*：Round-Trip Time
+<br/>
+
+**主なイベント**
+- *ACK received*：順調に進んでいることを示します。
+- *timeout*：非常に悪い状況を示します。
+- *3 duplicate ACK received*：悪い状況ですが、タイムアウトほどではありません。
+<Ads1 />
+## TCPの輻輳ウィンドウ：cwnd (TCP Congestion Window: cwnd)
+> ネットワークの輻輳状態に応じて調整される、重要なパラメーターです。
+このウィンドウは、送信者が未確認のまま、つまり「in-flight」状態でネットワークに流せるデータの最大量を決めます。
+*cwnd*は動的に変化し、ネットワークの輻輳を検知します。
+> 最後に送信したバイト − 最後に確認されたバイト ≦ cwnd
+
+*TCPの送信レート*：
+- おおよそ*cwnd*バイトを送信し、RTTの間ACKを待ってから、さらにデータを送ります。
+  > **送信レート** ≈ cwnd / RTT (bytes/sec)
+
+## TCPのスロースタート
+接続開始時は、最初の損失イベントまで、送信レートを指数的に増やします。
+- 初期の輻輳ウィンドウcwndは1 MSSです。
+- RTTごとに、輻輳ウィンドウを2倍にします。
+  - ACKを受信するたびに、*cwnd*を増やします。
+
+最初の送信レートは低いものの、非常に速く増加します。
+*タイムアウト*が発生するたびに、**スロースタート**へ戻ります。
+*三つの重複ACK*が届くたびに、**輻輳回避**へ移行します。
+
+## TCP：輻輳の検出と損失への反応 (TCP: Congestion Detection and reacting to Loss)
+> 推定されたパケット損失に基づいて輻輳を検知します。*タイムアウト*または*三つの重複ACK*から、損失を推定します。
+
+**タイムアウト**による損失：
+- *slow start*へ戻る場合と同様です。
+  - *cwnd*を**1 MSS**に設定します。
+  - ウィンドウを、ssthreshのしきい値まで指数的に増やします。
+- その後は線形に増やし、congestion avoidanceへ移行します。
+
+**三つの重複ACK**による損失：
+- 重複ACKは、ネットワークが一部のセグメントを届けられることを示します。
+- *cwnd*を半分にします。
+- その後は線形に増やし、congestion avoidanceへ移行します。
+<Ads2 />
+## TCPの輻輳回避：AIMD (TCP Congestion Avoidance: AIMD)
+> 送信者は送信速度、つまりウィンドウサイズを増やして、使える帯域幅を探ります。損失が起こるまで、この探索を続けます。
+
+**加算的増加** (Additive Increase)：
+- 損失が検知されるまで、RTTごとに*cwnd*を1 MSSずつ増やします。
+
+**乗算的減少** (Multiplicative Decrease)：
+- 損失が検知されるたびに、*cwnd*を半分にします。
+
+<Img src="/posts/240618-115412.png" width={300}/>
+AIMDののこぎり状の動きは、帯域幅を探る過程を表しています。
+
+## TCP：スロースタートから輻輳回避へ (Transition from Slow Start to Congestion Avoidance)
+<Img src="/posts/240618-115749.png" width={400}/>
+指数的増加から線形増加への切り替え：
+- *ssthresh*のしきい値（タイムアウト前の値の半分）を超えると、*cwnd*を線形に増やします。

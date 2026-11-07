@@ -1,0 +1,29 @@
+---
+post_id: '45'
+locale: en
+title: An Overview of Source and Channel Coding
+description: Source coding and channel coding in wireless mobile communications.
+source_hash: 3ab863b01809aa816200633718f776723db8e7b876dd549349ef74538e214133
+reviewed_at: '2026-11-06T14:39:19.240Z'
+---
+## The general structure of a communication system
+A communication system generally consists of the following stages, in order.
+1. Source: Provides information.
+2. Transmitter: Converts information into a transmission signal.
+	- Includes a _formatter, source encoder, channel encoder, modulator, and multiplexer_.
+3. Channel: Carries the transmitted signal; noise may be present.
+4. Receiver: Processes the received signal.
+	- Includes a _demultiplexer, demodulator, channel decoder, source decoder, and deformatter_.
+5. Destination: The final stage that receives the information.
+
+## Source coding vs. channel coding
+- Coding theory: Studies the properties of codes and their suitability for particular applications.
+	- Used in data compression, encryption, error correction, and network coding.
+	- Generally involves removing redundancy or correcting or detecting errors in transmitted data.
+	- Two main aspects:
+		- Data compression.
+		- Error correction.
+- Source encoding: Compresses data at the source for more efficient transmission, as in ZIP and JPEG.
+- Channel encoding: Uses additional data bits to detect or correct errors occurring during transmission, as in parity checks, CRC, and Hamming codes.
+	- Music CDs: Use Reed–Solomon codes.
+	- NASA: Uses turbo codes and low-density parity-check (LDPC) codes.

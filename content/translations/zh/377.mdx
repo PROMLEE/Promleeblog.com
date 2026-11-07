@@ -1,0 +1,167 @@
+---
+title_en: Next.js 16 and React 19 New Features
+title_ko: Next.js 16과 React 19의 새로운 기능들
+url: nextjs-16-react-19-features
+series_no: 4
+desc: >-
+  Next.js 16에 탑재된 React 19의 핵심 기능인 View Transitions, Server Actions 보안 강화, 그리고
+  useOptimistic 등 새로운 훅의 활용법을 심도 있게 다룹니다.
+thumbnail_url: /251214-221119.webp
+metatag: >-
+  Next.js 16, React 19, View Transitions, Server Actions, useOptimistic,
+  Frontend, UI/UX
+tags: 'Next.js, React, Web Development'
+post_id: '377'
+locale: zh
+title: Next.js 16 与 React 19 的新功能
+description: >-
+  深入介绍 Next.js 16 所搭载的 React 19 核心功能：View Transitions、Server Actions 安全增强，以及
+  useOptimistic 等新 Hook 的用法。
+source_hash: 95231c4a05b7316432fbdca24a72311c3a564425cb8f3588e4d837f670e3ecfb
+reviewed_at: '2026-11-07T01:47:36.786Z'
+---
+
+## 开始之前
+大家好。
+前面的三篇文章介绍了 Next.js 16 的性能、架构和迁移方法。
+<br/>
+不过，Next.js 16 真正的价值在于**与最新 React（v19）的完美配合**。
+这篇番外篇将介绍在 Next.js 16 环境中可用的 React 19 新功能。
+从提升用户体验（UX）的 *View Transitions*，到方便开发者的*新 Hook*，我们逐一看看。
+
+## 1. 流畅的画面切换：View Transitions
+
+使用 Web 应用时，你可能遇到过页面切换时闪烁或生硬跳转的情况。
+React 19 和 Next.js 16 支持浏览器的 *View Transitions API*，无需额外引入庞大的动画库，也能实现流畅的切换效果。
+
+### 如何使用？
+React 19 的 `startTransition` 现在支持异步函数，因而可以在数据加载期间保留原来的画面，然后平滑切换到新画面。
+
+```tsx title="app/components/TabSwitcher.tsx" showLineNumbers {7,11-17}
+'use client';
+
+import { useTransition, useState } from 'react';
+import { fetchTabData } from './actions';
+
+export default function TabSwitcher() {
+  const [isPending, startTransition] = useTransition();
+  const [data, setData] = useState(null);
+
+  function handleTabClick(tabId: string) {
+    // [핵심] startTransition으로 상태 업데이트를 감쌉니다.
+    // React는 이 작업이 완료될 때까지 UI를 차단하지 않고,
+    // 브라우저의 View Transition API와 연동하여 부드러운 전환을 준비합니다.
+    startTransition(async () => {
+      const newData = await fetchTabData(tabId);
+      setData(newData);
+    });
+  }
+
+  return (
+    <div>
+      <div className="tabs">
+        <button onClick={() => handleTabClick('home')}>Home</button>
+        <button onClick={() => handleTabClick('settings')}>Settings</button>
+      </div>
+      
+      {/* 데이터 로딩 중에는 투명도를 조절하는 등 시각적 피드백 제공 가능 */}
+      <div style={{ opacity: isPending ? 0.5 : 1 }}>
+        {data ? <Content data={data} /> : <p>Select a tab</p>}
+      </div>
+    </div>
+  );
+}
+```
+
+<Ads1/>
+
+## 2. Server Actions 安全增强
+
+Next.js 16 进一步加强了使用 *Server Actions* 时的安全性。
+从客户端组件导入服务器函数时，为避免服务器专用代码意外进入客户端打包产物，编译器会更积极地应用*死代码消除（Dead Code Elimination）*技术。
+
+### 这为什么重要？
+它有助于防止开发者误将包含数据库密钥或内部逻辑的函数传递到客户端。
+Next.js 16 编译器会优化代码，让客户端调用服务器 Action 时**只引用 Action 的 ID**。
+
+```ts title="app/actions.ts" showLineNumbers {1,6}
+'use server';
+
+// 이 함수 내부의 로직(DB 접근 등)은 절대 클라이언트로 유출되지 않습니다.
+export async function submitForm(formData: FormData) {
+  const apiKey = process.env.API_KEY; // 서버 환경 변수
+  await saveToDb(formData, apiKey);
+  return { success: true };
+}
+```
+
+## 3. 改善 UX 的新 Hook：useOptimistic
+
+在聊天应用中发送消息时，服务器尚未响应，自己的屏幕上就已经出现了消息气泡，对吧？
+过去，实现这种*乐观更新（Optimistic Update）*相当复杂。
+但使用 React 19 的 `useOptimistic` Hook，就能轻松完成。
+
+```tsx title="app/components/MessageList.tsx" showLineNumbers {7-13,19}
+'use client';
+
+import { useOptimistic, useRef } from 'react';
+import { sendMessage } from './actions';
+
+export default function MessageList({ messages }: { messages: string[] }) {
+  // [핵심] useOptimistic 훅 사용
+  // optimsticMessages: 화면에 보여줄 임시 상태
+  // addOptimisticMessage: 임시 상태를 추가하는 함수
+  const [optimisticMessages, addOptimisticMessage] = useOptimistic(
+    messages,
+    (state, newMessage: string) => [...state, newMessage]
+  );
+
+  async function action(formData: FormData) {
+    const message = formData.get('message') as string;
+    
+    // 1. 서버 요청을 보내기 전에 화면에 먼저 표시 (낙관적 업데이트)
+    addOptimisticMessage(message);
+    
+    // 2. 실제 서버 요청 (실패 시 React가 알아서 상태를 롤백해 줍니다)
+    await sendMessage(message);
+  }
+
+  return (
+    <div>
+      {optimisticMessages.map((m, i) => <div key={i}>{m}</div>)}
+      <form action={action}>
+        <input name="message" />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  );
+}
+```
+
+<Ads2/>
+
+## 4. useEffectEvent 与 Activity
+
+Next.js 16 所包含的 React Canary 功能中，还有两项值得关注。
+
+### useEffectEvent
+在 `useEffect` 内部，有时我们希望某些值具有*响应性（Reactive）*，而另一些值不参与响应。
+例如，“只在聊天室切换时记录连接日志，但主题颜色要读取最新值”的场景就很适合。
+`useEffectEvent` 可以在不重新执行 Effect 的情况下读取最新值。
+
+### Activity（Offscreen）
+切换标签页后再返回时，滚动位置或输入内容消失，是否让你感到不便？
+`<Activity>` 组件不会将离开画面的组件*卸载（Unmount）*，而是像 CSS 的 `display: none` 一样将其隐藏，同时保留状态。
+因此，返回时就能立即显示之前的状态。
+
+## 结语
+
+这篇番外篇也是 Next.js 16 系列的最后一篇。
+Next.js 16 带来的不仅是“更快”，它还通过 **View Transitions** 和**新 Hook**，提供了让用户体验 Web 的方式变得流畅、自然的工具。<br/>
+希望大家合理运用这些技术，打造既快速又细腻的用户体验。
+感谢大家一路阅读。
+
+### 参考资料
+- [React 19 官方博客](https://react.dev/blog/2024/04/25/react-19)
+- [Next.js 16 发布说明](https://nextjs.org/blog/next-16)
+- [View Transitions API MDN 文档](https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API)

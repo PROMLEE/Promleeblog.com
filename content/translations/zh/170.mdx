@@ -1,0 +1,60 @@
+---
+title_ko:
+  - PGM
+title_en:
+  - PGM
+desc: 프로그래머스 SQL 연습문제 중 연도별 대장균 크기의 편차를 구하는 문제를 풀어보자.
+thumbnail_url: /posts/lv2.webp
+metatag: 'SQL, 프로그래머스, 연습문제, 대장균, 편차'
+post_id: '170'
+locale: zh
+title: '[PGM] 按年度计算大肠杆菌大小偏差（SQL）'
+description: 使用子查询、JOIN和分组，求每个大肠杆菌与同年度最大个体之间的大小差，并按年份和偏差排序。
+source_hash: d31e4cdb375122852c07d9e5c6fbaf0feaaa447f172ac299534df451eab6e356
+reviewed_at: '2026-11-06T14:48:43.742Z'
+---
+> https://school.programmers.co.kr/learn/courses/30/lessons/299310
+## 算法分类
+LEFT JOIN、GROUP BY、ORDER BY。
+
+## 题目说明
+- 给定ECOLI_DATA表，其中包含大肠杆菌ID、父代ID、个体大小、分化日期和基因型。
+- 编写SQL，计算每个个体与同年度最大个体之间的大小差。
+- 按年份升序、偏差升序排列。
+
+| ID | PARENT_ID | SIZE_OF_COLONY | DIFFERENTIATION_DATE | GENOTYPE |
+|----|-----------|----------------|----------------------|----------|
+| 1  | NULL      | 10             | 2019/01/01           | 5        |
+| 2  | NULL      | 2              | 2019/01/01           | 3        |
+| 3  | 1         | 100            | 2020/01/01           | 4        |
+| 4  | 2         | 10             | 2020/01/01           | 4        |
+| 5  | 2         | 17             | 2020/01/01           | 6        |
+| 6  | 4         | 101            | 2021/01/01           | 22       |
+
+## 解题思路
+1. 先编写内部子查询。
+	- 从ECOLI_DATA中求出每年的最大个体大小。
+	- 使用`YEAR(DIFFERENTIATION_DATE)`提取年份，使用`MAX(SIZE_OF_COLONY)`求最大大小。
+	- 通过`GROUP BY YEAR(DIFFERENTIATION_DATE)`按年份分组。
+2. 在外部查询中计算年度大小偏差。
+	- 从ECOLI_DATA中使用`YEAR(DIFFERENTIATION_DATE)`提取年份，使用`SIZE_OF_COLONY`读取个体大小。
+	- 通过JOIN，将内部子查询得到的年度最大值连接到外部查询。
+	- 通过`YEAR(t1.DIFFERENTIATION_DATE) = t2.YEAR`匹配对应年份。
+	- 通过`MAX_COLONY - SIZE_OF_COLONY`计算大小偏差。
+3. 使用`ORDER BY YEAR, YEAR_DEV`排序。
+
+## SQL代码
+```sql
+SELECT YEAR(t1.DIFFERENTIATION_DATE) as YEAR, (t2.MAX_COLONY - t1.SIZE_OF_COLONY ) as YEAR_DEV, t1.ID
+FROM ECOLI_DATA as t1
+JOIN (
+    SELECT YEAR(DIFFERENTIATION_DATE) as YEAR, MAX(SIZE_OF_COLONY) as MAX_COLONY
+    FROM ECOLI_DATA
+    GROUP BY YEAR(DIFFERENTIATION_DATE)
+) t2 ON YEAR(t1.DIFFERENTIATION_DATE) = t2.YEAR
+ORDER BY YEAR, YEAR_DEV
+```
+
+## 核心要点
+- 通过子查询求出每年的最大个体大小。
+- 通过JOIN连接年度最大值，计算每个个体的大小偏差。

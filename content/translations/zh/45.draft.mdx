@@ -1,0 +1,28 @@
+---
+post_id: '45'
+locale: zh
+title: 信源编码与信道编码概述
+description: 介绍无线移动通信中的信源编码与信道编码。
+source_hash: 3ab863b01809aa816200633718f776723db8e7b876dd549349ef74538e214133
+---
+## 通信系统的一般结构
+通信系统的一般组成及其顺序如下。
+1. 信源：提供信息。
+2. 发射机 (Transmitter)：将信息转换为传输信号。
+   - 包含_格式化器 (Formatter)、信源编码器 (Source Encoder)、信道编码器 (Channel Encoder)、调制器 (Modulator)、复用器 (Multiplexer)_。
+3. 信道 (Channel)：承载发送的信号，可能存在噪声。
+4. 接收机 (Receiver)：处理接收到的信号。
+   - 包含_解复用器 (Demultiplexer)、解调器 (Demodulator)、信道解码器 (Channel Decoder)、信源解码器 (Source Decoder)、反格式化器 (Deformatter)_。
+5. 目的地 (Destination)：接收信息的最后一个环节。
+
+## 信源编码与信道编码的比较 (Source Coding vs Channel Coding)
+- 编码理论 (Coding Theory)：研究编码的特性，以及它们对特定应用的适用性。
+  - 应用于数据压缩、加密、纠错和网络编码。
+  - 通常涉及去除冗余，或对传输数据中的错误进行纠正、检测。
+  - 主要有两个方面。
+    - 数据压缩 (Data Compression)
+    - 纠错 (Error Correction)
+- 信源编码：在信源端压缩数据，以便更高效地传输，例如ZIP、JPEG。
+- 信道编码：利用额外的数据位，检测或纠正传输过程中产生的错误，例如Parity Check、CRC、Hamming Code。
+  - 音乐CD：使用里德–所罗门码 (Reed–Solomon Code)。
+  - NASA：使用Turbo Code和LDPC (Low-Density Parity-Check)。

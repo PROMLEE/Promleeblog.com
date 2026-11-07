@@ -1,6 +1,6 @@
 import Image from "next/image";
 import "katex/dist/katex.min.css";
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import { DevImageUrl, ImageUrl } from "@/lib/PostUtils/getImageUrl";
 import { H1Icon, H2Icon, H3Icon, H4Icon } from "@/components/ui/HeadingIcons";
 

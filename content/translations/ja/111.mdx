@@ -1,0 +1,73 @@
+---
+post_id: '111'
+locale: ja
+title: ブログで使用した技術スタックとライブラリ
+description: ブログを構成する技術スタックと主要ライブラリについて、役割と採用理由を紹介します。
+source_hash: e1ab4c520d25f68c49dcadbe11203354861bcb4edf2f90782b803c28c2524a6c
+reviewed_at: '2026-11-06T14:13:56.529Z'
+---
+## はじめに
+ブログの構築に使用した技術スタックとライブラリを紹介し、それぞれの役割と採用理由を説明します。
+## Next.js
+[Next.js](https://nextjs.org/)
+基盤となるフレームワークにはNext.jsを選びました。
+Next.jsは*React*をベースにしたフレームワークで、*SSR*（Server Side Rendering）をサポートしています。
+SSRは*SEO*（Search Engine Optimization）に有利で、必要な箇所で適切に使えば高い性能を発揮できます。
+また、別途バックエンドサーバーを構築しなくてもデータベースにアクセスできる利点があります。
+### TypeScript
+[TypeScript](https://www.typescriptlang.org/)
+このプロジェクトはTypeScriptで書いています。
+TypeScriptは*JavaScript*を拡張した言語で、静的型付けをサポートします。
+TypeScriptを使うと、コードの読みやすさを高め、実行時エラーを減らせます。
+### Tailwind CSS
+[Tailwind CSS](https://tailwindcss.com/)
+Tailwind CSSは*Utility-first CSS*フレームワークで、クラスを使ってスタイルを適用します。
+従来Reactで使っていたCSS-in-JSの方法は、SSRでは完全には動作しません。
+CSS-in-JSはクライアントの実行時にスタイルを適用するため、SSRではスタイルが適用されないからです。
+[nextjs css-in-js docs](https://nextjs.org/docs/app/building-your-application/styling/css-in-js)
+>Server Componentsのスタイリングには、*CSS Modules*、またはPostCSSや*Tailwind CSS*のようにCSSファイルを出力する仕組みが推奨されています。
+
+CSS-in-JSを使うには、追加の設定が必要です。
+一方、*Tailwind CSS*はクラスでスタイルを適用するため、SSRでも完全に動作します。
+初期設定や使い方には慣れが必要ですが、習得すれば開発も速くなると考えています。
+### Shadcn
+[Shadcn/UI](https://ui.shadcn.com/)
+Tailwind CSSをベースにしたHeadless UIライブラリで、カスタマイズしやすいのが特徴です。
+一からデザインしなくても基本機能が実装されており、開発を速められます。
+<Ads1 />
+## 主なライブラリ
+### next-mdx-remote
+[next-mdx-remote](https://github.com/hashicorp/next-mdx-remote)
+このブログの記事はMarkdownで書いています。
+さらに、MarkdownとJSXを組み合わせられる*MDX*ファイルを使用しています。
+これを扱うために*next-mdx-remote*を採用しました。
+MDXのコンパイルには、このほかにもいくつかの選択肢があります。
+velite、contentlayer、next/mdxなどです。
+しかし、まだ安定していなかったり、サポートが終了していたりするため、next-mdx-remoteを選びました。
+公式ドキュメントにも使用例があり、資料も比較的豊富なので、このライブラリを使うことにしました。
+[Next.js公式ドキュメント（next-mdx-remote）](https://nextjs.org/docs/app/building-your-application/configuring/mdx#remote-mdx)
+### gray-matter
+[gray-matter](https://github.com/jonschlinkert/gray-matter)
+Markdownファイルのfrontmatterを抽出するために使います。
+frontmatterはMarkdownファイルの先頭に置かれ、メタデータを保持します。
+開発初期にはMDXファイル自体にタイトルや作成日などのメタデータを入れて抽出していましたが、現在はテスト用にのみ使用しています。
+
+### rehype
+[rehype](https://github.com/rehypejs/rehype/tree/main)
+rehypeはHTMLを解析・変換するライブラリです。
+MDXファイルをnext-mdx-remoteでHTMLに変換した後、rehypeで解析・変換するために使います。
+主にスタイリングやカスタマイズを担います。
+たとえば、見出しタグに*自動でIDを付与*したり、*リンクを追加*したりします。
+特に*rehype-katex*を使えば、数式を描画できます。
+
+### Prisma
+[Prisma](https://www.prisma.io/)
+APIエンドポイントを作る際、データベースへのアクセスに使ったライブラリです。
+PrismaはORM（Object-Relational Mapping）ライブラリで、SQLを書かずにデータベースへアクセスできます。
+私はSupabaseのPostgreSQLを使用しましたが、PrismaはPostgreSQLを主力としてサポートしています。
+また、TypeScriptに対応し、コード補完や型チェックなどの利点もあります。
+
+## まとめ
+これらの技術スタックとライブラリは、現時点で最善だと考えて選びました。
+ただし、ライブラリも技術も速いペースで変化するため、今後も新しい技術やライブラリを取り入れたいと考えています。
+いつか行う*マイグレーション*に備えて、ライブラリへの依存をできるだけ抑え、開発中も各ライブラリの役割を明確にするよう努めました。

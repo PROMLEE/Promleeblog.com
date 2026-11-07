@@ -1,0 +1,99 @@
+---
+title_ko: Expo의 Development Build 설정하기
+title_en: Setting up Development Build in Expo
+desc: Expo에서 개발용 빌드 설정 후 네이티브 코드를 수정하는 방법에 대해 알아봅니다.
+thumbnail_url: 'https://docs.expo.dev/static/images/packages/expo-dev-client.png'
+metatag: 'Development Build, Expo CLI, React Native CLI, EAS, Expo Go, expo-dev-client'
+post_id: '167'
+locale: en
+title: Setting Up an Expo Development Build
+description: Set up a development build in Expo so you can modify and run native code.
+source_hash: 1e58ac2f1c997587c0c5fe72eec6e66991c7a8f729fdfecb366737d250a04452
+reviewed_at: '2026-11-07T06:53:38.829Z'
+---
+## Before We Begin
+> This article assumes you already have a basic Expo project. To create one, see the guides for [Windows](/blog/post/117-expo-proj-init) and [Mac](/blog/post/143-expo-init-mac).
+
+### The Limits of Expo Go
+Before looking at development builds, let's review the Expo Go app you may already be using.
+> If you created your first React Native project with npx create-expo-app and ran it with npx expo start, you probably used Expo Go. The Expo team publishes this native app on Google Play and the Apple App Store so you can start coding quickly. It is a *sandbox app* with a predefined set of native libraries. You can edit your JavaScript locally and see the changes in Expo Go. (Source: [Official Expo documentation](https://docs.expo.dev/develop/development-builds/introduction/))
+
+Expo Go is a prebuilt shell that lets you see the results of JavaScript changes quickly. Its native code is fixed, so certain libraries or features such as push notifications may not work in Expo Go. Expo provides a way to customize the native code, and a development build makes that workflow easier.
+
+<Ads1 />
+## Install expo-dev-client
+### What Is expo-dev-client?
+Expo Go comes with a developer menu that you can open by pressing m in the terminal running Expo. The expo-dev-client package gives your development build a developer menu too.
+<Img src="/posts/250325-163844.webp" width={200} alt=""/>
+
+### Installation
+```bash
+npx expo install expo-dev-client
+```
+<Ads2 />
+## Build the Native App
+There are two main options: build with EAS or build locally.
+### Build with EAS
+#### What Is EAS?
+EAS stands for Expo Application Services, a cloud service from Expo. It provides tools to build Android and iOS apps and manage build, update, and submission workflows. It is useful if you plan to publish to app stores or collaborate with a team. The cloud service runs outside your local machine and has usage limits.
+Before you begin, install the EAS CLI and sign in with the commands below.
+```bash
+npm install -g eas-cli
+eas login
+```
+
+#### Android Build
+```bash
+eas build --platform android --profile development
+```
+#### iOS Build
+For an iOS Simulator build, add `eas.json` to the project root with the following configuration.
+```json
+{
+  "build": {
+    "development": {
+      "ios": {
+        "simulator": true
+      }
+    }
+  }
+}
+```
+Then run this command.
+```bash
+eas build --platform ios --profile development
+```
+
+### Build Locally
+#### Android Build
+```bash
+npx expo run:android
+```
+#### iOS Build
+```bash
+npx expo run:ios
+```
+To build for a physical device, use this command.
+```bash
+npx expo run:ios --device
+```
+### After the Build Finishes
+#### If You Built with EAS
+For example, after an iOS Simulator build finishes, you'll be prompted to download it. You can also find it in the [Expo dashboard](https://expo.dev/).
+<Img src="/posts/250325-170558.webp" width={400} alt=""/>
+Click the build to download a `~.tar.gz` file. Extract the archive, then drag the resulting app package onto the simulator to install it.
+<Img src="/posts/250325-171554.webp" width={500} alt=""/>
+
+### If You Built Locally
+After the build finishes, the app is installed on the simulator. You now have a development environment where you can modify native code and run your own app independently of Expo Go. Run `npm start`, then press `s` to open the development build and continue developing.
+<Img src="/posts/250325-172001.webp" width={300} alt=""/>
+
+<Ads3 />
+## Conclusion
+The platform folders for your build (ios and android) should now exist in the project root. You can edit the native code in those folders and try changes that Expo Go could not run.
+
+### Further Considerations
+- How could you automate deployment?
+### References
+- [Expo documentation — Create a development build](https://docs.expo.dev/develop/development-builds/create-a-build)
+- [Expo documentation — EAS Build](https://docs.expo.dev/build/introduction/)

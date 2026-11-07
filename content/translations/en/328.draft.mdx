@@ -1,0 +1,80 @@
+---
+title_ko: 데이터베이스 인덱스(Index)의 원리와 장단점
+title_en: 'Database Indexing Principles, Pros, and Cons'
+desc: >-
+  데이터베이스 성능 최적화의 핵심인 인덱스(Index)의 동작 원리를 알아봅니다. 인덱스를 모든 데이터에 적용하지 않는 이유와 SELECT
+  성능 향상, 쓰기 성능 저하(Write Penalty)라는 트레이드오프 관계를 학습합니다.
+thumbnail_url: /250618-115009.webp
+metatag: >-
+  Database, Index, 인덱싱, 데이터베이스, SQL, 성능 최적화, B-Tree, SELECT, WHERE, 면접, CS,
+  데이터베이스 성능
+post_id: '328'
+locale: en
+title: How Database Indexes Work and What They Cost
+description: >-
+  Learn how database indexes improve SELECT performance, why indexing everything
+  is impractical, and how faster reads trade off against slower writes.
+source_hash: 60d45f3009403dead8a1c4df9b343a185a1708b9828983d6c0fe0474acf3c79f
+---
+## Before We Begin
+Today we'll look at the database **index**, an essential tool for working quickly and efficiently with large amounts of data.
+<br/>
+You may already know that indexes speed up lookups. But why don't we index everything? Answering that question will help us understand how indexes work and the trade-offs behind them.
+
+## What Is an Index?
+Think of the index at the back of a thick book.
+<br/>
+Suppose you want to find where “REST API” appears in a book that runs to hundreds of pages. Turning every page from front to back would be inefficient. If you look under “R” in the index, it can point you straight to pages 52, 108, and 210.
+<br/>
+A database index serves the same purpose. It's a **lookup structure** built separately from the original data so the database can find specific values more quickly. Without a usable index, it may have to perform a full table scan and examine the data row by row.
+
+<Img src="/250618-115145.webp" width={300} alt="Index"/>
+<Ads1/>
+
+## Should You Index Everything?
+This is the key question. **Indexing everything is a bad idea.**
+<br/>
+Imagine listing every word in a book in its index. The index could become much thicker than the book itself. Database indexes have clear benefits and costs, so use them selectively.
+
+### Benefits of Indexes
+The main reason to add an index is to **make `SELECT` queries much faster**. An index on a column used in a `WHERE` clause or a `JOIN` condition can let the database locate the relevant rows directly, avoid a full table scan, and respond much faster.
+
+```sql
+-- 'user_email' 컬럼에 인덱스가 걸려 있다면, 이 쿼리는 매우 빠르게 실행됩니다.
+SELECT * FROM users WHERE user_email = 'student@example.com';
+```
+
+### Costs of Indexes
+There are two main reasons to avoid indexing everything.
+1. **Slower writes (write penalty)**
+   Although `SELECT` queries can speed up, `INSERT`, `UPDATE`, and `DELETE` operations can slow down. When you add or revise material in a book, you have to update its index too. A database similarly has to add an entry in the right order when it inserts data, and maintain the index when indexed data is updated or deleted. Adding indexes indiscriminately to frequently changed columns can slow down the system as a whole.
+2. **Additional storage**
+   An index is a separate data structure that takes up space beyond the original table. The more indexes you build, the more disk space you need.
+
+Indexes involve a **trade-off** between lookup and write performance.
+
+<Ads2/>
+
+## When Should You Use an Index?
+With those trade-offs in mind, consider indexing:
+<br/>
+- Columns frequently used in `WHERE` clauses.
+- Columns frequently used in `JOIN` conditions. Some database systems automatically index foreign keys.
+- Columns frequently used for sorting with `ORDER BY`.
+- Columns with many distinct values and relatively little duplication.
+
+For example, indexing email addresses, where most values differ, is generally more effective than indexing a gender column with only two values. A column with many distinct values has **high cardinality**.
+
+<Ads3/>
+
+## Conclusion
+We looked at how database indexes work and the trade-offs they introduce.
+- An index works like a **book index** and can speed up data retrieval with `SELECT`.
+- Indexing everything can slow down writes with `INSERT`, `UPDATE`, and `DELETE`, and requires additional storage.
+- Decide where an index is worthwhile by considering **how often you read and change the data and how many values are duplicates**.
+
+An interviewer might ask whether you've used indexes, which columns you indexed, and why. Be ready to explain both what you gained from the indexes and what costs you considered.
+
+### References
+- [Wikipedia — Database index](https://ko.m.wikipedia.org/wiki/%EC%9D%B8%EB%8D%B1%EC%8A%A4_(%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4))
+- [Oracle — CREATE INDEX](https://docs.oracle.com/en/database/oracle/oracle-database/18/sqlrf/CREATE-INDEX.html)

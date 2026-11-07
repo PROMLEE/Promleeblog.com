@@ -1,0 +1,203 @@
+---
+title_ko: MCP 서버를 TypeScript SDK로 구축하는 방법
+title_en: Building an MCP Server with TypeScript SDK
+desc: Model Context Protocol의 TypeScript SDK를 활용하여 MCP 서버를 구축하는 상세 가이드입니다.
+thumbnail_url: /mcp_server_setup.webp
+metatag: 'MCP, TypeScript, 서버 구축, SDK'
+post_id: '187'
+locale: en
+title: Building an MCP Server with the TypeScript SDK
+description: >-
+  A detailed, step-by-step guide to building an MCP server with the Model
+  Context Protocol TypeScript SDK.
+source_hash: 4bb7a694c5b010c00d50c0bef09d02bd5c348c801f0b0e54b6bb1f908470a455
+reviewed_at: '2026-11-07T06:37:04.150Z'
+---
+## Before We Begin
+
+In this post, we will build an MCP server using the TypeScript SDK for the *Model Context Protocol (MCP)*. We will explain what MCP is and go through each step of building a server in detail.
+
+## What Is the Model Context Protocol (MCP)?
+
+MCP is a protocol that lets *large language models (LLMs)* access external data and functionality in a secure, standardized way. It acts as a bridge that lets an LLM retrieve information or perform a specific task. For example, when an LLM needs weather information, it can use MCP to retrieve it from a weather API. Learn more in the [official MCP documentation](https://modelcontextprotocol.io/).
+
+<Ads1 />
+## Build an MCP Server with the TypeScript SDK
+
+Let's build the server step by step using the TypeScript SDK.
+
+### 1. Set Up the Project
+
+Start by creating a directory and initializing the project.
+
+````
+mkdir my-mcp-server
+cd my-mcp-server
+npm init -y
+````
+
+This creates the `my-mcp-server` directory and initializes an npm project inside it.
+
+### 2. Install the Required Packages
+
+Next, install the packages needed for the MCP server.
+
+````
+npm install @modelcontextprotocol/sdk zod
+npm install -D typescript @types/node
+````
+
+Here, `@modelcontextprotocol/sdk` is the MCP TypeScript SDK, and `zod` is a library for validating data. The `typescript` and `@types/node` packages are required for TypeScript development.
+
+### 3. Create the TypeScript Configuration File
+
+Create a `tsconfig.json` file in the project root to configure the TypeScript compiler.
+
+````json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true
+  },
+  "include": ["src"]
+}
+````
+
+This configuration enables modern JavaScript syntax, sets the module system to ESNext, and places source files in `src` and compiled files in `dist`.
+
+<Ads2 />
+### 4. Create the Source Directory and Entry Point
+
+Create the `src` directory and an `index.ts` file inside it.
+
+````
+mkdir src
+touch src/index.ts
+````
+
+You are now ready to write the MCP server code in `src/index.ts`.
+
+### 5. Implement the MCP Server
+
+Now let's implement a server that provides a simple calculator and a greeting.
+
+````ts
+import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+const server = new McpServer({
+  name: "Demo",
+  version: "1.0.0"
+});
+
+server.tool(
+  "add",
+  { a: z.number(), b: z.number() },
+  async ({ a, b }) => ({
+    content: [{ type: "text", text: String(a + b) }]
+  })
+);
+
+server.resource(
+  "greeting",
+  new ResourceTemplate("greeting://{name}", { list: undefined }),
+  async (uri, { name }) => ({
+    contents: [{
+      uri: uri.href,
+      text: `안녕하세요, ${name}님!`
+    }]
+  })
+);
+
+const transport = new StdioServerTransport();
+await server.connect(transport);
+````
+
+This code creates an MCP server and adds a tool named `add` that calculates the sum of two numbers. It also adds a resource named `greeting` that generates a greeting dynamically from the user's name. Finally, it handles messages through standard input and output.
+
+<Ads3 />
+### 6. Build and Run the Server
+
+Compile the TypeScript code, then run the MCP server.
+
+```bash
+npx tsc
+node dist/index.js
+```
+
+If it starts successfully, the server waits for standard input and can communicate with a client.
+
+#### Automate the Process with npm Scripts
+
+If you would rather avoid typing `npx tsc` and `node dist/index.js` every time, update the `scripts` section in `package.json` as follows.
+
+````json
+"scripts": {
+  "build": "tsc",
+  "start": "node dist/index.js",
+  "dev": "npm run build && npm run start"
+}
+````
+
+You can now build and run the server with the following commands.
+
+````
+npm run dev
+````
+
+These scripts make it easier to restart the server during development.
+
+<Ads4 />
+## Troubleshooting
+
+### Problem 1: Module Resolution Error
+
+**Error message**:
+
+```
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '@modelcontextprotocol/sdk/server/mcp.js'
+```
+
+**Solution**:
+
+When using ES modules in TypeScript, you must specify the `.js` extension. Also verify that `moduleResolution` is set to `Node` in `tsconfig.json`.
+
+### Problem 2: Missing Type Definitions
+
+**Error message**:
+
+```
+Cannot find name 'process'.
+```
+
+**Solution**:
+
+Make sure `@types/node` is installed and add the following to `tsconfig.json`.
+
+````json
+{
+  "compilerOptions": {
+    "types": ["node"]
+  }
+}
+````
+
+## Conclusion
+
+We started with the basics of MCP and built an MCP server step by step with the TypeScript SDK. MCP gives LLMs a safer, more consistent way to use external data and functionality. The SDK makes it relatively easy to build a server, so try extending yours with other features.
+
+### Further Considerations
+
+- How could you add authentication to make the MCP server more secure?
+- Could you combine several MCP resources to implement more complex features?
+
+### References
+
+- https://github.com/modelcontextprotocol/typescript-sdk
+- https://modelcontextprotocol.io/

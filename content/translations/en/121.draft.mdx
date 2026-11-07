@@ -1,0 +1,425 @@
+---
+post_id: '121'
+locale: en
+title: Different Ways to Customize Tailwind CSS
+description: >-
+  Customize Tailwind themes, reusable CSS sets, global styles, and fonts with
+  configuration files and plugins.
+source_hash: b308a196a1b255ba4d8cad89dc163d57b8af957c735f35889307865a2a27d14d
+---
+## Before getting started
+> This post is based on Tailwind 3.4.1 used with Next.js 15.
+
+> Added April 9, 2025: The same approach works after migrating to Tailwind 4.x. Although @theme is available, I prefer this approach because it supports snippets.
+
+This time, let's look at ways to add custom styles while using Tailwind CSS.
+You can add them directly in a CSS file, or through the Tailwind configuration file.
+<br/>
+You can also define a custom CSS set through a plugin when you want *one class to add several CSS declarations at once*.
+This is useful for adding custom *typography* or button styles.
+<br/>
+- Start with base, components, and utilities, declared by default in the CSS file when Tailwind is installed (version 3.x).
+```css title="global.css"
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+<Ads1 />
+## Using tailwind.config.js
+<Bbox>A configuration file lets you modify and extend the existing theme.</Bbox>
+### The screens property
+The following example changes the existing sm, md, lg, and xl breakpoints.
+```ts title="tailwind.config.ts"
+module.exports = {
+	theme: {
+		screens: {
+			sm: '640px',
+			md: '768px',
+			lg: '1024px',
+			xl: '1280px',
+		}
+	}
+}
+```
+```tsx title="page.tsx"
+...
+<div class="bg-blue-500 sm:bg-red-500 md:bg-green-500 lg:bg-yellow-500 xl:bg-purple-500">
+	Responsive Design
+</div>
+...
+```
+### The colors property
+This example changes existing colors and adds new ones.
+```ts title="tailwind.config.ts"
+module.exports = {
+	theme: {
+		colors: {
+			custom-blue: '#0000ff',
+			custom-red: '#ff0000',
+			gray: {
+				100: '#f7fafc',
+			},
+		}
+	}
+}
+```
+```tsx title="page.tsx"
+...
+<div class="bg-custom-blue">
+	Custom Blue
+</div>
+<div class="bg-custom-red">
+	Custom Red
+</div>
+<div class="bg-gray-100">
+	Custom Gray 100
+</div>
+...
+```
+### The extend property
+This example modifies and extends several existing properties.
+[Font configuration](#커스텀-폰트-추가) is covered in more detail below.
+```ts title="tailwind.config.ts"
+module.exports = {
+	theme: {
+		extend: {
+			fontFamily: {
+				custom: ['Noto Sans KR', 'sans-serif'],
+			},
+			fontSize: {
+				'7xl': '5rem',
+			},
+			spacing: {
+				'72': '18rem',
+			},
+			borderRadius: {
+				DEFAULT: '0.25rem',
+				xl: '1rem',
+			},
+		}
+	}
+}
+```
+```tsx title="page.tsx"
+...
+<div class="font-custom text-7xl">
+	Custom Font Size
+</div>
+<div class="p-72">
+	Custom Spacing
+</div>
+<div class="rounded">
+	Custom Default Border Radius
+</div>
+<div class="rounded-xl">
+	Custom XL Border Radius
+</div>
+...
+```
+### The container property
+This example changes the existing container configuration.
+```ts title="tailwind.config.ts"
+module.exports = {
+	theme: {
+		container: {
+			center: true,
+			padding: '2rem',
+		}
+	}
+}
+```
+```tsx title="page.tsx"
+...
+<div class="container mx-auto">
+	Container
+</div>
+...
+```
+### The spacing property
+This example modifies and extends existing size values.
+```ts title="tailwind.config.ts"
+module.exports = {
+	theme: {
+		spacing: {
+      px: '1px',
+      0: '0',
+      0.5: '0.125rem',
+      1: '0.25rem',
+      1.5: '0.375rem',
+      2: '0.5rem',
+      2.5: '0.625rem',
+      3: '0.75rem',
+      3.5: '0.875rem'
+		}
+	}
+}
+```
+```tsx title="page.tsx"
+...
+<div class="p-px">
+	1px
+</div>
+<div class="p-0">
+	0
+</div>
+<div class="p-0.5">
+	0.5
+</div>
+...
+```
+## Defining CSS sets with plugins
+A plugin can define a custom set of CSS rules.
+```ts title="tailwind.config.ts"
+import plugin from "tailwindcss/plugin";
+
+module.exports = {
+	plugins: [
+		function ({ addComponents }) {
+			addComponents({
+				'.btn': {
+					padding: '.5rem 1rem',
+					borderRadius: '.25rem',
+					fontWeight: '600',
+				}
+			})
+		}
+	]
+}
+```
+```tsx title="page.tsx"
+...
+<div class="btn bg-blue-500 text-white">
+	Button
+</div>
+...
+```
+This is also useful for adding typography styles.
+```ts title="tailwind.config.ts"
+import plugin from "tailwindcss/plugin";
+
+module.exports = {
+	plugins: [
+		function ({ addComponents }) {
+			addComponents({
+        ".headline-0": {
+          fontFamily: '"Pretendard"',
+          fontSize: "48px",
+          fontWeight: "500",
+          lineHeight: "normal",
+          letterSpacing: "-0.48px",
+        },
+			})
+		}
+	]
+}
+```
+```tsx title="page.tsx"
+...
+<div class="headline-0">
+	Headline 0
+</div>
+...
+```
+<Ads2 />
+## Using global.css
+> Start from Tailwind's default configuration file.
+```css title="global.css"
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+### Adding custom class styles
+You can add custom class styles in global.css.
+The advantage is that they are easy to define in CSS; the downside is that Tailwind CSS snippet-style completion is unavailable.
+```css title="global.css"
+.btn {
+	padding: .5rem 1rem;
+	border-radius: .25rem;
+	font-weight: 600;
+}
+```
+```tsx title="page.tsx"
+...
+<div class="btn bg-blue-500 text-white">
+	Button
+</div>
+...
+```
+### Combining the configuration file and global.css
+You can use the configuration file and global.css together.
+```css title="global.css"
+@layer base {
+  :root {
+    --background: #f8f8f8;
+    --foreground: #171717;
+  }
+}
+```
+```ts title="tailwind.config.ts"
+module.exports = {
+	darkMode: 'class',
+	theme: {
+		extend: {
+			colors: {
+				background: 'var(--background)',
+				foreground: 'var(--foreground)',
+			}
+		}
+	}
+}
+```
+```tsx title="page.tsx"
+...
+<div class="bg-background text-foreground">
+	Background & Foreground
+</div>
+...
+```
+<Ads3 />
+## Adding a custom font
+### Adding font files
+Download the font files and add them to the public folder.
+For example, download Pretendard here: [Pretendard](https://cactus.tistory.com/306).
+```plaintext
+public/
+	fonts/
+		Pretendard-Thin.ttf
+		Pretendard-ExtraLight.ttf
+		Pretendard-Light.ttf
+		Pretendard-Regular.ttf
+		Pretendard-Medium.ttf
+		Pretendard-SemiBold.ttf
+		Pretendard-Bold.ttf
+		Pretendard-ExtraBold.ttf
+		Pretendard-Black.ttf
+```
+### Adding a CSS file
+```css title="/src/util/font.css"
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Thin.ttf") format("truetype");
+  font-weight: 100;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Light.ttf") format("truetype");
+  font-weight: 300;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Medium.ttf") format("truetype");
+  font-weight: 500;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Bold.ttf") format("truetype");
+  font-weight: 700;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Black.ttf") format("truetype");
+  font-weight: 900;
+}
+```
+
+### Adding the font to the configuration file
+```ts title="tailwind.config.ts"
+module.exports = {
+	theme: {
+		extend: {
+			fontFamily: {
+				pretendard: ["Pretendard"],
+			}
+		}
+	}
+}
+```
+
+### Importing the CSS file in the layout
+```tsx title="/src/app/layout.tsx"
+import '../util/font.css';
+...
+```
+### Using the font
+```tsx title="/src/app/page.tsx"
+...
+<div class="font-pretendard text-7xl">
+	Pretendard Font
+</div>
+...
+```
+<Ads4 />
+## Problems and solutions
+🙅
+
+## Conclusion
+We have explored adding custom styles through Tailwind CSS's configuration file.
+We also looked at plugins for defining reusable CSS sets.
+Finally, we used global.css to define custom class styles.
+
+### Further questions
+How can colors be specified without hexadecimal codes?
+#### Using rgb/rgba
+```css title="global.css"
+@layer base {
+	:root {
+    --background: 255, 255, 255;
+    --foreground: 240, 240, 240;
+	}
+}
+```
+```ts title="tailwind.config.ts"
+module.exports = {
+	theme: {
+		extend: {
+			colors: {
+        background: "rgba(var(--background) , <alpha-value>)",
+        foreground: "rgba(var(--foreground) , <alpha-value>)",
+			}
+		}
+	}
+}
+```
+#### Using hsl/hsla
+```css title="global.css"
+@layer base {
+	:root {
+		--background: 0, 0%, 100%;
+		--foreground: 0, 0%, 94%;
+	}
+}
+```
+```ts title="tailwind.config.ts"
+module.exports = {
+	theme: {
+		extend: {
+			colors: {
+				background: "hsla(var(--background) , <alpha-value>)",
+				foreground: "hsla(var(--foreground) , <alpha-value>)",
+			}
+		}
+	}
+}
+```
+### References
+[Tailwind CSS — adding custom styles](https://tailwindcss.com/docs/adding-custom-styles)

@@ -1,0 +1,172 @@
+---
+title_ko: React Native(Expo)에서 Toast 메시지 표시하기(react-native-toast-message)
+title_en: 'Display Toast Messages in React Native(Expo, react-native-toast-message)'
+desc: >-
+  React Native(Expo)에서 Toast 메시지를 표시하는 방법을 알아보자. Let's learn how to display
+  toast messages in React Native(Expo).
+thumbnail_url: 'https://cdn.worldvectorlogo.com/logos/react-native-1.svg'
+post_id: '137'
+locale: en
+title: Displaying Toast Messages in React Native with react-native-toast-message
+description: >-
+  Install, configure, display, and customize toast notifications in Expo and
+  React Native CLI projects.
+source_hash: e8daee990bec34a4f0f00e40afe07f4fa231efb80255723f456270b440de049a
+---
+## Before getting started
+> This post uses Expo and [react-native-toast-message](https://www.npmjs.com/package/react-native-toast-message) version 2.2.1.
+The same approach also works in React Native CLI projects.
+
+### What is a toast message?
+Toast messages, sometimes also called snackbars, are a common way to display notifications or messages.
+They are useful for confirming that an interaction, such as pressing a button, completed successfully.
+The official documentation provides the following example.
+<Img src="https://raw.githubusercontent.com/calintamas/react-native-toast-message/0026645eeda2242ea740250471f1b4f2be894c6e/docs/toast.gif" width={200} alt=""/>
+
+<Ads1 />
+## 1. Installing and configuring the library
+First, install the library by running the following command from the project root.
+```bash
+npm install react-native-toast-message
+```
+### 1.1. Configuring an Expo project
+Configure `/app/_layout.tsx`, the file defining the project's top-level page, as follows.
+```tsx title="app/_layout.tsx"
+import Toast from 'react-native-toast-message';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <View>
+      {children}
+      <Toast />
+    </View>
+  );
+}
+```
+### 1.2. Configuring a React Native CLI project
+Configure `app.tsx`, the file defining the project's top-level page, as follows.
+```tsx title="app.tsx"
+import Toast from 'react-native-toast-message';
+
+export function App( props: any ) {
+  return (
+    <>
+      {/* ... */}
+      <Toast />
+    </>
+  );
+}
+```
+
+<Ads2 />
+## 2. Displaying a toast message
+Use the following code in the component where you want to display the toast.
+```tsx title="app/index.tsx"
+import Toast from 'react-native-toast-message';
+import { Button } from 'react-native'
+
+export function Page() {
+  const showToast = () => {
+    Toast.show({
+      type: 'success',
+      text1: 'Hello',
+      text2: 'This is some something 👋'
+    });
+  }
+
+  return (
+    <Button
+      title='Show toast'
+      onPress={showToast}
+    />
+  )
+}
+```
+
+## 3. Configuring toast styles
+For custom styles, update `/app/_layout.tsx` in Expo or `app.tsx` in React Native CLI, where the toast component is declared.
+This example displays three kinds of toast messages.
+The success and error types modify the default toasts, while tomatoToast uses a custom toast.
+```tsx title="app/_layout.tsx"
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+
+const toastConfig = { // config 변수 추가
+  success: (props) => (
+    <BaseToast
+      {...props}
+      style={{ borderLeftColor: 'pink' }}
+      contentContainerStyle={{ paddingHorizontal: 15 }}
+      text1Style={{
+        fontSize: 15,
+        fontWeight: '400'
+      }}
+    />
+  ),
+  error: (props) => (
+    <ErrorToast
+      {...props}
+      text1Style={{
+        fontSize: 17
+      }}
+      text2Style={{
+        fontSize: 15
+      }}
+    />
+  ),
+	tomatoToast: ({ text1, props }) => (
+    <View style={{ height: 60, width: '100%', backgroundColor: 'tomato' }}>
+      <Text>{text1}</Text>
+      <Text>{props.uuid}</Text>
+    </View>
+  )
+}
+
+export default function Page() {
+  return (
+    <View>
+      {children}
+      <Toast config={toastConfig} />
+    </View>
+  );
+}
+```
+
+<Ads3 />
+## 4. Using a custom toast
+Use the following code in the component where you want the toast to appear.
+```tsx title="app/index.tsx"
+import Toast from 'react-native-toast-message';
+import { Button } from 'react-native'
+
+export function Page() {
+  const showToast = () => {
+    Toast.show({
+			type: 'tomatoToast',
+			props: { uuid: 'uuid example' }
+    });
+  }
+
+	const showErrorToast = () => {
+		Toast.show({
+			type: 'error',
+			text1: 'Error',
+			text2: 'This is some something 👋'
+		});
+	}
+
+  return (
+    <Button	
+      title='Show toast'
+      onPress={showToast}
+    />
+  )
+}
+```
+## Conclusion
+Showing a toast instead of an unnecessary modal or confirmation window can improve the user experience.
+I also find it convenient during development, so I recommend trying toast messages.
+
+### References
+- [react-native-toast-message](https://github.com/calintamas/react-native-toast-message)
+- [quick start](https://github.com/calintamas/react-native-toast-message/blob/main/docs/quick-start.md)
+- [customization](https://github.com/calintamas/react-native-toast-message/blob/main/docs/custom-layouts.md)

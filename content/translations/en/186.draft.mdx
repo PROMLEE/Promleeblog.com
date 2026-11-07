@@ -1,0 +1,85 @@
+---
+title_ko: OpenAI Agents SDK 살펴보기
+title_en: Exploring the OpenAI Agents SDK
+desc: >-
+  OpenAI Agents SDK의 구조와 기능, MCP 통합 방식, 실제 예제 코드를 중심으로 에이전트 기반 AI 애플리케이션을 구축하는
+  방법을 안내합니다
+thumbnail_url: /openai-agents.webp
+metatag: 'OpenAI, Agents, SDK, MCP, Python'
+post_id: '186'
+locale: en
+title: Exploring the OpenAI Agents SDK and Integrating MCP
+description: >-
+  Understand the OpenAI Agents SDK, MCP integration, and example code for
+  building agent-based AI applications.
+source_hash: 00fbd09603f200d54ee526a2ddb126737ffa3e9d74ac107239cb07bfb22d0d6c
+---
+## Before getting started
+The OpenAI Agents SDK is a Python SDK for building agent-based AI applications.
+It focuses on connecting tools to an LLM, organizing context, and handling user requests in a structured way.
+With the recent integration of Model Context Protocol (MCP), agents can connect to external servers to obtain context and tool information.
+This article introduces the SDK's structure and concepts, then covers MCP integration and practical code examples.
+## What is the OpenAI Agents SDK?
+An agent is an intelligent execution unit that receives instructions, uses tools to achieve a goal, and continues a conversation.
+The OpenAI Agents SDK provides a high-level API for implementing this in code.
+Its main capabilities include:
+- Interpreting user instructions and establishing a goal.
+- Connecting to tools such as search, calculators, and external APIs.
+- Planning execution and invoking tools.
+- Organizing results and returning them to the user.
+
+Context management is central to this process, and the recently introduced MCP enables it in a more structured way.
+<Ads1 />
+## MCP integration
+MCP, or Model Context Protocol, structures context into layers such as system, user, and files.
+The Agents SDK is designed to load tools through communication with MCP servers and produce responses appropriate to that context.
+### An example MCP server
+The official example uses the `@modelcontextprotocol/server-filesystem` MCP server to interact with the file system.
+Tools such as opening and listing files are registered automatically.
+```python
+from agents.mcp.server import MCPServerStdio
+mcp_server = MCPServerStdio(
+  params={
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-filesystem", "samples_dir"]
+  },
+  cache_tools_list=True
+)
+```
+This MCP server returns a list of tools for browsing the local file system, making them available to the agent.
+<Ads2 />
+## Creating and running an agent
+Here is the basic code for creating an agent.
+```python
+from agents import Agent
+agent = Agent(
+  name="FileAssistant",
+  instructions="파일 시스템 도구를 사용해 작업을 도와주세요.",
+  mcp_servers=[mcp_server]
+)
+```
+You can now run it.
+```python
+from agents import Runner
+async def main():
+  result = await Runner.run(agent, "현재 디렉토리의 모든 파일을 보여줘")
+  print(result.final_output)
+```
+Internally, the agent loads the tool list through the MCP server's `list_tools()` and uses appropriate tools to return results based on the user's instructions.
+<Ads3 />
+## MCP server types
+The Agents SDK can connect to MCP servers in two ways.
+- **MCPServerStdio**: Connects to an MCP server running locally.
+- **MCPServerSse**: Connects to an HTTP-based remote MCP server using Server-Sent Events.
+The `Stdio` approach is convenient for local development, while `Sse` is useful for remote deployments.
+## Wrapping up
+The OpenAI Agents SDK is a powerful tool for implementing AI agents in code.
+Combining it with MCP improves connectivity to external systems, context extensibility, and tool reuse.
+Developers can implement their own MCP servers or use existing ones to build flexible, extensible agents.
+### Further ideas
+- Try creating an MCP server that exposes a search API, database, or external API as tools.
+- How does this approach compare with other agent frameworks such as LangChain or LlamaIndex?
+### References
+- Agents SDK documentation: https://openai.github.io/openai-agents-python
+- MCP configuration guide: https://openai.github.io/openai-agents-python/mcp/
+- Filesystem MCP server: https://github.com/modelcontextprotocol/server-filesystem

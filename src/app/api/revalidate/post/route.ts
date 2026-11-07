@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
 
     const path = `/blog/post/${post.id}-${post.url}`;
     revalidatePath(path);
+    for (const locale of ["en", "ja", "zh"]) revalidatePath(`/${locale}${path}`);
     return NextResponse.json({ revalidated: true, path });
   } catch (error) {
     console.error("Post revalidation failed", error);

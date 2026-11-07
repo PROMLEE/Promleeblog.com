@@ -1,0 +1,147 @@
+---
+title_ko: Etherscan API로 여러 체인 잔액 조회하기
+title_en: Querying Multichain Balances with Etherscan API
+desc: >-
+  Etherscan V2 API를 사용해 여러 체인의 잔액을 조회하는 방법과 API 키 생성 과정을 React + TypeScript 예제와
+  함께 자세히 설명합니다.
+thumbnail_url: /250416-103237.webp
+metatag: 'Etherscan, API Key, 다중 체인, 잔액 조회, React, TypeScript, Web3, 지갑, 멀티체인, 이더리움'
+post_id: '205'
+locale: zh
+title: 通过Etherscan API查询多链余额
+description: 介绍Etherscan API密钥获取流程、账户余额查询，以及React与TypeScript中的多链请求实现。
+source_hash: 2f14faa339bcb598efbfe733fa9629542f83c21074933b6cec2cd27f9587eaab
+reviewed_at: '2026-11-07T01:44:08.829Z'
+---
+
+## 开始之前
+开发Web3应用时，经常需要检查用户钱包余额。有时不仅要显示以太坊主网，还希望同时显示Arbitrum、Optimism和BSC等多条链的余额。
+*Etherscan V2 API*是可用于这类需求的工具之一。它为不同链提供统一格式的数据，通过简单HTTP请求就能获取余额。
+本文依次介绍**使用Etherscan V2 API查询多个链上的EOA钱包余额**，以及**如何在React中实现**。
+<Ads1 />
+## 创建API Key
+使用API前，需要先申请Etherscan提供的API Key。各条链分别申请，流程基本相同。
+### 📍 申请流程：以太坊主网示例
+1. 在[https://etherscan.io/register](https://etherscan.io/register)注册账号。
+2. 登录后，进入右上角*My Profile* > *API Keys*。
+3. 点击*Add*，创建新密钥。
+4. 输入名称后，即可生成API Key。
+### 📍 其他链的API Key申请链接
+- Arbiscan（Arbitrum）：https://arbiscan.io/myapikey
+- BscScan（Binance Smart Chain）：https://bscscan.com/myapikey
+- Optimistic Etherscan（Optimism）：https://optimistic.etherscan.io/myapikey
+- PolygonScan（Polygon）：https://polygonscan.com/myapikey
+各条链分别申请API Key，URL格式大体相同，可以参考。
+## 各链余额查询流程
+余额查询使用各链Etherscan API的`account`模块与`balance`操作，基础URL格式如下。
+```
+GET https://<체인>.etherscan.io/api?module=account&action=balance&address=<지갑주소>&apikey=<API_KEY>
+```
+例如，以太坊主网余额查询API如下。
+```
+https://api.etherscan.io/api?module=account&action=balance&address=0x123...abc&apikey=YOUR_API_KEY
+```
+Arbitrum示例如下。
+```
+https://api.arbiscan.io/api?module=account&action=balance&address=0x123...abc&apikey=YOUR_API_KEY
+```
+响应通常采用以下JSON格式。
+```json
+{
+  "status": "1",
+  "message": "OK",
+  "result": "1234567890000000000"
+}
+```
+`result`以*Wei*为单位，转换为Ether时，需要除以10的18次方。
+## React与TypeScript示例
+下面通过React调用API读取钱包余额，并支持多条链。
+```tsx
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+const ETHERSCAN_APIS = {
+  ethereum: {
+    baseURL: 'https://api.etherscan.io/api',
+    apiKey: 'YOUR_ETHERSCAN_API_KEY', // 여기에 자신의 API Key를 입력해야 합니다.
+  },
+  arbitrum: {
+    baseURL: 'https://api.arbiscan.io/api',
+    apiKey: 'YOUR_ARBISCAN_API_KEY', // 여기에 자신의 API Key를 입력해야 합니다.
+  },
+  optimism: {
+    baseURL: 'https://api-optimistic.etherscan.io/api',
+    apiKey: 'YOUR_OPTIMISM_API_KEY', // 여기에 자신의 API Key를 입력해야 합니다.
+  },
+};
+interface BalanceResult {
+  chain: string;
+  ether: string;
+}
+const WalletBalances: React.FC<{ address: string }> = ({ address }) => {
+  const [balances, setBalances] = useState<BalanceResult[]>([]);
+    useEffect(() => {
+    const fetchBalances = async () => {
+      const results: BalanceResult[] = [];
+        for (const [chain, config] of Object.entries(ETHERSCAN_APIS)) {
+          try {
+            const res = await axios.get(config.baseURL, {
+              params: {
+                module: 'account',
+                action: 'balance',
+                address,
+                apikey: config.apiKey,
+              },
+            });
+            const wei = res.data.result;
+            const ether = (Number(wei) / 1e18).toFixed(4);
+            results.push({ chain, ether });
+          } catch (error) {
+            console.error(`${chain} 오류 발생`, error);
+          }
+        }
+        setBalances(results);
+      };
+    if (address) {
+      fetchBalances();
+    }
+  }, [address]);
+    return (
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-2">지갑 잔액 정보</h2>
+      <ul>
+        {balances.map(({ chain, ether }) => (
+          <li key={chain} className="mb-1">
+            *{chain}*: {ether} ETH
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+export default WalletBalances;
+```
+<Ads2 />
+## 并行查询多条链
+上面的示例通过for...of顺序调用API，也可以使用`Promise.all()`并行发起请求，提高速度。
+```ts
+await Promise.all(Object.entries(ETHERSCAN_APIS).map(async ([chain, config]) => {
+  const res = await axios.get(config.baseURL, {
+    params: {
+      module: 'account',
+      action: 'balance',
+      address,
+      apikey: config.apiKey,
+    },
+  });
+  // 이후 로직 동일...
+}))
+```
+API存在速率限制，短时间内发送过多请求可能被限制。如果用量较大，可以考虑后端缓存或增加请求间隔。
+## 结论
+通过Etherscan V2 API，可以用简单API请求获取多个链上的钱包余额。只要准备好各链的API Key，在React中也能比较容易地实现。
+实际使用时，应考虑**请求速率限制rate limit**，设计高效的调用策略。再结合自动读取MetaMask等已连接钱包地址的逻辑，就能提供更实用的功能。
+### 参考资料
+- 官方文档：https://docs.etherscan.io/etherscan-v2/apis/accounts#get-account-balance
+- 各链Etherscan：[https://etherscan.io/apis](https://etherscan.io/apis)、[https://arbiscan.io/apis](https://arbiscan.io/apis)等。
+- Ethers.js：https://docs.ethers.org
+- 单位转换：1 Ether = 1e18 Wei。

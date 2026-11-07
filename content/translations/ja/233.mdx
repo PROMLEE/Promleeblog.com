@@ -1,0 +1,476 @@
+---
+title_ko: 'React 글로벌 상태 관리 (원리부터 라이브러리까지) - React, 알고 쓰자 5일차'
+title_en: >-
+  React Global State Management (Principles to Libraries) - React Explained Day
+  5
+desc: >-
+  React 글로벌 상태 관리 원리, Context API 최적화, Redux Toolkit, Zustand, Recoil 비교, 서버 상태
+  관리(React Query, SWR)까지 알아봅니다. 상태 저장소, 구독, 선택자 등 내부 동작을 쉽게 설명합니다.
+thumbnail_url: /250427-151416.png
+metatag: >-
+  React, 상태 관리, 글로벌 상태, 동작 원리, Context API, Redux Toolkit, Zustand, Recoil,
+  React Query, SWR, 상태 관리 라이브러리, 프론트엔드, 면접
+post_id: '233'
+locale: ja
+title: Reactのグローバル状態管理：原理からライブラリまで・5日目
+description: >-
+  Context API、Redux Toolkit、Zustand、Recoilと、React
+  Query・SWRのサーバー状態管理を、ストア・購読・選択子の原理から比較します。
+source_hash: d84ff20ea6395dce1bab01020f514ee99d7368069ecee44e7624ac8e8794bfa1
+reviewed_at: '2026-11-07T01:42:11.750Z'
+---
+
+## はじめに
+
+これまでコンポーネント内のuseState、useReducerや、描画と更新の仕組みを学びました。
+アプリが大きくなると、ログイン情報、テーマ、カートなど、複数箇所で共有する*グローバル状態*が生まれます。
+propsを何段も渡すprop drillingは、手間がかかり保守も難しくなります。
+今回は共有状態を管理するパターンとツールを、組み込みのContext APIから外部ライブラリ、サーバーデータ専用の仕組みまで確認します。
+使い方だけでなく、*どう動くか*という原理も探ります。
+
+## Context APIの基本と最適化
+
+props drillingなしで、ツリー全体へデータを渡す公式の方法です。
+Providerの値を、任意の子孫からConsumerやuseContextで購読できます。
+
+### 基本操作と問題点
+
+createContextでContextを作るところから始まり、使い方は比較的簡単です。
+
+```tsx
+import React, { createContext, useState, useContext, useMemo } from 'react'; // useMemo 추가
+
+// 1. Context 생성 (기본값 설정 가능)
+interface UserContextType {
+  username: string | null;
+  login: (name: string) => void;
+  logout: () => void;
+}
+const UserContext = createContext<UserContextType | undefined>(undefined);
+
+// 2. Provider 컴포넌트 생성 (상태와 상태 변경 함수 제공)
+export function UserProvider({ children }: { children: React.ReactNode }) {
+  const [username, setUsername] = useState<string | null>(null);
+
+  const login = (name: string) => setUsername(name);
+  const logout = () => setUsername(null);
+
+  // value 객체 메모이제이션 적용
+  const value = useMemo(() => ({ username, login, logout }), [username]);
+
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+}
+
+// 3. useContext 훅으로 Context 값 사용
+export function useUser() {
+  const context = useContext(UserContext);
+  if (context === undefined) {
+    throw new Error('useUser must be used within a UserProvider');
+  }
+  return context;
+}
+
+// 사용 예시 컴포넌트
+function UserProfile() {
+  const { username, logout } = useUser();
+  return username ? (
+    <div>
+      <span>안녕하세요, {username}님!</span>
+      <button onClick={logout}>로그아웃</button>
+    </div>
+  ) : (
+    <span>로그인이 필요합니다.</span>
+  );
+}
+
+// 앱 최상단 등에서 Provider로 감싸기
+function App() {
+  return (
+    <UserProvider>
+      {/* ... 다른 컴포넌트들 ... */}
+      <UserProfile />
+    </UserProvider>
+  );
+}
+```
+ただし、Providerのvalueが変わると、購読するすべての子が*不要に再レンダリング*される場合があります。
+オブジェクトを直接渡し、描画ごとに新しく作る場合には、特に問題になります。
+<Img src="/250427-150003.png" width={300} alt="子コンポーネントの再レンダリング"/>
+
+### Providerの分離とReact.memo
+
+不要な描画を防ぐ方法を紹介します。
+
+- **valueのメモ化**：useMemoで、渡すオブジェクトや配列の再生成を防ぎます。上の例にも適用しています。
+- **Providerの分離**：巨大な一つのContextではなく、関連する状態・関数ごとに分けます。Aの変更で、Bだけを購読するコンポーネントは再描画しません。
+- **子のReact.memo**：propsが同じなら再描画を防げます。ただしContext自体が変わると描画されるので、根本的な解決にはならない場合があります。
+- **状態と更新関数の分離**：値だけが必要な箇所と関数だけが必要な箇所を、二つのContextへ分けます。useCallbackで関数参照を保てば、関数だけを使うコンポーネントは値の変更に影響されません。
+
+  ```tsx
+  // 예시: 상태와 디스패치 함수 분리
+  const UserStateContext = createContext<string | null>(null);
+  const UserDispatchContext = createContext<{ login: (name: string) => void; logout: () => void } | undefined>(undefined);
+
+  // Provider에서 두 Context 제공
+  // 사용하는 컴포넌트는 필요한 Context만 구독
+  // function UserProfile() { const username = useContext(UserStateContext); ... }
+  // function LoginButton() { const { login } = useContext(UserDispatchContext); ... }
+  ```
+
+> Q：「Context APIの性能問題と最適化方法は何ですか。」
+A：「valueの変更で全Consumerが不要に再描画する場合があります。useMemo、Contextの分離、読み取りと更新関数の分離などで最適化できます。」
+
+### 状態の分離戦略
+
+何をまとめるかは、慎重に決めます。
+一緒に変更する状態は同じContextが便利ですが、無関係な状態は分けたほうが、片方の変更で他方の利用者へ影響せず、性能上有利です。
+
+<Ads1 />
+
+## 人気ライブラリの比較
+
+Contextだけでも管理できますが、複雑になると状態ロジック、非同期処理、ミドルウェアなどが必要です。
+そこで、状態管理ライブラリが解決策になります。
+
+### Redux Toolkit
+
+長くReactで広く使われるReduxは、Fluxに基づく*単一ストア*と、アクション→リデューサー→状態という*予測可能な変更*を重視します。
+Redux Toolkitは、複雑な設定や定型コードを減らし、開発体験を改善する公式ライブラリです。
+- **長所**
+  - Redux DevToolsで変更を追いやすく、デバッグしやすい。
+  - thunkやsagaなど、ミドルウェアで強力な非同期処理が可能。
+  - ロジックをコンポーネントから完全に分離できる。
+  - 大きなエコシステムと豊富な資料がある。
+- **短所**
+  - ほかのライブラリより学習コストが高い場合がある。
+  - 単純な用途にはコードが多く感じられる。
+- **描画の最適化**：useSelectorで必要な部分だけを選び、その値が変わったときだけ再描画します。
+
+```tsx
+// Redux Toolkit 예시 (Slice 정의)
+import { createSlice, configureStore, PayloadAction } from '@reduxjs/toolkit';
+import { useSelector, useDispatch } from 'react-redux'; // useSelector, useDispatch 추가
+
+interface CounterState {
+  value: number;
+}
+
+const initialState: CounterState = { value: 0 };
+
+const counterSlice = createSlice({
+  name: 'counter',
+  initialState,
+  reducers: {
+    increment: state => { state.value += 1; }, // immer 내장으로 불변성 관리 용이
+    decrement: state => { state.value -= 1; },
+    incrementByAmount: (state, action: PayloadAction<number>) => { // 액션 페이로드 타입 지정
+      state.value += action.payload;
+    },
+  },
+});
+
+export const { increment, decrement, incrementByAmount } = counterSlice.actions;
+
+// 스토어 설정
+export const store = configureStore({
+  reducer: {
+    counter: counterSlice.reducer,
+  },
+});
+
+// RootState 타입 정의 (스토어 상태 전체 타입)
+export type RootState = ReturnType<typeof store.getState>;
+// AppDispatch 타입 정의 (디스패치 함수 타입)
+export type AppDispatch = typeof store.dispatch;
+
+// 컴포넌트에서 사용
+function CounterComponent() {
+  // useSelector 사용 시 RootState 타입 지정
+  const count = useSelector((state: RootState) => state.counter.value);
+  // useDispatch 사용 시 AppDispatch 타입 사용 (선택적이지만 권장)
+  const dispatch: AppDispatch = useDispatch();
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => dispatch(increment())}>증가</button>
+      <button onClick={() => dispatch(decrement())}>감소</button>
+      <button onClick={() => dispatch(incrementByAmount(5))}>+5 증가</button>
+    </div>
+  );
+}
+```
+
+### Zustand：単純さと柔軟性
+
+Reduxよりもシンプルで直感的なAPIを持つ、軽量なライブラリです。
+フックを基盤とし、最小限の定型コードで始められます。
+- **長所**
+  - 習得と利用が簡単。
+  - コードが少なく、設定はほぼ不要。
+  - ストアを複数作り、モジュール化しやすい。
+  - 非同期処理やログなど、ミドルウェアによる拡張も可能。
+- **短所**
+  - Reduxほど強力なツールや巨大なエコシステムはまだなく、成長中。
+  - 更新ロジックがストア内にあるため、複雑なら分離が必要。
+- **描画の最適化**：selectorで必要な状態を選び、参照比較で不要な描画を防ぎます。`shallow`などで比較もカスタマイズできます。
+
+```tsx
+// Zustand 예시 (Store 생성)
+import create from 'zustand';
+
+interface CounterState {
+  count: number;
+  increment: () => void;
+  decrement: () => void;
+}
+
+const useCounterStore = create<CounterState>((set) => ({
+  count: 0,
+  increment: () => set((state) => ({ count: state.count + 1 })),
+  decrement: () => set((state) => ({ count: state.count - 1 })),
+}));
+
+// 컴포넌트에서 사용
+function CounterComponent() {
+  // 필요한 상태와 액션만 선택하여 구독 (렌더링 최적화)
+  const count = useCounterStore((state) => state.count);
+  const increment = useCounterStore((state) => state.increment);
+  const decrement = useCounterStore((state) => state.decrement);
+  // 또는 아래처럼 객체로 받아올 경우, count가 변하지 않아도 다른 상태 변경 시 리렌더링 될 수 있음 (shallow 옵션 고려)
+  // const { count, increment, decrement } = useCounterStore();
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={increment}>증가</button>
+      <button onClick={decrement}>감소</button>
+    </div>
+  );
+}
+```
+
+### Recoil：原子的な状態と非同期処理
+
+Facebook（Meta）が開発し、Reactの動作と調和するよう設計されています。
+*Atom*という小さな単位で管理し、派生状態のSelectorや非同期処理を内蔵するのが特徴です。
+- **長所**
+  - フック基盤で、Reactに近い開発体験。
+  - 小さく状態を分け、関連するものの変更だけで描画できる。
+  - 非同期データを扱うSelectorが便利。
+  - React Concurrent Modeとの統合が良い。
+- **短所**
+  - 比較的新しく、まだ安定化の段階にある。v1.0以降はリリース済み。
+  - Reduxほど資料や周辺環境が豊富ではない。
+  - デバッグツールが不足するという意見がある。
+- **描画の最適化**：購読したAtomかSelectorの変更時だけ描画し、細かく制御できます。
+
+```tsx
+// Recoil 예시 (Atom 정의)
+import React from 'react'; // React 임포트 추가
+import { RecoilRoot, atom, selector, useRecoilState, useRecoilValue } from 'recoil'; // RecoilRoot 추가
+
+const counterState = atom({
+  key: 'counterState', // 고유한 ID
+  default: 0,
+});
+
+// 파생 상태 예시 (Selector)
+const doubledCounterState = selector({
+  key: 'doubledCounterState',
+  get: ({ get }) => {
+    const count = get(counterState);
+    return count * 2;
+  },
+});
+
+// 컴포넌트에서 사용
+function CounterComponent() {
+  const [count, setCount] = useRecoilState(counterState); // 상태 값과 setter 함수
+  const doubledCount = useRecoilValue(doubledCounterState); // 읽기 전용 값
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <p>Doubled Count: {doubledCount}</p>
+      <button onClick={() => setCount(prev => prev + 1)}>증가</button> {/* 함수형 업데이트 권장 */}
+      <button onClick={() => setCount(prev => prev - 1)}>감소</button>
+    </div>
+  );
+}
+
+// 앱 최상단 등에서 RecoilRoot로 감싸기
+function AppRecoil() {
+  return (
+    <RecoilRoot>
+      <CounterComponent />
+    </RecoilRoot>
+  );
+}
+```
+
+### 選び方のまとめ
+
+- **Context API**：単純な共有状態、低い複雑度、外部依存の最小化。性能の調整に注意が必要です。
+- **Redux Toolkit**：予測可能で一貫した管理、強いツールやミドルウェア、中・大規模開発、チーム作業向け。
+- **Zustand**：簡単さと速度、少ない学習コストや定型コード、柔軟なストア構造を重視するとき。
+- **Recoil**：Reactらしさ、細かい描画制御、内蔵の非同期状態、Concurrent Modeを活用するとき。
+
+> Q：「Redux、Zustand、Recoilなどの特徴と長所・短所を比べてください。」
+A：それぞれの思想、長所と短所、代表的な利用場面を説明します。
+
+| ライブラリ | 特徴 | 長所 | 短所 |
+| --- | --- | --- | --- |
+| **Context API** | React組み込みの共有状態管理 | 追加インストール不要<br/>単純な構造 | 不要な再描画が起こりやすく最適化が難しい<br/>大規模では非効率 |
+| **Redux Toolkit** | Redux公式推奨<br/>予測可能 | 強力なDevTools<br/>非同期処理やミドルウェアに強い | コードが冗長になりうる<br/>学習コスト |
+| **Zustand** | 単純で柔軟な軽量管理<br/>Flux不要 | 直感的<br/>必要部分だけ再描画 | 大規模の設計に注意<br/>DevToolsは限定的 |
+| **Recoil** | AtomとSelector<br/>非同期処理を内蔵 | 細かな状態分離<br/>非同期管理が便利 | 完全な安定性はまだ<br/>やや大きいライブラリ |
+
+## グローバル状態管理の仕組み
+
+ツリーのどこからでも状態へアクセスし、必要なコンポーネントだけを更新する仕組みには、共通の原理があります。
+
+### 外部ストアと購読
+
+多くのツールは、次の考え方を使います。
+
+1. **ストア**
+    - ツリーと別に、共有状態を保存する場所を作る。
+    - JavaScriptオブジェクト、クラス、クロージャーのモジュールなどで構成できる。
+    - コンポーネントのライフサイクルへ直接は結び付かない点が重要。
+2. **読み取り・変更のAPI**
+    - 状態を読む、変更するための明確な方法を提供する。
+    - 読み取りにはuseContext、useSelector、useRecoilValueなどを使う。
+    - 変更はdispatch、setState、actionなどの規則に従う関数で行い、予測・追跡しやすくする。
+3. **購読**
+    - 状態の利用者が、変わったら知らせてほしいと登録する。
+    - ストアがコンポーネントやコールバックの一覧を管理する。
+    - *Observerパターン*や*Publish-Subscribeパターン*に似た仕組み。
+4. **通知と再描画**
+    - 状態が変わると、ストアが購読者へ通知する。
+    - 通知を受けたコンポーネントがReactへ再描画を求め、変更を表示する。
+
+<Img src="/250427-150741.png" width={300} alt="購読の仕組み"/>
+
+### Context APIの内部
+
+React組み込みの仕組みを使います。
+- createContext：ProviderとConsumer、またはuseContextを結ぶ、一意のContextを作ります。
+- Provider：ツリーの位置にvalueを提供します。変更をReactが検知し、それを必要とする子孫を探して更新を予約・伝播します。
+- useContext：最も近い上位Providerのvalueを読み、同時に購読者として登録します。valueの変更時、Reactは登録したコンポーネントを再描画の対象にします。
+
+### ライブラリの最適化とSelector
+
+Redux、Zustand、Recoilなどは、Contextの基本的な描画問題に、より精密な仕組みで対応します。
+中心は*Selector*と*Memoization*です。
+
+- **Selector**：全体から*必要なデータ片だけ*を選ぶ関数。
+  - Reduxの`useSelector(state => state.user.name)`は、`user.name`だけを取得します。
+- **変更検知とメモ化**
+  - 更新時に、購読中の選択子の*結果*が本当に変わったか確認する。
+  - 参照同一性や浅い比較で以前と同じなら、再描画は不要と判断する。
+  - 比較と結果のキャッシュに、Reselectなどのメモ化を活用する。
+
+この選択的な購読により、一部が変わっても全体ではなく、そのデータを使うコンポーネントだけを正確に再描画できます。
+Zustandや、Atom単位で購読するRecoilも、似た原理で無駄を減らします。
+
+> ストアは*ツリー*や*ハッシュテーブル・Map*、購読者は*配列*や*連結リスト*で管理できます。Selectorのメモ化には*キャッシュ*を利用します。
+
+単に値を一か所に集める以上に、購読と選択的な描画を支える精密な仕組みがあります。
+理解すると、長所・短所を見極め、性能問題を診断・最適化する助けになります。
+
+<Ads2 />
+
+## サーバー状態を分離する
+
+状態は大きく二種類です。
+- **クライアント状態**：モーダルの開閉、入力、テーマなど、自分で所有・管理する状態。
+- **サーバー状態**：APIから取得し、サーバーが所有するデータ。クライアントではキャッシュ・同期する。
+
+ContextやReduxは主に前者に適します。
+後者には読み込み、エラー、キャッシュ、同期、再要求など多くの考慮点があり、専用ツールが効率的です。
+
+### なぜ専用の管理が必要なのか
+
+取得データをuseStateやReduxへ保存するだけでは、不十分なことがあります。
+- 同じデータを繰り返し要求しないキャッシュ。
+- 読み込みと失敗の状態をUIへ反映する。
+- 他ユーザーの変更など、サーバー側の更新に合わせて再検証する。
+- 気付かない間のバックグラウンド更新で、最新状態を保つ。
+- ページネーションや無限スクロールなど、複雑なUIへの対応。
+
+これらの自作は難しく、同じ作業の繰り返しになります。
+
+### React QueryとSWRの中心概念
+
+代表的な二つのライブラリは似た思想を持ち、次の機能を提供します。
+
+#### キャッシュとキー
+
+要求ごとに一意の*キー*を付け、内部キャッシュへ保存します。
+同じキーなら通信の代わりにキャッシュをすぐ返し、応答性を高めます。
+文字列や配列で定義し、要求パラメーターを含めて動的に作ることも多くあります。
+
+```tsx
+// 예시: API 호출 함수 (가정)
+async function fetchTodos(status?: string) {
+  const url = status ? `/api/todos?status=${status}` : '/api/todos';
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return response.json();
+}
+
+// React Query 예시
+import { useQuery } from 'react-query'; // TanStack Query v4 기준, v5는 @tanstack/react-query
+// 키: ['todos', { status: 'completed' }] -> 쿼리 함수에 객체로 전달됨
+const { data, isLoading, error } = useQuery(
+  ['todos', { status: 'completed' }],
+  () => fetchTodos('completed') // 쿼리 함수는 Promise를 반환해야 함
+);
+
+// SWR 예시
+import useSWR from 'swr';
+// fetcher 함수 정의 (SWR은 키를 fetcher의 첫 인자로 전달)
+const fetcher = (url: string) => fetch(url).then(res => {
+  if (!res.ok) throw new Error('An error occurred while fetching the data.');
+  return res.json();
+});
+// 키: '/api/todos?status=completed' -> fetcher 함수에 url로 전달됨
+const { data: swrData, error: swrError } = useSWR('/api/todos?status=completed', fetcher);
+```
+
+#### 再検証
+
+最新状態を保つため、条件に応じて自動で取得し直す*Revalidation*を行います。
+- 再マウント時。
+- ウィンドウが再びフォーカスを得たとき。refetchOnWindowFocus。
+- 再接続時。
+- staleTime、cacheTimeなどの設定間隔に応じて。
+
+手動で同期ロジックを書かずとも、最新データを見せられます。
+もちろん、必要に応じて設定は変更できます。
+
+<Img src="/250427-150921.png" width={400} alt="サーバー状態管理ライブラリの処理の流れ"/>
+
+## まとめ
+
+グローバル状態を扱う方法と内部の原理を確認しました。
+- **Context API**は組み込みの基本解ですが、性能調整に注意が必要。
+- ツールは**外部ストア**、**購読**、**選択的更新**で、効率よく共有・描画する。
+- **Redux Toolkit**、**Zustand**、**Recoil**は思想や特長が異なり、要件と複雑さで選ぶ。
+- **サーバー状態**には複雑な要件があり、**React Query**や**SWR**などの専用ツールが効率的。
+
+状態管理はReact開発の中心であり、ツール選びと原理の理解が、構造、性能、保守性へ影響します。
+自分のプロジェクトに合った戦略を立てる助けになれば幸いです。
+> 次回はReact Routerの*ルーティング*を扱います。要求に応じた表示、入れ子のルート、コード分割などを確認します。
+
+### 参考
+
+- React公式ドキュメント：Context：[https://reactjs.org/docs/context.html](https://reactjs.org/docs/context.html)
+- Redux Toolkit公式：[https://redux-toolkit.js.org/](https://redux-toolkit.js.org/)
+- Zustand GitHub：[https://github.com/pmndrs/zustand](https://github.com/pmndrs/zustand)
+- Recoil公式：[https://recoiljs.org/](https://recoiljs.org/)
+- TanStack Query公式：[https://tanstack.com/query/latest/docs/react/overview](https://tanstack.com/query/latest/docs/react/overview)
+- SWR公式：[https://swr.vercel.app/](https://swr.vercel.app/)

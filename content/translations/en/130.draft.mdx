@@ -1,0 +1,95 @@
+---
+title_ko: 하나의 Repository에 여러 개의 remote repository를 관리하는 방법
+title_en: How to manage multiple remote repositories in one repository
+desc: >-
+  하나의 Repository에 여러 개의 remote repository를 관리하는 방법을 알아보자. How to manage multiple
+  remote repositories in one repository.
+post_id: '130'
+locale: en
+title: Managing Multiple Remote Repositories in One Repository
+description: >-
+  How to connect and manage multiple Git remotes from a single project
+  directory.
+source_hash: acad2a1ed189faef42c65e67abe59ad1cdb912d6fd575b1356d6289340fb51ac
+---
+## Before getting started
+> This post was written in a Mac environment.
+
+Sometimes you need to manage several remote repositories from one project folder.
+For example, you may need to deliver the same project to different clients.
+Let's look at how to manage multiple remote repositories from a single project directory.
+
+## 1. Adding the first remote repository
+First, create an empty project folder.
+```bash
+mkdir project-folder
+```
+Copy the remote URL of a repository you have already created on GitHub.
+<Img src="/posts/240606-154630.png" alt="240606-154630" width="800"/>
+Add the first remote repository using the URL you copied.
+```bash
+git remote add origin https://github.com/user/first-repo.git
+```
+
+<Ads1 />
+## 2. Adding the second remote repository
+Create another repository on GitHub and use its remote URL.
+Add the second remote repository.
+I recommend using a name other than origin for this one.
+If you use origin, operations will apply to both remote repositories simultaneously.
+I named the second remote second-remote.
+```bash
+git remote add second-remote https://github.com/user/second-repo.git
+```
+## 3. Checking the configuration
+Navigate to the project folder in your command-line terminal and enter the following command.
+```bash
+git remote -v
+```
+
+For example, the output will look like this.
+```bash
+origin  https://github.com/user/first-repo.git (fetch)
+origin  https://github.com/user/first-repo.git (push)
+second-remote  https://github.com/user/second-repo.git (fetch)
+second-remote  https://github.com/user/second-repo.git (push)
+```
+
+<Ads2 />
+## 4. Switching branches, pushing, and pulling
+Since two remotes are connected, specify the remote's name when switching branches.
+```bash
+git checkout second-remote/main
+```
+
+After switching branches, continue your work.
+```bash
+git add .
+git commit -m "commit message"
+git push second-remote main
+```
+You can, of course, push to branches on both remotes.
+```bash
+git push origin main
+git push second-remote main
+```
+
+Similarly, specify the correct remote name when pulling.
+```bash
+git pull origin main
+git pull second-remote main
+```
+
+## 5. Removing a remote repository
+To remove a remote repository, enter the following command.
+```bash
+git remote remove origin
+git remote remove second-remote
+```
+
+## Conclusion
+We have looked at how to manage several remote repositories in one project directory.
+This approach makes working with multiple remotes much easier.
+
+### References
+[git remote -v](https://git-scm.com/docs/git-remote#Documentation/git-remote.txt---verbose)

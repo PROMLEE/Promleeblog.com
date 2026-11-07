@@ -1,0 +1,74 @@
+---
+post_id: '90'
+locale: zh
+title: 互联网中的AS内部路由：OSPF
+description: 介绍自治系统、AS内部与AS之间的路由，以及OSPF链路状态路由协议。
+source_hash: 65b53e789b2ac570ad815e6c0202a4af9b5a9e45fbf0e2162a1c19e69d1b249c
+---
+## 让路由具备扩展性
+此前讨论的路由模型是理想化的。
+- 假设所有路由器相同。
+- 假设网络是*扁平的*。
+- 但现实并非如此。
+
+规模问题：如果存在数十亿个目的地。
+- 无法把所有目的地都保存在路由表中。
+- 路由表交换会压垮链路。
+
+管理自主性：
+- 互联网是网络组成的网络。
+- 每个网络管理员可能都希望控制自己网络内部的路由。
+
+## 互联网实现可扩展路由的方式
+将路由器划分为*Autonomous System*。
+- AS = Autonomous System，也称为*域*。
+
+**自治系统内部路由（Intra-AS Routing）**
+- 同一个AS内，主机和路由器之间的路由。
+- AS内的所有路由器必须运行相同的域内路由协议。
+- 不同AS可以运行不同的域内路由协议。
+- 网关路由器位于所属AS的*边缘*，具有连接其他AS路由器的链路。
+
+**自治系统之间的路由（Inter-AS Routing）**
+- AS之间的路由。
+- 网关除了执行域内路由，还执行域间路由。
+<Ads1 />
+## 相互连接的自治系统（Interconnected ASes）
+转发表由AS内部和AS之间的路由算法共同构建。
+- AS内部路由确定AS内目的地对应的表项。
+- AS之间和AS内部路由共同确定外部目的地的表项。
+
+## AS之间的路由任务（Inter-AS tasks）
+<Img src="/posts/240618-072026.png" width={500}/>
+假设AS1中的路由器收到一个发往AS1外部的数据报。
+- 路由器需要把分组转发给网关路由器，但应该选择哪一个？
+
+AS1需要完成以下任务：
+1. 学习哪些目的地可通过AS2到达，哪些可通过AS3到达。
+2. 将这些可达性信息传播给AS1中的所有路由器。
+
+这就是AS间路由的职责。
+<Ads2 />
+## AS内部路由（Intra-AS Routing）
+也称为内部网关协议（IGP）。
+最常见的AS内部路由协议包括：
+- **RIP：路由信息协议（Routing Information Protocol）**
+	- Bellman-Ford算法的变体。
+- **OSPF：开放最短路径优先（Open Shortest Path First）**
+	- IS-IS协议本质上与OSPF相同。
+	- Dijkstra算法的变体。
+- **IGRP：内部网关路由协议（Interior Gateway Routing Protocol）**
+	- Cisco专有协议，使用了数十年，直到2016年。
+
+## OSPF（Open Shortest Path First）
+*Open*表示可以公开使用。
+使用链路状态算法。
+- 传播链路状态分组。
+- 每个节点维护拓扑图。
+- 使用Dijkstra算法计算最短路径。
+
+路由器将OSPF链路状态通告传播给整个AS中的其他所有路由器。
+- OSPF消息直接通过IP传输，不使用TCP或UDP。
+- 链路状态信息针对每一条相连的链路。
+
+IS-IS与OSPF非常相似，两者具有相同目标。

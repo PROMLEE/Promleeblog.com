@@ -1,0 +1,248 @@
+---
+title_ko: 'React 렌더링 원리 파헤치기 Virtual DOM과 Fiber - React, 알고 쓰자 1일차'
+title_en: Demystifying React Rendering Virtual DOM & Fiber - React Explained Day 1
+desc: >-
+  React가 화면을 그리는 과정인 렌더링 파이프라인과 Fiber 아키텍처의 원리를 쉽게 설명합니다. Virtual DOM,
+  재조정(Reconciliation), Fiber 노드, 협력적 스케줄링, Key 속성의 중요성까지 다룹니다.
+thumbnail_url: /250423-145602.webp
+metatag: >-
+  React, 렌더링, Virtual DOM, Fiber, Reconciliation, 재조정, Diffing, Key 속성,
+  Concurrent Mode, React 18, 프론트엔드, JavaScript
+post_id: '224'
+locale: ja
+title: Reactの描画原理を探るVirtual DOMとFiber：Reactを理解して使う1日目
+description: >-
+  Virtual DOM、Reconciliation、Fiber、優先順位のあるスケジューリング、Strict
+  Modeを通じて、Reactの描画を理解します。
+source_hash: b7b0480a0bdfbb84cc17c8de5b5f1c2c9decc0fb44092880708764521ea24943
+reviewed_at: '2026-11-07T01:38:21.494Z'
+---
+## はじめに
+今回はReactが画面を描き、更新する中心的な過程である*レンダリングパイプライン*と、それを滑らかかつ高速にする*Fiberアーキテクチャ*を学びます。
+
+## Virtual DOM：実DOMの賢い複製
+ウェブサイトで見ているものは、*DOM（Document Object Model）*という大きなツリーでできています。
+HTMLの各タグが枝葉のようにつながっています。
+操作のたびにこの大きなツリー全体を直接変更するのは、意外に遅く手間もかかります。
+そこでReactは*Virtual DOM*を使います。
+実DOMを模し、メモリー上に作る軽い複製だと考えてください。
+- **実DOM**：ブラウザーが画面を描くための本物の設計図です。変更には時間や資源のコストがかかります。
+- **Virtual DOM**：実DOMの軽量なコピーです。メモリー内で素早く生成・変更できます。建物を作る前の模型のようなものです。
+
+### 利点と採用理由
+Reactは表示を変えたいとき、実DOMをすぐには操作しません。
+まずVirtual DOMを変えて以前のものと比較し、*変わった部分だけ*を見つけます。
+その差分を選び、実DOMへまとめて適用します。
+不要な処理を減らし、更新を速くできます。
+この比較過程を*Reconciliation（再調整）*と呼び、Reactは変更を見つけるためのアルゴリズムを持っています。
+- **Diffing**：新旧のVirtual DOMを比較する過程です。素早く処理できるよう最適化されています。
+- **Reconciliation**：変更を実DOMへ反映し、最小限の作業で画面を更新する過程です。
+
+## Reconciliationの規則
+Reactは二つのVirtual DOMツリーを比べ、次の規則で変更を見つけます。
+1. **異なる型のノード**
+  タグ名が`<div>`と`<span>`のように異なる場合や、型が`<LoginButton>`と`<LogoutButton>`のように異なる場合、古いツリーを破棄して新しいものへ置き換えます。
+2. **同じ型のDOM要素**
+  両方が`<div>`なら、属性だけを比べ、変更箇所だけ更新します。`className`や`style`だけが変われば、それだけを反映します。
+3. **同じ型のコンポーネント**
+  両方が`<Button>`ならインスタンスを維持し、stateとpropsを更新します。そして内部の再調整を進めます。
+4. **リストとkey**
+  複数の子要素は基本的に順番で比較しますが、途中の追加・削除で無駄が生じます。特別な`key`で各要素を一意に識別すると、速く正確に変更を見つけられます。この`key`は後で詳しく説明します。
+<Img src="/250423-215432.png" width={600} alt="再調整の流れ"/>
+
+こうして最小限の作業で更新できますが、変更が大量で複雑ならどうでしょうか。
+以前のReactは再調整を一度に終えようとしたため、画面が一時的に停止するように見えることがありました。
+解決のために登場したのが*Fiber*です。
+
+<Ads1 />
+
+## Fiber：より賢くなったReact
+React 16のFiberは、再調整アルゴリズムを根本から再設計したものです。
+従来のStack Reconcilerは、更新を始めると最後まで中断できませんでした。
+複雑な更新中は、アニメーションや入力処理などができず、画面がぎくしゃくする可能性がありました。
+### Fiberノード
+各コンポーネントやDOM要素に対応する作業単位です。
+単なるインスタンス情報に加え、作業状態、優先度、親・子・兄弟の関係を持つ詳細なオブジェクトです。
+作業ごとに付く詳しい指示書のようなものです。
+*連結リスト*と*ツリー*を組み合わせた形でつながっています。
+更新を小さなFiber単位へ分け、優先度を付けられます。
+重要な作業が来れば、途中の処理を止めてそちらを先に扱えます。
+これが*協調的スケジューリング*です。
+細かく分けて短時間ずつ処理し、ブラウザーへ制御を戻すため、長時間の停止を避けられます。
+複雑な更新でもアニメーションを滑らかに保ち、入力へ素早く応答できます。
+
+### レンダーフェーズとコミットフェーズ
+作業は大きく二段階に分かれます。
+#### レンダーフェーズ
+Virtual DOMを比較し、変更が必要なFiberを探します。
+この段階は*中断可能*で、高優先度の仕事があれば止め、後で再開できます。
+実DOMにはまだ何も反映しません。
+#### コミットフェーズ
+判明した変更を、実DOMへ*まとめて*反映します。
+この段階は*中断不可*で、始めたらすべての反映が終わるまで進みます。
+
+Fiberにより、ユーザー体験を損なわずに複雑な更新を効率よく処理できるようになりました。
+
+<Ads2 />
+
+## key：リスト更新の鍵
+先ほど`key`が重要と説明しました。
+なぜ必要で、どう役立つかを確認します。
+友達やTo-Doなど、似た項目を並べる場合、通常は配列の`map()`を使います。
+
+```ts
+const todoItems = todos.map((todo) =>
+  <li>{todo.text}</li>
+);
+```
+`todos`が次の内容だとします。
+
+```js
+[
+  { id: 1, text: '장보기' },
+  { id: 2, text: '운동하기' }
+]
+```
+描画すると、次のHTMLになります。
+
+```html
+<ul>
+  <li>장보기</li>
+  <li>운동하기</li>
+</ul>
+```
+ここへ「読書」を先頭に加えます。
+
+```js
+[
+  { id: 3, text: '책 읽기' }, // 새로 추가
+  { id: 1, text: '장보기' },
+  { id: 2, text: '운동하기' }
+]
+```
+`key`がなければ、Reactは順序だけで比較します。
+1. 以前の`<li>장보기</li>`と現在の`<li>책 읽기</li>`は内容が違うため、買い物を読書へ更新します。
+2. 以前の`<li>운동하기</li>`と現在の`<li>장보기</li>`は違うため、運動を買い物へ更新します。
+3. 新たな`<li>운동하기</li>`を末尾へ追加します。
+
+すべての`<li>`を更新し、さらに追加する無駄が生じます。
+それぞれの`<li>`に一意の`key`を指定するとどうでしょうか。
+`key`は項目を識別する名札で、通常はデータの`id`を使います。
+
+```ts
+const todoItems = todos.map((todo) =>
+  <li key={todo.id}>{todo.text}</li> // key 속성 추가
+);
+```
+`key`を使うと、Reactは`key`を基に賢く比較できます。
+1. `key`が`3`の読書が、新しく加わったと分かります。
+2. `key`が`1`の買い物と、`key`が`2`の運動は変わらず、内容の変更もないと分かります。
+
+読書を先頭へ挿入するだけで、既存項目はそのままにできます。
+<Ybox>keyは兄弟要素の間で一意であれば十分です。</Ybox>
+
+### indexをkeyにしない理由
+`index`は順番を表すため、内容や順序が変わると、*Reactが変更を正しく認識できない場合があります。*
+
+```tsx
+const [items, setItems] = useState(['A', 'B', 'C']);
+return (
+  <ul>
+    {items.map((item, index) => (
+      <li key={index}>{item}</li>
+    ))}
+  </ul>
+);
+```
+`items`が`['C', 'B', 'A']`へ変わったらどうでしょうか。
+Reactは引き続き`index`で識別するため、
+- index 0の値はAからCへ変わっても、
+- *同じkey = 0*として、既存DOMを再利用します。
+
+結果として、次の問題が起こり得ます。
+- 誤った内容の表示
+- フォームの初期化エラー
+- アニメーションの不具合
+- 不要なDOM更新
+
+### 適切なkeyの指定
+できるだけ*データ固有のID*を`key`に使います。
+
+```tsx
+const items = [
+  { id: 'a1', name: 'A' },
+  { id: 'b2', name: 'B' },
+  { id: 'c3', name: 'C' },
+];
+return (
+  <ul>
+    {items.map(item => (
+      <li key={item.id}>{item.name}</li>
+    ))}
+  </ul>
+);
+```
+順番が変わっても追加があっても、項目を正確に識別でき、*不要な再描画を防いでUIの状態を安定させられます。*
+
+### indexを使ってよい場合
+一般には`index`を避けますが、次の場合は例外です。
+- 項目が絶対に変わらない
+- 静的なリストで、一意なIDを持てない
+- `['월', '화', '수']`のような、短く変化しない単純なリスト
+
+<Ads3 />
+
+## Strict ModeとConcurrent Features
+Reactには、安全で効率的なコードを書くための機能もあります。
+### Strict Mode
+潜在的な問題を見つけるための道具です。
+開発中だけ有効で、本番には影響しません。
+不安定なライフサイクルメソッドや予期しない副作用を検知し、警告します。
+Fiberではレンダーフェーズを中断・再開できるため、描画中に副作用のある処理は問題になります。
+そのような関数を意図的に2回呼び、早期発見を助けます。
+アプリの一部を`<React.StrictMode>`で囲んで使います。
+
+```tsx
+import React from 'react';
+function MyApp() {
+  return (
+    <React.StrictMode>
+      <ComponentOne />
+      <ComponentTwo />
+    </React.StrictMode>
+  );
+}
+```
+### Concurrent Features
+React 18で正式に導入された、Fiberの利点を引き出す機能群です。
+複数の更新に異なる優先度を付け、入力への応答などの緊急処理を、データ取得後の描画などで遅らせないことが中心です。
+`startTransition`で、特定の更新を緊急ではないと指定できます。
+その更新で応答性が下がることを防げます。
+
+```tsx
+import { startTransition } from 'react';
+
+function handleClick() {
+  startTransition(() => {
+    setState(newState);
+  });
+}
+
+// ... <button onClick={handleClick}>Update State</button>
+```
+体験を大きく改善できる強力な仕組みですが、正しく理解して使うことが重要です。
+<Ads4 />
+
+## まとめ
+Reactが画面を描き、更新する仕組みへの第一歩を踏み出しました。
+**Virtual DOM**は実DOMの軽量コピーで、メモリー内で素早く変更・比較できます。
+**Reconciliation**は、新旧のVirtual DOMから実DOMへ必要な最小の変更を探す過程です。
+**Fiber**は作業を小さく分け、優先度に応じて管理し、中断可能な協調的スケジューリングで応答性を高めます。中断できるレンダーフェーズと、できないコミットフェーズに分かれます。
+**key**は項目を効率よく更新するために不可欠で、一意の識別子から正確に変更を追跡します。
+**Strict Mode**と**Concurrent Features**は、安全で使いやすいアプリを助けます。
+> 次回は、基本的な状態管理手段であるuseStateの内部動作を詳しく見ていきます。
+### 参考
+- React公式ドキュメント：Reconciliation：[https://reactjs.org/docs/reconciliation.html](https://reactjs.org/docs/reconciliation.html)
+- React公式ドキュメント：Fiber Architecture：専用の説明ページはありませんが、関連概念が各所に説明されています。
+- React Blog：React v16.0：[https://reactjs.org/blog/2017/09/26/react-v16.0.html](https://reactjs.org/blog/2017/09/26/react-v16.0.html)：Fiberの導入
+- React Blog：React v18.0：[https://reactjs.org/blog/2022/03/29/react-v18.html](https://reactjs.org/blog/2022/03/29/react-v18.html)：Concurrent Featuresの紹介

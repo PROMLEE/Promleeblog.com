@@ -1,0 +1,462 @@
+---
+post_id: '234'
+locale: ja
+title: Expoのプッシュ通知を設定して送信するまで（A to Z）- expo-notification
+description: >-
+  Expoアプリにプッシュ通知を段階的に追加します。expo-notificationsのインストール、トークンの取得、通知の送受信と処理、FCMとAPNsのネイティブ設定を詳しく説明します。
+source_hash: 508f8acb2184f71e35bd204f4ba34a7e60a96354cff21429f160b77c59ca87e0
+reviewed_at: '2026-11-07T07:05:37.757Z'
+---
+## はじめに
+モバイルアプリを作るとき、重要な情報を届けたり、アプリの再利用を促したりするために*プッシュ通知*が候補になります。ユーザーがアプリを使っていないときにもメッセージを送れる便利な機能ですが、初めての設定は少し複雑に感じるかもしれません。
+今回はExpoでReact Nativeアプリを開発する際に、プッシュ通知を設定して使う方法を順に説明します。必要なツールのインストール、通知の許可、固有トークンの発行、サーバーからの送信、アプリでの受信まで、全体の流れを扱います。
+
+## プッシュ通知の用途と仕組み
+
+プッシュ通知は、ユーザーに重要な情報をすぐ届け、利用を促すのに役立ちます。新着メッセージ、イベント、キャンペーンなどを通知し、アプリを再び開いてもらえます。
+Expoでプッシュ通知が届くまでの大まかな流れは次のとおりです。
+
+1. **アプリ**
+   ユーザーの端末で動くExpoアプリです。
+2. **プッシュトークンの取得**
+   アプリが通知の許可を求め、許可されたら、端末を識別する固有の*Expoプッシュトークン*を取得します。
+3. **サーバーにトークンを保存**
+   アプリは取得したトークンを、管理しているバックエンドに送って保存します。あとで特定のユーザーに通知を送るため、トークンとユーザーを対応づけます。
+4. **通知の送信を要求**
+   特定のユーザーに通知する際、サーバーが保存済みのトークンとメッセージを*Expoプッシュサービス*のAPIに送ります。
+5. **Expoプッシュサービス**
+   Expoが運営するサーバーが要求を受け取り、実際の通知送信を処理します。
+6. **ネイティブのプッシュサービス（APNs／FCM）**
+   Expoプッシュサービスは、端末のプラットフォームに合うネイティブサービス（iOSはAPNs、AndroidはFCM）に通知を渡します。
+7. **端末で受信**
+   APNsまたはFCMが対象端末にプッシュ通知を届けます。
+8. **アプリでの処理**
+   端末に届いた通知をアプリが受け取り、画面に表示したり、特定の処理を実行したりできます。
+
+Expoは、この流れを実装しやすくする `expo-notifications` ライブラリを提供しています。これを使って実装しましょう。
+
+## ステップ1 - 必要なツールを用意する（expo-notificationsのインストール）
+まず、プッシュ通知を扱う `expo-notifications` をインストールします。Expoプロジェクトではネイティブモジュールとの互換性のため、`npm` や `yarn` の代わりに `expo install` を使うとよいでしょう。
+
+```bash
+npx expo install expo-notifications expo-device expo-constants
+```
+expo-notificationsは、ユーザーに権限を要求し、送信用のExpoPushTokenを取得するために使います。
+expo-deviceは、アプリが実機で動いているか確認するために使います。
+expo-constantsは、アプリの設定からprojectIdを取得するために使います。
+
+## ステップ2 - ユーザーに通知の許可を求める
+> ここからコードを書き始めます。コード全体は記事の最後にあります。[コードへ移動](#결론)
+
+<Rbox>AndroidとiOSのシミュレーターでは動作しません。実機を接続してテストしてください。</Rbox>
+プッシュ通知を送るには、ユーザーから明示的な許可を得る必要があります。これはiOSとAndroidの要件であり、ユーザーのプライバシーを守るために欠かせません。
+
+### 権限を確認して要求する
+
+アプリの起動時や特定機能の使用前に、通知権限を確認し、許可されていなければユーザーに要求します。`expo-notifications` の関数を使います。
+```tsx
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
+
+function handleRegistrationError(errorMessage: string) {
+  alert(errorMessage);
+  throw new Error(errorMessage);
+}
+
+async function registerForPushNotificationsAsync() {
+  if (Platform.OS === 'android') {
+    Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  }
+
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+      handleRegistrationError('Permission not granted to get push token for push notification!');
+      return;
+    }
+    const projectId =
+      Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+    if (!projectId) {
+      handleRegistrationError('Project ID not found');
+    }
+    try {
+      const pushTokenString = (
+        await Notifications.getExpoPushTokenAsync({
+          projectId,
+        })
+      ).data;
+      console.log(pushTokenString);
+      return pushTokenString;
+    } catch (e: unknown) {
+      handleRegistrationError(`${e}`);
+    }
+  } else {
+    handleRegistrationError('Must use physical device for push notifications');
+  }
+}
+```
+
+<Bbox>上のコードのYOUR_EXPO_PROJECT_IDは、実際のExpoプロジェクトIDに置き換えてください。app.jsonのextra.eas.projectId、またはExpoのWebサイトにあるプロジェクト設定で確認できます。</Bbox>
+
+次のコードでも `projectId` を取得できます。
+```javascript
+const projectId =
+      Constants?.expoConfig?.extra?.eas?.projectId ??
+      Constants?.easConfig?.projectId;
+```
+<Img src="/250429-160430.webp" width={300} alt="アプリを開いたときの通知許可ダイアログ"/>
+
+## ステップ3 - 端末を識別するExpoプッシュトークンを取得する
+
+ユーザーの許可が得られたら、端末を識別する*Expoプッシュトークン*を取得します。これはExpoプッシュサービスから特定の端末に通知を送るための、固有の宛先のようなものです。
+`Notifications.getExpoPushTokenAsync()` を呼ぶとトークンオブジェクトが取得でき、`data` プロパティに実際の値が入っています。上の `registerForPushNotificationsAsync` の例にも含まれています。
+
+```tsx
+registerForPushNotificationsAsync()
+  .then(token => 
+    // sendTokenToServer(token); // 서버에 토큰 전송하는 함수 (직접 구현 필요)
+  )
+  .catch((error: any) => console.log(error));
+```
+
+取得したトークンはバックエンドに送って保存します。あとで特定のユーザーに通知を送れるよう、各ユーザーとトークンを対応づけます。
+アプリの削除と再インストール、端末の変更などでトークンが変わることがあります。起動時に確認し、必要に応じてサーバーを更新する処理を入れます。
+
+<Ads1 />
+
+## ステップ4 - アプリでプッシュ通知を受信する
+通知を送信できたら、アプリで受信して処理する方法を見ていきます。フォアグラウンド、バックグラウンド、終了のどの状態にあるかによって、処理は少し異なります。
+
+### アプリが動いているときに受信する（フォアグラウンド）
+アプリが画面に表示されている間に通知が来ても、デフォルトではシステム通知は表示されません。`Notifications.addNotificationReceivedListener` を使うと、通知データを受け取り、アプリ内メッセージを表示するなど、必要な処理を実行できます。
+```tsx
+notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+  setNotification(notification);
+});
+return () => {
+  notificationListener.current &&
+    Notifications.removeNotificationSubscription(notificationListener.current);
+};
+```
+フォアグラウンドでもシステム通知のように表示したいなら、起動時に `Notifications.setNotificationHandler` を設定し、`shouldShowAlert: true` を指定します。
+```tsx
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+  }),
+});
+```
+
+### 通知がタップされたときに処理する
+アプリが終了しているときやバックグラウンドにあるときに受け取った通知を、ユーザーがタップしたら、どのように反応するかを定義します。特定の画面へ移動したり、関連データを表示したりできます。
+このときは `Notifications.addNotificationResponseReceivedListener` を使います。ユーザーが通知をタップすると呼び出され、コールバックの引数 `response` から通知情報（`response.notification`）にアクセスできます。サーバーが送った追加データは `response.notification.request.content.data` に入るため、その値で処理を分岐できます。上の `App` コンポーネントの例を参照してください。
+```tsx
+responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+  console.log(response);
+});
+return () => {
+  responseListener.current &&
+    Notifications.removeNotificationSubscription(responseListener.current);
+};
+```
+### アプリが終了中またはバックグラウンドにある場合の既定の動作
+終了中やバックグラウンドで受信すると、iOSやAndroidの標準通知システムが画面上部やロック画面などに通知を表示します。音、バッジ、通知センターへの表示などは、アプリの起動時に `Notifications.setNotificationHandler` で設定した内容に従います。
+```tsx
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
+```
+バックグラウンドで通知が届いた瞬間に複雑な処理を実行することには、制約があります。通常はユーザーが通知をタップしたとき、`addNotificationResponseReceivedListener` で後続の処理を行います。
+
+<Ads2 />
+
+## ステップ5 - ネイティブ設定を行う（重要）
+
+ここまでの手順では、主にExpo Goでのテストを想定しています。
+ストアに公開する*スタンドアロンアプリ（Standalone App）*をビルドするには、AndroidとiOSそれぞれでネイティブのプッシュ通知設定を完了させる必要があります。この設定をしないと、公開したアプリでは通知が動きません。
+ExpoのEAS（Expo Application Services）を使うと、この作業を簡単に進められます。
+
+### AndroidでFCMを設定する
+
+Androidのプッシュ通知は、*FCM（Firebase Cloud Messaging）*を経由します。
+
+1. **Firebaseプロジェクトを作る**
+   Google Firebaseコンソール（[https://console.firebase.google.com/](https://console.firebase.google.com/)）でプロジェクトを新しく作るか、既存のプロジェクトを使います。
+2. **Androidアプリを追加する**
+   Firebaseのプロジェクト設定でAndroidアプリを追加し、アプリのパッケージ名（`app.json` の `android.package`）を正確に入力します。
+3. **`google-services.json` をダウンロードする**
+   アプリを追加する過程で、FCMの設定情報が入った `google-services.json` をダウンロードします。
+4. **FCMサーバーキーを確認する**
+   Firebaseのプロジェクト設定からクラウドメッセージングのタブを開き、「サーバーキー」を確認します。現在Expoでは、主にサーバーキーの代わりに `google-services.json` を直接アップロードします。
+5. **EAS CLIで認証情報をアップロードする**
+   プロジェクトのディレクトリでEAS CLIを使い、ダウンロードした `google-services.json` をExpoのサーバーにアップロードします。
+
+```bash
+# 아직 설치하지 않았다면: npm install -g eas-cli
+eas login # Expo 계정 로그인
+eas credentials 
+```
+
+   > Android
+   → Google Service Account
+   → Manage your Google Service Account for Push Notifications (FCM V1)
+   → Set up a Google Service Account Key for Push Notifications (FCM V1)
+   → Googleアカウントを選択
+
+   アップロードした認証情報は、EAS Build時に自動でアプリに組み込まれます。
+6. **app.jsonの設定を確認する**
+   app.jsonのandroid.googleServicesFileに正しいパスが指定されているか確認します。
+
+```json title="app.json"
+{
+"expo": {
+  "android": {
+      "googleServicesFile": "./path/to/google-services.json"
+    }
+  }
+}
+```
+
+### iOSでAPNsを設定する
+
+iOSのプッシュ通知は、*APNs*（Apple Push Notification service）を経由します。
+
+1. **Apple Developerアカウント**
+   有料のApple Developerアカウントが必要です。
+2. **Bundle Identifierを設定する**
+   アプリを識別するBundle Identifierを設定し、Apple Developerサイトに登録します（`app.json` の `ios.bundleIdentifier`）。
+3. **Push Notificationsを有効にする**
+   Apple Developerサイトで、対象のApp ID（Bundle Identifier）のPush Notificationsを有効にします。
+4. **APNsの認証キーを作る（.p8ファイル）**
+   Apple Developerサイトの「Certificates, Identifiers & Profiles」→「Keys」で、「Apple Push Notifications service（APNs）」を有効にした新しいキーを作り、`.p8` をダウンロードします。証明書方式（.p12）も利用できますが、キー方式（.p8）がより推奨されます。Key IDとTeam IDも控えます。
+5. **EAS CLIで認証情報をアップロードする**
+   プロジェクトのディレクトリでEAS CLIを使い、取得した `.p8` と関連情報（Key ID、Team ID、Bundle Identifier）をExpoのサーバーに送ります。
+
+```bash
+eas credentials # 명령 실행 후 플랫폼(ios) 선택, 안내에 따라 Push Key (.p8) 파일 경로 및 관련 정보 입력
+```
+
+   この認証情報もEAS Buildで使われます。
+6. **app.jsonの設定を確認する**
+   `ios.bundleIdentifier` がApple Developerサイトの登録値と一致するか、`ios.usesAppleSignIn` などの設定が正しいかを確認します。`ios.entitlements` の `aps-environment` がビルド環境に応じてdevelopmentまたはproductionに設定されていることも重要です。EAS Buildが管理する場合が多い項目です。
+
+ネイティブ設定は複雑に見えても、ExpoのドキュメントとEAS CLIの案内に従えば進められます。
+
+## ステップ6 - プッシュ通知を送る（テストと本番）
+トークンを取得できたので、実際に通知を送ってみます。
+### 最も簡単な方法 - Expoの通知ツールを使う
+開発やテストでは、Expoが提供するWebのプッシュ通知ツールが手軽です。
+1. **Expo Push Notifications Toolを開く**
+   [https://expo.dev/notifications](https://expo.dev/notifications) に移動します。
+2. **プッシュトークンを入力する**
+   アプリから取得したExpoプッシュトークン（`ExponentPushToken[...]` 形式）を入力します。
+3. **メッセージを書く**
+   通知のタイトルと本文を入力します。必要なら `data` 欄にJSONの追加データを指定できます。アプリが通知を受信したときに使えます。
+4. **送信する**
+   「Send Notification」を押すと、そのトークンに対応する端末へ通知が送られます。
+
+このツールで、サーバーを設定せずに受信と処理のロジックを試せます。
+
+### Node.jsのサーバーから直接送信する
+本番サービスでは、メッセージの到着やお知らせの登録など、バックエンドで特定のイベントが起きたときにプッシュ通知を送ります。ExpoプッシュサービスのAPIにHTTP POSTリクエストを送ります。
+以下はNode.jsの `fetch` APIでプッシュ通知を送る簡単な例です。
+```javascript
+// 이 코드는 백엔드 서버(Node.js 등)에서 실행되어야 합니다.
+// 절대로 앱 클라이언트 코드에 API 키나 토큰을 직접 넣지 마세요!
+const sendPushNotification = async (expoPushToken, title, body, data) => {
+  const message = {
+    to: expoPushToken, // 알림을 받을 대상 토큰 (배열로 여러 명에게 동시 전송 가능)
+    sound: 'default',  // 알림 도착 시 소리 ('default' 또는 null)
+    title: title,      // 알림 제목
+    body: body,        // 알림 본문
+    data: data,        // 앱에서 추가적으로 사용할 데이터 (JSON 객체)
+  };
+  try {
+    const response = await fetch('https://exp.host/--/api/v2/push/send', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Accept-encoding': 'gzip, deflate',
+        'Content-Type': 'application/json',
+        // 'Authorization': `Bearer YOUR_EXPO_ACCESS_TOKEN` // Access Token 방식 사용 시 (선택 사항)
+      },
+      body: JSON.stringify(message),
+    });
+    const result = await response.json();
+    console.log('Push notification sent:', result);
+    // result 객체 예시: { data: { status: 'ok', id: '...' } }
+    // status가 'error'인 경우 details 객체에 오류 정보 포함
+    //   } catch (error) {
+    console.error('Error sending push notification:', error);
+  }
+};
+
+// 사용 예시: 저장된 사용자 토큰으로 알림 보내기
+const userToken = 'ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]'; // 실제 사용자 토큰 사용
+
+sendPushNotification(
+  userToken,
+  '새로운 메시지',
+  '친구가 메시지를 보냈습니다!',
+  { messageId: 123, sender: '친구A' } // 앱에서 활용할 추가 데이터
+);
+```
+<Rbox>Expo Access Tokenを使う場合など、機密情報をアプリのクライアントコードに含めてはいけません。APIリクエストは、必ず安全に管理されたバックエンドから送信してください。</Rbox>
+
+## 通知のカスタマイズと管理
+expo-notificationsは、通知を効果的に扱うための追加機能も提供します。
+- **Androidのチャネル設定**。Android 8.0（Oreo）以降では通知チャネルを設定することで、ユーザーが通知の種類ごとに設定を管理できます。Notifications.setNotificationChannelAsync() でチャネルID、名前、重要度などを設定できます。上の `registerForPushNotificationsAsync` の例を参照してください。
+- **iOSのバッジ数の管理**。アプリアイコンに表示される赤い数字を管理できます。`Notifications.getBadgeCountAsync()` で現在の数を取得し、`Notifications.setBadgeCountAsync()` で設定します。サーバーと同期する処理が必要です。
+- **通知の予約**。`Notifications.scheduleNotificationAsync()` で、指定した時間の経過後や定期的にローカル通知を送れます。プッシュ通知とは別の機能です。
+
+<Ads3 />
+## おわりに
+
+<Toggle title="コード全体">
+
+```tsx
+import React, { useState, useEffect, useRef } from 'react';
+import { Text, View, Button, Platform } from 'react-native';
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
+
+// 앱이 실행되는 동안 알림이 도착했을 때 어떻게 처리할지 설정 (Foreground 알림 처리)
+// 소리 재생, 뱃지 표시, 알림 표시 여부 등을 설정할 수 있습니다.
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true, // 알림 도착 시 사용자에게 표시할지 여부
+    shouldPlaySound: true, // 소리 재생 여부
+    shouldSetBadge: true,  // 뱃지 아이콘 표시 여부 (iOS)
+  }),
+});
+
+// 푸시 알림 권한 요청 및 토큰 받기 함수
+async function registerForPushNotificationsAsync() {
+  // 안드로이드 채널 설정 (선택 사항이지만 권장됨)
+  if (Platform.OS === 'android') {
+    Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX, // 알림 중요도 설정
+      vibrationPattern: [0, 250, 250, 250], // 진동 패턴
+      lightColor: '#FF231F7C', // 알림 LED 색상
+    });
+  }
+
+  if (Device.isDevice) {
+    // 현재 권한 상태 확인
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    // 권한이 부여되지 않았다면 요청
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    // 최종적으로 권한이 거부되었다면 함수 종료
+    if (finalStatus !== 'granted') {
+      handleRegistrationError('Permission not granted to get push token for push notification!');
+      return;
+    }
+
+    // 프로젝트 id 추출출
+    const projectId =
+      Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+    if (!projectId) {
+      handleRegistrationError('Project ID not found');
+    }
+
+    // Expo 푸시 토큰 받기
+    try {
+      const pushTokenString = (
+        await Notifications.getExpoPushTokenAsync({
+          projectId,
+        })
+      ).data;
+      console.log(pushTokenString);
+      return pushTokenString;
+    } catch (e: unknown) {
+      handleRegistrationError(`${e}`);
+    }
+  } else {
+    handleRegistrationError('Must use physical device for push notifications');
+  }
+}
+
+export default function App() {
+  const [notification, setNotification] = useState<Notifications.Notification | null>(null);
+  const notificationListener = useRef<Notifications.Subscription>();
+  const responseListener = useRef<Notifications.Subscription>();
+
+  useEffect(() => {
+    // 1. 알림 권한 요청
+    registerForPushNotificationsAsync()
+      .then(token => 
+        // sendTokenToServer(token); // 서버에 토큰 전송하는 함수 (직접 구현 필요)
+      )
+      .catch((error: any) => console.log(error));
+
+    // 2. 알림 수신 리스너 등록 (앱 실행 중 알림 도착 시)
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      console.log('알림 수신 (foreground):', notification);
+      setNotification(notification);
+    });
+
+    // 3. 알림 반응 리스너 등록 (사용자가 알림 탭 시)
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('알림 반응:', response);
+      // 여기서 response.notification.request.content.data 등을 통해
+      // 알림에 포함된 데이터에 접근하고 특정 화면으로 이동하는 등의 로직 처리 가능
+    });
+
+    // 컴포넌트 unmount 시 리스너 해제
+    return () => {
+      if (notificationListener.current) {
+        Notifications.removeNotificationSubscription(notificationListener.current);
+      }
+      if (responseListener.current) {
+        Notifications.removeNotificationSubscription(responseListener.current);
+      }
+    };
+  }, []);
+
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'space-around' }}>
+      <Text>푸시 알림 테스트</Text>
+      {/* 필요 시 버튼 등으로 알림 보내기 기능 트리거 */}
+    </View>
+  );
+}
+```
+</Toggle>
+
+今回は、Expoを使い、React Nativeアプリにプッシュ通知を追加する一連の手順を学びました。
+1. expo-notificationsを**インストール**します。
+2. ユーザーに通知の**権限**を求めます。
+3. 固有の**Expoプッシュトークン**を取得し、サーバーに保存します。
+4. Expoの通知ツールや自前の**サーバー**で通知を**送信**します。
+5. アプリで通知を**受信**し、ユーザーの操作に応じて処理します。
+6. 最後に、**ネイティブ設定**（FCM、APNs）を済ませ、配布するアプリを準備します。
+
+### 参考
+- Expo Push Notifications Overview [https://docs.expo.dev/push-notifications/overview/](https://docs.expo.dev/push-notifications/overview/)
+- Using FCM for Push Notifications（Android設定） [https://docs.expo.dev/push-notifications/using-fcm/](https://docs.expo.dev/push-notifications/using-fcm/)
+- Using APNs for Push Notifications（iOS設定） [https://docs.expo.dev/push-notifications/using-apns/](https://docs.expo.dev/push-notifications/using-apns/)
+- expo-notifications APIリファレンス [https://docs.expo.dev/versions/latest/sdk/notifications/](https://docs.expo.dev/versions/latest/sdk/notifications/)
+- EASの認証情報のドキュメント [https://docs.expo.dev/eas/credentials/](https://docs.expo.dev/eas/credentials/)

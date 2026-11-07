@@ -61,6 +61,7 @@ namespace PostResponse {
 
   export interface GetPost extends Shared.SuccessResponse {
     data: {
+      url: string;
       id: number;
       series_no: number;
       name: string;

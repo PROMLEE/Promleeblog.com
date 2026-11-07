@@ -1,0 +1,47 @@
+---
+post_id: '32'
+locale: en
+title: ElGamal Encryption
+description: An explanation of ElGamal encryption used in public-key cryptography.
+source_hash: accdad5fa5bd67441a6217e286c7bc096ec7105fb738dfae4a36bfba28b9e967
+reviewed_at: '2026-11-06T14:47:19.230Z'
+---
+## ElGamal Encryption Overview
+- A probabilistic encryption scheme.
+- Provides IND-CPA (INDistinguishability under Chosen-Plaintext Attack) security if the decisional Diffie–Hellman problem is intractable.
+
+<Bbox> Decisional Diffie–Hellman (DDH) problem </Bbox>
+
+> Given $g, g^a, g^b$ and $X$, distinguish whether $X$ is $g^{ab}$ or $g^c$, where c is random.
+
+If the DDH problem is considered hard, the CDH problem for the same instance is also hard.
+The original ElGamal encryption scheme has a multiplicative homomorphic property.
+- $E_{K_{pub}}(M_1) \cdot E_{K_{pub}}(M_2) = E_{K_{pub}}(M_1 \cdot M_2)$
+A general transformation can provide IND-CCA2 (INDistinguishability under Chosen-Ciphertext Attack) security.
+
+The **multiplicative homomorphic property** means that ciphertexts can be multiplied directly, and decrypting the result gives the product of the original values.
+This property allows computation on encrypted data while protecting its privacy.
+<Ads1 />
+## ElGamal Encryption Process
+- Key generation
+  1. Select a prime $p$.
+  2. In a subgroup of $\mathbb{Z}_p^*$ denoted $\mathbb{G}$, select a generator $g$.
+     - The subgroup has order $q$.
+  3. From $\mathbb{Z}_q$, select a random element $x$ and calculate $X = g^x \pmod{q}$.
+  4. Output public key $\text{pk} = (p, q, g, X)$ and secret key $\text{sk} = x$.
+- Encryption
+  1. From $\mathbb{Z}_q$, select a random element $r$.
+  2. Calculate $C_1 = g^r$ and $C_2 = M \cdot X^r$, then output ciphertext $CT = (C_1, C_2)$.
+- Decryption
+  1. Given secret key $\text{sk} = x$ and ciphertext $CT = (C_1, C_2)$,
+  2. Calculate $C_2 / (C_1)^x (= M \cdot X^r / (g^r)^x  = M)$ and output plaintext $M$.
+
+### Example: ElGamal encryption
+$p = 23, q = 11, g = 2, x = 6, M = 9$
+- Public key: $\text{pk} = (23, 11, 2, 8)$; secret key: $\text{sk} = 6$.
+- Encryption
+  - When $r = 3$,
+  - $C_1 = 2^3 = 8$
+  - $C_2 = 9 \cdot 8^3 = 9 \cdot 512 = 4608$
+- Decryption
+  - $M = 4608 / 8^6 = 9$

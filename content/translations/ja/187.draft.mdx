@@ -1,0 +1,195 @@
+---
+post_id: '187'
+locale: ja
+title: TypeScript SDKでMCPサーバーを構築する方法
+description: Model Context ProtocolのTypeScript SDKを使い、MCPサーバーを構築する手順を詳しく紹介します。
+source_hash: 4bb7a694c5b010c00d50c0bef09d02bd5c348c801f0b0e54b6bb1f908470a455
+---
+## はじめに
+
+今回は、*Model Context Protocol（MCP）*のTypeScript SDKでMCPサーバーを構築します。MCPとは何かを確認し、SDKを使ってサーバーを作る手順を詳しく説明します。
+
+## Model Context Protocol（MCP）とは？
+
+MCPは、*大規模言語モデル（LLM）*が外部のデータや機能へ、安全で標準化された方法でアクセスするためのプロトコルです。LLMが外部の情報を取得したり、特定の作業を実行したりするための橋渡しをします。例えば、天気情報が必要なとき、MCPを通して実際の天気APIにアクセスし、情報を取得できます。詳しくは[MCPの公式ドキュメント](https://modelcontextprotocol.io/)をご覧ください。
+
+<Ads1 />
+## TypeScript SDKでMCPサーバーを構築する
+
+TypeScript SDKでサーバーを構築する流れを、順に見ていきます。
+
+### 1. プロジェクトを初期化する
+
+新しいディレクトリを作り、プロジェクトを初期化します。
+
+````
+mkdir my-mcp-server
+cd my-mcp-server
+npm init -y
+````
+
+これで `my-mcp-server` フォルダーが作られ、その中でnpmプロジェクトが初期化されます。
+
+### 2. 必要なパッケージをインストールする
+
+次に、MCPサーバーの構築に必要なパッケージをインストールします。
+
+````
+npm install @modelcontextprotocol/sdk zod
+npm install -D typescript @types/node
+````
+
+`@modelcontextprotocol/sdk` はMCPのTypeScript SDK、`zod` はデータ検証用のライブラリです。`typescript` と `@types/node` はTypeScriptで開発するために必要です。
+
+### 3. TypeScriptの設定ファイルを作る
+
+プロジェクトのルートに `tsconfig.json` を作り、TypeScriptコンパイラの設定を指定します。
+
+````json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true
+  },
+  "include": ["src"]
+}
+````
+
+この設定では新しいJavaScriptの構文を使い、モジュール方式をESNextに指定します。ソースは `src` に、コンパイル後のコードは `dist` に置きます。
+
+<Ads2 />
+### 4. ソースディレクトリとエントリーポイントを作る
+
+`src` ディレクトリを作り、その中に `index.ts` を作ります。
+
+````
+mkdir src
+touch src/index.ts
+````
+
+これで `src/index.ts` にサーバーのコードを書く準備ができました。
+
+### 5. MCPサーバーを実装する
+
+簡単な計算とあいさつを提供するMCPサーバーを実装します。
+
+````ts
+import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+const server = new McpServer({
+  name: "Demo",
+  version: "1.0.0"
+});
+
+server.tool(
+  "add",
+  { a: z.number(), b: z.number() },
+  async ({ a, b }) => ({
+    content: [{ type: "text", text: String(a + b) }]
+  })
+);
+
+server.resource(
+  "greeting",
+  new ResourceTemplate("greeting://{name}", { list: undefined }),
+  async (uri, { name }) => ({
+    contents: [{
+      uri: uri.href,
+      text: `안녕하세요, ${name}님!`
+    }]
+  })
+);
+
+const transport = new StdioServerTransport();
+await server.connect(transport);
+````
+
+このコードはMCPサーバーを作り、2つの数値の合計を求める `add` ツールを追加します。さらに、ユーザー名に応じてあいさつを生成する `greeting` リソースを追加します。最後に、標準入出力でメッセージを処理します。
+
+<Ads3 />
+### 6. サーバーをビルドして実行する
+
+まずTypeScriptコードをコンパイルし、サーバーを起動します。
+
+```bash
+npx tsc
+node dist/index.js
+```
+
+正常に起動すると、MCPサーバーが標準入力を待ち受け、クライアントと通信できる状態になります。
+
+#### npmスクリプトで自動化する
+
+毎回 `npx tsc` と `node dist/index.js` を入力するのが面倒なら、`package.json` の `scripts` を次のように変更します。
+
+````json
+"scripts": {
+  "build": "tsc",
+  "start": "node dist/index.js",
+  "dev": "npm run build && npm run start"
+}
+````
+
+これで次のコマンドから、サーバーをビルドして実行できます。
+
+````
+npm run dev
+````
+
+開発中に何度も実行するときは、このスクリプトを使うと便利です。
+
+<Ads4 />
+## 問題と対処方法
+
+### 問題1 - モジュール解決のエラー
+
+**エラーメッセージ**
+
+```
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '@modelcontextprotocol/sdk/server/mcp.js'
+```
+
+**対処方法**
+
+TypeScriptでESモジュールを使うときは、`.js` の拡張子を明記します。また、`tsconfig.json` の `moduleResolution` が `Node` になっているか確認します。
+
+### 問題2 - 型定義が見つからない
+
+**エラーメッセージ**
+
+```
+Cannot find name 'process'.
+```
+
+**対処方法**
+
+`@types/node` をインストールし、`tsconfig.json` に次の内容を追加します。
+
+````json
+{
+  "compilerOptions": {
+    "types": ["node"]
+  }
+}
+````
+
+## おわりに
+
+今回は、MCPの考え方から、TypeScript SDKでMCPサーバーを構築する手順まで見てきました。MCPを使うと、LLMは外部データや機能を、より安全で一貫した方法で扱えます。SDKを使えば比較的簡単にサーバーを作れるので、さまざまな機能の追加に挑戦してみてください。
+
+### もう少し考えてみる
+
+- 認証を追加して、MCPサーバーのセキュリティを強化するにはどうすればよいでしょうか。
+- 複数のMCPリソースを組み合わせて、複雑な機能を実装できるでしょうか。
+
+### 参考
+
+- https://github.com/modelcontextprotocol/typescript-sdk
+- https://modelcontextprotocol.io/

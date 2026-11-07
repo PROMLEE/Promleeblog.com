@@ -1,0 +1,234 @@
+---
+title_ko: >-
+  React Native에서 데이터 로딩 시 Indicator 사용하기 (ActivityIndicator,
+  react-native-skeleton-placeholder)
+title_en: >-
+  Using Indicator when loading data in React Native (ActivityIndicator,
+  react-native-skeleton-placeholder)
+desc: >-
+  React Native에서 데이터 로딩 시 Indicator 사용하기, Using Indicator when loading data in
+  React Native
+thumbnail_url: 'https://reactnative.dev/img/header_logo.svg'
+post_id: '142'
+locale: zh
+title: 在 React Native 加载数据时使用指示器（ActivityIndicator、react-native-skeleton-placeholder）
+description: >-
+  介绍 React Native 数据加载时使用 ActivityIndicator 和 react-native-skeleton-placeholder
+  显示加载状态的方法。
+source_hash: bf2b59438ff209a183706d40d4c4ce18c2c3a3ce78cd89aa17d8f54c3a5afa97
+reviewed_at: '2026-11-07T01:51:12.547Z'
+---
+## 开始之前
+> 本文在 Expo 环境中编写，但内容适用于所有 React Native 环境。
+同时，假设项目已经完成基本配置。
+
+### 什么是指示器？
+指示器（Indicator）是告知用户某项任务正在进行的 UI 元素。加载数据、切换页面等操作时，可以用它向用户显示进度状态。没有指示器，用户就无法判断操作是否正在进行，使用体验可能因此下降。
+指示器有多种类型，本文使用常见的 `ActivityIndicator` 与 `react-native-skeleton-placeholder`。`ActivityIndicator` 是内置的圆形加载指示器，`react-native-skeleton-placeholder` 则会预先展示空白的骨架结构。根据场景选择合适的指示器，可以为用户提供更好的体验。
+
+<Ads1 />
+## 创建测试页面
+先创建一个测试页面，以便使用指示器。打开 `App.js` 文件，编写以下代码。这段代码会在用户每次刷新页面时，等待 2 秒后显示当前时间。刷新原理请参考 [React Native RefreshControl 文章](/blog/post/140-react-native-refreshcontrol)。
+```tsx title=app/index.tsx
+import React, { useEffect, useState } from 'react';
+import { Text, ScrollView, RefreshControl, View, SafeAreaView } from 'react-native';
+
+const Card = () => {
+  const [now, setNow] = useState('');
+
+  useEffect(() => {
+    setTimeout(() => {
+      setNow(new Date().toLocaleString());
+    }, 2000);
+  }, []);
+
+  return (
+    <View style={{ flex: 1 }}>
+      {Array.from({ length: 100 }).map((_, index) => (
+        <Text key={index} style={{ textAlign: 'center', justifyContent: 'center', fontSize: 20 }}>{`${now}`}</Text>
+      ))}
+    </View>
+  );
+};
+
+const List = () => {
+  const [key, setKey] = useState(new Date().getTime());
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setKey(new Date().getTime());
+    setRefreshing(false);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white', padding: 20 }}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['blue', 'red', 'green']} />
+        }
+      >
+        <View style={{ flex: 1, flexDirection: 'row' }}>
+          <Card key={key} />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default List;
+```
+刷新后，数据加载完成前会显示空白页面，因此用户无法判断任务正在进行，还是发生了错误。
+<Img src="/posts/250303-131043.gif" width={200} alt=""/>
+接下来使用指示器改善这一点。
+
+<Ads2 />
+## 1. 使用 ActivityIndicator
+ActivityIndicator 是内置的圆形加载指示器。`ActivityIndicator` 是内置组件，无需额外安装。要使用 `ActivityIndicator`，按如下方式编写代码即可。
+为了与刷新指示器区分，这里将其设为蓝色。另外，添加 `isLoading` 状态，让指示器只在数据加载期间显示。
+```tsx title=app/index.tsx {6, 9, 12, 20}
+import React, { useEffect, useState } from 'react';
+import { Text, ScrollView, RefreshControl, View, SafeAreaView, ActivityIndicator } from 'react-native';
+
+const Card = () => {
+  const [now, setNow] = useState('');
+  const [isLoading, setIsLoading] = useState(true); // isLoading 추가
+
+  useEffect(() => {
+    setIsLoading(true); // 데이터 로딩 시작
+    setTimeout(() => {
+      setNow(new Date().toLocaleString());
+      setIsLoading(false); // 데이터 로딩 완료
+    }, 2000);
+  }, []);
+
+  return (
+    <View style={{ flex: 1 }}>
+      {isLoading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', height: 200 }}>
+          <ActivityIndicator size="large" color="blue" /> // ActivityIndicator 추가
+        </View>
+      ) : (
+        Array.from({ length: 100 }).map((_, index) => (
+          <Text key={index} style={{ textAlign: 'center', justifyContent: 'center', fontSize: 20 }}>{`${now}`}</Text>
+        ))
+      )}
+    </View>
+  );
+};
+
+const List = () => {
+  const [key, setKey] = useState(new Date().getTime());
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setKey(new Date().getTime());
+    setRefreshing(false);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white', padding: 20 }}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['blue', 'red', 'green']} />
+        }
+      >
+        <View style={{ flex: 1, flexDirection: 'row' }}>
+          <Card key={key} />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default List;
+```
+如下所示，在获取数据的 2 秒内显示指示器；加载完成后，指示器消失，并显示所需的数据。
+<Img src="/posts/250303-131044.gif" width={200} alt=""/>
+
+<Ads3 />
+## 2. 使用 react-native-skeleton-placeholder
+`react-native-skeleton-placeholder` 是一种提前显示空白骨架结构的指示器。使用 `react-native-skeleton-placeholder` 前，需要先安装它。运行下面两条命令中的任意一条即可。
+```bash title="npm 사용 시"
+npm install @react-native-masked-view/masked-view react-native-linear-gradient --save
+npm install react-native-skeleton-placeholder --save
+```
+```bash title="yarn 사용 시"
+yarn add @react-native-masked-view/masked-view react-native-linear-gradient 
+yarn add react-native-skeleton-placeholder
+```
+
+使用 `react-native-skeleton-placeholder` 时，按如下方式编写代码。
+```tsx title=app/index.tsx
+
+import React, { useEffect, useState } from 'react';
+import { Text, ScrollView, RefreshControl, View, SafeAreaView } from 'react-native';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+
+const Card = () => {
+  const [now, setNow] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setNow(new Date().toLocaleString());
+      setIsLoading(false);
+    }, 2000);
+  }, []);
+
+  return (
+    <View style={{ flex: 1 }}>
+      {isLoading ? (
+        <SkeletonPlaceholder borderRadius={4}>
+          <Text style={{ marginTop: 6, fontSize: 14, lineHeight: 18 }}>Hello world</Text>
+        </SkeletonPlaceholder>
+      ) : (
+        Array.from({ length: 100 }).map((_, index) => (
+          <Text key={index} style={{ textAlign: 'center', justifyContent: 'center', fontSize: 20 }}>{`${now}`}</Text>
+        ))
+      )}
+    </View>
+  );
+};
+
+const List = () => {
+  const [key, setKey] = useState(new Date().getTime());
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setKey(new Date().getTime());
+    setRefreshing(false);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white', padding: 20 }}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['blue', 'red', 'green']} />
+        }
+      >
+        <View style={{ flex: 1, flexDirection: 'row' }}>
+          <Card key={key} />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default List;
+```
+目前出现了 `ERROR Warning: TypeError: Cannot read property 'bubblingEventTypes' of null` 错误，我正在寻找解决方法。找到后会更新本文。
+[GitHub issue](https://github.com/chramos/react-native-skeleton-placeholder/issues/138)
+
+<Ads4 />
+## 结语
+### 进一步思考
+- 使用指示器时，思考哪一种类型更合适。
+- 思考应该在什么情况下显示指示器。
+
+### 参考资料
+- [ActivityIndicator 官方文档](https://reactnative.dev/docs/activityindicator)
+- [react-native-skeleton-placeholder 官方文档](https://github.com/chramos/react-native-skeleton-placeholder)

@@ -1,0 +1,288 @@
+---
+title_ko: Tailwind CSS 4.0으로의 마이그레이션 및 변경점
+title_en: Tailwind CSS 4.0 Migration and Changes
+desc: >-
+  Tailwind CSS 3.0에서 4.0으로 마이그레이션하는 방법과 주요 변경 사항을 공식 가이드를 바탕으로 완전하고 자세하게 설명합니다.
+  브라우저 지원 변화, 설정 구조, Breaking Changes, 기능별 비교 등을 모두 예제와 함께 안내합니다.
+thumbnail_url: /250409-112450.webp
+metatag: >-
+  Tailwind CSS 마이그레이션, Tailwind 4.0 변경사항, tailwind 브라우저 지원, 마이그레이션 가이드, tailwind
+  breaking changes, tailwind config 변화, tailwind 4.0 CLI, tailwind 최신버전 특징,
+  tailwind 설치 가이드, tailwindcss 전체 변경사항
+post_id: '196'
+locale: en
+title: 'Migrating to Tailwind CSS 4.0: What Changed'
+description: >-
+  Upgrade Tailwind CSS 3 to 4 and review browser support, the new configuration
+  structure, breaking changes, and before-and-after examples.
+source_hash: 69a9639fb0554b3d65ed4c509f6514e0821f458e419a6d5fc78f11454c695602
+---
+## Before We Begin
+Tailwind CSS 4.0 was released on January 23, 2025. My project was using 3.x, and I decided to upgrade Tailwind as part of a migration from Next.js 14 to 15. If you're doing both, upgrade Tailwind and test it before moving to Next.js 15.
+This guide walks through **migrating from Tailwind CSS 3.0 to 4.0** based on the official documentation. The upgrade brings substantial performance and productivity benefits.
+> Tailwind CSS v4.0 targets modern browsers. It supports Safari 16.4, Chrome 111, and Firefox 128. If you need to support older browsers, stay on v3.4.
+
+<Ads1 />
+## Use the Automated Upgrade Tool
+Tailwind provides the `@tailwindcss/upgrade` CLI to simplify the migration.
+Before running it, check for uncommitted changes and save your work with `git stash` or `git commit`.
+```bash
+npx @tailwindcss/upgrade
+```
+The tool handles these changes automatically:
+- Updates tailwindcss.
+- Removes or converts tailwind.config.js.
+- Converts postcss.config.js.
+- Updates classes in template files.
+- Converts configuration to use the theme API where needed.
+
+If the tool fails, follow the [manual upgrade instructions](https://tailwindcss.com/docs/upgrade-guide#upgrading-manually).
+
+## What Changed
+The upgrade tool can handle many changes, but you still need to understand how to use Tailwind v4. Here's what changed.
+
+### Removal of @tailwind Directives
+In earlier versions, CSS files used @tailwind directives to load Tailwind CSS. In v4, import Tailwind directly in your CSS.
+```css
+/* v3 */
+/* @tailwind base; */
+/* @tailwind components; */
+/* @tailwind utilities; */
+
+/* v4 */
+@import "tailwindcss";
+```
+Remove the old @tailwind directives from your stylesheets.
+
+### Removal of Deprecated Utilities
+Utilities deprecated in v3 were removed. Use these replacements.
+| Before | After | Purpose |
+|---|---|---|
+|bg-opacity-*|Use opacity modifiers like bg-black/50|Set background opacity|
+|text-opacity-*|Use opacity modifiers like text-black/50|Set text opacity|
+|border-opacity-*|Use opacity modifiers like border-black/50|Set border opacity|
+|divide-opacity-*|Use opacity modifiers like divide-black/50|Set divider opacity|
+|ring-opacity-*|Use opacity modifiers like ring-black/50|Set ring opacity|
+|placeholder-opacity-*|Use opacity modifiers like placeholder-black/50|Set placeholder opacity|
+|flex-shrink-*|shrink-*|Control flex shrinking|
+|flex-grow-*|grow-*|Control flex growth|
+|overflow-ellipsis|text-ellipsis|Truncate overflowing text with an ellipsis|
+|decoration-slice|box-decoration-slice|Slice box decorations across fragments|
+|decoration-clone|box-decoration-clone|Repeat box decorations for each fragment|
+
+### Renamed Utilities
+Tailwind CSS v4.0 renames utilities for shadows, drop shadows, blur, backdrop blur, corner radii, outlines, and rings.
+| Before | After | Purpose |
+|---|---|---|
+|shadow-sm|shadow-xs|Set shadow size|
+|shadow|shadow-sm|Set shadow size|
+|drop-shadow-sm|drop-shadow-xs|Set drop shadow size|
+|drop-shadow|drop-shadow-sm|Set drop shadow size|
+|blur-sm|blur-xs|Set blur size|
+|blur|blur-sm|Set blur size|
+|backdrop-blur-sm|backdrop-blur-xs|Set backdrop blur size|
+|backdrop-blur|backdrop-blur-sm|Set backdrop blur size|
+|rounded-sm|rounded-xs|Set corner radius|
+|rounded|rounded-sm|Set corner radius|
+|outline-none|outline-hidden|Hide the outline|
+|ring|ring-3|Set ring width|
+
+#### Updated Shadow, Radius, and Blur Scales
+The default shadow, blur, and rounded scales were renamed so each utility has a named value. Older forms still work for compatibility, but update the old -sm utilities to -xs if you want to preserve their appearance.
+```html
+{/* v3 버전 */}
+<input class="shadow-sm" />
+{/* v4 버전 */}
+<input class="shadow-xs" />
+
+{/* v3 버전 */}
+<input class="shadow" />
+{/* v4 버전 */}
+<input class="shadow-sm" />
+```
+
+#### Changes to Outline Utilities
+The `outline` utility now includes both `outline-width: 1px` and `outline-style: solid` by default. Previously, `outline` applied only `outline-style: solid`. In v4, `outline` applies both `outline-width: 1px` and `outline-style: solid`.
+```html
+{/* v3 버전 */}
+<input class="outline outline-2" />
+
+{/* v4 버전 */}
+<input class="outline-2" />
+```
+The old `outline-none` utility didn't actually apply `outline-style: none`, so it was renamed to `outline-hidden`.
+```html
+{/* v3 버전 */}
+<input class="focus:outline-none" />
+
+{/* v4 버전 */}
+<input class="focus:outline-hidden" />
+```
+#### New Default Ring Width
+The default width of the `ring` utility changed from `3px` to `1px`.
+```html
+{/* v3 버전 */}
+<input class="ring ring-blue-500" />
+
+{/* v4 버전 */}
+<input class="ring-3 ring-blue-500" />
+```
+#### Gradients Preserve Stops When Combined with Variants
+Dark mode variants now preserve the `to-*` setting. Use `via-none` if you need to remove an intermediate stop.
+**After:**
+```html
+<div class="bg-gradient-to-r from-red-500 via-orange-400 to-yellow-400 dark:via-none dark:from-blue-500 dark:to-teal-400"></div>
+```
+#### Changes to Container Configuration
+Options such as center and padding were removed from `container` configuration. Define them yourself.
+```css
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+}
+```
+#### New Default Border Color
+The default color for `border-*` and `divide-*` is now `currentColor`. To keep `gray-200`, use the following configuration.
+```css
+@layer base {
+  *, ::after, ::before, ::backdrop, ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+```
+#### New Default Placeholder Color
+Placeholder text now defaults to the text color at 50% opacity. Add the following to keep the previous style.
+```css
+@layer base {
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-gray-400);
+  }
+}
+```
+#### New Default Button Cursor
+The default button cursor changed from `pointer` to `default`. Add the following to keep the previous behavior.
+```css
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+```
+#### Default Dialog Margin Removed
+```css
+@layer base {
+  dialog {
+    margin: auto;
+  }
+}
+```
+
+#### New Way to Register Custom Utilities
+Use `@utility` in place of `@layer utilities`.
+```css
+@utility tab-4 {
+  tab-size: 4;
+}
+```
+
+#### New Order for Stacked Variants
+Stacked variants now apply **from left to right**.
+```html
+{/* v3 버전 */}
+<ul class="py-4 first:*:pt-0 last:*:pb-0">
+
+{/* v4 버전 */}
+<ul class="py-4 *:first:pt-0 *:last:pb-0">
+```
+#### New Syntax for CSS Variables
+Use `bg-(--color)` in place of `bg-[--color]`.
+```html
+<div class="bg-(--brand-color)"></div>
+```
+
+#### Hover Styles Apply Only on Devices That Support Hover
+You can register a custom variant if you need to preserve behavior on touch devices.
+```css
+@custom-variant hover (&:hover);
+```
+
+#### Outline Color Is Included in Transitions
+```html
+<button class="transition hover:outline-2 hover:outline-cyan-500"></button>
+```
+
+#### The corePlugins Option Was Removed
+You can no longer disable utilities with `corePlugins`.
+
+#### Prefer CSS Variables to theme()
+```css
+.my-class {
+  background-color: var(--color-red-500);
+}
+```
+#### 4-18. Load JavaScript Configuration Explicitly
+```css
+@config "../../tailwind.config.js";
+```
+#### 4-19. Access Theme Values from JavaScript
+You can use `getComputedStyle` to read CSS variables without `resolveConfig`.
+```js
+let styles = getComputedStyle(document.documentElement);
+let shadow = styles.getPropertyValue("--shadow-xl");
+```
+
+<Ads2 />
+## Example of the New Configuration Structure
+```css
+@import 'tailwindcss';
+@theme {
+  --color-primary: #1da1f2;
+  --font-sans: 'Inter', sans-serif;
+}
+@utilities {
+  .btn {
+    @apply px-4 py-2 rounded bg-primary text-white;
+  }
+}
+```
+
+## Before and After Examples
+#### Add Custom Colors
+```js
+// Before (3.x)
+theme: {
+  extend: {
+    colors: {
+      brand: '#3490dc',
+    },
+  },
+}
+
+// After (4.x)
+@theme {
+  --color-brand: #3490dc;
+}
+```
+#### Use Templates
+```html
+{/* Before (3.x) */}
+<div class="text-slate-900/80"></div>
+
+{/* After (4.x) */}
+<div class="text-slate-900 text-opacity-80"></div>
+```
+## 7. Test After Migrating
+- Check that styles work across all template paths.
+- Run `npm run build` and check for errors or warnings.
+- Confirm that the PostCSS configuration takes effect.
+- Test in both development and production environments.
+## Conclusion
+Tailwind CSS 4.0 **redesigns configuration, browser support, and day-to-day usage**. You can migrate safely and quickly by using the upgrade tool or reviewing the changes manually one by one.
+The CSS-first configuration and focus on modern browsers offer advantages for future web development. I hope this post helps you plan your Tailwind upgrade.
+## References
+
+- Official upgrade guide: [https://tailwindcss.com/docs/upgrade-guide](https://tailwindcss.com/docs/upgrade-guide)
+- Tailwind CSS v4 introduction: [https://tailwindcss.com/blog/tailwindcss-v4](https://tailwindcss.com/blog/tailwindcss-v4)
+- GitHub repository: [https://github.com/tailwindlabs/tailwindcss](https://github.com/tailwindlabs/tailwindcss)

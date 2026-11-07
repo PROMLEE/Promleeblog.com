@@ -1,0 +1,295 @@
+---
+title_ko: Axios로 무한스크롤 - FlatList 무한 스크롤 (1)
+title_en: Infinite Scroll with Axios - FlatList Infinite Scroll (1)
+desc: >-
+  Expo 환경에서 FlatList와 Axios를 사용하여 무한 스크롤을 구현하는 기본 원리와 단계를 알아봅니다. jsonplaceholder
+  API를 활용한 예제 코드를 통해 쉽게 이해하도록 돕습니다.
+thumbnail_url: 'https://reactnative.dev/img/header_logo.svg'
+metatag: >-
+  Expo, React Native, FlatList, 무한 스크롤, Infinite Scroll, axios, TypeScript,
+  jsonplaceholder, 모바일 앱 개발, 프론트엔드
+post_id: '236'
+locale: zh
+title: 使用 Axios 实现无限滚动——FlatList 无限滚动（1）
+description: >-
+  介绍在 Expo 环境中使用 FlatList 和 Axios 实现无限滚动的基本原理与步骤，通过 jsonplaceholder API
+  示例理解实现方法。
+source_hash: 36c0680106bcd41c167e7d1d689ca1612f82f58382df3af9b0160af4d80ed1e0
+reviewed_at: '2026-11-07T01:49:07.047Z'
+---
+
+## 开始之前
+> 本文假设你已经创建了基本的 Expo 项目。创建方法请参考 Expo 项目创建：[Windows](/blog/post/117-expo-proj-init)、[Mac](/blog/post/143-expo-init-mac)。
+
+本文介绍如何使用 Expo 环境中的 FlatList 组件，实现提升移动应用用户体验的重要功能——*无限滚动*。
+对于社交动态或商品列表等需要展示大量数据的场景，如果一次加载全部数据，应用可能变慢甚至卡住。
+无限滚动是一种更巧妙的方法：每当用户向下滚动屏幕时，只逐步加载并展示当前所需的数据。
+<br/>
+<br/>
+
+在第 1 部分，我们先了解无限滚动的基本原理，再使用名为 *jsonplaceholder* 的模拟 API 服务器与 *axios* 库，逐步实现无限滚动。
+
+> 第 2 部分将介绍如何借助 React Query 库，以更简洁、高效的方式实现无限滚动。
+
+<Img src="/250430-095908.webp" width={300} alt="无限滚动实现结果"/>
+<Ads1 />
+
+## 使用 axios 实现无限滚动
+> 完整代码可以在[这里](#결론)查看。
+### 1. 设置状态变量
+首先设置实现无限滚动所需的状态变量。这里使用 `posts`、`page`、`loading`、`hasMore` 四个状态变量。
+```tsx
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, FlatList, Text, ActivityIndicator, StyleSheet, SafeAreaView } from 'react-native';
+import axios from 'axios';
+
+interface Post {
+  userId: number;
+  id: number;
+  title: string;
+  body: string;
+}
+
+const PostsScreenWithAxios: React.FC = () => {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [page, setPage] = useState<number>(1); // 현재 로드 '해야 할' 페이지
+  const [loading, setLoading] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+
+  // ... (fetchPosts, useEffect 수정, renderItem, renderFooter, handleLoadMore 구현) ...
+};
+
+// ... (스타일 정의) ...
+```
+
+### 2. 编写数据获取函数
+创建一个根据 page、loading、hasMore 状态变化获取数据的函数。为了直观观察变化，示例添加了 1 秒延迟。实际调用 API 时不需要这一部分。
+
+```tsx
+  const fetchPosts = useCallback(async () => {
+    // 로딩 중이거나 더 가져올 데이터가 없으면 실행하지 않음 (중복 방지)
+    if (loading || !hasMore) {
+        console.log(`fetchPosts skipped: loading=${loading}, hasMore=${hasMore}`);
+        return;
+    }
+
+    setLoading(true);
+    console.log(`Fetching page ${page}...`);
+
+    try {
+      // --- 로딩 확인용 1초 지연 ---
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      // --------------------------
+
+      const response = await axios.get<Post[]>(
+        `https://jsonplaceholder.typicode.com/posts?_page=${page}&_limit=5`
+      );
+
+      if (response.data.length > 0) {
+        setPosts((prevPosts) => [...prevPosts, ...response.data]); // 기존 게시글에 새 게시글 추가
+        setPage((prevPage) => prevPage + 1); // 다음 페이지 번호로 업데이트
+      } else {
+        setHasMore(false);
+        console.log('No more posts to load.');
+      }
+    } catch (error) {
+      console.error("데이터 로딩 중 오류 발생:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, loading, hasMore]); // page, loading, hasMore가 변경될 때 함수 재생성
+```
+#### 为什么使用 useCallback
+如果不使用 useCallback，而是在 useEffect 的依赖数组中加入 page、loading、hasMore，那么每当这些状态变化时，fetchPosts 函数都会被重新创建。
+这样一来，父组件状态每次变化都会重新创建 fetchPosts 函数，可能导致无限滚动连续触发。
+fetchPosts 执行 → posts 状态变化 → PostsScreenWithAxios 组件重新渲染 → 调用 fetchPosts → posts 状态变化……如此便可能陷入无限循环。
+
+### 3. 设置初始数据加载
+将 `useEffect` 的依赖数组设为空数组 `[]`，让它只在挂载时执行一次。
+
+```tsx
+  useEffect(() => {
+    // 컴포넌트 마운트 시 첫 페이지 데이터 로딩 시작 (page가 1일 때)
+    console.log('useEffect for initial fetch triggered.');
+    fetchPosts();
+  }, []);
+```
+
+### 4. 配置 FlatList 与 onEndReached 处理函数
+创建 FlatList，并完成基本配置。
+将 `fetchPosts` 函数连接到 `onEndReached` 属性，让滚动到列表末尾时加载更多数据。
+
+```tsx
+  // 아이템 렌더링 함수
+  const renderItem = ({ item }: { item: Post }) => (
+    <View style={styles.itemContainer}>
+      <Text style={styles.itemTitle}>{item.id}. {item.title}</Text>
+      <Text style={styles.itemBody}>{item.body}</Text>
+    </View>
+  );
+
+  // 푸터 로딩 인디케이터
+  const renderFooter = () => {
+    return loading ? <ActivityIndicator size="large" color="#007AFF" style={styles.loader} /> : null;
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={posts}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+        onEndReached={fetchPosts} // 스크롤 기반 로딩 트리거
+        onEndReachedThreshold={1} // 스크롤이 리스트 끝에 도달했을 때 호출되는 임계값 (0~1 사이) - 1이면 리스트 끝에 도달했을 때 호출됨
+        ListFooterComponent={renderFooter}
+        contentContainerStyle={styles.listContainer}
+      />
+    </SafeAreaView>
+  );
+
+// --- 스타일 정의 ---
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#fff' },
+  listContainer: { paddingHorizontal: 15, paddingTop: 10, paddingBottom: 30 },
+  itemContainer: { backgroundColor: '#f9f9f9', padding: 15, marginBottom: 12, borderRadius: 8, borderWidth: 1, borderColor: '#eee', shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 },
+  itemTitle: { fontSize: 17, fontWeight: '600', marginBottom: 6, color: '#333' },
+  itemBody: { fontSize: 14, color: '#666', lineHeight: 20 },
+  loader: { marginVertical: 25, alignItems: 'center' },
+});
+
+export default PostsScreenWithAxios;
+```
+<Ads2 />
+
+## 结语
+<Toggle title="查看 Axios 实现的完整示例代码">
+
+```tsx
+// PostsScreenWithAxios.tsx
+
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, FlatList, Text, ActivityIndicator, StyleSheet, SafeAreaView } from 'react-native';
+import axios from 'axios';
+
+// 게시글 데이터 타입 정의
+interface Post {
+  userId: number;
+  id: number;
+  title: string;
+  body: string;
+}
+
+const PostsScreenWithAxios: React.FC = () => {
+  const [posts, setPosts] = useState<Post[]>([]); // 불러온 게시글 데이터 배열
+  const [page, setPage] = useState<number>(1); // 현재 로드 '해야 할' 페이지 번호
+  const [loading, setLoading] = useState<boolean>(false); // 데이터 로딩 중 여부
+  const [hasMore, setHasMore] = useState<boolean>(true); // 더 불러올 데이터가 있는지 여부
+
+  // 데이터 가져오기 함수 (useCallback 사용)
+  const fetchPosts = useCallback(async () => {
+    // 로딩 중이거나 더 가져올 데이터가 없으면 실행하지 않음
+    if (loading || !hasMore) {
+      console.log(`fetchPosts skipped: loading=${loading}, hasMore=${hasMore}`);
+      return;
+    }
+
+    setLoading(true); // 로딩 시작
+    console.log(`Fetching page ${page}...`);
+
+    try {
+      // --- 로딩 상태 확인을 위한 인위적 지연 추가 (1초) ---
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      // -------------------------------------------------
+
+      const response = await axios.get<Post[]>(
+        `https://jsonplaceholder.typicode.com/posts?_page=${page}&_limit=10`
+      );
+
+      if (response.data.length > 0) {
+        setPosts((prevPosts) => [...prevPosts, ...response.data]);
+        // 다음 페이지 번호로 업데이트
+        setPage((prevPage) => prevPage + 1);
+      } else {
+        setHasMore(false); // 더 이상 데이터 없음
+        console.log('No more posts to load.');
+      }
+    } catch (error) {
+      console.error("데이터 로딩 중 오류 발생:", error);
+      // 에러 처리 로직
+    } finally {
+      setLoading(false); // 로딩 종료
+    }
+    // useCallback의 의존성 배열: 함수 내에서 직접 사용하는 상태/프롭스
+  }, [page, loading, hasMore]);
+
+  // *** 핵심 수정: 초기 데이터 로딩 ***
+  useEffect(() => {
+    // 컴포넌트 마운트 시 첫 페이지 데이터 로딩 시작 (page가 1일 때)
+    console.log('useEffect for initial fetch triggered.');
+    fetchPosts();
+    // 의존성 배열을 빈 배열([])로 설정하여 마운트 시 오직 한 번만 실행
+  }, []); // 빈 배열로 변경!
+
+  // 아이템 렌더링 함수
+  const renderItem = ({ item }: { item: Post }) => (
+    <View style={styles.itemContainer}>
+      <Text style={styles.itemTitle}>{item.id}. {item.title}</Text>
+      <Text style={styles.itemBody}>{item.body}</Text>
+    </View>
+  );
+
+  // 푸터 로딩 인디케이터
+  const renderFooter = () => {
+    return loading ? <ActivityIndicator size="large" color="#007AFF" style={styles.loader} /> : null;
+  };
+
+  // 스크롤이 리스트 끝에 도달하면 호출될 함수
+  const handleLoadMore = () => {
+    console.log(`onEndReached triggered. Current state: loading=${loading}, hasMore=${hasMore}, page=${page}`);
+    // 로딩 중이 아니고, 더 가져올 페이지가 있을 때만 fetchPosts 호출
+    if (!loading && hasMore) {
+       console.log('handleLoadMore is calling fetchPosts...');
+       fetchPosts();
+    } else {
+       console.log('handleLoadMore determined not to call fetchPosts.');
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={posts}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+        onEndReached={handleLoadMore} // 스크롤 기반 로딩 트리거
+        onEndReachedThreshold={0.5} // 언제 트리거할지 결정 (중요)
+        ListFooterComponent={renderFooter}
+        contentContainerStyle={styles.listContainer}
+      />
+    </SafeAreaView>
+  );
+};
+
+// --- 스타일 정의 ---
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#fff' },
+  listContainer: { paddingHorizontal: 15, paddingTop: 10, paddingBottom: 30 },
+  itemContainer: { backgroundColor: '#f9f9f9', padding: 15, marginBottom: 12, borderRadius: 8, borderWidth: 1, borderColor: '#eee', shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 },
+  itemTitle: { fontSize: 17, fontWeight: '600', marginBottom: 6, color: '#333' },
+  itemBody: { fontSize: 14, color: '#666', lineHeight: 20 },
+  loader: { marginVertical: 25, alignItems: 'center' },
+});
+
+export default PostsScreenWithAxios;
+```
+
+</Toggle>
+
+这一部分介绍了在 Expo 环境中使用 FlatList 与 axios 实现无限滚动的方法。
+下一部分将详细介绍 *React Query* 如何更高效地处理这些状态管理、异步逻辑，以及无限滚动的实现。
+
+### 参考资料
+
+- React Native `FlatList`：[https://reactnative.dev/docs/flatlist](https://reactnative.dev/docs/flatlist)
+- React `useEffect` Hook 官方文档：[https://react.dev/reference/react/useEffect](https://react.dev/reference/react/useEffect)
+- React `useCallback` Hook 官方文档：[https://react.dev/reference/react/useCallback](https://react.dev/reference/react/useCallback)

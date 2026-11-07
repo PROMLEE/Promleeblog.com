@@ -1,0 +1,58 @@
+---
+post_id: '134'
+locale: ja
+title: FlutterアプリをFirebaseへまとめて登録する
+description: Flutterで開発したアプリをFirebaseへ登録する方法を説明します。
+source_hash: 7df11997b61028fbc5c1d529447e0ec8394b241f4a0ae71613e998873d1b51f1
+---
+## はじめに
+Firebaseは、App Distribution、Authentication、Crashlytics、Analyticsなど、多くのサービスを提供しています。
+この記事では、FlutterベースのアプリをFirebaseへまとめて登録する方法を紹介します。
+
+## 1. Firebaseプロジェクトの設定
+Firebaseプロジェクトを作成し、アプリを登録します。
+[Firebaseコンソール](https://console.firebase.google.com/u/0)でGoogleにログインし、プロジェクトを作成するボタンを押します。
+<Img src="/posts/250225-114901.png" width={500} alt="Firebaseプロジェクトの作成"/>
+<Img src="/posts/250225-115137.png" width={300} alt="Firebaseプロジェクトの作成"/>
+その後、`계속`（続行）ボタンを押してプロジェクトを作成します。
+
+<Ads1 />
+## 2. アプリの登録
+プロジェクトを作成したら、プロジェクト概要の画面からアプリを追加します。
+今回はFlutterアプリなので、Flutterを選択します。
+<Img src="/posts/250225-115354.png" width={400} alt="Flutterを選択する"/>
+
+### 2.1. 作業環境の準備
+次の画面で、まだFlutterプロジェクトがない場合は手順1を、すでにある場合は手順2から進めます。
+Flutter CLIとFlutter SDKを順にインストールし、Flutterプロジェクトを作成します。
+<Img src="/posts/250225-115511.png" width={400} alt="作業環境の準備"/>
+
+### 2.2. FlutterFire CLIのインストールと実行
+FlutterFire CLIをインストールして、プロジェクトを接続します。
+<Img src="/posts/250225-145649.png" width={400} alt="FlutterFire CLIのインストール"/>
+```bash
+dart pub global activate flutterfire_cli
+flutterfire configure --project={프로젝트 이름}
+```
+
+### 2.3. Firebaseの初期化とプラグインの追加
+`main.dart`に、次のFirebase初期化コードが追加されているかを確認します。なければ追加してください。
+```dart title="/lib/main.dart"
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+// ...
+
+await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+);
+```
+<Img src="/posts/250225-115617.png" width={500} alt="Firebaseの初期化コード"/>
+これでFirebaseとの連携は完了です。
+
+## おわりに
+Firebaseに二つのアプリがまとめて登録されたことを確認できます。
+Firebaseコンソールから、さまざまなサービスを使ってみてください。
+
+### 参考
+- [FirebaseへのFlutterアプリの登録](https://firebase.google.com/docs/flutter/setup)

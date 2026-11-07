@@ -1,0 +1,88 @@
+---
+title_en: RSS and Web Crawling - n8n Series Part 2
+title_ko: RSS 수집과 웹 크롤링 - n8n 파이프라인 구축 시리즈 2편
+url: n8n-rss-and-web-crawling
+series_no: 2
+desc: >-
+  스케줄 트리거를 활용해 크론 작업을 설정하고 RSS 피드를 통해 타겟 도메인의 데이터를 수집합니다. 피드가 없는 사이트를 대비하여 HTTP
+  요청과 HTML 추출 노드를 활용한 실제 웹 크롤링 실습까지 완벽하게 알아봅니다.
+thumbnail_url: /260222-233119.webp
+metatag: 'n8n,자동화,스케줄링,RSS,크롤링,데이터수집,웹스크래핑,필터링,프론트엔드,백엔드,노코드,로우코드,튜토리얼,AI'
+tags: 'n8n, Automation, No-code, AI'
+post_id: '411'
+locale: en
+title: 'Collecting RSS Feeds and Crawling Websites — Building an n8n Pipeline, Part 2'
+description: >-
+  Schedule a recurring job with Schedule Trigger, collect data from RSS feeds,
+  and practice scraping sites without feeds using HTTP Request and HTML
+  extraction nodes.
+source_hash: 28c962e2327bcf530a2cd2787e33f7f24ecf7dbf10217d913bce09e4773b26f1
+reviewed_at: '2026-11-07T06:46:43.987Z'
+---
+## Before We Begin
+Hello!
+Part 2 covers the first stage of the pipeline: scheduling automatic runs and collecting data.
+<br/>
+It's time to build the part of the bot that retrieves the latest news from websites at a set time each morning. We'll start with RSS and then work through a practical example of crawling a site that doesn't offer a feed.
+
+## Schedule Trigger and Cron Jobs
+The *Schedule Trigger* node acts like an alarm clock that starts the pipeline at the times you choose. In computing, a job that repeats on a fixed schedule is called a *cron* job.
+
+### Set Up a Daily Morning Run
+Find the Schedule Trigger node using n8n's search box on the left and add it to the canvas.
+<br/>
+Open the settings, select Days as the interval, and set the time to 8 a.m.
+Since we set the Docker time zone to Asia/Seoul, the first step will run at exactly 8 a.m. Korea time every morning.
+<Img src="/260222-230524.webp" width={500} alt="Adding the Schedule Trigger node"/>
+
+## Collect Data with RSS
+*RSS* is the most reliable way to collect data from a website that offers it. A feed is a standard format in which the site publishes article titles and links for readers and other tools to consume.
+
+### Use the RSS Read Node
+Search for *RSS Read* and connect it after the Schedule Trigger node.
+In the node settings, enter the RSS feed address of the technology news blog you want to follow in the URL field. For this example, use `https://feeds.arstechnica.com/arstechnica/technology-lab`.
+<Img src="/260222-231233.webp" width={600} alt="RSS Read node settings"/>
+<br/>
+When you run the node, the collected data appears as JSON on the right.
+The feed structure stays the same even if the website's design changes, which makes RSS useful for building a reliable data collection pipeline locally.
+
+<Ads1 />
+
+## Collect Data by Crawling a Website
+Some sites don't provide RSS feeds. To collect data from those sites, we can analyze their HTML and pull out the information we need, a process called web crawling or scraping.
+
+### Prepare to Crawl Hacker News
+We'll use *Hacker News*, a popular news site among developers worldwide, for the hands-on example. First, connect an *HTTP Request* node to the Schedule Trigger.
+<Img src="/260222-231413.webp" width={500} alt="Adding the HTTP Request node"/>
+<br/>
+Set Method to GET and enter `https://news.ycombinator.com/` in the URL field.
+When you run the node, it fetches the full HTML source of the Hacker News page, just as a browser does when you visit it.
+
+### Tree Structures and CSS Selectors
+The HTML document forms a *tree* data structure. Starting from the root tag, child tags branch out into a hierarchy.
+<br/>
+To extract just the article titles and links from that tree, we need *CSS selectors*, which describe how to find the elements we want.
+Connect an *HTML → Extract HTML* node directly after the HTTP Request node.
+<br/>
+On Hacker News, the article titles share the same path through the tags, `span.titleline > a`.
+Enter the following values in the extraction node settings to get the underlying data.
+| Key | CSS Selector | Value to Extract | Attribute |
+| --- | --- | --- | --- |
+| title | span.titleline > a | Text |
+| link | span.titleline > a | Attribute | href |
+
+<Img src="/260222-232016.webp" width={600} alt="title"/>
+<Img src="/260222-232043.webp" width={600} alt="link"/>
+
+Run the node and you'll see just the requested titles and links in arrays, without the surrounding HTML.
+Combining HTTP Request and HTML extraction nodes gives you a straightforward way to collect data from sites without RSS feeds.
+
+<Ads2 />
+
+## Conclusion
+We worked through automated scheduling and data collection, the first stage of the pipeline. We also learned how to extract data from sites without RSS by navigating an HTML tree.
+<br/>
+> In Part 3, we'll pass the raw data collected and filtered each morning to the field editing and regular expression nodes for processing.
+
+### References
+[Official n8n guide to the HTML extraction node](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.htmlextract/)

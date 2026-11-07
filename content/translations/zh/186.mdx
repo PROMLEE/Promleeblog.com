@@ -1,0 +1,79 @@
+---
+title_ko: OpenAI Agents SDK 살펴보기
+title_en: Exploring the OpenAI Agents SDK
+desc: >-
+  OpenAI Agents SDK의 구조와 기능, MCP 통합 방식, 실제 예제 코드를 중심으로 에이전트 기반 AI 애플리케이션을 구축하는
+  방법을 안내합니다
+thumbnail_url: /openai-agents.webp
+metatag: 'OpenAI, Agents, SDK, MCP, Python'
+post_id: '186'
+locale: zh
+title: 了解OpenAI Agents SDK并集成MCP
+description: 介绍OpenAI Agents SDK的基本结构、MCP服务器连接、工具调用，以及创建和运行Agent的示例。
+source_hash: 00fbd09603f200d54ee526a2ddb126737ffa3e9d74ac107239cb07bfb22d0d6c
+reviewed_at: '2026-11-07T01:37:36.161Z'
+---
+## 开始之前
+OpenAI Agents SDK是帮助构建基于Agent的AI应用的Python SDK，重点在于为LLM连接工具、组织上下文，并以结构化方式处理用户请求。
+随着Model Context Protocol（MCP）集成到SDK中，Agent可以连接外部服务器，获取不同的上下文与工具信息。
+本文从SDK的基本结构与概念出发，依次介绍MCP集成方式和实际代码示例。
+## 什么是OpenAI Agents SDK
+Agent是一种接收指令、使用工具实现目标，并持续进行对话的智能执行单元。OpenAI Agents SDK提供高层API，帮助开发者通过代码实现这种结构。
+SDK主要提供：
+- 解析用户指令并确定目标。
+- 连接搜索、计算器和外部API等不同工具。
+- 制定执行计划并调用工具。
+- 整理结果并返回给用户。
+
+其中，上下文管理是核心；新引入的MCP让这一过程更具结构。
+<Ads1 />
+## 集成MCP
+MCP（Model Context Protocol）将上下文划分为system、user、files等多个层次进行组织。Agents SDK通过与MCP服务器通信加载工具，并根据对应上下文生成响应。
+### MCP服务器示例
+官方示例使用`@modelcontextprotocol/server-filesystem`与文件系统交互，自动注册打开文件、列出文件等工具。
+```python
+from agents.mcp.server import MCPServerStdio
+mcp_server = MCPServerStdio(
+  params={
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-filesystem", "samples_dir"]
+  },
+  cache_tools_list=True
+)
+```
+这个MCP服务器会返回用于浏览本地文件系统的工具列表，Agent可以调用这些工具。
+<Ads2 />
+## 创建并运行Agent
+创建Agent的基本代码如下。
+```python
+from agents import Agent
+agent = Agent(
+  name="FileAssistant",
+  instructions="파일 시스템 도구를 사용해 작업을 도와주세요.",
+  mcp_servers=[mcp_server]
+)
+```
+现在可以运行Agent。
+```python
+from agents import Runner
+async def main():
+  result = await Runner.run(agent, "현재 디렉토리의 모든 파일을 보여줘")
+  print(result.final_output)
+```
+Agent会通过MCP服务器的`list_tools()`获取工具列表，使用适当工具处理用户指令，再返回结果。
+<Ads3 />
+## MCP服务器类型
+Agents SDK可以通过两种方式连接MCP服务器：
+- **MCPServerStdio**：连接本地运行的MCP服务器。
+- **MCPServerSse**：通过HTTP连接远程MCP服务器，基于Server-Sent Events。
+本地开发时，`Stdio`较方便；远程部署环境中，`Sse`更有优势。
+## 总结
+OpenAI Agents SDK是通过代码实现AI Agent的强大工具。结合MCP后，它在外部系统连接、上下文扩展和工具复用方面的能力都得到了增强。
+开发者既可以自己实现MCP服务器，也可以使用现成服务器，构建灵活且可扩展的Agent。
+### 进一步思考
+- 可以尝试创建一个MCP服务器，将搜索API、数据库和外部API作为工具连接起来。
+- 与LangChain、LlamaIndex等其他Agent框架相比，有什么不同？
+### 参考资料
+- Agents SDK文档：https://openai.github.io/openai-agents-python
+- MCP配置指南：https://openai.github.io/openai-agents-python/mcp/
+- 文件系统MCP服务器：https://github.com/modelcontextprotocol/server-filesystem

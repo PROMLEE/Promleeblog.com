@@ -1,0 +1,93 @@
+---
+title_ko: Next.js App Router에서 HTML 파일 로드하기
+title_en: Loading HTML Files in Next.js App Router
+desc: Next.js App Router 환경에서 정적인 HTML 파일을 페이지에 표시하는 방법을 알아봅니다.
+thumbnail_url: /posts/250402-143254.webp
+metatag: 'nextjs, app router, html 로드, 정적 파일'
+post_id: '175'
+locale: zh
+title: 在Next.js App Router中加载HTML文件
+description: 介绍通过public目录和iframe展示静态HTML或转换后的PDF内容，以及路径、CSP和SEO注意事项。
+source_hash: 43f194ff3cdaa314b5fe2b86c45a0fc4c388080417061394ca50728bc76d15e9
+---
+
+## 开始之前
+Next.js通常通过React组件构建页面，但有时需要直接展示外部生成的`.html`文件，例如文档或外部系统提供的结果页面。
+本文逐步介绍在*Next.js App Router环境*中加载并展示静态HTML的方法。
+## 使用public文件夹
+Next.js会把`public`中的文件视为静态资源，浏览器可以直接访问。
+假设项目结构如下。
+```
+my-app/
+├─ public/
+│  └─ static-page.html
+├─ app/
+│  └─ html-viewer/page.tsx
+```
+这时，访问`http://localhost:3000/static-page.html`，即可直接加载HTML文件。
+接下来介绍如何通过iframe，在Next.js页面内部展示它。
+## 用iframe渲染HTML
+在App Router中，可以通过以下代码展示指定HTML文件。
+```tsx
+// app/html-viewer/page.tsx
+export default function HtmlViewerPage() {
+  return (
+    <div style={{ width: '100%', height: '100vh' }}>
+      <iframe
+        src="/static-page.html"
+        width="100%"
+        height="100%"
+        style={{ border: 'none' }}
+        title="Static HTML Page"
+      />
+    </div>
+  );
+}
+```
+访问`app/html-viewer`时，就会通过iframe在浏览器中渲染`public/static-page.html`的内容。
+<Ads1 />
+## 将PDF转换为HTML后使用
+如果希望展示PDF，也可以先转换成HTML，再用iframe显示。
+例如，[CloudConvert PDF to HTML](https://cloudconvert.com/pdf-to-html)等服务可以完成转换。将生成的HTML放入`public`，即可通过iframe展示。
+```
+my-app/
+├─ public/
+│  └─ my-pdf.html
+├─ app/
+│  └─ pdf-viewer/page.tsx
+```
+```tsx
+// app/pdf-viewer/page.tsx
+export default function PdfViewerPage() {
+  return (
+    <div style={{ width: '100%', height: '100vh' }}>
+      <iframe
+        src="/my-pdf.html"
+        width="100%"
+        height="100%"
+        style={{ border: 'none' }}
+        title="Converted PDF"
+      />
+    </div>
+  );
+}
+```
+这种方式尤其适合PDF较大，或无法使用浏览器内置阅读器的情况。用户也不必额外安装PDF阅读器，就能直接查看。
+<Ads2 />
+## 遇到的问题与解决方法
+通过iframe加载HTML很简单，但需要注意以下问题。
+- **相对路径**：HTML内部的CSS、图片和JS如果使用相对路径，可能无法正确显示。可以改为`/images/test.png`这样的绝对路径。
+- **内容安全策略CSP**：企业安全设置或浏览器策略可能阻止iframe内容，需要调整服务器配置或安全响应头。
+- **SEO无法直接受益**：搜索引擎不容易识别iframe内HTML，因此对SEO帮助有限。
+## 结论
+在Next.js App Router中展示外部HTML，最简单直观的方式，是*将HTML放入`public`，再通过iframe渲染*。
+即使是PDF这类不便直接展示的格式，也可以先转为HTML，再采用相同方式提供给用户。
+不过，应在用途明确时使用；如果条件允许，把HTML迁移为React内容，可能是更合适的选择。
+### 进一步思考
+- 是否可以使用自动化工具，将HTML转换为React？
+- 不使用iframe，而是fetch HTML后通过dangerouslySetInnerHTML渲染，效果如何？
+- 是否也应该考虑直接展示PDF的阅读器库？
+### 参考资料
+- [Next.js官方文档：Static Files](https://nextjs.org/docs/app/building-your-application/optimizing/static-assets)
+- [MDN：iframe元素](https://developer.mozilla.org/ko/docs/Web/HTML/Element/iframe)
+- [CloudConvert PDF to HTML](https://cloudconvert.com/pdf-to-html)

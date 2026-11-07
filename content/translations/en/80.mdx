@@ -1,0 +1,62 @@
+---
+post_id: '80'
+locale: en
+title: Understanding and Applying the SOLID Principles
+description: >-
+  Explore the core object-oriented design principles SOLID (SRP, OCP, LSP, ISP,
+  DIP). Learn what each principle means and why it matters through Java
+  examples, and how to apply them to build flexible, maintainable software.
+source_hash: d32121d60e9b382ddd2ca03e25103e355be9590502b9c4b075afaab17d1c762d
+reviewed_at: '2026-11-06T14:50:16.853Z'
+---
+## Hierarchy of Pattern Knowledge
+1. Design Patterns
+   - Strategy Pattern
+     Define a family of algorithms, encapsulate each one, and make them interchangeable.
+     A client using a strategy can change that strategy while it is in use.
+2. Object-Oriented Principles
+   - Encapsulate what varies.
+   - Favor composition over inheritance.
+   - Program to interfaces rather than implementations.
+3. Object-Oriented Basics
+   - Classes and objects
+   - Inheritance
+   - Polymorphism
+   - Encapsulation
+   - Abstraction
+
+## Design Smells
+> Signs and symptoms of poor design.
+
+| Name | Symptom |
+|---|---|
+| Rigidity | The system is difficult to change. Every change triggers an endless sequence of further changes. |
+| Fragility | Changing one part of the system breaks several other, unrelated parts. |
+| Immobility | It is difficult to separate the system into components that can be reused in other systems. |
+| Viscosity | Viscosity is high when adding a workaround is easier than adding code that follows the design. |
+| Needless Complexity | There are many complicated code structures that are not needed now but might be useful someday. |
+| Needless Repetition | The code looks as if two programmers wrote it using copy and paste. |
+| Opacity | The complexity of the expression creates particular difficulties in understanding the original author's intent. |
+<Ads1 />
+## Dependency Management
+Design smells arise from *unmanaged dependencies*.
+**Unmanaged dependencies**
+- A *tangled mass of coupling*: spaghetti code.
+
+Object-oriented languages provide various mechanisms for managing dependencies.
+- Interfaces: contracts that reduce dependencies between objects.
+- Polymorphism: enables a module to invoke methods dynamically.
+
+## Object-Oriented Design Principles
+1. The SOLID principles by Robert C. Martin
+2. The GRASP principles by Craig Larman
+3. Program to interfaces rather than implementations (Interface-Oriented Programming).
+4. Favor object composition over class inheritance.
+5. Encapsulate what varies.
+
+## The SOLID principles
+1. **S**ingle Responsibility Principle — *SRP*
+2. **O**pen-Closed Principle — *OCP*
+3. **L**iskov Substitution Principle — *LSP*
+4. **I**nterface Segregation Principle — *ISP*
+5. **D**ependency Inversion Principle — *DIP*

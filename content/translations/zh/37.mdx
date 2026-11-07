@@ -1,0 +1,82 @@
+---
+post_id: '37'
+locale: zh
+title: MAC：消息认证码
+description: 介绍消息认证码的完整性与认证能力、HMAC结构与安全性，以及基于分组密码的CBC-MAC。
+source_hash: 9898415d2552314b846ffb5f815d53fc73807e9e14ebf6f27ae3f6c3d2c92935
+reviewed_at: '2026-11-07T01:42:52.957Z'
+---
+## 消息认证码：MAC（Message Authentication Code）
+> 用于消息完整性与消息认证的代码。
+
+- Alice与Bob希望确保传输中的消息$x$未被篡改。
+- Bob根据消息$x$和共享秘密密钥$k$，计算MAC值y。
+	- $y = \text{MAC}_k(x)$
+	- 向Alice发送$(x, y)$。
+- Alice使用共享密钥$k$与收到的消息$x$，验证$y$。
+
+安全要求：没有秘密密钥$k$，就不能生成MAC。
+
+### MAC的性质（Properties of MAC）
+- 密码学校验和。
+	- MAC保证消息完整性。
+- 对称技术。
+- 输入长度任意，输出长度固定。
+- 消息完整性。
+- 消息认证。
+- 不提供不可否认性。
+
+### 与数字签名比较（Comparison with Digital Signature）
+优点：比数字签名更快。
+缺点：不提供不可否认性。
+
+### MAC设计（Design of MAC）
+- 使用哈希函数。
+- 使用分组密码。
+<Ads1 />
+## 基于哈希的MAC：HMAC（Hash-based MAC）
+- 以密码学哈希函数作为基础构件。
+- 用于IP安全协议套件、TLS（Transport Layer Security）和SET（Secure Electronic Transaction）等。
+- 在特定假设下，可以证明HMAC的安全性。
+
+## HMAC结构（Construction of HMAC）
+<Img src="/posts/240613-152925.png" width={400}/>
+
+1. 在$K$左侧补0，得到$b$比特字符串$K^+$。
+2. 计算$S_i = K^+ \oplus \text{ipad}$，其中ipad为0x36重复$b/8$次。
+3. 在$S_i$之后附加$M$。
+4. 计算$H(S_i \| M)$。
+5. 计算$S_o = K^+ \oplus \text{opad}$，其中opad为0x5C重复$b/8$次。
+6. 将$H(S_i \| M)$附加到$S_o$之后。
+7. 计算并输出$H(S_o \| H(S_i \| M))$。
+
+## HMAC安全性（Security of HMAC）
+- 在特定假设下，可以提供可证明的安全性。
+- 生成有效MAC输出，相当于对所用哈希函数完成以下攻击之一：
+	- 攻击者能够在随机、秘密且未知的IV下，计算压缩函数输出。
+	- 攻击者能够在IV随机且秘密设置的哈希函数中找到碰撞。
+
+	$\Rightarrow$与寻找所用哈希函数的碰撞有关。
+<Ads1 />
+## 基于分组密码的MAC：CBC-MAC（Block Cipher-based MAC）
+- 结合分组密码与工作模式。
+- 实践中最常使用AES和CBC。
+
+### 回顾CBC加密模式（Review: CBC Encryption Mode）
+- $\text{Enc}(K, P_i) =\begin{cases}\text{EncBlock}(K, IV \oplus P_1) & \text{첫 블록의 경우}\\\text{EncBlock}(K, C_{i-1} \oplus P_i) & \text{다른 블록의 경우}\end{cases}$
+	<Img src="/posts/240613-155144.png" width={500}/>
+- $\text{Dec}(K, C_i) =\begin{cases}\text{DecBlock}(K, C_1) \oplus IV & \text{첫 블록의 경우} \\\text{DecBlock}(K, C_i) \oplus C_{i-1} & \text{다른 블록의 경우}\end{cases}$
+	<Img src="/posts/240613-155155.png" width={500}/>
+
+## CBC-MAC说明（Description of CBC-MAC）
+**生成CBC-MAC**
+- 给定秘密密钥$k$、初始值$IV$，并将消息$x$分为$n$个分组$x_1, x_2, \cdots, x_n$。
+	- $y_1 = \text{Enc}_{Block}(k, IV \oplus x_1)$
+	- $y_i = \text{Enc}_{Block}(k, y_{i-1} \oplus x_i)$
+- 对$2\leq i \leq n$计算，然后发送$(x, y_n)$。
+
+**验证CBC-MAC**
+- 给定$(x, y_n)$，验证：
+	- $y_n \stackrel{?}{=} \text{CBC-MAC}_k(x)$
+
+CBC-MAC保证消息的*完整性*与*认证*。

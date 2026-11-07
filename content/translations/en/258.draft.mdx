@@ -1,0 +1,130 @@
+---
+title_ko:
+  - BOJ
+title_en: Color Weakness (Python)
+desc: A problem related to color weakness implemented in Python.
+thumbnail_url: 'https://d2gd6pc034wcta.cloudfront.net/tier/11.svg'
+metatag: >-
+  algorithm, python, boj, baekjoon, color, weakness, graph, bfs, shortest_path,
+  10026
+post_id: '258'
+locale: en
+title: '[BOJ] #10026 Red-Green Color Weakness (Python)'
+description: >-
+  A Python graph-traversal solution for counting regions with and without
+  red-green color weakness.
+source_hash: c618002466161efcd283e33b3cf21664958c6da6483e3979d28f6b070c1fe998
+---
+> https://www.acmicpc.net/problem/10026
+## Algorithm categories
+Graph theory, graph traversal, breadth-first search, depth-first search.
+
+## Problem description
+> Red-green color weakness refers to difficulty distinguishing red from green.
+
+You are given an N × N picture whose cells are colored R, G, or B.
+Since someone with red-green color weakness cannot distinguish R from G in this problem, treat R and G as the same color.
+```
+RRRBB
+GGBBB
+BBBRR
+BBRRR
+RRRRR
+```
+A person without red-green color weakness sees four regions in the picture above.
+A person with red-green color weakness sees three regions.
+Print the number of regions distinguishable without red-green color weakness and the number distinguishable with it.
+
+### Input
+The first line contains N, where 1 ≤ N ≤ 100.
+The next N lines contain the picture.
+```
+5
+RRRBB
+GGBBB
+BBBRR
+BBRRR
+RRRRR
+```
+
+### Output
+Print the numbers of regions distinguishable without and with red-green color weakness, separated by a space across the two counts.
+```
+4 3
+```
+
+## Solution
+1. Use breadth-first search (BFS) to explore each region.
+2. For the color-weakness case, treat R and G as the same color.
+3. Explore regions with BFS, marking visited cells in the visited array.
+4. Implement BFS with a queue and explore cells of the same color connected vertically or horizontally.
+5. Increment the count each time a new region is explored.
+6. Finally, print both region counts.
+
+## Code — Python
+```python
+import sys
+from collections import deque
+
+sys.setrecursionlimit(10000)  # 재귀 제한 해제 (DFS 쓸 경우 대비)
+N = int(sys.stdin.readline())
+
+ # 색상 격자 입력 받기
+grid = [list(sys.stdin.readline().strip()) for _ in range(N)]
+
+ # 상하좌우 방향 정의
+dx = [0, 0, 1, -1]
+dy = [1, -1, 0, 0]
+
+ # BFS로 한 구역 탐색하는 함수
+def bfs(x, y, visited, board, is_amblyopia):
+    queue = deque()
+    queue.append((x, y))
+    visited[x][y] = True  # 현재 위치 방문 처리
+    current_color = board[x][y]
+
+    while queue:
+        cx, cy = queue.popleft()
+        for i in range(4):
+            nx, ny = cx + dx[i], cy + dy[i]
+
+            # 범위를 벗어나거나 이미 방문한 경우 무시
+            if 0 <= nx < N and 0 <= ny < N and not visited[nx][ny]:
+                next_color = board[nx][ny]
+
+                if is_amblyopia:
+                    # 적록색약인 경우: R과 G는 같은 색으로 간주
+                    if (current_color in "RG" and next_color in "RG") or current_color == next_color:
+                        visited[nx][ny] = True
+                        queue.append((nx, ny))
+                else:
+                    # 일반인: 정확히 같은 색만 같은 구역
+                    if next_color == current_color:
+                        visited[nx][ny] = True
+                        queue.append((nx, ny))
+
+ # 전체 격자를 순회하면서 BFS 시작 지점을 찾아 구역 수 세기
+def count_areas(is_amblyopia):
+    visited = [[False]*N for _ in range(N)]
+    count = 0
+    for i in range(N):
+        for j in range(N):
+            if not visited[i][j]:
+                bfs(i, j, visited, grid, is_amblyopia)
+                count += 1  # BFS 한 번 돌면 하나의 구역
+    return count
+
+ # 결과 계산 및 출력
+normal = count_areas(False)       # 일반인의 시각
+color_blind = count_areas(True)   # 적록색약인의 시각
+print(normal, color_blind)
+```
+
+## Key points
+### BFS traversal
+- Use BFS to explore a region, marking visited cells in the visited array.
+- Use a queue to visit same-colored cells connected above, below, left, or right.
+
+### Time complexity
+$O(N^2)$: Each cell is visited at most once.
+Since N ≤ 100, this is sufficiently efficient.

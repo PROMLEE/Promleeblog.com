@@ -1,0 +1,335 @@
+---
+title_ko: Flutter 앱에서 언어 팩 만들어 다국어 지원하기(easy_localization)
+title_en: >-
+  Make a language pack for a Flutter app to support multiple
+  languages(easy_localization)
+desc: >-
+  Flutter 앱에서 언어 팩을 만드는 방법을 알아보자. Make a language pack for a Flutter app to
+  support multiple languages. (easy_localization)
+post_id: '131'
+locale: en
+title: Localize a Flutter App with easy_localization
+description: >-
+  Create and configure language packs in Flutter, use translated strings and
+  plurals, and let users switch languages in the app.
+source_hash: ef6466179a5939dbf97c1e8818d73ac33322fcd948cc6763aca25e2244a127fa
+---
+## Before We Begin
+> This guide was written for Flutter 3.24.
+
+It assumes you already have a basic Flutter project. If you're building an app for users around the world, you may need to support several languages. This guide shows how to create language packs for a Flutter app.
+
+## 1. Install the Library
+Run this command from the project root.
+```bash
+flutter pub add easy_localization
+```
+This adds the following entry to `pubspec.yaml`.
+```yaml
+dependencies:
+  easy_localization: version
+```
+
+<Ads1 />
+## 2. Create Language Packs
+Create JSON language pack files in the project root as shown below. I created two files for English and Korean. You can create the directories and files in advance.
+```
+ 📦 assets
+ ┣ 📂 translations
+ ┃ ┣ 📜 en_US.json
+ ┗ ┗ 📜 ko_KR.json
+ 📦 lib
+ ┣ 📜 home_page.dart
+ ┗ 📜 main.dart
+```
+Use language codes in the filenames. For example, create `en_US.json` for English and `ko_KR.json` for Korean. If you're using region codes, include them in the filenames, as in `en_US.json` for US English.
+Loaders support JSON, CSV, HTTP, XML, YAML, and more. See the [Easy Localization Loader documentation](https://github.com/aissat/easy_localization_loader).
+
+## 3. Additional Configuration
+
+### 3.1. Set the Language Pack Path
+Add the following to `pubspec.yaml`.
+```yaml
+assets:
+  - assets/translations/
+```
+
+### 3.2. Configure iOS
+Add the following inside the `<dict>` tag in ios/Runner/Info.plist.
+```xml
+...
+		<key>CFBundleLocalizations</key>
+		<array>
+			<string>en_US</string>
+			<string>ko_KR</string>
+		</array>
+...
+```
+
+<Bbox>Android needs no additional configuration.</Bbox>
+
+<Ads2 />
+## 4. Initialize and Configure Localization
+Initialize and configure the language packs before using them.
+```dart title="/lib/main.dart"
+import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:example_project/home_page.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized(); // 언어 팩 초기화
+
+  runApp(
+    EasyLocalization(
+        // 언어 팩 설정
+        supportedLocales: const [Locale('en', 'US'), Locale('ko', 'KR')],
+        path: 'assets/translations',
+        fallbackLocale: const Locale('en', 'US'), // 휴대폰 설정이 없을 시 기본 언어
+        child: const MyApp()),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        localizationsDelegates: context.localizationDelegates,
+        supportedLocales: context.supportedLocales,
+        locale: context.locale,
+        home: const HomePage());
+  }
+}
+
+```
+
+## 5. Use the Language Packs
+### 5.1. Add Translation Data
+Add translations as key-value pairs.
+```json title="assets/translations/en_US.json"
+{
+	"hello": "Hello, world!"
+}
+```
+```json title="assets/translations/ko_KR.json"
+{
+	"hello": "안녕하세요!"
+}
+```
+
+### 5.2. Look Up Translations
+Use context.tr() to read translations from a language pack. Other methods are supported, but the library documentation recommends context.tr().
+```dart title="/lib/home_page.dart"
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              context.tr('hello'), // 언어 팩 데이터 사용
+              style: const TextStyle(fontSize: 20),
+            ),
+            ElevatedButton( // 한국어 버튼
+              onPressed: () {
+                context.setLocale(const Locale('ko', 'KR'));
+              },
+              child: const Text('한국어'),
+            ),
+            ElevatedButton( // 영어 버튼
+              onPressed: () {
+                context.setLocale(const Locale('en', 'US'));
+              },
+              child: const Text('영어'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+<Img src="/posts/250219-175725.gif" width={300} alt="Example of switching language packs"/>
+
+<Ads3 />
+## 6. Additional Features
+### 6.1. Insert Arguments
+The library supports two ways of inserting arguments into a string.
+```json title="assets/translations/en_US.json"
+{
+	"hello": "Hello, {}!",
+	"hello_friends": "Hello, {}, {}!",
+	"hello_name": "Hello, {name}!",
+	"hello_name_age": "Hello, {name}! You are {age} years old.",
+	"hello_friends_name": "Hello, {}, {name}!",
+}
+```
+```dart title="/lib/home_page.dart"
+// ...
+context.tr('hello', args: ['John']);
+context.tr('hello_friends', args: ['John', 'Jane']);
+context.tr('hello_name', namedArgs: {'name': 'John'});
+context.tr('hello_name_age', namedArgs: {'name': 'John', 'age': 20});
+context.tr('hello_friends_name', args: ['John'], namedArgs: {'name': 'Jane'});
+// ...
+```
+
+### 6.2. Gender Variants
+The library also supports gender variants. I don't expect to use this one very often.
+```json title="assets/translations/en_US.json"
+{
+	"gender":{
+		"male":"Hi man ;) {}",
+		"female":"Hello girl :) {}",
+		"other":"Hello {}"
+	}
+}
+```
+
+```dart title="/lib/home_page.dart"
+// ...
+context.tr("gender", gender: _gender ? "female" : "male");
+// ...
+```
+
+### 6.3. Singular and Plural Forms
+It also supports singular and plural forms, which looks useful.
+```json title="assets/translations/en_US.json"
+{
+  "money": {
+    "zero": "You not have money",
+    "one": "You have {} dollar",
+    "many": "You have {} dollars",
+    "other": "You have {} dollars"
+  },
+	"money_named_args": { // 이름 지정
+    "zero": "{name} has no money",
+    "one": "{name} has {money} dollar",
+    "many": "{name} has {money} dollars",
+    "other": "{name} has {money} dollars"
+  }
+}
+```
+
+```dart title="/lib/home_page.dart"
+// ...
+context.plural('money', 0);
+context.plural('money', 1);
+context.plural('money', 2);
+context.plural('money_named_args', 10.23, namedArgs: {'name': 'Jane'}, name: 'money') // 이름 지정
+// ...
+```
+
+<Img src="/posts/250220-093343.png" width={300} alt="Example of singular and plural forms"/>
+
+### 6.4. Nested Keys
+The library supports nested keys. This is the feature I use most. Add a `.` after the parent key and append the child key. You can also reference another translation at the same level using `@:` in the language pack.
+```json title="assets/translations/en_US.json"
+{
+  "example": {
+    "hello": "Hello",
+    "world": "World!",
+    "helloWorld": "@:example.hello @:example.world" // 이렇게 사용합니다.
+  }
+}
+```
+
+```dart title="/lib/home_page.dart"
+// ...
+context.tr('example.hello'); // 결과: Hello
+context.tr('example.world'); // 결과: World!
+context.tr('example.helloWorld'); // 결과: Hello World!
+// ...
+```
+
+<Ads4 />
+### 7. Change the App Language
+#### 7.1. Reset the Language
+To reset the language pack to the phone's default language, use the following code.
+```dart title="/lib/home_page.dart"
+// ...
+context.resetLocale();
+// ...
+```
+
+#### 7.2. Check the Current Language
+Use this code to see which language is set.
+```dart title="/lib/home_page.dart"
+// ...
+context.deviceLocale.toString() // 결과: en_US
+// ...
+```
+
+#### 7.3. Change the Language
+The earlier code touched on this briefly. Use the following code to change the app language.
+```dart title="/lib/home_page.dart"
+// ...
+context.setLocale(Locale('ko', 'KR')); // 한국어로 설정
+// ...
+```
+
+## Troubleshooting
+### intl Version Conflict During Installation
+Reference: https://github.com/aissat/easy_localization/issues/655
+```bash
+Note: intl is pinned to version 0.19.0 by flutter_localizations from the flutter SDK.
+See https://dart.dev/go/sdk-version-pinning for details.
+
+The current Dart SDK version is 3.5.4.
+
+Because easy_localization >=2.3.4-nullsafety <3.0.0-dev.0 depends on flutter_localizations from sdk and easy_localization >=3.0.0-dev.0 <3.0.0-nullsafety doesn't support null safety,
+  easy_localization >=2.3.4-nullsafety <3.0.0-nullsafety requires flutter_localizations from sdk.
+And because easy_localization <2.3.4-nullsafety doesn't support null safety, easy_localization <3.0.0-nullsafety requires flutter_localizations from sdk.
+And because easy_localization >=3.0.0-nullsafety depends on flutter_localizations from sdk which depends on intl 0.19.0, every version of easy_localization requires intl 0.19.0.
+So, because nftcam_flutter depends on both intl ^0.20.1 and easy_localization any, version solving failed.
+
+The lower bound of "sdk: '>=2.0.0-dev.68.0 <3.0.0'" must be 2.12.0 or higher to enable null safety.
+For details, see https://dart.dev/null-safety
+
+The lower bound of "sdk: '>=2.7.0 <3.0.0'" must be 2.12.0 or higher to enable null safety.
+For details, see https://dart.dev/null-safety
+```
+#### Fix
+The workaround used here was to switch Flutter to the master channel and upgrade.
+```bash
+flutter channel master
+flutter upgrade
+```
+### GetMaterialApp Issue
+The [code for changing the language](#73-언어-설정-변경) does not work as expected with GetMaterialApp.
+#### Fix
+Use synchronous code as shown below.
+```dart title="/lib/home_page.dart"
+// ...
+const newLocale = Locale('ko', 'KR');
+await context.setLocale(newLocale);
+Get.updateLocale(newLocale);
+// ...
+```
+
+<Ads5 />
+## Conclusion
+I tried this library for an app I needed to launch globally. It offers a lot of features and is easy to use. I also found [flutter_localizations_generator](https://pub.dev/packages/flutter_sheet_localization_generator), which can manage language packs in Google Sheets.
+Even if you aren't planning a global launch yet, adding language packs early can make copy changes easier. I waited until the end to add them to a fairly large project, and it took a lot of work. 😂
+
+### Further Considerations
+- How would you manage language packs in Google Sheets?
+- Can you set the app's default language independently of the phone settings?
+  - Could you call setLocale directly from main.dart?
+
+### References
+- [easy_localization](https://pub.dev/packages/easy_localization)
+- [flutter_sheet_localization_generator](https://pub.dev/packages/flutter_sheet_localization_generator)
+- [Official Flutter documentation](https://docs.flutter.dev/)

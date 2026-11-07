@@ -1,0 +1,291 @@
+---
+title_ko: 'React 컴포넌트 설계 원칙과 패턴으로 품질 높이기 - React, 알고 쓰자 9일차'
+title_en: >-
+  Designing React Components Principles & Patterns for Quality - React Explained
+  Day 9
+desc: >-
+  재사용 가능하고 유지보수하기 쉬운 React 컴포넌트를 설계하는 원칙과 패턴을 알아봅니다. SRP, Atomic Design,
+  Container/Presentational 패턴 등을 예시와 함께 설명하고 테스트 용이성을 높이는 방법을 제시합니다.
+thumbnail_url: /250502-171259.webp
+metatag: >-
+  React, 컴포넌트 설계, 디자인 패턴, SRP, Atomic Design, Container Pattern, Presentational
+  Pattern, 재사용성, 테스트 가능성, 클린 코드, 프론트엔드, 면접
+post_id: '250'
+locale: ja
+title: Reactコンポーネントの設計原則とパターンで品質を高める - Reactを理解して使う9日目
+description: >-
+  再利用しやすく保守しやすいReactコンポーネントの設計原則とパターンを学びます。SRP、Atomic
+  Design、Container/Presentationalパターンを例とともに説明し、テストしやすくする方法を紹介します。
+source_hash: befbcf1e26bc834d5173b95460899950c91c13bbccef5a03b65c430a471ff8f3
+reviewed_at: '2026-11-07T01:48:28.860Z'
+---
+
+## はじめに
+
+これまでReactの中核となる概念を学び、さまざまな機能の使い方を身につけてきました。ここからは、単に「動く」コードを超えて、「よく作られた」コードを書く方法を考えてみましょう。特にReact開発の基本単位である*コンポーネント*の設計は、アプリケーション全体の品質、保守性、拡張性に大きく影響します。
+<br/>
+<br/>
+よく設計されたコンポーネントは、よくできたレゴブロックのように理解やテストがしやすく、別の場所で再利用するのも簡単です。一方、設計の悪いコンポーネントはコードを読みにくくし、小さな修正で予想外の問題を引き起こし、共同作業を難しくします。
+<br/>
+<br/>
+
+今回は、優れたReactコンポーネントを作るための重要な設計*原則*と、広く使われている*パターン*を見ていきます。
+
+## 単一責任の原則（Single Responsibility Principle、SRP）
+ソフトウェア設計の基本原則である*単一責任の原則（SRP）*は、Reactコンポーネントの設計でも重要です。簡単に言えば、*1つのコンポーネントは1つの責任（役割）だけを持つべき*という原則です。
+
+### コンポーネントの「責任」とは？
+
+コンポーネントには、例えば次のような責任があります。
+- 特定のUIの一部をレンダリングする。
+- データを取得する（fetching）。
+- ユーザーの入力を処理する。
+- グローバルな状態を購読し、更新する。
+- 特定のビジネスロジックを実行する。
+
+SRPでは、1つのコンポーネントにこれらの責任をいくつも同時に背負わせないようにします。多くの仕事を担うコンポーネントは、変更する理由も多くなり、コードが複雑になってテストも難しくなります。
+
+### SRPの適用方法：関心の分離
+
+SRPを適用する鍵は*関心の分離（Separation of Concerns）*です。異なる責任や関心を持つコードを、別々のコンポーネントやフックに分けます。
+- **ロジックの分離**
+  データ取得、状態管理のロジック、複雑な計算などをカスタムフックや独立したユーティリティ関数に分けます。
+- **UIの分離**
+  巨大なUIコンポーネントを、ボタン、入力欄、カード、リスト項目など、より小さな役割を持つコンポーネントに分けます。
+- **Container/Presentationalの分離**
+  データ処理のロジックと純粋なUIの描画ロジックを分けます。詳しくは後で説明します。
+
+```tsx title="SRP 위반 예시 (하나의 컴포넌트가 너무 많은 일을 함)"
+function UserProfileWithPosts({ userId }: { userId: string }) {
+  const [user, setUser] = React.useState(null);
+  const [posts, setPosts] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    // 데이터 fetching 책임
+    setLoading(true);
+    Promise.all([fetchUser(userId), fetchPosts(userId)])
+      .then(([userData, postData]) => {
+        setUser(userData);
+        setPosts(postData);
+      })
+      .finally(() => setLoading(false));
+  }, [userId]);
+
+  // UI 렌더링 책임 (사용자 정보 + 게시글 목록)
+  if (loading) return <div>로딩 중...</div>;
+  if (!user) return <div>사용자 정보 없음</div>;
+
+  return (
+    <div>
+      {/* 사용자 정보 렌더링 부분 */}
+      <h2>{user.name}</h2>
+      <p>{user.email}</p>
+      <hr />
+      {/* 게시글 목록 렌더링 부분 */}
+      <h3>게시글</h3>
+      <ul>
+        {posts.map(post => <li key={post.id}>{post.title}</li>)}
+      </ul>
+    </div>
+  );
+}
+```
+```tsx title="SRP 적용 예시 (로직과 UI 분리)"
+// 데이터 fetching 로직 분리 (커스텀 훅)
+function useUserData(userId: string) { /* ... user fetching 로직 ... */ return { user, loadingUser }; }
+function usePostData(userId: string) { /* ... posts fetching 로직 ... */ return { posts, loadingPosts }; }
+
+// UI 컴포넌트 분리
+function UserInfo({ user }: { user: any }) { /* ... 사용자 정보 UI ... */ }
+function PostList({ posts }: { posts: any[] }) { /* ... 게시글 목록 UI ... */ }
+
+// 각 책임을 조합하는 상위 컴포넌트
+function UserProfilePage({ userId }: { userId: string }) {
+  const { user, loadingUser } = useUserData(userId);
+  const { posts, loadingPosts } = usePostData(userId);
+
+  if (loadingUser || loadingPosts) return <div>로딩 중...</div>;
+  if (!user) return <div>사용자 정보 없음</div>;
+
+  return (
+    <div>
+      <UserInfo user={user} />
+      <hr />
+      <PostList posts={posts} />
+    </div>
+  );
+}
+```
+
+<Img src="/250502-172301.webp" width={300} alt="SRP適用前と適用後"/>
+
+### SRPのメリット
+- **テストのしやすさ**：各コンポーネントやフックの責任が明確なので、独立してテストしやすくなります。
+- **再利用性の向上**：特定の機能やUI、ロジックが必要なときに、該当するコンポーネントやフックだけを取り出して使えます。
+- **理解と保守のしやすさ**：コードが簡潔になり、役割も明確になるため、理解や修正が容易になります。変更が及ぶ範囲も予測しやすくなります。
+
+>Q: 「単一責任の原則（SRP）とは何ですか？Reactコンポーネントにはどう適用できますか？」
+A: 「1つのコンポーネントは1つの責任だけを持つべきだという原則です。ロジックをカスタムフックに、UIを小さなコンポーネントに分けて適用でき、テストのしやすさと再利用性が向上します。」
+
+<Ads1 />
+
+## Atomic Designパターン：体系的なUI構成
+
+Atomic Designは、化学の原子、分子、有機体のように、UIコンポーネントを体系的な段階に分けて設計する方法論です。デザインシステムの構築やUIの一貫性を保つ際に役立ちます。
+
+### 5段階の構成要素
+
+Atomic Designでは、UIを次の5段階の階層構造に分けます。
+1. **Atoms（原子）**
+  UIを構成する最小の基本単位です。これ以上分解できないHTML要素や、基本的なスタイルの単位を指します。例はボタン、入力欄、ラベル、アイコンです。
+2. **Molecules（分子）**
+  複数の原子が集まって特定の機能を果たす単位です。原子を組み合わせ、少し複雑なUI要素を作ります。例は検索フォーム（入力欄＋ボタン）やナビゲーションリンク（アイコン＋ラベル）です。
+3. **Organisms（有機体）**
+  複数の分子や原子が集まり、より複雑で独立したUIセクションを構成します。ページ内の特定の領域を表すことが多く、ヘッダー（ロゴ＋ナビゲーション＋検索フォーム）、商品カード、記事一覧などが該当します。
+4. **Templates（テンプレート）**
+  ページ全体のレイアウト構造を定義します。実際のコンテンツは含まず、どの有機体や分子を配置するかを示す骨組みです。例はブログ記事や商品一覧ページのレイアウトです。
+5. **Pages（ページ）**
+  テンプレートに実際のコンテンツやデータを入れた、完成した最終ページです。特定のブログ記事ページや、あるカテゴリの商品一覧など、ユーザーが実際に目にする画面を指します。
+
+<Img src="/250502-172648.webp" width={500} alt="Atomic Designの5段階"/>
+
+### Atomic Designのメリットと検討事項
+
+#### メリット
+- **再利用性の最大化**：原子や分子といった小さな単位から再利用できるため、UI開発の効率が上がります。
+- **一貫性の維持**：デザインシステムに基づいてコンポーネントを作るため、アプリケーション全体のUIの一貫性を保ちやすくなります。
+- **開発とデザインの連携**：デザイナーと開発者が同じ用語や構造を共有し、円滑に意思疎通できます。
+- **テストのしやすさ**：小さなコンポーネント単位でテストしやすくなります。
+#### 検討事項
+- **過度な分割**：極端に小さな単位まで厳密に分けようとすると、かえって開発が複雑になることがあります。プロジェクトの規模やチームの状況に合わせ、柔軟に適用することが大切です。
+- **初期設定のコスト**：デザインシステムと一緒に構築することが多く、初期設定に時間がかかる場合があります。
+
+<Ads2 />
+
+## Container / Presentationalパターン：ロジックとビューの分離
+
+Container/Presentationalパターンは、コンポーネントを2種類に分けて関心を分離する、古典的なデザインパターンです。
+### Containerコンポーネント
+*どう動作するか*に注目します。
+- データ取得、Reduxとの接続などの状態管理、イベント処理のロジックを担当します。
+- 内部にPresentationalコンポーネントを持ち、必要なデータやコールバック関数をpropsで渡します。
+- 通常、独自のDOMマークアップやスタイルはほとんど持ちません。
+### Presentationalコンポーネント
+*どう見えるか*に注目します。
+- propsで受け取ったデータを、画面にどう表示するかを担当します。
+- スタイルとUI構造に専念します。
+- 状態やAPIなど、アプリケーションの他の部分には直接依存しません。
+- 独自の状態はほとんど持たず、データの変更が必要ならpropsで受け取ったコールバック関数を呼び出します。
+
+```tsx title="Presentational 패턴 예시"
+import React from 'react';
+
+// --- Presentational Component ---
+interface TodoListProps {
+  todos: { id: number; text: string; completed: boolean }[];
+  onToggleTodo: (id: number) => void;
+}
+
+// 오직 props를 받아 UI를 그리는 역할만 수행
+function TodoListUI({ todos, onToggleTodo }: TodoListProps) {
+  return (
+    <ul>
+      {todos.map(todo => (
+        <li
+          key={todo.id}
+          onClick={() => onToggleTodo(todo.id)}
+          style={{ textDecoration: todo.completed ? 'line-through' : 'none', cursor: 'pointer' }}
+        >
+          {todo.text}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+```tsx title="Container 패턴 예시"
+// --- Container Component ---
+import { useTodos } from './hooks/useTodos'; // 가상의 커스텀 훅 (데이터 로직 분리)
+
+function TodoListContainer() {
+  // 데이터 fetching 및 상태 관리 로직은 커스텀 훅 또는 여기서 직접 처리
+  const { todos, toggleTodo } = useTodos(); // 가상의 훅 사용 예시
+
+  // Presentational 컴포넌트에 필요한 데이터와 콜백 전달
+  return <TodoListUI todos={todos} onToggleTodo={toggleTodo} />;
+}
+```
+```tsx title="가상의 커스텀 훅 예시"
+// --- 가상의 커스텀 훅 예시 ---
+// hooks/useTodos.ts (가상 예시)
+function useTodos() {
+  const [todos, setTodos] = React.useState([]);
+  // ... 데이터 fetching 로직 ...
+  const toggleTodo = (id: number) => { /* ... 상태 업데이트 로직 ... */ };
+  return { todos, toggleTodo };
+}
+```
+<Img src="/250502-173220.webp" width={600} alt="ContainerコンポーネントとPresentationalコンポーネントの関係"/>
+
+### Hooks時代の変化と、今も有効な考え方
+
+React Hooks、特にカスタムフックの登場により、Containerコンポーネントが担っていたロジックをカスタムフックに切り出す方法が一般的になりました。そのため、明示的なContainerコンポーネントが不要になることもあります。
+それでも、このパターンの核心である*関心の分離*、つまりロジックとビューの分離は今も非常に重要です。PresentationalコンポーネントのようにUIの描画だけに集中するコンポーネントを作ることは、現在でも再利用性やテストのしやすさを高める有効な方法です。
+
+>Q: 「Container/Presentationalパターンとは何ですか？Hooksの登場後はどう変わりましたか？」
+A: 「ロジック（Container）とビュー（Presentational）を分けるパターンです。Hooksの登場後はロジックをカスタムフックに分ける傾向がありますが、関心の分離という基本的な考え方は今も有効です。純粋なUIコンポーネントを書くことは、再利用性やテストのしやすさにつながります。」
+
+## 再利用性とテスト可能性を高める
+
+ここまでの原則やパターンのほかにも、コンポーネントの品質を高める実用的な工夫があります。
+
+### 明確なPropsの設計
+
+- **意味のある名前**
+  propsの名前だけで役割が明確にわかるようにします。例は `isEnabled` と `flag` の比較です。
+- **必須と任意を区別する**
+  TypeScriptなどを使い、必須のpropsと任意のpropsを明確に定義します。任意のpropにはデフォルト値の指定も検討します。
+- **インターフェースや型を使う**
+  TypeScriptを使うならpropsの型を表すインターフェースや型を定義し、使い方を明確にして型安全性を高めます。
+
+### コンポーネントの合成（Composition）を活用する
+
+- **children prop**
+  コンポーネントの中に別の内容を柔軟に挿入したいときは、`children` propを積極的に使います。カードのレイアウト内にさまざまな内容を入れるなど、コンポーネントの再利用性が大きく向上します。
+  ```tsx
+  function Card({ children, title }: { children: React.ReactNode; title: string }) {
+    return <div className="card"><h2>{title}</h2>{children}</div>;
+  }
+  // <Card title="제목"><p>내용</p></Card>
+  ```
+- **Render Propsパターン**
+  特定のUIを描画するロジック自体をpropとして渡すパターンです。非常に柔軟な構造を作れますが、コードがやや複雑になる場合があります。最近はHooksに置き換えられる傾向があります。
+
+### 依存を最小限にし、純粋なコンポーネントを目指す
+
+- **外部への依存を減らす**
+  グローバルな状態や外部モジュールに直接依存するよりも、必要なデータや関数をpropsで明示的に受け取るようにします。これにより、コンポーネントの予測可能性と再利用性が高まります。
+- **純粋なコンポーネントに近づける**
+  可能なら、同じpropsには常に同じUIを描画するようにし、副作用を最小限にします。このようなコンポーネントは理解しやすく、テストも容易です。React.memoとも相性がよい設計です。
+
+<Ads3 />
+
+## おわりに
+
+今回は、再利用しやすく、テストや保守もしやすいReactコンポーネントを設計するための重要な原則とパターンを学びました。
+- **単一責任の原則（SRP）**：コンポーネントを1つの役割に集中させ、コードの明確さとテストのしやすさを高めます。
+- **Atomic Design**：UIを原子や分子などの体系的な段階に分け、一貫性と再利用性を高める方法論です。
+- **Container/Presentationalパターン**：ロジックとビューを分ける古典的なパターンです。Hooksでロジックを分離する今も、関心の分離という核心は有効です。
+- **明確なProps設計、コンポーネントの合成、依存の最小化**なども、品質を高める実用的な方法です。
+
+プロジェクトの規模、チームの経験、要件を考慮し、適切な方法を柔軟に適用することが大切です。最初から完璧な設計を目指すより、コードを書き、リファクタリングを重ねて少しずつ改善するほうが現実的な場合もあります。
+> 次回は、マイクロサービスアーキテクチャのフロントエンド版である*マイクロフロントエンド（Micro Frontend）*を学びます。
+大規模なフロントエンドアプリケーションを、複数のチームが独立して開発、デプロイする方法を見ていきましょう。
+
+### 参考
+
+- SOLID原則（Wikipedia）：[https://ko.wikipedia.org/wiki/SOLID_(%EA%B0%9D%EC%B2%B4_%EC%A7%80%ED%96%A5_%EC%84%A4%EA%B3%84)](https://ko.wikipedia.org/wiki/SOLID_(%EA%B0%9D%EC%B2%B4_%EC%A7%80%ED%96%A5_%EC%84%A4%EA%B3%84))（SRPを含む）
+- Atomic Design by Brad Frost：[https://atomicdesign.bradfrost.com/](https://atomicdesign.bradfrost.com/)
+- Presentational and Container Components by Dan Abramov：[https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0)
+- React公式ドキュメント - Composition vs Inheritance：[https://reactjs.org/docs/composition-vs-inheritance.html](https://reactjs.org/docs/composition-vs-inheritance.html)

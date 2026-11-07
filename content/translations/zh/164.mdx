@@ -1,0 +1,97 @@
+---
+title_ko:
+  - PGM
+title_en:
+  - PGM
+desc: 프로그래머스 PCCP 기출문제 3번 충돌위험 찾기 문제를 파이썬으로 풀이한 글입니다.
+thumbnail_url: /posts/lv2.webp
+metatag: null
+post_id: '164'
+locale: zh
+title: '[PGM] PCCP真题第3题：查找碰撞风险（Python）'
+description: 使用Python模拟机器人沿指定路线移动，统计同一时间同一坐标发生的碰撞风险。
+source_hash: c5257d3218228466a3e648939b682279be6496761ddb6d3aadae29bc17e0d959
+reviewed_at: '2026-11-06T14:45:00.105Z'
+---
+>https://school.programmers.co.kr/learn/courses/30/lessons/340211
+## 算法分类
+模拟实现。
+## 题目说明
+- points是二维数组，表示*出发或到达位置*的坐标。
+- routes是二维数组，表示*每个机器人的移动路线*。
+- 例如，points = [[0, 0], [0, 1], [1, 1], [1, 0]]，routes = [[1, 2, 3, 4], [4, 3, 2, 1]]时，第一个机器人从(0, 0)出发，经过(0, 1)、(1, 1)，到达(1, 0)。第二个机器人从(1, 0)出发，经过(1, 1)、(0, 1)，到达(0, 0)。
+- 机器人每次移动一格，只能上下左右移动。它们沿最短路径移动，如果有多条最短路径，则优先沿x轴方向移动。移动过程中，*同一位置存在其他机器人时会发生碰撞*。
+
+## 解题思路
+1. 首先将机器人的移动路径保存在*paths*中。paths是复制routes中各条路线得到的二维数组。
+	- 保存的形式为：[[[出发点], [目的地1], [目的地2], ...], [[出发点], [目的地1], [目的地2], ...], ...]。
+2. 创建名为*grid*的二维数组，记录当前每个坐标有多少台机器人。
+3. 沿paths中的路线移动，并判断是否发生碰撞。
+	- *如果发生碰撞，answer加1。*
+	- 如果没有发生碰撞，则在grid中标记机器人。
+	- 如果出发点和目的地点相同，则删除对应路线项。
+		- 如果还剩下两个或以上的路线点，删除已到达的目的地点。
+		- 如果所有路线点都已到达，则将出发点改为[0, 0]。
+4. 所有机器人完成移动后，返回answer。
+
+## Python代码
+``` python
+def solution(points, routes):
+	answer = 0
+	paths = [[points[j - 1][:] for j in route] for route in routes]
+	
+	grid = [[0] * 101 for _ in range(101)]
+	
+	for path in paths: # 출발 지점에서의 충돌 확인
+		x, y = path[0]
+		if grid[x][y] == 1:
+			grid[x][y] += 1
+			answer += 1
+		elif grid[x][y] == 0:
+			grid[x][y] = 1
+	
+	while True:
+		active_paths = len(paths) # 활성화된 경로의 수 (0이면 종료)
+		grid = [[0] * 101 for _ in range(101)] # 그리드 초기화
+		
+		for path in paths: 
+			if path[0] == [0, 0]: # 최종 도착지에 도착한 로봇
+				active_paths -= 1
+				continue
+		
+			x1, y1 = path[0] 
+			x2, y2 = path[1]
+			
+			if x1 < x2: # 경로 이동 (x축 우선)
+				path[0][0] += 1
+			elif x1 > x2:
+				path[0][0] -= 1
+			elif y1 < y2:
+				path[0][1] += 1
+			elif y1 > y2:
+				path[0][1] -= 1
+			
+			x, y = path[0] # 충돌 확인
+			if grid[x][y] == 1:
+				grid[x][y] += 1
+				answer += 1
+			elif grid[x][y] == 0:
+				grid[x][y] = 1
+			
+			if path[0] == path[1]: # 도착지에 도착한 경우
+				if len(path) > 2:	# 추가 경로가 있는 경우
+					del path[1]
+				else:	 # 모든 경로를 이동한 경우
+					path[0] = [0, 0]
+					active_paths -= 1
+		
+		if active_paths == 0:
+			break
+	
+	return answer
+```
+
+## 核心要点
+- 使用grid判断碰撞，减少查找所需的时间。
+- 即使多个机器人在同一个位置碰撞，也只计数一次。
+- 当存在多个目的地时，如何管理目的地点非常重要。

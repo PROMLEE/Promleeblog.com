@@ -1,0 +1,79 @@
+---
+title_ko: Next.js 데이터 패칭 완전 정복 5 - 종합 정리와 전략 선택 가이드
+title_en: >-
+  Complete Guide to Data Fetching in Next.js 5 - Strategy Summary & Best
+  Practices
+desc: '지금까지 배운 Next.js의 데이터 패칭 방식들을 종합 정리하고, 상황에 맞는 최적의 전략 선택 가이드를 제공합니다.'
+thumbnail_url: /250404-093858.webp
+metatag: 'nextjs, data fetching, 전략 정리, 서버 컴포넌트, 클라이언트 컴포넌트, 캐싱'
+post_id: '182'
+locale: zh
+title: Next.js数据获取指南5：策略总结与选择
+description: 综合比较服务器组件、客户端请求、SWR、路由处理器、ISR和no-store，并按应用场景选择策略。
+source_hash: fb9191df73549c3301c245a9c194fbcbf4d679842af54563ad1c3c086af59c75
+---
+## 开始之前
+此前，我们介绍了Next.js App Router中获取数据的不同方式。最后一篇会总结这些内容，以*实用指南*的形式说明不同场景下适合选择什么策略。
+## 数据获取策略总结
+| 策略（点击跳转） | 位置 | 执行时机 | 优点 | 缺点 |
+|------|------|------------|------|------|
+| [服务器组件fetch](/blog/post/178-nextjs-fetching-1#fetch-함수-기본) | `app/page.tsx`、`app/layout.tsx`等 | HTML生成前 | 加载快，SEO友好 | 不适合动态交互 |
+| [客户端组件与useEffect](/blog/post/180-nextjs-fetch-3#클라이언트-컴포넌트에서의-데이터-패칭) | `'use client'`组件 | 挂载后 | 可以在用户交互后获取数据 | 初始加载可能较慢 |
+| [SWR或React Query](/blog/post/180-nextjs-fetch-3#swr을-활용한-클라이언트-패칭) | 客户端组件 | 挂载后，并使用缓存 | 自动缓存、重新验证与重新获取 | 可能增加打包体积 |
+| [路由处理器API](/blog/post/181-nextjs-fetch-4#라우트-핸들러를-이용한-api-구성) | `app/api/**` | 需要拆分服务器API时 | 可以承担后端职责 | 需要额外配置 |
+| [ISR与revalidate](/blog/post/179-nextjs-fetch-2#재검증을-통한-isr증분-정적-재생성) | 服务器组件 | 缓存与重新生成 | 改善数据及时性 | 指定时间内保留缓存 |
+| [no-store](/blog/post/179-nextjs-fetch-2) | 服务器组件 | 始终获取最新数据 | 每次请求重新获取 | 性能成本更高 |
+
+<Ads1 />
+## 按场景选择策略
+### 1. 博客、文档等静态内容页面
+- 使用*服务器组件与基础fetch*。
+- 按需通过`revalidate`设置更新周期。
+```ts
+fetch('https://api.example.com/docs', {
+  next: { revalidate: 3600 }, // 1시간마다 갱신
+});
+```
+### 2. 登录用户专属仪表盘
+- *通过cookies()提取认证令牌，再执行fetch*；或者
+- *路由处理器API与缓存标签失效机制*。
+```ts
+const cookieStore = cookies();
+const token = cookieStore.get('auth');
+await fetch('https://api.example.com/user', {
+  headers: { Authorization: `Bearer ${token?.value}` },
+});
+```
+### 3. 用户操作后数据变化，例如点击按钮
+- 推荐在客户端组件中*使用SWR*。
+```ts
+'use client';
+const { data, mutate } = useSWR('/api/posts', fetcher);
+// 사용자 액션 후 mutate()
+```
+### 4. 实时或频繁变化的数据
+- 使用`cache: 'no-store'`。
+- 或者在客户端定期获取，例如SWR和轮询。
+```ts
+await fetch('https://api.example.com/status', { cache: 'no-store' });
+```
+<Ads2 />
+## Next.js的方向与理念
+Next.js通常遵循*服务器优先（Server-first）*的渲染理念。结合React 18引入的*Server Components*，推荐尽量减少客户端代码，并尽可能从服务器获取数据。
+这样具有以下优势：
+- 减少客户端JavaScript包体积。
+- 加快初始页面加载。
+- 优化SEO。
+- 改善代码分离与安全性。
+不过，有些情况仍然必须使用客户端，因此需要*平衡选择*。
+## 结论
+本系列用5篇文章，从基础到进阶介绍了Next.js数据获取：包括基本`fetch`、缓存策略、SWR、路由处理器与缓存失效，覆盖实际项目中常见的使用情况。
+Next.js数据获取与React紧密相关，因此理解*React的数据流*也很重要。App Router时代的数据流，正在进一步朝*服务器中心*演进。
+需要时，可以参考本文选择策略。
+### 进一步思考
+- React Query与SWR有什么区别？
+- 在服务器组件中应如何获取GraphQL数据？
+### 参考资料
+- [Next.js官方文档：Data Fetching](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching)
+- [Next.js缓存策略](https://nextjs.org/docs/app/building-your-application/caching)
+- [SWR与React Query比较](https://swr.vercel.app/docs/with-react-query)

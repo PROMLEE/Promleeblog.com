@@ -1,0 +1,87 @@
+---
+post_id: '107'
+locale: zh
+title: 使用GitHub Actions向S3上传静态文件
+description: 配置AWS IAM访问密钥和GitHub Secrets，通过GitHub Actions自动向S3部署静态文件。
+source_hash: d16c3547dc34d301c2a374d580a51e6d06f10371d7629c3c5b6104012965978e
+---
+## 开始之前
+下面介绍如何在GitHub仓库中使用GitHub Actions，自动部署静态文件。
+假设S3存储桶和仓库已经创建。
+## AWS配置
+### 创建IAM用户
+登录AWS，进入[IAM](https://us-east-1.console.aws.amazon.com/iam/home)（Identity and Access Management，身份与访问管理）服务。
+依次点击用户 > 创建用户。
+设置名称后点击下一步。
+<Img src="/posts/240622-183516.png" width={500} />
+在权限设置页面选择直接附加策略，勾选`AmazoneS3FullAccess`和`CloudFrontFullAccess`。
+<Img src="/posts/240622-191634.png" width={500}/>
+<Img src="/posts/240622-192502.png" width={500}/>
+继续点击下一步，完成用户创建。
+之后依次进入用户 > 安全凭证 > 创建访问密钥。
+选择其他，并填写标签。
+<Img src="/posts/240622-192812.png" width={500}/>
+<Img src="/posts/240622-192854.png" width={500}/>
+生成访问密钥后，请妥善保管。
+**绝对不要**将密钥放在公开位置。
+<Img src="/posts/240622-192928.png" width={500}/>
+
+<Ads1 />
+## 配置GitHub Actions
+### 添加GitHub Secrets
+进入仓库，依次选择`Settings` > `Security` > `Secrets and variables`，点击`New repository secret`。
+<Img src="/posts/240622-193058.png" width={500}/>
+
+添加`AWS_ACCESS_KEY_ID`和`AWS_SECRET_ACCESS_KEY`。
+<Img src="/posts/240622-193252.png" width={500}/>
+<Img src="/posts/240622-193336.png" width={500}/>
+
+### 创建YAML文件
+在`.github/workflows`目录中创建`deploy.yml`。
+```yml showLineNumbers title="./.github/workflows/deploy.yml"
+name: Main CI
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  push-to-s3:
+    name: Push to S3
+    runs-on: ubuntu-20.04
+
+    # 레포지토리에 접근하여 CI서버로 코드를 내려받음
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # 캐시 사용
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ./posts
+        key: ${{ runner.os }}-posts-${{ hashFiles('**/posts/**') }}
+
+    # aws에 접근하기 위한 권한 설정
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-2
+
+    # s3에 파일 업로드
+    - name: Upload to S3
+      run: |
+        aws s3 sync \
+          ./posts s3://promleeblog-cdn
+			# file path, s3 버킷 이름
+```
+添加后，推送到main分支，GitHub Actions就会执行，并将文件上传到S3存储桶。
+<Img src="/posts/240622-200935.png" width={500}/>
+
+<Ads2 />
+## 参考资料
+[使用GitHub Actions、S3与CloudFront构建CI/CD](https://velog.io/@tt8784/Github-Action-S3-CloudFront%EB%A1%9C-CICD-%EA%B5%AC%EC%B6%95%ED%95%98%EA%B8%B0)
+[通过依赖缓存加速工作流](https://docs.github.com/ko/actions/using-workflows/caching-dependencies-to-speed-up-workflows)

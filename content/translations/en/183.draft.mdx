@@ -1,0 +1,180 @@
+---
+title_ko: Expo Image와 Asset을 활용한 이미지 표시
+title_en: Complete Guide to Image Loading with Expo Image and Asset
+desc: >-
+  Expo의 `expo-image`와 `expo-asset` 라이브러리를 사용하여 이미지 로딩을 최적화하는 방법을 단계별로 소개합니다. 다양한
+  예제와 문제 해결 팁을 함께 제공합니다.
+thumbnail_url: 'https://docs.expo.dev/static/images/packages/expo-image.png'
+metatag: >-
+  expo-image, expo-asset, react-native, 이미지 로딩, blurhash, expo-image 사용법,
+  expo-asset 사용법
+post_id: '183'
+locale: en
+title: Displaying Images with Expo Image and Expo Asset
+description: >-
+  Use expo-image and expo-asset to optimize remote and bundled image loading,
+  handle asset state, and show BlurHash placeholders.
+source_hash: 576d707115d4acc5363229ff75bd997dd04ee31c03df1073b90161c33a6ea38c
+---
+## Before We Begin
+Images play an important role in the experience of a React Native app. Slow loading or flickering can make the app feel less polished. In this guide, we'll use Expo's `expo-image` and `expo-asset` libraries together to manage and display images efficiently. Both are simple to install and use, even if you're new to Expo.
+## Load Remote Images with expo-image
+`expo-image` is a high-performance image component. It offers more features than the standard `Image` component, including built-in caching and transitions.
+### Installation
+Run this command in your terminal.
+```bash
+npx expo install expo-image
+```
+### Basic Usage
+Here's a simple example that loads an image from a remote URL.
+```tsx
+import { Image } from 'expo-image';
+import { View, StyleSheet } from 'react-native';
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <Image
+        style={styles.image}
+        source="https://picsum.photos/seed/picsum/3000/2000"
+        contentFit="cover"
+        transition={1000}
+      />
+    </View>
+  );
+}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  image: {
+    width: '100%',
+    height: 300,
+    backgroundColor: '#ccc',
+  },
+});
+```
+*The `contentFit` prop works like CSS `object-fit` and determines how the image fits inside its container.*
+<Ads1 />
+## Load Bundled Images with expo-asset
+Use `expo-asset` to load static images bundled with your app. You can use `require()` to reference assets such as images, fonts, and sounds.
+### Installation
+```bash
+npx expo install expo-asset
+```
+### Basic Example
+```tsx
+import { Asset } from 'expo-asset';
+import { Image } from 'expo-image';
+import { useEffect, useState } from 'react';
+import { View, StyleSheet } from 'react-native';
+export default function App() {
+  const [localUri, setLocalUri] = useState<string | null>(null);
+    useEffect(() => {
+    async function loadImage() {
+      const [asset] = await Asset.loadAsync(require('@/assets/example.png'));
+      setLocalUri(asset.localUri);
+    }
+    loadImage();
+  }, []);
+    return (
+    <View style={styles.container}>
+      {localUri && (
+        <Image
+          style={styles.image}
+          source={localUri}
+          contentFit="contain"
+          transition={500}
+        />
+      )}
+    </View>
+  );
+}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  image: {
+    width: 300,
+    height: 300,
+  },
+});
+```
+*This example loads a bundled image as an asset and passes its local path (localUri) to `expo-image` for display.*
+## Use the useAssets Hook
+The `expo-asset` package also provides the `useAssets` hook. It lets you load multiple assets together and handle loading and error states.
+```tsx
+import { useAssets } from 'expo-asset';
+import { Image } from 'react-native';
+const [assets, error] = useAssets([
+  require('./assets/image1.png'),
+  require('./assets/image2.jpg'),
+]);
+return assets ? <Image source={assets[0]} /> : null;
+```
+This keeps the code concise and is useful when a component needs several images.
+## Show a BlurHash Placeholder While an Image Loads
+
+A blank area or a flash while an image loads can feel abrupt. The `expo-image` component supports *BlurHash*, which generates a blurry preview from a short string. It works like a thumbnail while requiring much less data.
+
+### BlurHash Example
+
+```tsx
+import { Image } from 'expo-image';
+import { View, StyleSheet } from 'react-native';
+
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <Image
+        style={styles.image}
+        source="https://picsum.photos/seed/blurimage/3000/2000"
+        contentFit="cover"
+        transition={500}
+        placeholder="blurhash"
+        blurhash="L|LqFGRiWBaz~qWAV@ayt8axf6fR"
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  image: {
+    width: '100%',
+    height: 300,
+    backgroundColor: '#eee',
+  },
+});
+```
+
+Here, `blurhash="L5H2EC=PM+yV0g-mq.wG9c010J}I"` is *an example BlurHash value*. Generate the `blurhash` string for your own image with a tool or backend service.
+*The blurred preview fills the image area while the full image loads, making flashes and delays less noticeable.*
+
+### Generate a BlurHash Value
+
+Generating a BlurHash requires analyzing the source image. Common options include:
+
+- [BlurHash Playground (Wolt)](https://blurha.sh/)
+- Server-side libraries such as `blurhash`, or a combination of `sharp + blurhash`.
+
+The `expo-image` component displays the preview in the app. You typically generate the hash on the backend or during the build.
+
+<Ads2 />
+## Conclusion
+The `expo-image` component displays both remote and local images efficiently, while `expo-asset` helps manage bundled files. Using them together can improve image loading speed and reliability.
+For bundled assets, this guide uses `expo-asset` to obtain the `localUri`, then passes it to `expo-image`.
+Alongside `expo-image` and `expo-asset`, `blurhash` gives users a smooth, blurred preview when an image takes time to load.
+For remote images, `blurhash` can make loading feel less abrupt. It can also be combined with static assets (`expo-asset`) as part of the app's image loading strategy.
+### Further Considerations
+- Consider WebP to optimize image files.
+- If needed, use `SplashScreen` at startup to wait until images have loaded.
+- A CDN can speed up loading for remote images.
+### References
+- [Official expo-image documentation](https://docs.expo.dev/versions/latest/sdk/image/)
+- [Official expo-asset documentation](https://docs.expo.dev/versions/latest/sdk/asset/)
+- [React Native static image reference](https://reactnative.dev/docs/images)

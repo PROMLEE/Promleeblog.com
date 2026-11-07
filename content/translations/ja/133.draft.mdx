@@ -1,0 +1,431 @@
+---
+title_ko: 'TypeScript 환경에서 axios 타입 셋팅하기 (React, Next.js, React Native, node.js, ...)'
+title_en: >-
+  Setting up axios types in a TypeScript environment (React, Next.js, React
+  Native, node.js, ...)
+desc: >-
+  TypeScript 환경에서 axios 타입 셋팅하기 (React, Next.js, React Native, node.js, ...),
+  Setting up axios types in a TypeScript environment (React, Next.js, React
+  Native, node.js, ...)
+thumbnail_url: >-
+  https://camo.githubusercontent.com/2ac485b6967b7c38e2b416b2b1e3c2812a79e146eb37a74bced4305a55e282a4/68747470733a2f2f6178696f732d687474702e636f6d2f6173736574732f6c6f676f2e737667
+post_id: '133'
+locale: ja
+title: TypeScript環境でAxiosの型を設定する
+description: >-
+  React、Next.js、React
+  Native、Node.jsなどのTypeScript環境で、Axiosのリクエスト・レスポンス型とサービス層を設定します。
+source_hash: 62160e5e216ca6fe88dde87bec35072afe2dce524fced2326ce5d567fe6ca1ef
+---
+## はじめに
+> この記事はAxios 1.7.9を基準にしています。
+
+サーバーや公開APIを呼ぶとき、よく使われるnpmライブラリの一つがAxiosです。
+APIの仕様が明確なら、RequestとResponseの型を指定することで、TypeScript環境でエラーの可能性を減らし、開発効率を高められます。
+この記事は[Next.js](https://nextjs.org/)の開発環境を基準にしていますが、[React](https://ko.react.dev/)、[React Native](https://reactnative.dev/)、[Node.js](https://nodejs.org/en)などでも、フォルダー構成やトークン保存方法を少し変更すれば利用できます。
+テスト用APIには[JSONPlaceholder](https://jsonplaceholder.typicode.com/)を使います。
+次は、私のApp Routerを使うフォルダー構成です。
+自分の環境に合わせて事前に作っておくと便利です。
+Next.js以外の環境では、utilフォルダーの内部構造だけ参考にしてください。
+
+```
+📦src
+┣ 📂app
+┃ ┣ 📂test 				// 테스트 페이지(/test)
+┃ ┃ ┗ 📜page.tsx
+┃ ┣ 📜layout.tsx
+┃ ┗ 📜page.tsx				// 홈 페이지(/)
+┗ 📂util
+┃ ┣ 📂apis
+┃ ┃ ┣ 📂@types 				// 타입 폴더
+┃ ┃ ┃ ┣ 📜shared.ts
+┃ ┃ ┃ ┣ 📜test.ts
+┃ ┃ ┣ 📂service 			// api 서비스 폴더
+┃ ┃ ┃ ┣ 📜test.ts
+┃ ┃ ┣ 📜axios.ts 			// axios 설정 파일
+┗ ┗ ┗ 📜index.ts
+```
+## 1. Axiosのインストールと基本設定
+プロジェクトのルートディレクトリで、次のコマンドを実行します。
+
+```bash
+npm install axios
+```
+次に`.env`などの環境変数ファイルを作り、APIエンドポイントのURLを追加します。
+
+```
+NEXT_PUBLIC_SERVER_URL=https://jsonplaceholder.typicode.com
+```
+
+<Ads1 />
+## 2. axios.tsを作成する
+### 2.1. Axiosインスタンスの作成
+`axios.ts`を作り、次をインポートします。
+
+```typescript title="src/util/apis/axios.ts"
+import axios, {
+  AxiosError,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
+```
+最初に、次のようにAxiosインスタンスを作ります。
+baseURLは環境変数から取得し、headersには既定で`Content-Type`を設定します。
+
+```typescript title="src/util/apis/axios.ts"
+import axios from 'axios';
+
+export const API = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_SERVER_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+```
+
+### 2.2. 認証トークンの管理（任意）
+サーバーと連携してログインを実装するとき、トークンを管理する方法はさまざまです。
+私はローカルストレージへ保存し、取得する方式を使っています。
+トークンを使わなければ、この部分は省略できます。
+
+```typescript title="src/util/apis/axios.ts"
+export const AuthStorage = {
+  async setToken( accessToken: string ) {
+    await localStorage.setItem("accessToken", accessToken);
+  },
+
+  async getToken(): Promise<string | null> {
+    return await localStorage.getItem("accessToken");
+  },
+
+  async clear() {
+    await localStorage.removeItem("accessToken");
+  },
+};
+```
+
+### 2.3. Requestインターセプターの設定
+Requestインターセプターは、送信前にリクエストを捕捉して変更できます。
+たとえば、送信前にヘッダーへトークンを追加できます。
+ここでは、どのリクエストを送ったかをログへ出すコードも追加します。
+開発時はここにログを置くとデバッグしやすくなりました。
+configの全プロパティではなく、必要なものだけを選んで出力するようにしています。
+
+```typescript title="src/util/apis/axios.ts"
+API.interceptors.request.use(
+  async (config: InternalAxiosRequestConfig) => {
+    const token = await AuthStorage.getToken(); // 토큰 미사용시 무시
+    if (token) {	// 토큰 사용시 헤더에 토큰 추가
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    console.log({
+      headers: config.headers,
+      method: config.method,
+      url: config.url,
+      baseUrl: config.baseURL,
+      data: config.data,
+      params: config.params,
+    });
+    return config;
+  },
+  (error: AxiosError) => {
+    console.log("API request error", error.config);
+    return Promise.reject(error);
+  }
+);
+```
+
+### 2.4. Responseインターセプターの設定
+Responseインターセプターは、受信時にレスポンスを捕捉して変更できます。
+サーバーから何が返ったかをログへ出すコードも追加します。
+受信データの構造を確認し、responseから必要なdataを取り出してください。
+データがdataに入っている場合も、data.dataに入っている場合もあります。
+エラー時には、より詳しいログを出す構成にしました。
+`Shared.ErrorResponse`は[後の節](#31-공통-타입-설정)で説明します。
+
+```typescript title="src/util/apis/axios.ts"
+API.interceptors.response.use(
+	(response: AxiosResponse) => {
+		console.log({
+			status: response.status,
+			statusText: response.statusText,
+			data: response.data,
+		});
+		return response.data;	// 서버에서 받는 데이터가 data 속성에 들어있는 경우
+		// return response.data.data;	// 서버에서 받는 데이터가 data.data 속성에 들어있는 경우
+	},
+	async (error: AxiosError) => {
+		console.warn(error.config?.url + " API response error", {
+			response_data: error.response?.data,
+			status: error.response?.status,
+			request_info: {
+				method: error.config?.method,
+				url: error.config?.url,
+				baseUrl: error.config?.baseURL,
+				headers: error.config?.headers,
+				params: error.config?.params,
+				data: error.config?.data,
+			},
+		});
+		const errorData: Shared.ErrorResponse = error.response?.data as Shared.ErrorResponse;
+		alert(`${errorData.error.code}: ${errorData.error.message}`);
+		return Promise.reject(error);
+	}
+);
+```
+
+<Ads2 />
+## 3. 型の設定
+<Bbox>型をnamespaceで宣言する理由</Bbox>
+
+型を*namespace*で宣言する理由は次のとおりです。
+型を定義するとき、同名の型がすでにあればエラーになります。
+これを防ぐため、namespaceで型を宣言します。
+namespaceを使えば、同名の型があってもエラーになりません。
+グローバルに使えて別途インポートも不要なので、各コンポーネントで型を管理しやすくなります。
+ただし、型名を分かりやすく付けることが、開発効率を高めるうえで大切です。
+
+### 3.1. 共通の型を設定する
+サーバーから返るエラーには、さまざまな形式があります。
+たとえば、次のような形です。
+
+```json
+{
+  "data": null,
+  "error": {
+    "code": 400,
+    "message": "Bad Request"
+  },
+  "success": false
+}
+```
+このような場合は、共通の型を定義します。
+ESLintの設定がある場合は、最上部に置きます。
+
+```typescript title="src/util/apis/@types/shared.ts"
+/* eslint-disable @typescript-eslint/no-unused-vars */
+namespace Shared {
+  export interface ErrorResponse {
+    data: null;
+    error: {
+      code: number;
+      message: string;
+    };
+    success: boolean;
+  }
+}
+```
+
+ページネーションや単純なメッセージレスポンスの型なども定義しておくと便利です。
+次は私のプロジェクトで使用している型です。
+
+```typescript title="src/util/apis/@types/shared.ts(예시)"
+/* eslint-disable @typescript-eslint/no-unused-vars */
+namespace Shared {
+  export interface ErrorResponse {
+    data: null;
+    error: {
+      code: number;
+      message: string;
+    };
+    success: boolean;
+  }
+
+  export interface messageResponse {
+    message: string;
+  }
+
+  export interface Pagenation {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    content: any;
+    pageable: Pageable;
+    totalPages: number;
+    totalElements: number;
+    last: boolean;
+    size: number;
+    number: number;
+    sort: Sort;
+    first: boolean;
+    numberOfElements: number;
+    empty: boolean;
+  }
+
+  interface Pageable {
+    sort: Sort;
+    pageNumber: number;
+    pageSize: number;
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  }
+
+  interface Sort {
+    sorted: boolean;
+    unsorted: boolean;
+    empty: boolean;
+  }
+}
+```
+
+### 3.2. Requestの型を設定する
+[JSONPlaceholderガイド](https://jsonplaceholder.typicode.com/guide/)の例を参考に、リクエストの型を設定します。
+使用するAPIのRequest型を定義します。
+`GET - https://jsonplaceholder.typicode.com/posts/{id}`と`POST - https://jsonplaceholder.typicode.com/posts`に対するリクエストなら、次のように書きます。
+これは私がよく使う命名方法です。
+namespaceでリクエスト型を宣言し、`{메소드}{API 이름}{요쳥형태}`という形式で名前を付けます。
+
+```typescript title="src/util/apis/@types/test.ts"
+declare namespace TestRequest {
+	export interface GetPostsParams {
+		id: number;
+	}
+	export interface GetPostsQuery {
+		userId: number;
+	}
+	export interface PostPostsBody {
+		title: string;
+		body: string;
+		userId: number;
+	}
+}
+```
+
+### 3.3. Responseの型を設定する
+次はレスポンスの型です。
+Requestと同様にnamespaceで宣言し、`{메소드}{API 이름}{설명}`の形式で名前を付けます。
+
+```typescript title="src/util/apis/@types/test.ts"
+declare namespace TestResponse {
+	export interface GetPosts {
+		id: number;
+		title: string;
+		body: string;
+		userId: number;
+	}
+}
+```
+
+<Ads3 />
+## 4. サービスファイルを作成する
+### 4.1. サービスファイル
+Axiosでサーバーと通信するサービスファイルを作ります。
+私は`apis/service`フォルダーへ保存しています。
+各関数には説明のコメントを付けます。
+その関数を使う機能の説明ではなく、関数が利用するAPI自体の説明を書くのがポイントです。
+
+```typescript title="src/util/apis/service/test.ts"
+import { API } from "../axios";
+
+export const TestService = () => {
+  const url = "/posts";
+
+  /**
+   * 포스트 상세 조회 - id 별 조회
+   * @api-doc: https://jsonplaceholder.typicode.com/guide/
+   */
+  const getPosts = async (
+    params: TestRequest.GetPostsParams,
+    { userId }: TestRequest.GetPostsQuery,
+  ) => {
+    const response = (await API.get(`${url}/${params.id}`, {
+      params: { userId },
+    })) as TestResponse.GetPosts;
+    return response;
+  };
+
+  /**
+   * 포스트 전체 조회
+   * @api-doc: https://jsonplaceholder.typicode.com/guide/
+   */
+  const getAllPosts = async () => {
+    const response = (await API.get(`${url}`)) as TestResponse.GetPosts[];
+    return response;
+  };
+
+  /**
+   * 포스트 생성
+   * @api-doc: https://jsonplaceholder.typicode.com/guide/
+   */
+  const postPosts = async (body: TestRequest.PostPostsBody) => {
+    const response = (await API.post(`${url}`, body)) as TestResponse.GetPosts;
+    return response;
+  };
+
+  return {
+    getPosts,
+    getAllPosts,
+    postPosts,
+  };
+};
+
+```
+
+### 4.2. index.tsを作成する
+サービスファイルを簡単にインポートできるよう、`index.ts`を作ります。
+
+```typescript title="src/util/apis/index.ts"
+export { TestService } from "./service/test";
+```
+
+## 5. テストコードを作成する
+テストコードを作成します。
+私は`app/test`に保存しています。
+
+```tsx title="src/app/test/page.tsx"
+"use client";
+
+import { TestService } from "@/util/apis";
+import { useEffect, useState } from "react";
+
+export default function TestPage() {
+	const [posts, setPosts] = useState<TestResponse.GetPosts>();
+	const [getAllPosts, setGetAllPosts] = useState<TestResponse.GetPosts[]>();
+	const [postPosts, setPostPosts] = useState<TestResponse.GetPosts>();
+
+	useEffect(() => {
+		const fetchPosts = async () => {  // 포스트 상세 조회
+			const response = await TestService().getPosts({ id: 1 }, { userId: 1 });
+			setPosts(response);
+		};
+		
+		const fetchAllPosts = async () => {  // 포스트 전체 조회
+			const response = await TestService().getAllPosts();
+			setGetAllPosts(response);
+		};
+
+		const postPosts = async () => {  // 포스트 생성
+			const response = await TestService().postPosts({ title: "test123", body: "test123", userId: 1 });
+			setPostPosts(response);
+		};
+
+		fetchPosts();
+		fetchAllPosts();
+		postPosts();
+	}, []);
+
+	return (
+		<div>
+			<div>Test</div>
+			<div>{posts?.title}</div>
+			{getAllPosts?.map((post) => (
+				<div key={post.id}>{post.title}</div>
+			))}
+			<div>{postPosts?.title}</div>
+		</div>
+	);
+}
+```
+<Img src="/posts/250224-205953.png" width={300} alt="テストページ"/>
+
+<Ads4 />
+## まとめ
+もちろん、Axiosの基本機能だけを使う、あるいはfetchで通信するほうが、はるかに速いかもしれません。
+しかし、エラーが起きたときに簡単に処理できるかという点には疑問が残ります。
+今回は、Axiosで通信するサービスファイルの作り方を紹介しました。
+この方式でサービス層を作ると、型チェックと開発効率を高められます。
+### さらに考える
+- ログを出しすぎると、セキュリティ上の問題にならないでしょうか。
+
+### 参考
+- [Axios公式ドキュメント](https://github.com/axios/axios)
+- [JSONPlaceholderガイド](https://jsonplaceholder.typicode.com/guide/)

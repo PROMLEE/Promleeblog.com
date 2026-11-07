@@ -1,0 +1,107 @@
+---
+post_id: '106'
+locale: en
+title: Optimize Image Delivery with a CDN
+description: >-
+  Serve blog images through Amazon S3 and CloudFront, test the distribution, and
+  connect an optional custom domain.
+source_hash: 2b2444d1ff305871e9102343f949220cad022c7a06d534ab966df7f2a5439769
+---
+## Before We Begin
+The images in my posts are currently stored as PNG files in the public folder and loaded with the `<Image>` component. As the number of images grows, the project gets larger and the files become harder to manage. Image-heavy pages can also load more slowly. I looked for a better way to serve those images.
+
+### What Is a CDN?
+> A *CDN* (*Content Delivery Network*) stores content on servers around the world and serves it from a location close to the user. This speeds up delivery and reduces the load on the origin server.
+[Wikipedia](https://ko.wikipedia.org/wiki/콘텐츠_전송_네트워크)
+
+Some CDN providers are:
+- [Cloudinary](https://cloudinary.com/)
+- [imgix](https://www.imgix.com/)
+- [Akamai](https://www.akamai.com/kr/ko)
+- [Fastly](https://www.fastly.com/ko)
+- [Cloudflare](https://www.cloudflare.com/ko-kr/)
+- [AWS CloudFront](https://aws.amazon.com/ko/cloudfront/)
+- [Google Cloud CDN](https://cloud.google.com/cdn)
+
+I'll set up a CDN using CloudFront and an S3 bucket.
+
+### What Are CloudFront and S3?
+**Amazon CloudFront** delivers *static and dynamic web content*, such as HTML, CSS, JavaScript, and images, through a global network of data centers called edge locations. When a user requests content, CloudFront routes the request to an edge location that can serve it with low latency.
+**Amazon S3** is an object storage service with a web interface for storing and retrieving data at scale.
+
+<Ads1 />
+## Set Up the CDN
+### 1. Create an S3 Bucket
+I already had a domain hosted in Route 53, so I used the same AWS account.
+1. Sign in to AWS, open `S3`, and click `버킷 생성` (Create bucket).
+   **Check the region before creating the bucket.** I chose `아시아 태평양(서울)` (Asia Pacific, Seoul).
+   See the [bucket naming rules](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html). For example, underscores are prohibited.
+   <Img src="/posts/240622-160521.png" width={500}/>
+   Leave the remaining settings at their defaults. Click `버킷 만들기` (Create bucket) to finish.
+### 2. Create a CloudFront Distribution
+1. Open `CloudFront` and click `배포 생성` (Create distribution).
+2. Under Origin Domain, select the S3 bucket endpoint. Under Origin Access, choose `원본 엑세스 제어 설정` (Origin access control settings), then click `Create new OAC`.
+   <Img src="/posts/240622-160940.png" width={500}/>
+   Leave the default settings and click `Create`.
+   <Img src="/posts/240622-161245.png" width={500}/>
+   Choose a viewer protocol policy for the default cache behavior. I chose HTTPS only.
+   <Img src="/posts/240622-161430.png" width={300}/>
+   Basic image loads and classic scripts usually work with the default cache policy. To support requests that need CORS, I configured the following policies.
+   - Set the origin request policy to `CORS-S3Origin`.
+   - Set the response headers policy to `CORS-With-Preflight`.
+   <Img src="/posts/240622-161805.png" width={500}/>
+   I left the web application firewall (WAF) disabled for this setup because it can add charges.
+   <Img src="/posts/240622-162350.png" width={500}/>
+   Finish any other settings you need and click `배포 생성` (Create distribution).
+### 3. Configure the S3 Bucket Policy
+After you create the CloudFront distribution, you'll see this message.
+<Img src="/posts/240622-162618.png" width={500}/>
+Click Copy policy, then follow the link to the S3 bucket policy page. Click Edit, paste the policy, and save it.
+<Img src="/posts/240622-162846.png" width={500}/>
+### 4. Test the CloudFront Connection
+Upload an image to your S3 bucket. Click Upload and select the image, or drag and drop it.
+<Img src="/posts/240622-163531.png" width={500}/>
+Return to CloudFront and check the distribution status. Once the distribution is ready, find its domain name.
+<Img src="/posts/240622-163409.png" width={500}/>
+Open the image using the distribution domain.
+```https
+https://[도메인 이름]/[파일명]"
+```
+<Img src="/posts/240622-163745.png" width={500}/>
+
+<Ads2 />
+## Connect a Custom Domain (Optional)
+AWS provides a default domain name for the distribution. You can connect your own domain to make the address easier to remember. Have a domain with **DNS hosting** ready before you start.
+### 1. Create a DNS Record
+Open Route 53 and select your domain. Click `레코드 세트 생성` (Create record set), enter your subdomain, and select a `CNAME` record. Set its value to the CloudFront distribution domain and create the record.
+<Img src="/posts/240622-164311.png" width={500}/>
+
+### 2. Request an SSL Certificate
+Open AWS Certificate Manager (ACM) to request the certificate CloudFront needs. Request it in the **US East (N. Virginia)** region.
+**Switch to N. Virginia before continuing.**
+Choose Request certificate, then Request a public certificate. Enter the domain you configured with the CNAME record and click `요청` (Request).
+<Img src="/posts/240622-165122.png" width={500}/>
+The certificate initially shows Pending validation. If the status does not change, click `Route53에서 레코드 생성` (Create records in Route 53) to create the validation record.
+<Img src="/posts/240622-171033.png" width={500}/>
+
+### 3. Add the Domain to CloudFront
+Open the CloudFront distribution and click Edit settings.
+<Img src="/posts/240622-171429.png" width={500}/>
+Set the alternate domain name and SSL certificate as shown, then click `설정 저장` (Save changes).
+<Img src="/posts/240622-171750.png" width={500}/>
+When the change is ready, open the custom domain to test the CDN.
+<Img src="/posts/240622-173903.png" width={500}/>
+
+<Ads3 />
+## Conclusion
+
+### Before and After
+I compared an entire post with many images before and after enabling the CDN.
+
+Before the CDN
+<Img src="/posts/240622-175247.png" width={500}/>
+After the CDN
+<Img src="/posts/240622-180046.png" width={500}/>
+
+### References
+[AWS — Routing traffic to an Amazon CloudFront distribution using your domain name](https://docs.aws.amazon.com/ko_kr/Route53/latest/DeveloperGuide/routing-to-cloudfront-distribution.html)

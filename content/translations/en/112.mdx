@@ -1,0 +1,88 @@
+---
+post_id: '112'
+locale: en
+title: Creating a Next.js Project with Tailwind Typography and Shadcn
+description: >-
+  Set up a Next.js project and configure Tailwind CSS, Shadcn/ui, and the
+  typography plugin.
+source_hash: ed8e0cb6db39ac74da653412c1be89b2731c36835ee0ecfa5c9f501b8c99eb46
+reviewed_at: '2026-11-06T14:38:10.900Z'
+---
+## Before getting started
+Let's set up the basics for developing the blog.
+This post covers the following configuration.
+
+- Creating a Next.js project
+- Configuring Tailwind CSS and Shadcn/ui
+
+<Bbox>You need Node.js 18 or later and npm installed.</Bbox>
+
+## Creating and running a Next.js project
+### Creating the project
+Run the following command to create a Next.js project.
+```bash
+npx create-next-app@latest
+```
+<Img src="/posts/240709-131008.png" width={500} alt="I used the defaults for every setting."/>
+1. Enter a **project name**.
+2. Choose whether to use **TypeScript**.
+	- Select **No** if you want to use JavaScript.
+3. Choose whether to use **ESLint**.
+4. Choose whether to use **Tailwind CSS**.
+5. Choose whether to create a **'src/'** directory.
+6. Choose whether to use **App Router**, supported in Next.js 13 and later.
+	- Select **No** if you want to use Pages Router.
+7. Choose whether to customize the **absolute import path configuration**.
+	- The default points to the **'src/'** directory.
+
+### Running the project
+Once the project has been created, run the following commands to install or update the additional packages to their latest versions.
+```bash
+cd {프로젝트 이름}
+npm install next@latest react@latest react-dom@latest
+```
+Run the following command to start the project.
+```bash
+npm run dev
+```
+Once the project is running, open http://localhost:3000 in your browser to see the following screen.
+<Img src="/posts/240709-133009.png" width={2000} alt="This page is rendered from the `src/app/page.tsx` file."/>
+<Ads1 />
+## Configuring Tailwind CSS
+### Installing Shadcn/ui (optional)
+Shadcn/ui is a UI library that uses Tailwind CSS.
+[Shadcn/ui](https://ui.shadcn.com)
+Run the following commands to install Shadcn/ui.
+tailwind-merge is a plugin used by Shadcn/ui.
+```bash
+npx shadcn-ui@latest init
+npm i tailwind-merge
+```
+<Img src="/posts/240709-135300.png" width={500} alt="I proceeded with the default settings."/>
+
+
+### Installing tailwindcss/typography (optional)
+Tailwind CSS is configured by default when you create the Next.js project.
+However, Tailwind CSS resets HTML element styles, so those styles will not be present when rendering Markdown files later.
+The `prose` option addresses this.
+The `prose` option uses the `tailwindcss/typography` plugin to apply styles to rendered Markdown.
+Run the following command to install the `tailwindcss/typography` plugin.
+```bash
+npm i @tailwindcss/typography
+```
+Open tailwind.config.ts and add the plugin as follows.
+```js title="tailwind.config.ts"
+module.exports = {
+	// ...
+	plugins: [
+		require('@tailwindcss/typography'),
+		// ...
+	],
+	// ...
+}
+```
+
+### References
+[Next.js official documentation](https://nextjs.org/docs/getting-started)
+[Tailwind CSS official documentation](https://tailwindcss.com/docs)
+[Shadcn/ui official documentation](https://ui.shadcn.com/docs/installation/next)

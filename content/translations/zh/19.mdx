@@ -1,0 +1,57 @@
+---
+post_id: '19'
+locale: zh
+title: 密码学概述
+description: 介绍密码学的基本概念。
+source_hash: 3d8691c1e6529a4e9d3e442b38d816d109962185952d0205d3df79b64e3d7417
+reviewed_at: '2026-11-06T14:45:40.806Z'
+---
+## 加密 (Encryption)
+> 提供数据机密性的技术。
+加密是将明文转换为密文的过程。
+
+- 对称密钥密码 (Symmetric-key cryptography)
+  - 分组密码
+  - 流密码
+- 公钥密码 (Public-key cryptography)
+  - 基于因数分解的方案
+  - 基于离散对数的方案
+  - 后量子密码：基于格、基于编码等方案
+
+它由以下三个算法构成。
+- 初始化算法：$Setup(\lambda ) → {K_{enc}, K_{dec}}$
+- 加密算法：$Enc({K_{enc}, M}) → CT$
+- 解密算法：$Dec({K_{dec}, CT}) → M$
+
+## 对称加密 (Symmetric Encryption)
+> 加密与解密使用同一个密钥的密码方式。
+也称为秘密密钥密码。
+传统方式包括分组密码（DES、AES、ARIA、SEED）和流密码（RC4、ChaCha）等。
+优点：比非对称加密快。
+缺点：存在密钥共享问题，而且需要很多密钥，数量为$N(N-1)/2$个。
+<Ads1 />
+## 非对称加密 (Asymmetric Encryption)
+> 加密与解密使用不同密钥的密码方式。
+也称为公钥密码。
+包括RSA、ElGamal、NTRU等。
+优点：解决密钥共享问题，密钥数量较少，为$2N$个。
+缺点：比对称加密慢。
+
+## 加密相关术语 (Terminology for Encryption)
+- 明文 (plain text)：作为算法输入的原始消息或数据。
+- 密文 (cipher text)：加密算法的输出。
+- 加密算法 (encryption algorithm)：将明文转换为密文的算法。
+- 解密算法 (decryption algorithm)：将密文转换为明文的算法。
+- 公钥与私钥 (public key and private key)：分别为加密和解密选择的密钥对。
+<Ads2 />
+## 柯克霍夫原则 (Kerckhoffs's Principle)
+> 即使加密算法公开，也应当保持安全。只需要确保秘密密钥的安全。
+这一原则提高了系统的安全性，也使人们更容易使用不同的密钥与他人通信。
+
+## 针对加密的基本攻击类型 (Basic Types of Attacking against Encryption)
+1. 暴力破解攻击 (Brute-force attack)：尝试所有可能的密钥来解密密文。
+2. 密码分析 (Cryptanalysis)：分析加密算法的结构，推测明文。
+   - 唯密文攻击 (ciphertext-only attack)
+   - 已知明文攻击 (known-plaintext attack)
+   - 选择明文攻击 (chosen-plaintext attack)
+   - 选择密文攻击 (chosen-ciphertext attack)

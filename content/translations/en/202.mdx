@@ -1,0 +1,186 @@
+---
+title_ko: 'React(TanStack) Query 사용법 기초 (React Native, Expo)'
+title_en: React(TanStack) Query Guide for React Native (Expo)
+desc: >-
+  React Native(Expo) 환경에서 TanStack Query를 사용하는 법을 설치부터 네트워크 상태, 포커스 관리, 쿼리 작성까지
+  JSONPlaceholder API 예제와 함께 자세히 설명합니다.
+thumbnail_url: 'https://tanstack.com/_build/assets/logo-color-100w-br5_Ikqp.png'
+metatag: >-
+  react native, expo, react query, tanstack query, 모바일 상태 관리, 데이터 패칭,
+  JSONPlaceholder, useQuery, netinfo, expo-network
+post_id: '202'
+locale: en
+title: Getting Started with React (TanStack) Query in React Native and Expo
+description: >-
+  Learn TanStack Query in React Native (Expo), from installation and focus
+  management to writing queries, with JSONPlaceholder API examples.
+source_hash: 7593c4fb77fff1d9bc2f6f06a1323a38eb5628d4bfce15d40366a8f2f557ca5b
+reviewed_at: '2026-11-07T01:50:40.244Z'
+---
+## Before We Begin
+When building a React Native app, you often need to fetch data from external APIs or save data on a server. Using only `fetch` means repeatedly implementing loading states, error handling, caching, and other common patterns yourself.
+*TanStack Query* makes data fetching much simpler and more reliable. This post walks through installing and using TanStack Query in React Native (Expo), starting with the basics and working through examples.
+## What Is TanStack Query?
+TanStack Query is a state management library that helps efficiently manage data fetched from servers. Previously called React Query, it has evolved into a general-purpose tool supporting multiple platforms.
+It is useful in React Native when you want to:
+- Cache server data and avoid duplicate requests.
+- Automatically refetch data based on network connectivity or app focus.
+- Automatically handle error and loading states.
+## Installation and Expo Setup
+Install TanStack Query in a React Native (Expo) project as follows:
+```bash
+npx expo install @tanstack/react-query
+npm i -D @tanstack/eslint-plugin-query
+```
+<Ads1 />
+## Set Up QueryClientProvider
+After installation, create a `QueryClient` and wrap your app's top-level component in `QueryClientProvider`.
+```tsx
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+const queryClient = new QueryClient();
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      {/* 앱 컴포넌트들 */}
+    </QueryClientProvider>
+  );
+}
+```
+This makes TanStack Query features available throughout the app.
+## Basic useQuery Usage
+Let's start with the most basic example: fetching JSONPlaceholder's users API (`/users`) and displaying the results as a list.
+```tsx
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { FlatList, Text, View } from 'react-native';
+
+const fetchUsers = async () => { // 정보를 fetch하는 함수
+  const res = await axios.get('https://jsonplaceholder.typicode.com/users');
+  return res.data;
+};
+
+export default function UserList() {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['users'], // 쿼리의 고유 식별자
+    queryFn: fetchUsers, // 정보를 fetch하는 함수
+  });
+
+  if (isLoading) return <Text>불러오는 중...</Text>;
+
+  if (isError) return <Text>오류 발생: {(error as Error).message}</Text>;
+
+    return (
+    <FlatList
+      data={data}
+      keyExtractor={(item) => item.id.toString()}
+      renderItem={({ item }) => <Text>{item.name}</Text>}
+    />
+  );
+}
+```
+
+<Ads2 />
+## The Importance of Query Keys (queryKey)
+The `queryKey` plays a crucial role in identifying requests and applying caching. It is written as an array and can vary according to specific parameters.
+```tsx
+useQuery({
+  queryKey: ['user', userId],
+  queryFn: () => fetchUser(userId),
+});
+```
+Here, different `userId` values identify different queries, each with its own cache.
+
+## Refetch Based on App Focus
+Use `AppState` and `focusManager` to automatically rerun queries when the app gains focus:
+```tsx
+import { useEffect } from 'react';
+import { AppState, Platform } from 'react-native';
+import { focusManager } from '@tanstack/react-query';
+function onAppStateChange(status) {
+  if (Platform.OS !== 'web') {
+    focusManager.setFocused(status === 'active');
+  }
+}
+useEffect(() => {
+  const subscription = AppState.addEventListener('change', onAppStateChange);
+  return () => subscription.remove();
+}, []);
+```
+## Refetch on Screen Focus with React Navigation
+With React Navigation, you can use `useFocusEffect` to refresh data when entering a screen:
+```tsx
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+
+export function useRefreshOnFocus(refetch) {
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [])
+  );
+}
+```
+## useMutation Example
+Use `useMutation` to create or update data on the server. Here is an example of adding a post:
+```tsx
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
+
+const createPost = async (newPost) => {
+  const res = await axios.post('https://jsonplaceholder.typicode.com/posts', newPost);
+  return res.data;
+};
+
+export function NewPostButton() {
+  const queryClient = useQueryClient(); // 쿼리 클라이언트 인스턴스
+  const mutation = useMutation({
+    mutationFn: createPost, // 뮤테이션 함수
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] }); // 쿼리 데이터 무효화
+    },
+  });
+  return (
+    <Button
+      title="새 글 작성"
+      onPress={() => mutation.mutate({ title: '제목', body: '내용' })} // 뮤테이션 실행
+    />
+  );
+}
+```
+<Ads3 />
+## Using Devtools in React Native
+Unlike on the web, Devtools cannot be used directly in React Native. You can inspect query state with tools such as:
+- [react-query-native-devtools](https://github.com/bgaleotti/react-query-native-devtools)
+- [reactotron-react-query](https://github.com/hsndmr/reactotron-react-query)
+
+### Expo Plugin
+Install the plugin with the following command.
+```bash
+npx expo install @dev-plugins/react-query
+```
+Configure it as follows to use it.
+```tsx
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useReactQueryDevTools } from '@dev-plugins/react-query';
+
+const queryClient = new QueryClient({});
+
+export default function App() {
+  useReactQueryDevTools(queryClient); // 디버깅 도구 초기화
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      {/* ... */}
+    </QueryClientProvider>
+  );
+}
+```
+Now press Shift + M in the terminal running your app and select Open `@dev-plugins/react-query` to open the debugging tools in a web browser.
+## Conclusion
+TanStack Query makes data fetching, caching, error handling, and state management simple and efficient in React Native (Expo). Automatic data synchronization based on network connectivity and app focus is particularly useful on mobile.
+I hope these examples have helped you move from the basics to practical usage.
+### References
+- Official TanStack Query documentation (React Native): https://tanstack.com/query/latest/docs/framework/react/react-native
+- JSONPlaceholder API: https://jsonplaceholder.typicode.com
+- React Navigation: https://reactnavigation.org
+- Official Expo documentation: https://docs.expo.dev

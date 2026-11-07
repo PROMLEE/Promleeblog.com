@@ -1,0 +1,101 @@
+---
+post_id: '85'
+locale: en
+title: Inside a Router
+description: >-
+  Router architecture, input and output ports, switching fabrics, buffering, and
+  packet scheduling.
+source_hash: 856fe25b1dbfd55a12cce91f3971c53badb98d3e405e848e39b8bbd3ac25f80e
+reviewed_at: '2026-11-07T01:36:08.709Z'
+---
+## Router architecture overview
+<Img src="/posts/240618-044104.png" width={500}/>
+**Routing processor**
+- The central component responsible for the control plane.
+- Runs routing algorithms and manages routing tables.
+
+**High-speed switching fabric**
+- A core data-plane component that transfers packets at high speed.
+<br/>
+
+The forwarding table is copied from the routing processor to line cards over a separate bus, such as PCI.
+Each line card has a shadow copy, allowing its input ports to make forwarding decisions locally without consulting the central processor.
+
+## Input-port functions
+**Physical layer**
+- Bit-level reception.
+- Line termination.
+
+**Data-link layer**
+- Ethernet, for example.
+- Protocol reception.
+
+**Decentralized switching**
+Use header-field values to look up an output port in the forwarding table stored in input-port memory: *match plus action*.
+- Destination-based forwarding: Uses only the destination IP address, the traditional approach.
+- Generalized forwarding: Uses any set of header fields.
+
+*Goal*: Complete input-port processing at line speed.
+*Queuing*: Occurs when datagrams arrive faster than they can be forwarded through the switching fabric.
+
+### Other input-port functions
+- Physical- and link-layer processing.
+- Checking packet version numbers, checksums, and TTL.
+	TTL and checksum must be rewritten.
+- Updating counters used for network management.
+<Ads1 />
+## Switching fabric
+> Transfers packets from input buffers to the appropriate output buffers.
+
+Switching rate: The rate at which packets move from input to output.
+- Measured as a multiple of the input/output line rate.
+- For N inputs, a switching rate of N times the line rate is appropriate.
+
+### Types of switching fabrics
+<Img src="/posts/240618-050326.png" width={500}/>
+1. Switching through memory.
+2. Switching through a bus.
+3. Crossbar switching.
+
+## Input-port queuing
+If the switching fabric is slower than the combined rate of all input ports, queues may form at the inputs.
+- Input-buffer overflow can cause queuing delay and loss.
+
+Head-of-the-line (HOL) blocking occurs when the first packet in a queue prevents other packets from proceeding.
+<Img src="/posts/240618-051156.png" width={500}/>
+- The lower red packet is blocked.
+- The lower green packet is also blocked → It experiences HOL blocking.
+<Ads2 />
+## Output ports
+> Send packets delivered by the switching fabric onto an output link.
+
+**Datagram buffering and queuing**
+- Packets arriving from the switching fabric are stored in the output buffer and queued.
+- Queuing can occur when packets arrive faster than the output port can transmit them.
+
+### Output-port queuing and buffering
+<Img src="/posts/240618-051949.png" width={500}/>
+Packets move from input to output through the switching fabric.
+- Buffering is necessary when the arrival rate exceeds the output line rate.
+- Output-buffer overflow causes queuing delay and loss.
+
+### Output-port scheduling
+> Determines which packet to transmit first among packets arriving from multiple input ports.
+
+**FIFO scheduling**
+- Transmit packets in arrival order.
+	*Drop policies*:
+	- Tail drop: Discard newly arriving packets when the queue is full.
+	- Priority drop: Discard priority packets first.
+	- Random early drop: Randomly discard packets before the queue fills.
+
+**Priority scheduling**
+- Transmit higher-priority packets first.
+
+**Round-robin scheduling**
+- Cycle through multiple queues.
+- Send one packet from a queue, then move to the next queue.
+
+**Weighted scheduling**
+- A generalized form of round-robin scheduling.
+- Each class has a weight, and higher-weight classes transmit packets first.

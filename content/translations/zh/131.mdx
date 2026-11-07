@@ -1,0 +1,338 @@
+---
+title_ko: Flutter 앱에서 언어 팩 만들어 다국어 지원하기(easy_localization)
+title_en: >-
+  Make a language pack for a Flutter app to support multiple
+  languages(easy_localization)
+desc: >-
+  Flutter 앱에서 언어 팩을 만드는 방법을 알아보자. Make a language pack for a Flutter app to
+  support multiple languages. (easy_localization)
+post_id: '131'
+locale: zh
+title: 用 easy_localization 为 Flutter 应用制作多语言包
+description: 学习如何用 easy_localization 创建和配置 Flutter 语言包，为应用添加多语言支持。
+source_hash: ef6466179a5939dbf97c1e8818d73ac33322fcd948cc6763aca25e2244a127fa
+reviewed_at: '2026-11-07T07:07:47.796Z'
+---
+## 开始之前
+> 本文基于 Flutter 3.24 编写。
+下文假设你已经创建了基本的 Flutter 项目。
+
+开发应用时，有时需要面向全球用户提供多语言支持。本文将介绍如何为 Flutter 应用创建语言包。
+
+
+## 1. 安装依赖库
+在项目根目录运行以下命令。
+```bash
+flutter pub add easy_localization
+```
+随后，`pubspec.yaml` 文件中会添加以下内容。
+```yaml
+dependencies:
+  easy_localization: version
+```
+
+<Ads1 />
+## 2. 创建语言包
+在项目根目录中，按下面的结构创建 JSON 格式的语言包文件。为了支持英语和韩语，我创建了两个文件。提前建好这些文件，后续操作会更方便。
+```
+ 📦 assets
+ ┣ 📂 translations
+ ┃ ┣ 📜 en_US.json
+ ┗ ┗ 📜 ko_KR.json
+ 📦 lib
+ ┣ 📜 home_page.dart
+ ┗ 📜 main.dart
+```
+文件名使用语言代码，例如英语用 `en_US.json`，韩语用 `ko_KR.json`。如果还使用地区代码，也要把它写进文件名，例如美国英语用 `en_US.json`。
+据文档说明，加载器支持 JSON、CSV、HTTP、XML 和 YAML 等。详情请参阅 [Easy Localization Loader 官方文档](https://github.com/aissat/easy_localization_loader)。
+
+## 3. 其他配置
+
+### 3.1. 设置语言包路径
+在 `pubspec.yaml` 文件中添加以下内容。
+```yaml
+assets:
+  - assets/translations/
+```
+
+### 3.2. 配置 iOS
+在 ios/Runner/Info.plist 文件的 `<dict>` 标签内添加以下内容。
+```xml
+...
+		<key>CFBundleLocalizations</key>
+		<array>
+			<string>en_US</string>
+			<string>ko_KR</string>
+		</array>
+...
+```
+
+<Bbox>Android 无需额外配置。</Bbox>
+
+<Ads2 />
+## 4. 初始化并配置语言包
+使用语言包之前，需要先完成初始化和配置。
+```dart title="/lib/main.dart"
+import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:example_project/home_page.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized(); // 언어 팩 초기화
+
+  runApp(
+    EasyLocalization(
+        // 언어 팩 설정
+        supportedLocales: const [Locale('en', 'US'), Locale('ko', 'KR')],
+        path: 'assets/translations',
+        fallbackLocale: const Locale('en', 'US'), // 휴대폰 설정이 없을 시 기본 언어
+        child: const MyApp()),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        localizationsDelegates: context.localizationDelegates,
+        supportedLocales: context.supportedLocales,
+        locale: context.locale,
+        home: const HomePage());
+  }
+}
+
+```
+
+## 5. 使用语言包
+### 5.1. 向语言包添加数据
+按下面的方式向语言包添加数据，只需添加相应的键和值。
+```json title="assets/translations/en_US.json"
+{
+	"hello": "Hello, world!"
+}
+```
+```json title="assets/translations/ko_KR.json"
+{
+	"hello": "안녕하세요!"
+}
+```
+
+### 5.2. 读取语言包内容
+用 context.tr() 方法读取语言包中的数据。这个库也支持其他方式，但文档推荐使用 context.tr()。
+```dart title="/lib/home_page.dart"
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              context.tr('hello'), // 언어 팩 데이터 사용
+              style: const TextStyle(fontSize: 20),
+            ),
+            ElevatedButton( // 한국어 버튼
+              onPressed: () {
+                context.setLocale(const Locale('ko', 'KR'));
+              },
+              child: const Text('한국어'),
+            ),
+            ElevatedButton( // 영어 버튼
+              onPressed: () {
+                context.setLocale(const Locale('en', 'US'));
+              },
+              child: const Text('영어'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+<Img src="/posts/250219-175725.gif" width={300} alt="使用语言包的示例"/>
+
+<Ads3 />
+## 6. 其他功能
+### 6.1. 插入参数
+如果需要在字符串中插入参数，这个库支持两种方法。
+```json title="assets/translations/en_US.json"
+{
+	"hello": "Hello, {}!",
+	"hello_friends": "Hello, {}, {}!",
+	"hello_name": "Hello, {name}!",
+	"hello_name_age": "Hello, {name}! You are {age} years old.",
+	"hello_friends_name": "Hello, {}, {name}!",
+}
+```
+```dart title="/lib/home_page.dart"
+// ...
+context.tr('hello', args: ['John']);
+context.tr('hello_friends', args: ['John', 'Jane']);
+context.tr('hello_name', namedArgs: {'name': 'John'});
+context.tr('hello_name_age', namedArgs: {'name': 'John', 'age': 20});
+context.tr('hello_friends_name', args: ['John'], namedArgs: {'name': 'Jane'});
+// ...
+```
+
+### 6.2. 区分性别
+这个库还支持按性别选择文案。就我个人而言，可能不会经常用到这项功能……
+```json title="assets/translations/en_US.json"
+{
+	"gender":{
+		"male":"Hi man ;) {}",
+		"female":"Hello girl :) {}",
+		"other":"Hello {}"
+	}
+}
+```
+
+```dart title="/lib/home_page.dart"
+// ...
+context.tr("gender", gender: _gender ? "female" : "male");
+// ...
+```
+
+### 6.3. 区分单数和复数
+这个库也支持单复数形式，这看起来很实用。
+```json title="assets/translations/en_US.json"
+{
+  "money": {
+    "zero": "You not have money",
+    "one": "You have {} dollar",
+    "many": "You have {} dollars",
+    "other": "You have {} dollars"
+  },
+	"money_named_args": { // 이름 지정
+    "zero": "{name} has no money",
+    "one": "{name} has {money} dollar",
+    "many": "{name} has {money} dollars",
+    "other": "{name} has {money} dollars"
+  }
+}
+```
+
+```dart title="/lib/home_page.dart"
+// ...
+context.plural('money', 0);
+context.plural('money', 1);
+context.plural('money', 2);
+context.plural('money_named_args', 10.23, namedArgs: {'name': 'Jane'}, name: 'money') // 이름 지정
+// ...
+```
+
+<Img src="/posts/250220-093343.png" width={300} alt="区分单数和复数的示例"/>
+
+### 6.4. 使用嵌套键
+这个库也支持按层级组织文案。这是我最常用的功能。
+用法很简单：在上一级的键后加上 `.`，再接下一级的键。如果想引用同一层级的数据，可以在语言包中使用 `@:`。
+```json title="assets/translations/en_US.json"
+{
+  "example": {
+    "hello": "Hello",
+    "world": "World!",
+    "helloWorld": "@:example.hello @:example.world" // 이렇게 사용합니다.
+  }
+}
+```
+
+```dart title="/lib/home_page.dart"
+// ...
+context.tr('example.hello'); // 결과: Hello
+context.tr('example.world'); // 결과: World!
+context.tr('example.helloWorld'); // 결과: Hello World!
+// ...
+```
+
+<Ads4 />
+### 7. 更改应用内语言设置
+#### 7.1. 重置语言设置
+如果希望语言包采用手机默认语言，使用下面的代码。
+```dart title="/lib/home_page.dart"
+// ...
+context.resetLocale();
+// ...
+```
+
+#### 7.2. 查看语言设置
+如果想查看当前语言设置，使用下面的代码。
+```dart title="/lib/home_page.dart"
+// ...
+context.deviceLocale.toString() // 결과: en_US
+// ...
+```
+
+#### 7.3. 更改语言设置
+前面的代码也简短演示过，如果想更改语言设置，使用下面的代码。
+```dart title="/lib/home_page.dart"
+// ...
+context.setLocale(Locale('ko', 'KR')); // 한국어로 설정
+// ...
+```
+
+## 常见问题与解决方法
+### 安装时出现 intl 版本问题
+参考： https://github.com/aissat/easy_localization/issues/655
+```bash
+Note: intl is pinned to version 0.19.0 by flutter_localizations from the flutter SDK.
+See https://dart.dev/go/sdk-version-pinning for details.
+
+The current Dart SDK version is 3.5.4.
+
+Because easy_localization >=2.3.4-nullsafety <3.0.0-dev.0 depends on flutter_localizations from sdk and easy_localization >=3.0.0-dev.0 <3.0.0-nullsafety doesn't support null safety,
+  easy_localization >=2.3.4-nullsafety <3.0.0-nullsafety requires flutter_localizations from sdk.
+And because easy_localization <2.3.4-nullsafety doesn't support null safety, easy_localization <3.0.0-nullsafety requires flutter_localizations from sdk.
+And because easy_localization >=3.0.0-nullsafety depends on flutter_localizations from sdk which depends on intl 0.19.0, every version of easy_localization requires intl 0.19.0.
+So, because nftcam_flutter depends on both intl ^0.20.1 and easy_localization any, version solving failed.
+
+The lower bound of "sdk: '>=2.0.0-dev.68.0 <3.0.0'" must be 2.12.0 or higher to enable null safety.
+For details, see https://dart.dev/null-safety
+
+The lower bound of "sdk: '>=2.7.0 <3.0.0'" must be 2.12.0 or higher to enable null safety.
+For details, see https://dart.dev/null-safety
+```
+#### 解决方法
+将 Flutter 切换到 master 渠道，再执行升级。
+```bash
+flutter channel master
+flutter upgrade
+```
+### 使用 GetMaterialApp 时的问题
+使用 GetMaterialApp 时，[更改语言设置的代码](#73-언어-설정-변경)无法正常工作。
+#### 解决方法
+可以将代码改成如下同步写法，解决这个问题。
+```dart title="/lib/home_page.dart"
+// ...
+const newLocale = Locale('ko', 'KR');
+await context.setLocale(newLocale);
+Get.updateLocale(newLocale);
+// ...
+```
+
+<Ads5 />
+## 结语
+因为有一个应用要面向全球发布，我试用了这个库。它的功能相当丰富，用起来也很简单。查资料时，我还找到了 [flutter_localizations_generator](https://pub.dev/packages/flutter_sheet_localization_generator)，据说可以用 Google 表格管理语言包。
+即使一开始没有国际化计划，也可以提前引入语言包，日后修改各处文案会更方便。这次我在一个规模不小的项目快结束时才加入语言包，着实费了不少功夫……😂
+
+
+### 进一步思考
+- 如果用 Google 表格管理语言包，该怎么做？
+- 能否为应用设置默认语言，使它不受手机设置影响？
+  - 能不能直接在 main.dart 中调用 setLocale 函数？
+
+### 参考资料
+- [easy_localization](https://pub.dev/packages/easy_localization)
+- [flutter_sheet_localization_generator](https://pub.dev/packages/flutter_sheet_localization_generator)
+- [Flutter 官方文档](https://docs.flutter.dev/)

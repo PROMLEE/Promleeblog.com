@@ -1,0 +1,136 @@
+---
+title_ko: Vue 커스텀 디렉티브와 컴포저블 - Vue 심화 외전 1편
+title_en: Vue Custom Directives and Composables - Vue Advanced Part 1
+desc: >-
+  Vue의 고급 기능인 커스텀 디렉티브와 컴포저블(Composable)에 대해 알아봅니다. v-focus와 같은 직접적인 DOM 제어 방법을
+  배우고, useMouse 같은 함수로 재사용 가능한 로직을 캡슐화하는 방법을 학습합니다.
+thumbnail_url: /250613-144411.webp
+metatag: >-
+  Vue, Vue.js, Custom Directive, Composable, Composition API, v-focus, useMouse,
+  Vue 심화, 프론트엔드, 뷰, 재사용성, Vue 고급
+post_id: '323'
+locale: en
+title: 'Vue Custom Directives and Composables — Advanced Vue, Extra Part 1'
+description: >-
+  Create custom directives such as v-focus for DOM behavior and composables such
+  as useMouse to reuse stateful Vue logic.
+source_hash: 5b19e6a7f507c47bbe80645bc6cf430acb6830653173a77d4572160bf0996e35
+reviewed_at: '2026-11-07T01:42:31.969Z'
+---
+## Before getting started
+This first extra installment covers two powerful patterns for maximizing code *reuse*: **custom directives** and **composables**.
+Using them well reduces repetition and makes applications cleaner and easier to maintain.
+
+## Custom directives
+We are already familiar with Vue's built-in `v-if` and `v-model` directives.
+A directive is a special attribute with the `v-` prefix that declaratively manipulates the DOM when applied to an HTML element.
+<br/>
+What if we need DOM behavior that Vue does not provide?
+For example, a particular input may need focus automatically as soon as the page loads.
+This is where a **custom directive** helps.
+<br/>
+Let's create one called `v-focus`.
+
+```vue
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+
+// 'vFocus'라는 이름으로 커스텀 디렉티브를 정의합니다.
+// Vue는 카멜 케이스(vFocus)를 케밥 케이스(v-focus)로 자동 변환해 줍니다.
+const vFocus = {
+  // 디렉티브가 바인딩된 요소가 DOM에 삽입되었을 때 호출됩니다.
+  mounted: (el: HTMLElement) => {
+    el.focus()
+  }
+}
+</script>
+
+<template>
+  <!-- 이제 어떤 입력창이든 v-focus만 추가하면 자동으로 포커스됩니다. -->
+  <input v-focus placeholder="페이지 로드 시 포커스됩니다." />
+</template>
+```
+The code defines a `vFocus` object and uses the `mounted` hook.
+The hook runs immediately after the `<input>` element receiving the directive appears on screen.
+It receives that element as `el` and simply calls `el.focus()`.
+<br/>
+Custom directives are useful when you need to step outside Vue's declarative templates and manipulate a particular DOM element directly.
+
+<Ads1/>
+
+## Composables
+Applications often repeat identical logic across components.
+Examples include tracking mouse coordinates, observing window-size changes, and fetching API data.
+<br/>
+Copying this logic into every component is inefficient.
+Vue 3's Composition API offers an elegant solution: **composables**.
+<br/>
+A composable is **a function that uses Vue's reactivity APIs to encapsulate and reuse stateful logic**.
+By convention, its name starts with `use`.
+<br/>
+Let's create the `useMouse` composable to track mouse position.
+Create a `src/composables` folder and add `useMouse.ts`.
+
+```typescript title="src/composables/useMouse.ts "
+import { ref, onMounted, onUnmounted } from 'vue'
+
+// 컴포저블 함수는 특별한 것이 아니라, 그냥 함수입니다.
+export function useMouse() {
+  // 컴포저블 내부에서 상태를 관리합니다.
+  const x = ref(0)
+  const y = ref(0)
+
+  // 컴포저블 내부에서 생명주기 훅을 사용하여 이벤트를 관리할 수 있습니다.
+  function update(event: MouseEvent) {
+    x.value = event.pageX
+    y.value = event.pageY
+  }
+
+  onMounted(() => window.addEventListener('mousemove', update))
+  onUnmounted(() => window.removeEventListener('mousemove', update))
+
+  // 관리하던 상태를 객체로 반환하여 외부 컴포넌트에서 사용할 수 있도록 합니다.
+  return { x, y }
+}
+```
+### Using the composable
+The `useMouse` composable can now be imported and used easily in any component.
+
+```vue title="src/components/MouseTracker.vue"
+<script setup lang="ts">
+// 우리가 만든 컴포저블을 임포트합니다.
+import { useMouse } from '@/composables/useMouse'
+
+// 함수를 호출하여 마우스 위치 상태를 가져옵니다.
+const { x, y } = useMouse()
+</script>
+
+<template>
+  <div>
+    마우스 위치: {{ x }}, {{ y }}
+  </div>
+</template>
+```
+The event-listener setup and cleanup are encapsulated inside `useMouse`.
+The component only needs to read and use `x` and `y`.
+<br/>
+This `useMouse` function can be reused by any component that needs *mouse-coordinate tracking*.
+That is the power of composables.
+<Img src="/250613-144544.webp" width={500} alt="Composable"/>
+<Ads2/>
+
+## Conclusion
+We learned two ways to improve code reuse in Vue applications.
+- **Custom directives**
+Use them for direct, low-level manipulation of a particular DOM element.
+They work well for encapsulating focused DOM behaviors such as `v-focus`.
+- **Composables**
+Vue 3's standard approach to reusing stateful logic.
+This flexible pattern can fetch data, track events, interact with browser APIs, and handle many other tasks.
+
+When you see repeated logic, ask whether it could become a composable.
+> Extra Part 2 explores `Slot` and `Teleport`, which make components more flexible.
+
+### References
+- [Vue.js official documentation — Custom Directives](https://vuejs.org/guide/reusability/custom-directives.html)
+- [Vue.js official documentation — Composables](https://vuejs.org/guide/reusability/composables.html)

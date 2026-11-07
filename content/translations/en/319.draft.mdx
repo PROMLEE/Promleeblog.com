@@ -1,0 +1,162 @@
+---
+title_ko: Axios로 API 연동 및 비동기 처리하기 - Vue 기본기 다지기 7편
+title_en: API Integration and Async Operations with Axios - Vue Basics Part 7
+desc: >-
+  Vue에서 Axios를 사용해 외부 서버와 통신하는 방법을 배웁니다. onMounted 생명주기 훅 안에서 비동기 로직을 처리하고, 로딩 및
+  에러 상태를 관리하여 사용자 경험을 향상시키는 방법을 알아봅니다.
+thumbnail_url: /250612-171753.webp
+metatag: >-
+  Vue 3, API, Axios, 비동기 처리, async await, onMounted, Vue 생명주기, API 연동, 데이터 로딩,
+  에러 핸들링, 프론트엔드, Vue 기초, Fetch API
+post_id: '319'
+locale: en
+title: 'API Integration and Async Operations with Axios — Vue Basics, Part 7'
+description: >-
+  Use Axios in Vue to communicate with servers, load data in onMounted, and
+  manage loading and error states.
+source_hash: faf6cf91257acb73d405f51445de6e8fc1acb73b539700f14ec69eb16b339539
+---
+## Before getting started
+In Vue Basics, Part 6, we learned to manage state shared by several components centrally using Pinia.
+Our app can now organize its internal data flow cleanly.
+
+<br/>
+
+In Part 7, we finally move beyond the Vue application itself and communicate with a server.
+Most modern web apps do not keep all their data locally; instead, they request it from a server when needed and update the interface dynamically.
+This communication is called *API integration*.
+It runs asynchronously, and today we will focus on `axios`, a library that makes asynchronous communication convenient to handle.
+
+## Installing and configuring Axios
+First, install Axios in the project.
+Run the following command in the terminal.
+
+```bash
+npm install axios
+```
+
+After installation, create an Axios instance with common configuration, such as the API base URL, as you would in a production project.
+Create an `api` folder under `src`, then add `index.js`.
+
+```javascript title="src/api/index.js"
+import axios from 'axios';
+
+// Axios 인스턴스를 생성합니다.
+const api = axios.create({
+  // API 요청의 기본 주소를 설정합니다.
+  // 모든 요청 앞에 이 주소가 붙게 됩니다.
+  baseURL: 'https://jsonplaceholder.typicode.com'
+});
+
+export default api;
+```
+With this instance in place, write concise calls such as `api.get('/posts')` instead of `axios.get('https://jsonplaceholder.typicode.com/posts')`.
+
+<Ads1 />
+
+## Component lifecycle and API calls
+When is the best time in a component's lifecycle to call an API?
+The concept we need is *lifecycle hooks*.
+These are functions Vue automatically runs when a component is created, mounted, updated, or removed.
+
+<br/>
+
+Initial data for a screen is most commonly fetched immediately after the component has mounted.
+The hook for this is `onMounted`.
+
+```vue title="PostList.vue"
+<script setup>
+import { ref, onMounted } from 'vue';
+import api from '@/api'; // 우리가 만든 Axios 인스턴스를 가져옵니다.
+
+const posts = ref([]);
+
+// onMounted 훅에 비동기 함수를 전달합니다.
+onMounted(async () => {
+  try {
+    // 컴포넌트가 마운트되면 API를 호출하여 게시물 목록을 가져옵니다.
+    const response = await api.get('/posts?_limit=10'); // 10개만 가져오기
+    posts.value = response.data; // 응답 데이터를 posts 상태에 저장합니다.
+  } catch (error) {
+    console.error('데이터를 가져오는 중 에러 발생:', error);
+  }
+});
+</script>
+
+<template>
+  <div>
+    <h1>게시물 목록</h1>
+    <ul>
+      <li v-for="post in posts" :key="post.id">
+        {{ post.title }}
+      </li>
+    </ul>
+  </div>
+</template>
+```
+As soon as `PostList` is ready on the screen, this code calls the `/posts` API and renders the returned list of posts.
+
+## Managing loading and error states
+In a real service, the network may be slow or the server may encounter a problem.
+Without handling these situations, users may see only an empty screen and not understand why the app is not working.
+Managing *loading* and *error* states is therefore important when calling APIs.
+Use `try...catch...finally` to implement the logic cleanly.
+
+```vue title="PostList.vue"
+<script setup>
+import { ref, onMounted } from 'vue';
+import api from '@/api';
+
+const posts = ref([]);
+const isLoading = ref(false); // 로딩 상태를 관리할 ref
+const error = ref(null);      // 에러 상태를 관리할 ref
+
+onMounted(async () => {
+  isLoading.value = true; // API 호출 시작 전에 로딩 상태를 true로 설정
+  error.value = null;
+
+  try {
+    // try 블록 안에서 API를 호출합니다.
+    const response = await api.get('/posts?_limit=10');
+    posts.value = response.data;
+  } catch (err) {
+    // catch 블록에서 에러를 처리합니다.
+    console.error('데이터를 가져오는 중 에러 발생:', err);
+    error.value = '데이터를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.';
+  } finally {
+    // finally 블록은 성공/실패 여부와 관계없이 항상 실행됩니다.
+    isLoading.value = false; // API 호출이 끝나면 로딩 상태를 false로 설정
+  }
+});
+</script>
+
+<template>
+  <div>
+    <h1>게시물 목록</h1>
+    <div v-if="isLoading">
+      로딩 중입니다...
+    </div>
+    <div v-else-if="error">
+      <p style="color: red;">{{ error }}</p>
+    </div>
+    <ul v-else>
+      <li v-for="post in posts" :key="post.id">
+        {{ post.title }}
+      </li>
+    </ul>
+  </div>
+</template>
+```
+Users can now clearly tell whether data is loading or something has gone wrong, resulting in a better experience.
+
+<Ads2 />
+
+## Conclusion
+We have learned how to integrate APIs so a Vue application can communicate with external servers.
+Handling asynchronous data well is one of the essential skills for building dynamic modern web applications.
+
+> In Vue Basics, Part 8, we will learn to manage component styles and use conditional rendering to show or hide parts of the interface.
+
+### References
+- [Axios official documentation](https://axios-http.com/docs/intro)
+- [JSONPlaceholder: A free practice API](https://jsonplaceholder.typicode.com/)

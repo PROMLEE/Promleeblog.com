@@ -1,0 +1,118 @@
+---
+title_ko: Next.js 15 버전으로 안전하게 업그레이드하는 방법
+title_en: How to Safely Upgrade to Next.js 15
+desc: >-
+  Next.js 15 버전으로의 업그레이드는 몇 가지 주요 변경 사항을 포함하고 있습니다. 이 글에서는 업그레이드 방법과 발생할 수 있는 문제
+  해결 방법을 단계별로 설명드립니다.
+thumbnail_url: /posts/250402-222541.webp
+metatag: 'nextjs, upgrade, next15, migration guide'
+post_id: '176'
+locale: en
+title: How to Safely Upgrade to Next.js 15
+description: >-
+  Walk through an upgrade from Next.js 14 to 15, including dependencies, request
+  APIs, codemods, and troubleshooting.
+source_hash: f22f6790dd5fb98fbbe079b8646790740f5f4795d42c40b7dba0393bc182fdbd
+---
+## Before We Begin
+Next.js continues to evolve, offering a faster and more efficient environment for building web applications. **Next.js 15**, released in 2024, introduced several significant changes, so prepare carefully before upgrading an existing project.
+This guide walks through upgrading from Next.js 14 to 15 with examples. If you're on an earlier version, consider upgrading to 14 first.
+## Main Changes at a Glance
+Before upgrading, review the areas covered in this guide:
+- The `priority` prop in `next/image`.
+- The `fallback` option in `next/font`.
+- Turbopack updates.
+- A new approach to MDX support.
+- Stricter Strict Mode behavior.
+- **The introduction of Async Request APIs.**
+- **Official codemods to automate parts of the migration.**
+We'll look at these changes in more detail below.
+## Check Versions and Update Dependencies
+Start by checking the version of Next.js in your project and reviewing the related dependencies.
+```bash
+npm list next
+```
+If you're on 14.x, use the following command to upgrade to version 15.
+```bash
+npm install next@latest react@latest react-dom@latest
+```
+If you use Yarn, run this instead.
+```bash
+yarn add next@latest react@latest react-dom@latest
+```
+> Update React and React DOM together with Next.js. Their versions are closely related, and mismatched dependencies can cause errors.
+<Ads1 />
+## Troubleshooting
+### 1. Review the `priority` Prop in `next/image`
+The original guide treats the `priority` prop as deprecated in Next.js 15 and uses the following example.
+```tsx
+<Image src="/logo.png" alt="logo" width={100} height={100} priority />
+```
+It suggests removing `priority` and using `<link rel="preload">` directly or considering `loading="eager"`.
+```tsx
+<Image src="/logo.png" alt="logo" width={100} height={100} loading="eager" />
+```
+### 2. Review the `next/font` fallback Configuration
+The previous configuration in this example sets fallback fonts as follows.
+```ts
+const inter = Inter({ subsets: ['latin'], fallback: ['Arial'] });
+```
+The original guide describes a change to how `fallback` handles string arrays and notes that you may see a warning. If you do, check the font configuration documentation for your installed version.
+### 3. Check Projects Using Turbopack
+Next.js 15 improved Turbopack. The following example shows how to configure it explicitly in `next.config.js`.
+```js
+const nextConfig = {
+  experimental: {
+    turbo: true,
+  },
+};
+module.exports = nextConfig;
+```
+Some features may still cause compatibility issues. If you run into problems, consider disabling Turbopack.
+### 4. Adopt Async Request APIs
+Next.js 15 introduced **Async Request APIs**. These affect access to request data in server-side code, including `request.cookies` and `request.headers` in the examples below.
+The original synchronous approach uses a helper such as `headers()`.
+```tsx
+import { headers } from 'next/headers';
+export default async function Page() {
+  const headerList = headers();
+  const token = headerList.get('Authorization');
+  return <div>Header 확인</div>;
+}
+```
+The second example in the original guide illustrates asynchronous access using a `request` object passed through props.
+```tsx
+export default async function Page({ request }) {
+  const token = await request.headers.get('Authorization');
+  return <div>Header 확인</div>;
+}
+```
+This pattern illustrates how to access properties such as `cookies`, `headers`, `url`, and `body`. Treat this example as experimental, and consult the [official Async Request API codemod documentation](https://nextjs.org/docs/app/building-your-application/upgrading/codemods#next-async-request-api) before migrating your project.
+### 5. Automate Migration with Codemods
+Next.js 15 provides **codemods** for repetitive and error-prone changes. Common tasks include:
+- Removing or updating deprecated props, such as `priority` where applicable.
+- Refactoring code to use new APIs.
+- Updating calls affected by Async Request APIs.
+Here's how to run a codemod.
+```bash
+npx @next/codemod <transform> <path>
+```
+The original example for removing `priority` is shown below.
+```bash
+npx @next/codemod remove-priority-image ./src
+```
+Check the available codemods in the [official documentation](https://nextjs.org/docs/app/building-your-application/upgrading/codemods). Commit or back up your code in a version control system such as Git before applying a transform.
+<Ads2 />
+## Conclusion
+Upgrading to Next.js 15 takes care, but working through the changes one at a time makes the migration manageable. Review the release notes closely when dealing with deprecated props or configuration.
+If you see unexpected build or runtime errors, start by identifying which features changed from the previous release.
+### Further Considerations
+- Did you also update `eslint-config-next` to a compatible version?
+- If you've used Turbopack in your project, record what worked well and where it caused problems.
+- Note what made the Async Request APIs easier to use and what differed from your expectations.
+- Compare the changes codemods automated with the changes you had to make by hand.
+### References
+- [Official Next.js upgrade guide](https://nextjs.org/docs/app/building-your-application/upgrading/version-15)
+- [Next.js release notes on GitHub](https://github.com/vercel/next.js/releases)
+- [Async Request API documentation](https://nextjs.org/docs/app/building-your-application/upgrading/codemods#next-async-request-api)
+- [Official Next.js codemod guide](https://nextjs.org/docs/app/building-your-application/upgrading/codemods)

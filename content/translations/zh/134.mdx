@@ -1,0 +1,62 @@
+---
+title_ko: Firebase에 Flutter 기반 앱 동시 등록하기
+title_en: Register Flutter-based apps in Firebase at the same time
+desc: >-
+  Flutter로 개발한 앱을 Firebase에 등록하는 방법을 알아보자. Let's find out how to register an app
+  developed with Flutter in Firebase.
+thumbnail_url: 'https://firebase.google.com/static/images/brand-guidelines/logo-vertical.png'
+post_id: '134'
+locale: zh
+title: 将Flutter应用同时注册到Firebase
+description: 通过Firebase项目和FlutterFire CLI，将Flutter应用注册到Firebase并完成初始化。
+source_hash: 7df11997b61028fbc5c1d529447e0ec8394b241f4a0ae71613e998873d1b51f1
+reviewed_at: '2026-11-06T14:48:43.690Z'
+---
+## 开始之前
+Firebase提供多种服务，例如App Distribution、Authentication、Crashlytics和Analytics。本文介绍如何将基于Flutter开发的应用同时注册到Firebase。
+
+
+## 1. 配置Firebase项目
+先创建Firebase项目并注册应用。进入[Firebase控制台](https://console.firebase.google.com/u/0)，使用Google账号登录，再点击创建项目。
+<Img src="/posts/250225-114901.png" width={500} alt="创建Firebase项目"/>
+<Img src="/posts/250225-115137.png" width={300} alt="创建Firebase项目"/>
+之后点击`계속`，完成项目创建。
+
+<Ads1 />
+## 2. 注册应用
+项目创建完成后，在项目概览页面添加应用。因为我们使用Flutter，所以选择Flutter应用。
+<Img src="/posts/250225-115354.png" width={400} alt="选择Flutter"/>
+
+### 2.1. 准备工作区
+在下面的界面中，如果还没有Flutter项目，从第1步开始；如果已有项目，则从第2步继续。
+依次安装Flutter CLI和Flutter SDK，然后创建Flutter项目。
+<Img src="/posts/250225-115511.png" width={400} alt="准备工作区"/>
+
+### 2.2. 安装并运行FlutterFire CLI
+安装FlutterFire CLI，并关联项目。
+<Img src="/posts/250225-145649.png" width={400} alt="安装FlutterFire CLI"/>
+```bash
+dart pub global activate flutterfire_cli
+flutterfire configure --project={프로젝트 이름}
+```
+
+### 2.3. 初始化Firebase并添加插件
+检查`main.dart`中是否已经添加以下Firebase初始化代码；如果没有，请补上。
+```dart title="/lib/main.dart"
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+// ...
+
+await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+);
+```
+<Img src="/posts/250225-115617.png" width={500} alt="Firebase初始化代码"/>
+至此，Firebase连接配置就完成了。
+
+## 结论
+可以确认两个应用已经同时注册到了Firebase。现在可以在Firebase控制台尝试使用各种服务。
+
+### 参考资料
+- [注册Firebase Flutter应用](https://firebase.google.com/docs/flutter/setup)

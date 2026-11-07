@@ -1,0 +1,197 @@
+---
+post_id: '312'
+locale: ja
+title: WindowsにWSLでUbuntu 22.04 LTSをインストールする
+description: Windows上でLinuxを使えるWSLを利用し、Ubuntu 22.04 LTSをインストールして初期設定する手順を紹介します。
+source_hash: 569e3d2ce24c83c553dd2b77e33689145feb802b7ac93b244f46ab094387d0f2
+reviewed_at: '2026-11-07T07:12:31.900Z'
+---
+## はじめに
+
+「開発の勉強にLinuxが必要だけれど、WindowsのPCでどうすればいいのだろう」と考えたことはありますか。
+以前はデュアルブートを設定したり、仮想マシン（Virtual Machine）を用意したりする必要がありました。今では、*WSL（Windows Subsystem for Linux）*で、Windowsの中から手軽にLinuxを使えます。
+<br />
+この記事では、人気のLinuxディストリビューションである*Ubuntu*のうち、長期サポート版の*22.04 LTS*をWSLでインストールします。
+<Img src="/250604-144231.webp" width={300} alt="WSLとUbuntu"/>
+## WSLとは？
+インストールの前に、WSLが何かを簡単に見ておきましょう。
+<br />
+**WSL（Windows Subsystem for Linux）**は、*WindowsでLinux用の実行ファイルを直接動かせるサブシステム*です。
+「直接動かす」とは、完全に独立したOSを仮想マシンで丸ごと動かす場合より軽く、速くLinux環境を使えるということです。
+WSLには、大きく2つのバージョンがあります。
+
+- **WSL 1**は初期の方式です。LinuxのシステムコールをWindows NTカーネルが理解できる形に変換します。ファイルシステムの性能などには一部制約がありました。
+- **WSL 2**はWSL 1の欠点を改善し、軽量な仮想マシン（VM）上で実際のLinuxカーネルを実行します。システムコールの互換性が高まり、ファイルシステムの性能も大きく改善しました。現在は、多くの場合にWSL 2が推奨されます。
+
+今回インストールするUbuntuも、WSL 2でより快適に使えます。
+
+<Ads1/>
+## ステップ1 - WSLを有効にする
+
+WindowsでWSLを使うには、まず関連する機能を有効にします。新しいおもちゃに電池を入れるような準備です。
+最も簡単なのは、PowerShellを管理者として開き、コマンドを入力する方法です。
+
+1. **PowerShellを管理者として実行する**
+   - Windowsのスタートボタンを右クリックします。
+   - メニューから「Windows PowerShell（管理者）」または「ターミナル（管理者）」を選びます。Windowsのバージョンによって名前が異なります。
+   - ユーザーアカウント制御の画面が表示されたら、「はい」をクリックします。
+2. **WSLのインストールコマンドを入力する**
+
+   管理者として開いたPowerShellで、次のコマンドを入力してEnterを押します。
+   このコマンドでWSLに必要な機能が有効になり、既定のLinuxディストリビューション（通常は最新LTS版のUbuntu）も一緒にインストールされる場合があります。
+
+   ```powershell
+   wsl --install
+   ```
+
+   ディストリビューションを指定せず `wsl --install` だけを実行すると、既定では最新の安定版Ubuntuが入ります。
+   今回の目的は*Ubuntu 22.04.1 LTS*です。このコマンドで既定のインストールを進めるか、あとでMicrosoft Storeから目的のバージョンを選べます。
+   <br />
+   <br />
+   `wsl --install` が動かない、あるいはWSLの一部しか入っていない古いWindowsの場合は、手動で機能を有効にする必要があるかもしれません。その場合は、次のコマンドを順に実行します。
+   <br />
+   まず、**Linux用Windowsサブシステム**を有効にします。
+
+   ```powershell
+   dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+   ```
+
+   次に、WSL 2に必要な**仮想マシンプラットフォーム**を有効にします。
+
+   ```powershell
+   dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+   ```
+
+   2つのコマンドを実行したら、変更を適用するために*PCを再起動*します。
+
+3. **PCを再起動する**
+
+   `wsl --install` を使った場合も、手動で機能を有効にした場合も、再起動が必要と表示されたらPCを再起動します。
+
+4. **WSL 2を既定にする（任意）**
+
+   新しい `wsl --install` は通常、WSL 2を既定に設定します。念のために設定する場合や、以前はWSL 1を使っていた場合は、次のコマンドでWSL 2を既定にできます。
+   再起動後、PowerShellを管理者として開き直し、コマンドを実行します。
+
+   ```powershell
+   wsl --set-default-version 2
+   ```
+
+   「WSL 2 requires an update to its kernel component.」などと表示されたら、メッセージ内のリンク（通常は `https://aka.ms/wsl2kernel`）からLinuxカーネルの更新パッケージをダウンロードしてインストールします。
+
+ここまでできれば、WindowsのPCでLinuxを動かす準備は完了です。
+
+<Ads2/>
+## ステップ2 - Microsoft StoreでUbuntu 22.04 LTSをインストールする
+> 上のコマンドでWSLを入れた場合、Ubuntuも既定でインストールされていることがあります。その場合は次へ進めます。別のLinuxディストリビューションを使いたければ、Microsoft Storeで選べます。
+
+ここで、目的の*Ubuntu 22.04 LTS*をインストールします。
+Microsoft Storeを使うのが手軽です。スマートフォンでアプリをダウンロードするのに似ています。
+
+1. **Microsoft Storeを開く**
+
+   Windowsのスタートメニューで「Microsoft Store」を検索して開きます。
+
+2. **Ubuntuを検索する**
+
+   Microsoft Storeの上部にある検索欄に「Ubuntu」と入力します。
+   複数のバージョンが表示されたら、目的の*Ubuntu 22.04 LTS*を選びます。
+   「22.04 LTS」が見当たらなければ、「Ubuntu 22.04 LTS」または単に「Ubuntu」（通常は最新LTS版）を選んでもかまいません。詳しいバージョンはインストール後に確認できます。
+
+3. **インストールする**
+
+   選んだUbuntuのページで「インストール」または「入手」をクリックします。
+   ダウンロードとインストールが自動で進みます。通信速度によっては時間がかかります。
+   WSLでは、複数のLinuxディストリビューションを同時にインストールして使えます。
+
+## ステップ3 - Ubuntuを初めて起動してユーザーを設定する
+インストール後、Ubuntuを初めて開いて初期設定を行います。
+ゲームを始めるときにキャラクターの名前を決めるように、Linux用のユーザー名とパスワードを設定します。
+
+1. **Ubuntuを起動する**
+   - Windowsのスタートメニューで「Ubuntu 22.04.1 LTS」またはインストールしたUbuntuの名前を探してクリックします。
+   - PowerShellやコマンドプロンプトで `wsl` または `ubuntu2204.1` と入力しても起動できます。インストールした名前によって異なり、`wsl -l -v` で確認できます。
+2. **初期設定を待つ**
+
+   初回は「Installing, this may take a few minutes...」などと表示され、数分かけて初期設定が進みます。
+
+3. **新しいユーザー名（Username）を入力する**
+
+   インストールが終わると、「Enter new UNIX username:」と表示されます。Linuxで使う名前を入力します。英小文字と数字を組み合わせて、`student`、`myubuntu`、`devuser` のように簡潔な名前にするとよいでしょう。
+   <Rbox>ユーザー名に空白や特殊文字は使わないほうがよいでしょう。Windowsのユーザー名と異なっていてもかまいません。</Rbox>
+   入力したらEnterを押します。
+
+4. **新しいパスワード（Password）を入力する**
+
+   「New password:」と表示されたら、このユーザーのパスワードを入力します。入力中は画面に何も表示されません。アスタリスクの `*` も出ません。落ち着いて正確に入力し、Enterを押します。
+5. **パスワードを再入力する**
+
+   「Retype new password:」と表示されたら、先ほどと同じパスワードを入力します。ここでも画面には何も表示されません。正確に入力してEnterを押します。
+   設定できると「Password updated successfully」などのメッセージと、Linuxのプロンプト（`사용자이름@컴퓨터이름:~$`）が表示されます。
+<Img src="/250604-153605.webp" width={500} alt="初回起動が完了した画面"/>
+これでWindowsのPCにUbuntu 22.04 LTSの環境ができました。
+プロンプトが見えていれば、Linuxのターミナルを使える状態です。
+
+<Ads3/>
+## ステップ4 - インストールを確認して基本操作を試す
+
+インストールが終わったら、正しく動くか確認し、基本操作を試しましょう。
+
+1. **Ubuntuのバージョンを確認する**
+
+   開いているUbuntuのターミナルで、次のコマンドを入力してEnterを押します。
+
+   ```bash
+   lsb_release -a
+   ```
+
+   インストール済みのLinuxディストリビューションの詳細が表示されます。
+   `Description:` に `Ubuntu 22.04.5 LTS` または同様の内容が表示されるかを確認します。
+   `Codename:` には `jammy` と表示されるはずです。Ubuntu 22.04 LTSのコードネームはJammy Jellyfishです。
+   <Img src="/250604-153841.webp" width={400} alt="Ubuntuのバージョンを確認する"/>
+2. **パッケージ一覧を更新し、パッケージをアップグレードする（推奨）**
+
+   インストール直後のLinuxを最新の状態にするため、次の2つのコマンドを順番に実行します。まず、利用可能なパッケージの一覧を更新します。
+
+   ```bash
+   sudo apt update
+   ```
+
+   設定したLinuxユーザーのパスワードを求められたら、入力してEnterを押します。入力内容は画面に表示されません。
+   `sudo` は「superuser do」の略で、管理者権限でコマンドを実行するという意味です。
+   <br />
+   次に、インストール済みのパッケージを新しいバージョンに更新します。
+
+   ```bash
+   sudo apt upgrade
+   ```
+
+   更新するパッケージが多ければ時間がかかります。途中で続行するかどうか（[Y/n]）を尋ねられたら、`Y` を入力してEnterを押します。
+
+3. **Linuxの基本コマンドを試す**
+   - `ls` は、現在のディレクトリにあるファイルとサブディレクトリを一覧表示します。
+   - `pwd` は、作業中のディレクトリの完全なパスを表示します。
+   - `cd [디렉토리명]` は、指定したディレクトリへ移動します。例えば `cd /home` は `/home` に移動します。
+   - `mkdir [새디렉토리명]` は、新しいディレクトリを作ります。
+   - `clear` は、ターミナルの表示を消します。
+
+4. **Windowsのファイルシステムにアクセスする**
+
+   WSLの便利な点の1つは、Windowsのファイルシステムに簡単にアクセスできることです。Ubuntuのターミナルで、次のパスに移動します。
+
+   ```bash
+   cd /mnt/c
+   ```
+
+   WindowsのCドライブのルートに移動します。`ls` を実行すると、`Program Files`、`Users`、`Windows` など、見慣れたフォルダーが表示されます。
+   同様に、Dドライブがあれば `/mnt/d` からアクセスできます。
+
+## おわりに
+
+今回は、WindowsのPCでWSLを使い、Ubuntu 22.04.1 LTSをインストールして初期設定する方法を学びました。
+これでWindows上で、開発者に広く使われているLinux環境を併用できます。
+
+### 参考
+
+- [WSL公式ドキュメント（Microsoft）](https://docs.microsoft.com/ko-kr/windows/wsl/)
+- [Ubuntu公式サイト](https://ubuntu.com/)

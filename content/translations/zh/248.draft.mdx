@@ -1,0 +1,381 @@
+---
+title_ko: 'React Router 원리와 활용법 - React, 알고 쓰자 6일차'
+title_en: React Router Principles and Usage - React Explained Day 6
+desc: >-
+  React Router v6의 동작 원리와 사용법을 알아봅니다. History API, URL 매칭, 중첩 라우트/Outlet, Link,
+  useNavigate 등 주요 기능과 코드 스플리팅까지, SPA 라우팅의 핵심을 설명합니다.
+thumbnail_url: /250502-161806.webp
+metatag: >-
+  React, React Router, React Router v6, 라우팅 원리, History API, SPA, 중첩 라우트,
+  Outlet, Link, useNavigate, useParams, 코드 스플리팅, 프론트엔드, 면접
+post_id: '248'
+locale: zh
+title: React Router 的原理与用法——深入理解 React，第 6 天
+description: >-
+  介绍 React Router v6 的工作原理与用法，涵盖 History API、URL 匹配、嵌套路由、Outlet、Link、useNavigate
+  和代码拆分。
+source_hash: 38d5e27bbda192fb371b5e13e4728fea50e081031d7f3f3b29d993409a8edad7
+---
+
+## 开始之前
+
+到目前为止，我们学习了如何创建组件、管理状态和更新界面。
+但大多数 Web 应用由多个页面组成，用户需要在这些页面间自由切换。
+传统网站每次切换页面时都会从服务器获取新的 HTML 文档，而使用 React 等框架构建的*单页应用（Single Page Application，SPA）*采用了不同的方式。
+SPA 最初只加载一个 HTML 页面。用户切换页面时，应用不会再请求整页文档，而是通过 JavaScript 动态更新界面内容。
+React Router 是实现这种 SPA 页面切换，也就是*路由（Routing）*的常用库。
+本文以写作时的 React Router v6 为例，除了介绍用法，还会说明*它在内部如何工作*，以及怎样使用不同的功能。
+
+## 配置 React Router v6
+使用 React Router 的第一步，是安装库并搭建基本的路由结构。
+### 安装
+先在项目中安装 react-router-dom 软件包。
+可以使用 npm 或 yarn 等包管理器。
+```bash
+npm install react-router-dom
+ # 또는
+yarn add react-router-dom
+```
+
+### 基本结构：BrowserRouter、Routes、Route
+
+基本的路由配置会用到以下组件。
+- **BrowserRouter**
+  使用 HTML5 History API 让 URL 和界面保持同步。它通常包裹在应用的最外层，利用浏览器地址栏管理路径。下面会进一步说明。
+- **Routes**
+  容纳多个 Route 组件，找出与当前 URL 路径最匹配的首个 Route，并渲染它的 element。
+- **Route**
+  将特定路径（path）与该路径下应显示的组件（element）关联起来。
+
+```tsx
+import React from 'react';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'; // Link 추가
+
+// 페이지 컴포넌트 예시
+function HomePage() {
+  return <h2>홈 페이지</h2>;
+}
+
+function AboutPage() {
+  return <h2>소개 페이지</h2>;
+}
+
+// 네비게이션 컴포넌트 예시
+function Navigation() {
+  return (
+    <nav>
+      <ul>
+        <li><Link to="/">홈</Link></li>
+        <li><Link to="/about">소개</Link></li>
+      </ul>
+    </nav>
+  );
+}
+
+
+function App() {
+  return (
+    <BrowserRouter>
+      <h1>나의 앱</h1>
+      <Navigation /> {/* 네비게이션 링크 */}
+      <Routes>
+        {/* path="/"는 홈페이지 경로 */}
+        <Route path="/" element={<HomePage />} />
+        {/* path="/about"은 소개 페이지 경로 */}
+        <Route path="/about" element={<AboutPage />} />
+        {/* 정의되지 않은 다른 모든 경로 처리 (예: 404 페이지) */}
+        <Route path="*" element={<h2>페이지를 찾을 수 없습니다 (404)</h2>} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+```
+现在，在浏览器地址栏输入 `/` 会看到 HomePage，输入 `/about` 会看到 AboutPage。
+`path="*"` 是通配路径，用于处理其他已定义路径都无法匹配的情况，通常用来显示 404 Not Found 页面。
+
+## React Router 如何工作？
+
+配置完成后，React Router 是如何在 URL 变化时显示正确的组件的？
+关键在于浏览器的 History API 和 React Router 内部的匹配逻辑。
+
+### History API：操作浏览器历史记录
+BrowserRouter 使用浏览器内置的 *History API*。
+开发者可以通过这个 API 用 JavaScript 操作浏览器的会话历史记录，也就是访问历史栈。
+主要功能如下。
+- **pushState(state, title, url)**
+  向浏览器会话历史栈添加新状态。
+  它会改变地址栏中的 URL，但不会实际刷新页面。这正是 SPA 能实现页面切换的关键。
+  点击 Link 组件时，内部会使用此功能。
+- **replaceState(state, title, url)**
+  用新状态替换当前会话历史记录。需要让用户点击后退时不会回到被替换的记录，就可以使用它。
+- **popstate 事件**
+  用户点击浏览器的后退或前进按钮，或 JavaScript 调用 `history.back()`、`history.forward()` 等方法使 URL 变化时，会触发此事件。
+  BrowserRouter 监听此事件，重新渲染当前 URL 对应的组件。
+
+也就是说，BrowserRouter 通过 History API *感知* URL 的变化，并根据新地址决定显示哪个组件。
+
+### URL 匹配：显示哪个 Route？
+
+用户点击 Link 或 URL 发生变化时，React Router 会将当前 URL 路径与 Routes 组件下的各个 Route 比较，完成*匹配*。
+- Routes 组件按顺序检查其 Route 子组件。
+- 将各 Route 的 path prop 与当前 URL 路径比较。
+- 找出与 URL 路径*最匹配（best match）*的首个 Route。与早期版本相比，React Router v6 使用更精细的相对路径和路由排名匹配算法。
+- 找到最匹配的 Route 后，渲染其 element prop 指定的组件，结束匹配。
+- 如果没有 Route 匹配当前路径，就会选择定义了 `path="*"` 的通配 Route（如果有）。
+
+通过这个过程，React Router 就能显示当前 URL 所对应的界面。
+
+### 渲染与 Outlet 的作用
+
+通过 URL 匹配选中的 Route 会把自己的 element 渲染到界面上。
+如果采用嵌套路由，会先渲染父 Route 的 element，再在它的 Outlet 位置渲染匹配到的子 Route 的 element。
+Outlet 就像一个标记，告诉 React Router：“请在这里放入子路由的内容。”
+这样就能清楚地组织和渲染复杂布局。
+
+## 主要组件与 Hook
+
+接下来从工作原理的角度看看几项常用功能。
+### 页面跳转：Link 组件
+创建供用户点击跳转的链接时，应使用 React Router 的 Link 组件来代替普通 HTML `<a>` 标签。
+#### 工作原理
+用户点击 Link 组件后，会发生以下操作。
+1. 阻止普通 `<a>` 标签的默认行为，即刷新页面（preventDefault）。
+2. 调用 History API 的 `pushState`，将地址栏中的 URL 改为 `to` prop 指定的值，并在会话历史栈中添加一条记录。
+3. React Router 感知到 URL 变化，启动重新渲染，显示与新 URL 匹配的组件。
+
+**与 `<a>` 标签的区别**在于不用从服务器重新加载整页，因此切换更快、更流畅。
+
+```tsx
+// Navigation 컴포넌트 예시 (기존과 동일)
+import { Link } from 'react-router-dom';
+
+function Navigation() {
+  return (
+    <nav>
+      <ul>
+        <li>
+          {/* to prop에 이동할 경로 지정 */}
+          <Link to="/">홈</Link>
+        </li>
+        <li>
+          <Link to="/about">소개</Link>
+        </li>
+      </ul>
+    </nav>
+  );
+}
+```
+
+> 问：“Link 组件与 HTML 的 `<a>` 标签有什么区别？”
+答：可以从内部工作原理回答，例如使用 History API 和阻止页面刷新。
+
+### 编程式跳转：useNavigate Hook
+
+有时需要在代码中触发跳转，例如用户点击按钮后，先执行某段逻辑再切换页面。
+此时可以使用 useNavigate Hook。
+#### 工作原理
+调用 useNavigate 返回的 navigate 函数时，React Router 会在内部调用 History API 的 `pushState`（默认）或 `replaceState`（指定选项时），改变 URL 并触发重新渲染。
+navigate 会根据收到的路径或数字，选择相应的 History API 方法。
+
+```tsx
+import { useNavigate } from 'react-router-dom';
+
+function LoginPage() {
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    const isLoggedIn = true;
+    if (isLoggedIn) {
+      // 내부적으로 history.pushState('/') 와 유사하게 동작
+      navigate('/');
+      // 로그인 페이지 기록을 남기지 않으려면 replace 사용
+      // navigate('/', { replace: true }); // history.replaceState('/') 와 유사
+    } else {
+      alert('로그인 실패!');
+    }
+  };
+
+  return (
+    <div>
+      <h2>로그인</h2>
+      <button onClick={handleLogin}>로그인 하기</button>
+    </div>
+  );
+}
+```
+
+### 处理 URL 参数：useParams Hook
+
+可以用 useParams Hook 读取动态路径段的值，也就是 URL 参数。
+#### 工作原理
+在匹配过程中，React Router 比较当前 URL 与 Route 的 path，并提取动态路径段对应的值。
+useParams 将提取出的参数作为对象返回，方便组件使用。
+
+```tsx
+import { useParams } from 'react-router-dom';
+
+// Route 설정
+// <Route path="/users/:userId" element={<UserProfilePage />} />
+
+function UserProfilePage() {
+  // URL이 '/users/alice' 라면, params는 { userId: 'alice' } 가 됨
+  const params = useParams<{ userId: string }>();
+
+  return (
+    <div>
+      <h2>사용자 프로필</h2>
+      <p>사용자 ID: {params.userId}</p>
+    </div>
+  );
+}
+```
+
+### 其他实用 Hook
+
+- **useLocation**：返回包含当前 URL 详细信息的 location 对象，其中有 pathname、search、hash 和 state。React Router 会在 URL 改变时更新该对象，使用此 Hook 的组件可以取得最新的 location。
+- **useSearchParams**：提供便捷的方式解析和更新 URL 查询字符串。内部会读取 location.search，使用 URLSearchParams API 操作查询参数，并在需要时调用 navigate 更新 URL。
+
+
+<Ads1 />
+
+## 嵌套路由与 Outlet：管理页面布局
+
+嵌套路由可以高效管理共用布局。
+#### 工作原理
+匹配 URL 时，React Router 会寻找与当前路径最匹配的嵌套路由分支。
+例如，URL 为 `/dashboard/analytics` 时，先匹配 `/`（MainLayout），然后匹配 `dashboard`（Outlet），最后匹配 `analytics`（DashboardAnalytics）。
+渲染时，先渲染父 Route（MainLayout）的 element，再在其中的 Outlet 位置渲染最深层匹配的子 Route（DashboardAnalytics）的 element。
+
+```tsx
+// 중첩 라우트 설정 예시 (기존과 동일)
+import React from 'react'; // React 임포트
+import { BrowserRouter, Routes, Route, Link, Outlet } from 'react-router-dom'; // 필요한 모듈 임포트
+
+// 공통 레이아웃 컴포넌트
+function MainLayout() { /* ... Outlet 포함 ... */ }
+// 페이지 컴포넌트들
+function DashboardHome() { return <h3>대시보드 홈</h3>; }
+function DashboardAnalytics() { return <h3>대시보드 분석</h3>; }
+function SettingsPage() { return <h2>설정</h2>; }
+
+function AppNested() { // 컴포넌트 이름 변경 (App 중복 방지)
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<h2>홈페이지 컨텐츠</h2>} />
+          <Route path="dashboard" element={<Outlet />}>
+            <Route index element={<DashboardHome />} />
+            <Route path="analytics" element={<DashboardAnalytics />} />
+          </Route>
+          <Route path="settings" element={<SettingsPage />} />
+        </Route>
+        <Route path="*" element={<h2>페이지를 찾을 수 없습니다 (404)</h2>} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+```
+
+## 动态路由与代码拆分：优化性能
+
+可以使用 React.lazy 和 Suspense 实现代码拆分。
+#### 工作原理
+当相应 Route 首次匹配并需要渲染时，通过 React.lazy 包装的组件会异步加载。
+加载期间，Suspense 组件显示 fallback 界面。
+加载完成后，Suspense 会渲染已经加载的组件。
+这个机制与 Webpack、Vite 等 JavaScript 打包工具的动态 import() 语法配合，将代码拆成小块（chunk），仅在需要时加载。
+
+```tsx
+import React, { lazy, Suspense } from 'react'; // lazy, Suspense 임포트
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'; // 필요한 모듈 임포트
+
+// 동적 임포트
+const LazyHomePage = lazy(() => import('./pages/HomePage'));
+const LazyAboutPage = lazy(() => import('./pages/AboutPage'));
+
+function AppLazy() { // 컴포넌트 이름 변경 (App 중복 방지)
+  return (
+    <BrowserRouter>
+      <nav>
+        <Link to="/">홈</Link> | <Link to="/about">소개</Link>
+      </nav>
+      <Suspense fallback={<div>페이지 로딩 중...</div>}>
+        <Routes>
+          <Route path="/" element={<LazyHomePage />} />
+          <Route path="/about" element={<LazyAboutPage />} />
+          <Route path="*" element={<h2>페이지를 찾을 수 없습니다 (404)</h2>} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
+  );
+}
+
+// ./pages/HomePage.tsx 예시 (default export 필요)
+// import React from 'react';
+// function HomePage() { return <h2>홈 페이지</h2>; }
+// export default HomePage;
+```
+
+<Ads2 />
+
+## 根据 URL 参数渲染与优化
+
+URL 参数变化时，可以借助 useEffect 的依赖数组，让组件请求新数据。
+### 工作原理
+URL 变化后，React Router 使用新的参数值重新渲染组件。
+此时 useParams 会返回新的参数值。useEffect 检测到依赖数组（`[userId]`）中的值发生变化，就会重新执行 effect 函数中的数据请求逻辑。
+因此，数据可以在参数变化时自动更新。
+
+```tsx
+// useEffect를 사용한 데이터 페칭 예시 (기존과 동일)
+import React, { useState, useEffect } from 'react'; // useState, useEffect 임포트
+import { useParams } from 'react-router-dom'; // useParams 임포트
+
+// 가짜 API 함수
+async function fetchUserData(userId: string): Promise<{ id: string; name: string }> { /* ... */ return { id: userId, name: `사용자 ${userId.toUpperCase()}` }; }
+
+function UserProfilePageFetch() { // 컴포넌트 이름 변경
+  const { userId } = useParams<{ userId: string }>();
+  const [userData, setUserData] = useState</*...*/ | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (userId) {
+      // ... 데이터 요청 로직 ...
+    }
+  }, [userId]); // userId 변경 시 재실행
+
+  // ... 렌더링 로직 ...
+  if (!userData) return null; // 초기 렌더링 또는 오류 시 null 반환
+  return (
+    <div>
+      <h2>사용자 프로필</h2>
+      <p>ID: {userData.id}</p>
+      <p>이름: {userData.name}</p>
+    </div>
+  );
+}
+```
+
+## 结语
+
+本文介绍了 React 应用中实现页面切换的 React Router v6，涵盖用法及内部工作原理。
+- SPA 路由借助浏览器的 **History API**，无须刷新页面即可更新 URL 和界面。
+- React Router 通过 **URL 匹配**，找到与当前路径相符的 Route 并渲染相应组件。
+- **Link** 组件调用 `pushState` 来更改 URL，**useNavigate** 则允许在代码中控制跳转。
+- **useParams**、**useLocation** 等 Hook 方便组件读取 URL 信息。
+- **嵌套路由**和 **Outlet** 便于管理布局和组织代码。Outlet 指定子路由组件的渲染位置。
+- **代码拆分**（React.lazy、Suspense）利用动态 import 改善首次加载性能。
+
+理解 React Router 的工作原理，不仅有助于使用这些功能，也有助于排查路由问题和设计更合理的应用结构。
+> 下一篇将介绍服务端渲染（SSR）、静态站点生成（SSG）和 Hydration 的原理，比较网页呈现给用户的不同方式及各自的优缺点，看看怎样改善 React 应用的性能和 SEO。
+
+### 参考资料
+
+- React Router 官方文档：[https://reactrouter.com/](https://reactrouter.com/)
+- MDN Web Docs - History API：[https://developer.mozilla.org/ko/docs/Web/API/History_API](https://developer.mozilla.org/ko/docs/Web/API/History_API)
+- React 官方文档 - 代码拆分：[https://reactjs.org/docs/code-splitting.html](https://reactjs.org/docs/code-splitting.html)

@@ -1,0 +1,184 @@
+---
+title_en: Next.js 16 Complete Migration Guide
+title_ko: Next.js 16 마이그레이션 가이드
+url: nextjs-16-migration-guide
+series_no: 3
+desc: >-
+  Next.js 15 프로젝트를 16 버전으로 업그레이드하는 구체적인 절차를 다룹니다. 자동화 도구(Codemod) 활용법부터 비동기 API
+  수정, 이미지 보안 설정 등 필수 변경 사항을 단계별로 안내합니다.
+thumbnail_url: /251214-124617.webp
+metatag: >-
+  Next.js Migration, Breaking Changes, Codemod, Upgrade Guide, Next.js 16, React
+  19
+tags: 'Next.js, Migration'
+post_id: '376'
+locale: zh
+title: Next.js 16 迁移指南
+description: 分步骤介绍将 Next.js 15 项目升级至 16 的具体流程，包括 Codemod、异步 API、图片安全配置等必需修改。
+source_hash: 74efe1690c14a47379da8e2f9f55a64053229b8f5eced7d63c34e00b1c1a0d9f
+---
+
+## 开始之前
+大家好。
+前面的文章介绍了 Next.js 16 的强大功能，现在该把它应用到实际项目中了。
+接下来将分步骤介绍如何安全地把项目升级到 Next.js 16。<br/>
+这不只是提升依赖版本，还有不少需要修改代码的*破坏性变更（Breaking Changes）*，请仔细跟随操作。
+
+## 1. 使用自动升级工具（Codemod）
+
+Next.js 团队提供了强大的自动化工具，帮助完成升级。
+相比手动修改版本，强烈建议使用这个工具。
+<br/>
+打开终端，在项目文件夹中运行以下命令。
+
+```bash title="Terminal" showLineNumbers
+npx @next/codemod@canary upgrade latest
+```
+
+这个命令会执行以下操作。
+- 将 `package.json` 中的 Next.js、React、React DOM 更新到最新版本。
+- 更新 `next.config.js` 配置文件，例如删除已移除的选项。
+- 自动修改部分 API 变更。
+<br/>
+但这个命令无法完整理解并修改业务逻辑。
+接下来是需要开发者亲自处理的*必需修改事项*。
+
+<Ads3/>
+
+## 2. 必需修改：应用异步 API
+
+最先、也是最常遇到的错误，与同步访问 API 有关。
+如第 2 篇所述，服务器组件中访问运行时数据，现在必须采用**异步**方式。
+
+### 修改 params 与 searchParams
+需要修改页面组件的 `props` 类型及用法。
+
+```tsx title="app/blog/[slug]/page.tsx" showLineNumbers {5-6}
+// [변경 전]
+// export default function Page({ params }: { params: { slug: string } }) { ... }
+
+// [변경 후]
+// 1. Props 타입: params를 Promise로 감싸줍니다.
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  
+  // 2. 데이터 접근: 반드시 await를 사용하여 값을 추출해야 합니다.
+  // await 없이 params.slug에 접근하면 런타임 에러가 발생합니다.
+  const { slug } = await params;
+
+  return <div>Blog Post: {slug}</div>;
+}
+```
+
+### 修改 cookies 与 headers
+从 `next/headers` 导入的函数，也都需要使用 `await`。
+
+```tsx title="app/layout.tsx" showLineNumbers {6}
+import { cookies } from 'next/headers';
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // [변경] cookies() 호출 앞에 await를 붙여야 합니다.
+  // 이전 버전(v15)에서는 경고만 떴지만, v16에서는 에러가 발생합니다.
+  const cookieStore = await cookies();
+  const theme = cookieStore.get('theme');
+  
+  return (
+    <html lang="en" className={theme?.value}>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+<Ads1/>
+
+## 3. 加强 next/image 安全配置
+
+图片优化组件的默认配置发生了变化。
+可以理解为，为了安全与性能，规则变得更加严格。
+
+### 允许本地图片查询字符串
+如果本地图片路径中使用了 `?v=1` 之类的查询参数，现在必须在 `next.config.js` 中显式添加允许配置。
+这是为了防止无节制地生成图片。
+
+### 允许私有网络本地 IP
+如果不是开发环境（`localhost`），而是需要在私有网络等环境中通过本地 IP 加载图片，就要启用 `dangerouslyAllowLocalIP` 选项。
+
+```js title="next.config.js" showLineNumbers {6-9,12}
+module.exports = {
+  images: {
+    // 1. 로컬 이미지에 쿼리 스트링 사용 시 패턴 명시 필요
+    localPatterns: [
+      {
+        pathname: '/assets/**',
+        search: '?v=1',
+      },
+    ],
+
+    // 2. 사설망 등에서 로컬 IP로 이미지 로드 시 필요 (보안 주의)
+    // 기본값은 false로 변경되었습니다.
+    dangerouslyAllowLocalIP: true, 
+  },
+};
+```
+
+## 4. Parallel Routes：强制要求 default.js
+
+如果使用*并行路由（Parallel Routes）*，即 `@folder` 形式，请留意。
+现在，如果缺少各个插槽对应的 `default.js` 文件，**构建本身就会失败**。
+<br/>
+以前 Next.js 会自行返回 404 或忽略，现在则要求开发者显式声明“没有内容可显示”。
+
+```tsx title="app/@analytics/default.tsx" showLineNumbers {3-4}
+// 해당 슬롯에 보여줄 기본 컨텐츠가 없더라도 파일은 생성해야 합니다.
+export default function Default() {
+  // 아무것도 렌더링하지 않으려면 null을 반환합니다.
+  return null;
+}
+```
+
+## 5. 修改 Middleware 文件名
+
+请把项目根目录中的 `middleware.ts`（或 .js）重命名为 **proxy.ts**。
+同时，导出的函数名也需要从 `middleware` 改为 `proxy`。
+
+```bash title="Terminal"
+# 파일명 변경
+mv middleware.ts proxy.ts
+```
+
+```ts title="proxy.ts" showLineNumbers {4-5}
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+// [변경] 함수 이름을 proxy로 수정
+export function proxy(request: NextRequest) {
+  return NextResponse.next();
+}
+```
+
+<Ads2/>
+
+## 6. 清理已移除的功能
+
+最后，需要从代码中删除不再支持的功能。
+
+- **删除 AMP 配置**
+如果正在使用 `config.amp` 或 `useAmp` Hook，需要移除。
+- **移除 next lint 命令**
+现在 `next build` 过程中不会自动运行 Lint。
+请在 CI/CD 流水线中单独添加 `eslint` 命令。
+- **替换 Legacy Image**
+`next/legacy/image` 组件已被删除。
+需要替换为标准的 `next/image`。
+
+## 结语
+
+迁移到 Next.js 16，不只是提升版本号。
+它也是通过*异步 API* 和*显式缓存*改进应用基础，确保长期可维护性的过程。
+<br/>
+除了本文，也请逐步参考下面的链接，相信可以顺利完成迁移。
+谢谢阅读。
+
+### 参考资料
+- [Next.js 16 升级指南](https://nextjs.org/docs/app/guides/upgrading/version-16)
+- [Next.js Codemod 文档](https://nextjs.org/docs/app/building-your-application/upgrading/codemods)

@@ -1,0 +1,148 @@
+---
+title_ko: 동기화 예제 살펴보기 - 하루 10분 운영체제 7일차
+title_en: Exploring Synchronization Examples - 10 Minutes of OS Day 7
+desc: >-
+  병행 환경에서 자원 충돌을 방지하기 위한 동기화 예제를 실습 중심으로 살펴봅니다. 고전 문제부터 실제 코드 사례까지, 면접 준비에 도움이
+  되는 동기화 시나리오를 정리합니다.
+thumbnail_url: /250420-002231.webp
+metatag: '동기화 예제, 생산자 소비자, 식사하는 철학자, 뮤텍스, 세마포어, 운영체제 면접, 기술면접, 스레드 동기화, Java 동기화, POSIX'
+post_id: '213'
+locale: en
+title: 'Exploring Synchronization Examples — 10 Minutes of Operating Systems, Day 7'
+description: >-
+  Explore practical synchronization scenarios, from classic problems to code
+  examples, to prevent resource conflicts in concurrent environments and prepare
+  for interviews.
+source_hash: dfe397fb34f1e1503e3b2a8e7c032a0de31479777459a52fa55ee533d0a3caaa
+---
+## Before We Begin
+<Img src="/250420-002231.webp" width={300} alt="Philosophers dining with forks"/>
+
+The thumbnail is what GPT produced when I asked it to draw philosophers dining with forks (the forks ended up in the middle of the table, haha). The dining philosophers problem is a famous synchronization problem. In this post, we will explore synchronization problems through examples.
+Technical interviews often ask *which tool to use in which situation*, rather than simply testing definitions. Practical examples help you become familiar with these scenarios.
+<Ads1 />
+## Classic Synchronization Problems
+### Producer-Consumer Problem
+A producer adds data to a shared buffer, while a consumer removes it. Each must wait appropriately when the buffer is full or empty.
+Solution: use two semaphores and a mutex to coordinate the producer and consumer.
+```c title="C 코드"
+sem_t empty, full;
+pthread_mutex_t mutex;
+
+void producer() {
+  while (1) {
+    // 데이터 생성
+    sem_wait(&empty); // 버퍼가 비어있는지 확인
+    pthread_mutex_lock(&mutex); // 버퍼에 접근하기 위한 락
+    // 데이터 추가
+    pthread_mutex_unlock(&mutex); // 락 해제
+    sem_post(&full); // 버퍼가 채워진 것을 알림
+  }
+}
+
+void consumer() {
+  while (1) {
+    sem_wait(&full); // 버퍼가 채워진 것을 확인
+    pthread_mutex_lock(&mutex); // 버퍼에 접근하기 위한 락
+    // 데이터 소비
+    pthread_mutex_unlock(&mutex); // 락 해제
+    sem_post(&empty); // 버퍼가 비어있는 것을 알림
+  }
+}
+```
+### Dining Philosophers Problem
+Five philosophers sit around a circular table, with one fork between each pair. Each philosopher must acquire both the left and right forks before eating. This creates a synchronization problem.
+Problem: if all philosophers pick up one fork at the same time and wait, a deadlock can occur.
+Solution: use strategies such as varying the fork acquisition order for odd- and even-numbered philosophers, or limiting the number of participating philosophers.
+
+<Ads2 />
+## Synchronization Inside the Kernel
+Synchronization is essential inside the operating system too, because multiple processes can access the kernel concurrently through system calls.
+For example, when multiple processes try to modify the same file, a file system uses a *lock* to coordinate their order.
+Solutions include spinlocks and reader-writer locks.
+### Spinlocks
+A spinlock repeatedly spins while waiting for a lock to be released.
+A thread that cannot acquire it keeps looping (*attempting the lock*) rather than yielding the CPU.
+- No context switch → useful when a lock is held for a very short time.
+- Common in multicore environments.
+- Inefficient when locks are held for a long time, wasting CPU cycles.
+- Generally used in kernels or code close to the hardware.
+```c title="C 코드"
+while (__sync_lock_test_and_set(&lock, 1)) {
+  // 락이 해제될 때까지 계속 대기 (spin)
+}
+```
+### Reader-Writer Locks
+A reader-writer lock controls reads and writes separately.
+Multiple readers can access data simultaneously, allowing parallel reads.
+A writer has exclusive access, blocking both reads and writes.
+- Improves performance when reads are frequent and writes are rare.
+- Maximizes concurrency while preserving data consistency.
+- Read lock: multiple threads can acquire it simultaneously.
+- Write lock: only one thread can acquire it exclusively.
+- Reader-priority or writer-priority policies can be chosen.
+```c title="C 코드"
+pthread_rwlock_t lock;
+pthread_rwlock_rdlock(&lock);  // 읽기 락
+// 읽기 작업 수행
+pthread_rwlock_unlock(&lock);  // 락 해제
+
+pthread_rwlock_wrlock(&lock);  // 쓰기 락
+// 쓰기 작업 수행
+pthread_rwlock_unlock(&lock);  // 락 해제
+```
+<Ads3 />
+## POSIX Thread Synchronization Examples
+> What is POSIX?
+POSIX stands for Portable Operating System Interface, a project providing standardized operating system interfaces. POSIX standards are designed to ensure consistent behavior across operating systems. Most operating systems we use, such as Linux, macOS, and Windows, follow POSIX standards.
+
+In a POSIX environment, the `pthread` library provides access to mutexes and semaphores.
+```c
+pthread_mutex_t lock;
+pthread_mutex_init(&lock, NULL);
+pthread_mutex_lock(&lock);
+// 임계구역 코드
+pthread_mutex_unlock(&lock);
+```
+Semaphore example:
+```c
+sem_t sem;
+sem_init(&sem, 0, 3); // 동시 접근 가능 횟수: 3
+sem_wait(&sem);
+// 공유 자원 접근
+sem_post(&sem);
+```
+## Synchronization in Java
+Java's `synchronized` keyword makes it easy to define a critical section.
+```java
+public synchronized void increment() {
+  count++;
+}
+```
+Alternatively, use an explicit lock object:
+```java
+ReentrantLock lock = new ReentrantLock();
+lock.lock();
+try {
+  // 임계구역
+} finally {
+  lock.unlock();
+}
+```
+<Ads4 />
+## Alternative Approaches
+Although synchronization problems are difficult to avoid entirely, structural alternatives can reduce the risks.
+- Asynchronous processing: distribute resource access to minimize the need for locks.
+- Lock splitting: lock only part of a resource rather than the whole thing.
+- Lock-free structures: use CAS-based data structures.
+
+These techniques are increasingly common in high-performance systems.
+## Summary
+We have explored common synchronization problems and concrete code examples for solving them. Rather than simply memorizing concepts, what matters is *understanding why a problem occurs and which tool is appropriate*.
+In the next post, we will explore *deadlocks* in detail, including bottlenecks and situations where progress comes to a halt.
+
+### References
+- Operating System Concepts (10th Edition)
+- https://en.wikipedia.org/wiki/Dining_philosophers_problem
+- https://en.wikipedia.org/wiki/Semaphore_(programming)
+

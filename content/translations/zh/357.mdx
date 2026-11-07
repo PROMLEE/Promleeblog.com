@@ -1,0 +1,178 @@
+---
+title_ko: iTerm2로 맥북 터미널을 더 아름답고 강력하게 꾸미기
+title_en: Customizing macOS Terminal with iTerm2 and Oh My Zsh
+desc: >-
+  맥북의 기본 터미널을 iTerm2, Oh My Zsh, 그리고 유용한 플러그인들(zsh-syntax-highlighting,
+  zsh-autosuggestions)을 활용하여 개발 생산성을 높이고 시각적으로 아름다운 환경으로 바꾸는 방법을 단계별로 알아봅니다.
+thumbnail_url: /iterm2-customizing.webp
+metatag: >-
+  iTerm2, macOS, Terminal, 터미널 꾸미기, Oh My Zsh, zsh, zsh-syntax-highlighting,
+  zsh-autosuggestions, 개발 환경, Mac, CLI, Homebrew, Powerline, Nerd Font, 프로그래밍
+post_id: '357'
+locale: zh
+title: 用 iTerm2 和 Oh My Zsh 定制 macOS 终端
+description: 分步骤安装 iTerm2 和 Oh My Zsh，配置语法高亮、自动建议、主题和字体。
+source_hash: 40dae79a07fcf0be980a28debd87f64a1c8ba3e8fad0436e80c20d2abb8fa1ba
+reviewed_at: '2026-11-07T12:34:47.985Z'
+---
+## 开始之前
+本文介绍如何把 macOS 默认终端换成一个功能更丰富、外观更合自己心意的开发环境。
+先安装 *iTerm2*，再用 *Oh My Zsh* 为终端添加功能，最后配置喜欢的主题和字体。
+
+## 安装功能更丰富的终端 iTerm2
+
+首先安装比默认终端功能更多的 *iTerm2*。
+iTerm2 提供分屏、自动补全、搜索等实用功能，是很多 Mac 开发者常用的工具。
+<br/>
+使用 *Homebrew* 包管理器，安装过程很简单。
+[安装 Homebrew](https://www.promleeblog.com/blog/post/119-homebrew)
+打开终端并输入以下命令。
+
+```bash
+brew install --cask iterm2
+```
+
+安装完成后，就可以用 iTerm2 代替默认终端。
+
+## 将默认 Shell 改为 zsh
+
+接下来开始配置终端。
+美化终端很大程度上是在配置名为 Shell 的程序。
+Shell 会解释我们输入的命令，让计算机的操作系统能够执行。
+较新的 macOS 默认使用 *zsh*，旧版 macOS 的默认 Shell 则可能是 bash。
+先运行下面的命令查看当前使用的 Shell。
+
+```bash
+echo $SHELL
+```
+
+如果结果不是 `/bin/zsh`，可以执行以下命令将默认 Shell 改为 zsh。
+
+```bash
+chsh -s /bin/zsh
+```
+
+zsh 比传统的 bash 提供更多功能，扩展也更方便，因此更适合按个人需求配置终端。
+
+<Ads1/>
+
+## 安装 Oh My Zsh
+
+现在可以开始定制终端了。
+*Oh My Zsh* 是一个帮助管理 zsh 配置的框架。
+它让安装和应用插件、主题变得简单，在开发者中很受欢迎。
+
+将以下命令复制到终端并运行，即可安装。
+
+```bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+<Img src="/250803-184412.webp" width={450} alt="Oh My Zsh"/>
+安装完成后，关闭终端再打开。
+可以看到提示符，也就是命令输入行开头的部分，外观与之前略有不同。
+接下来可以在 `~/.zshrc` 中管理终端的 Shell 配置。
+用编辑器打开该文件，会发现其中已经有一些配置项。
+
+## 安装提高效率的插件
+
+*插件*是 Oh My Zsh 的重要功能。
+通过插件，可以为终端添加需要的功能。
+下面安装两个常用的插件。
+
+### 1. 语法高亮：zsh-syntax-highlighting
+
+这个插件会用颜色提示输入的命令是否有效。
+可识别的命令显示为绿色，找不到的命令显示为红色，有助于立即发现拼写错误。
+先运行以下命令安装插件。
+
+```bash
+brew install zsh-syntax-highlighting
+```
+
+安装后，还需要配置 Oh My Zsh，让它加载这个插件。
+输入以下命令打开 `~/.zshrc`。
+```bash
+vi ~/.zshrc
+```
+在文件末尾添加下面这一行。
+```bash title=~/.zshrc
+source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+```
+保存文件后，在终端执行以下命令，或重新启动终端。
+```bash
+source ~/.zshrc
+```
+<Img src="/250803-185107.webp" width={500} alt="启用 zsh-syntax-highlighting 后的效果"/>
+试着输入 `lss` 这样不存在的命令，可以看到它显示为红色。
+
+### 2. 自动补全建议：zsh-autosuggestions
+
+这个插件根据以前输入过的命令，以灰色文字显示补全建议。
+如果建议正是你想要的，按右方向键（→）或 End 就能接受它。
+这样就不必重新输入冗长、复杂的命令。
+安装步骤与上面的插件类似。
+先运行以下命令安装。
+
+```bash
+brew install zsh-autosuggestions
+```
+
+然后再次打开 `~/.zshrc`，添加下面这一行。
+
+```bash title=~/.zshrc
+source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+```
+
+在终端运行 `source ~/.zshrc`，或重新启动终端，即可启用插件。
+<Img src="/250803-185634.webp" width={400} alt="按右方向键接受自动补全"/>
+<Ads2/>
+
+## 应用喜欢的主题和字体
+
+功能配置完成后，接下来调整终端的外观。
+
+### 1. 更换主题
+
+Oh My Zsh 自带许多主题。
+这里应用其中一个常见主题 *agnoster*。
+打开 `~/.zshrc`，找到 `ZSH_THEME`，按以下方式修改。
+```bash title=~/.zshrc
+ZSH_THEME="agnoster"
+```
+
+保存文件并重新启动终端，可以看到提示符出现了不同颜色和符号。
+不过，部分符号可能显示不正常。
+这是因为普通字体不包含该主题使用的特殊符号。
+<Img src="/250803-185915.webp" width={300} alt="特殊符号显示异常"/>
+
+### 2. 安装字体以解决符号显示问题
+
+要解决这个问题，需要安装包含特殊符号的 *Powerline 字体*或 *Nerd Font*。
+下面通过 Homebrew 安装开发者常用的 *Fira Code Nerd Font*。
+也可以考虑 [D2Coding](https://github.com/naver/d2codingfont) 等其他字体。
+```bash
+brew tap homebrew/cask-fonts
+brew install --cask font-fira-code-nerd-font
+```
+
+字体安装完成后，最后在 iTerm2 中应用它。
+- 打开 iTerm2，用 `Command + ,` 快捷键打开设置。
+- 进入 *Profiles* 选项卡，在左侧选择当前使用的配置。
+- 在右侧选择 *Text* 选项卡。
+- 在 *Font* 区域，把字体改为 `FiraCode Nerd Font`。
+
+<Img src="/250803-190258.webp" width={400} alt="字体设置"/>
+
+现在回到终端，之前显示异常的字符就会呈现为清晰的图标。
+
+## 结语
+
+本文介绍了用 iTerm2 和 Oh My Zsh 定制 macOS 终端的全过程。
+除了这次介绍的内容，Oh My Zsh 还有许多其他主题与插件。
+可以根据自己的开发习惯选择并应用合适的主题和插件。
+
+### 参考资料
+- [iTerm2 官网](https://iterm2.com/)
+- [Oh My Zsh 官网](https://ohmyz.sh/)
+- [zsh-syntax-highlighting GitHub 仓库](https://github.com/zsh-users/zsh-syntax-highlighting)
+- [zsh-autosuggestions GitHub 仓库](https://github.com/zsh-users/zsh-autosuggestions)

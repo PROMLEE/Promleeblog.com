@@ -1,0 +1,179 @@
+---
+title_ko: 블로그 포스팅 페이지를 ISR로 전환한 이유와 효과
+title_en: Migrating Blog Post Page to ISR - Reasons and Outcomes
+desc: '정적 생성 방식에서 ISR로 전환하며 얻은 효과와 과정, 그리고 빌드 에러를 해결한 방법까지 자세히 설명합니다.'
+thumbnail_url: /isr-post-thumbnail.webp
+metatag: 'Next.js, ISR, Incremental Static Regeneration, 페이지 최적화, Google Analytics'
+post_id: '195'
+locale: zh
+title: 博客文章页面迁移到ISR的原因与效果
+description: 介绍博客从静态生成思路转向ISR的过程、性能变化，以及构建时Google Analytics和并发请求错误的解决方法。
+source_hash: bf85d0c9ed7751ce53993d8c3d83205ba604a324c132674bbca26f37a7a2fbc6
+---
+
+## 开始之前
+刚开始做博客时，我认为通过SSR（Server Side Rendering，服务器端渲染）生成页面，有利于SEO。不过，即使实现了积极利用Vercel Edge Function和缓存的SSR，仍然会因为Vercel的冷启动问题，导致首次访问时页面加载较慢。
+因此，我决定将博客文章页面改为静态生成。简单的SSG会提前生成页面，再由服务器提供，所以加载速度快，也有利于SEO。但每次新增页面都需要重新构建全部页面，构建时间也会变长。于是，我选择Next.js的**ISR（Incremental Static Regeneration，增量静态再生成）**：静态生成页面，同时定期在后台自动更新。详细内容可以参考[Next.js Incremental Static Regeneration（ISR）完整指南](/blog/post/190-nextjs-isr)。
+结果是页面加载速度明显改善，同时保留了SEO方面的优势。此外，新增页面时不必重新构建全部页面，也能缩短构建时间。本文会介绍博客文章页面迁移到ISR的原因、效果，以及构建错误的解决过程。
+
+## 原有博客文章页面结构
+原来的SSR方式，在每次收到页面请求时，都要从服务器获取数据并进行渲染。简单来说，就是通过generateMetadata和getPost方法获取文章元数据和正文。这个方式有利于SEO，但页面加载速度可能受到Edge Function服务器状态的影响。
+
+```tsx
+export async function generateMetadata(props: {
+  params: Promise<{ post: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const markdownsource = await PostService().getPostMeta({ // 포스트 메타데이터 가져오기
+    post_id: params.post,
+  });
+  return GenerateMeta({ meta: markdownsource, param: params.post });
+}
+
+const Post = async ({ params }: { params: Promise<{ post: string }> }) => {
+  const { post } = await params;
+
+  const [markdownsource] = await Promise.all([
+    PostService().getPost({ post_id: post }), // 포스트 내용 가져오기
+    PostService().viewIncrement({ post_id: post.split("-")[0] }), // 포스트 조회수 증가
+  ]);
+
+  return (
+    <>
+			{/* ... */}
+    </>
+  );
+};
+
+export default Post;
+```
+
+<Ads1 />
+## 改为ISR结构
+我将文章页面**迁移到了ISR**。这种方式静态生成页面，并定期在后台自动更新，因此可以改善页面加载速度，同时保留SEO优势。
+数据获取方式保持不变，但通过generateStaticParams方法指定需要动态生成的文章路径。该方法只在构建时执行，之后通过ISR更新页面。此外，generateMetadata仍然在服务器端执行，也有利于SEO。我将relativedate设为两天，让页面每两天更新一次。这个设置可以根据博客的特点调整。
+修改后的文章页面结构如下。
+
+```tsx title="/app/blog/[post]/page.tsx"
+export const revalidate = 172800; // 2 days
+export const dynamicParams = true; // 동적 파라미터 사용
+
+export async function generateStaticParams() {
+  const Links = await PostService().getLinks(); // param 목록 가져오는 API 호출
+  const posts: string[] = [];
+  Links.map((category) => { 
+		// 내부 로직을 통해 param 목록을 생성
+		category.posts.map((post) => {
+			posts.push(post.post_id);
+		});
+  });
+  return posts.map((post) => ({ 
+    post: post,
+  }));
+}
+
+// generateMetadata는 유지
+
+const Post = async ({ params }: { params: Promise<{ post: string }> }) => {
+  const { post } = await params;
+
+  const markdownsource = await PostService().getPost({ 
+    post_id: post.split("-")[0],
+  });
+
+  return (
+    <>
+      <ViewIncrement postId={post.split("-")[0]} /> {/* CSR 컴포넌트로 분리 */}
+			{/* ... */}
+    </>
+  );
+};
+
+export default Post;
+```
+
+<Ads2 />
+## 遇到的问题与解决方法
+### 构建时调用Google Analytics API
+我的页面左侧有一个通过Google Analytics API显示浏览量的组件。原来的实现会在每次页面加载时增加浏览量，并调用Google Analytics API读取浏览数据。但迁移到ISR后，这个组件出现了问题：它会在*构建期间调用Google Analytics API*，引发构建错误。
+```
+RESOURCE_EXHAUSTED: Exhausted concurrent requests quota.
+```
+这个错误表示超过了Google Analytics API的并发请求数量限制。迁移到ISR后，每个页面在构建时都会调用Google Analytics API，因而触发了限制。解决方法是改为在客户端发起Google Analytics API请求。
+#### 改为客户端请求
+
+我创建了服务器端API路由，再从客户端组件调用这个API。
+
+```ts title="/app/api/analytics/views.ts"
+export default async function handler(req, res) {
+  try {
+    const [total, today] = await Promise.all([totalViews(), todayViews()]);
+    res.status(200).json({ total, today });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch analytics data" });
+  }
+}
+```
+
+```tsx title="/app/components/ViewStats.tsx"
+"use client";
+
+export const ViewStats = () => {
+  const [views, setViews] = useState(null);
+  useEffect(() => {
+    fetch("/api/analytics/views")
+      .then((res) => res.json())
+      .then((data) => setViews(data));
+  }, []);
+  return <div>🔁 Total Views: {views?.total} | 📅 Today: {views?.today}</div>;
+};
+```
+
+现在，Google Analytics API相关请求只会由用户浏览器触发，不再影响构建或ISR过程。
+
+### Promise.all异步处理错误
+构建时使用Promise.all处理异步操作的部分，也发生了错误。原因是通过Promise.all同时处理了180多个请求。可以将这些请求改为顺序处理，但这样又可能降低性能，所以需要适当控制异步处理。
+我将用户请求文章时增加浏览量的逻辑拆分到客户端组件中，改为在页面加载时由客户端发起请求。这样，这部分异步操作就不会在构建期间执行，也就解决了构建时的错误。
+```tsx
+const markdownsource = await PostService().getPost({ post_id: post.split("-")[0] });
+
+<ViewIncrement postId={post.split("-")[0]} />; // 포스트 조회수 증가를 클라이언트 컴포넌트로 분리
+```
+
+<Ads3 />
+## 迁移前后对比
+### 构建时间
+我在Vercel上测量了构建时间：原来的SSR方式约为98秒，改为ISR后增加到了132秒。不过，由于不必重新构建全部页面，即使新增页面，构建时间也不会明显增加。ISR还会静态生成页面，因此能改善页面加载速度。
+
+## 性能改善
+这次迁移到ISR，明显提升了页面性能。用户体验得到了改善，对SEO优化也有积极影响。此外，还可以通过调整数据更新周期，进一步改善用户体验。
+对比左侧采用SSR的页面与应用ISR后的页面，可以看到加载速度明显提升。下图展示了应用ISR后的页面性能。
+<Img src="/250407-230528.webp" width={700} alt=""/>
+
+## 数据对比
+### SSR方式
+SSR在每次页面请求时，都需要从服务器获取数据并渲染，因此会出现页面加载较慢的问题。下图展示了SSR的性能。
+仅等待服务器响应就花了4.12秒，拖慢了页面加载。
+<Img src="/250407-231044.webp" width={500} alt=""/>
+
+### ISR方式
+ISR提供预先静态生成的HTML文件，因此页面加载速度更快。下图展示了ISR的性能。
+*等待服务器响应的时间降到了0.5秒，相比SSR快了约8倍以上。*页面加载速度得到了明显改善，后续API请求也更快地完成了。
+<Img src="/250407-231332.webp" width={500} alt=""/>
+
+## 结论
+这次将文章页面迁移到ISR，带来了以下有意义的改进。
+
+- 缩短构建时间，提高稳定性
+- 仍可反映浏览量等动态数据
+- 同时保留SEO和良好的用户体验
+- 改善页面加载速度
+- 从客户端发起Google Analytics API请求
+- 解决Promise.all异步处理错误
+- 通过ISR改善性能
+
+我切实体会到，Next.js的ISR对于内容较多的博客和文档网站尤其有用。同时，明确划分客户端和服务器端的职责，也有助于后续维护。
+
+### 参考资料
+- [Next.js官方文档：Incremental Static Regeneration](https://nextjs.org/docs/pages/building-your-application/data-fetching/incremental-static-regeneration)
+- [Google Analytics Data API v1 Docs](https://developers.google.com/analytics)

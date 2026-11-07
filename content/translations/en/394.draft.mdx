@@ -1,0 +1,241 @@
+---
+title_en: >-
+  Improving Component Structure from a Testing Perspective - TDD with React Part
+  11
+title_ko: 테스트 관점에서 본 컴포넌트 구조 - React로 시작하는 TDD 11편
+url: improving-component-structure
+series_no: 11
+desc: >-
+  테스트 작성이 어려워지는 컴포넌트의 특징을 분석하고, 관심사의 분리(UI vs Logic)와 전역 상태(Provider) 처리를 통해
+  테스트하기 쉬운 구조로 개선하는 방법을 배웁니다.
+thumbnail_url: /251227-163657.webp
+metatag: >-
+  React, TDD, Refactoring, ContainerPresenter, CleanArchitecture, Testing,
+  ContextAPI, CustomRender, Frontend
+tags: 'React, Javascript, Typescript, Next.js'
+post_id: '394'
+locale: en
+title: 'Improving Component Structure for Testing — TDD with React, Part 11'
+description: >-
+  Recognize hard-to-test components and improve testability through UI/logic
+  separation and provider-aware test setup.
+source_hash: 60b5958cbcdb3714b4a5ecf7cf6522747dba56da25dea7e5fbaa5a4094d34c34
+---
+
+## Before getting started
+
+Have you encountered these frustrations while writing tests?
+<br/>
+1. “I need ten mocks just to test this one component.”
+2. “I changed only the screen color and every test broke.”
+3. “It keeps complaining that a Context Provider is missing.”
+<br/>
+These problems arise when code is **hard to test, or untestable**.
+One of TDD's greatest strengths is that it *rejects hard-to-test designs*.
+Today we will improve structure to make both testing and maintenance easier.
+
+<Ads1/>
+
+## A bad example: The component that does everything
+
+A common anti-pattern is one component handling **fetching, transforming, and rendering data**.
+
+### A hard-to-test component
+
+```tsx title="src/components/BadUserProfile.tsx" showLineNumbers
+import { useEffect, useState } from 'react';
+
+interface User {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+export default function BadUserProfile() {
+  const [user, setUser] = useState<User | null>(null);
+
+  // [문제 1] 컴포넌트가 '데이터 가져오기'를 직접 수행함 (의존성 높음)
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/users/1')
+      .then((res) => res.json())
+      .then((data) => {
+        // [문제 2] 데이터를 변환하는 '비즈니스 로직'이 섞여 있음
+        const formattedData = {
+          ...data,
+          // 이름은 대문자로 변환해야 한다는 규칙
+          firstName: data.name.split(' ')[0].toUpperCase(),
+          lastName: data.name.split(' ')[1].toUpperCase(),
+        };
+        setUser(formattedData);
+      });
+  }, []);
+
+  if (!user) return <div>로딩 중...</div>;
+
+  return (
+    <div>
+      {/* [문제 3] 화면 그리기 로직 (UI) */}
+      <h1>{user.firstName} {user.lastName}</h1>
+      <p>{user.email}</p>
+    </div>
+  );
+}
+```
+
+Testing it requires mocking `fetch` and waiting for asynchronous behavior with `findBy`.
+That is true even if we only want to verify that the name appears prominently in an h1.
+
+<Ads2/>
+
+## Improvement strategy 1: Separate UI from logic
+
+The classic **container/presentational pattern** addresses this.
+In simple terms, separate the smart logic from the simple UI.
+Today logic is often extracted into hooks, but the principle of keeping UI pure remains the same.
+### 1. Presentational component: UI
+
+This component does not know where the data came from.
+It receives `props` and renders them.
+**Testing difficulty: Very low.**
+
+```tsx title="src/components/UserProfileView.tsx" showLineNumbers
+// 데이터 타입 정의
+export interface UserProfileProps {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+export default function UserProfileView({ firstName, lastName, email }: UserProfileProps) {
+  return (
+    <div>
+      <h1>{firstName} {lastName}</h1>
+      <p>{email}</p>
+    </div>
+  );
+}
+```
+
+### 2. Container component: Logic
+
+Fetch and transform the data, then pass it to the UI component.
+
+```tsx title="src/components/UserProfileContainer.tsx" showLineNumbers
+import { useEffect, useState } from 'react';
+import UserProfileView from './UserProfileView';
+
+export default function UserProfileContainer() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // ... fetch 및 데이터 가공 로직 (혹은 Custom Hook 사용)
+    // 여기서는 생략합니다.
+  }, []);
+
+  if (!user) return <div>로딩 중...</div>;
+
+  // 가공된 데이터를 UI 컴포넌트에 주입
+  return <UserProfileView {...user} />;
+}
+```
+
+## Writing and running the test
+
+Now test the separated `UserProfileView`.
+No complicated `fetch` or `MSW` setup is needed.
+
+### Writing the UI test
+
+```tsx title="src/components/UserProfileView.test.tsx" showLineNumbers highlight="{8-12,17-18,22}"
+import { render, screen } from '@testing-library/react';
+import { describe, test, expect } from 'vitest';
+import UserProfileView from './UserProfileView';
+
+describe('UserProfileView UI 테스트', () => {
+  test('props로 받은 이름과 이메일을 정확히 표시한다', () => {
+    // 1. 가짜 데이터(Mock Data) 준비
+    // API 호출 없이 우리가 원하는 데이터를 직접 주입합니다.
+    const mockUser = {
+      firstName: 'KIM',
+      lastName: 'CHULSU',
+      email: 'test@example.com'
+    };
+
+    render(<UserProfileView {...mockUser} />);
+    
+    // 2. 로그 확인
+    console.log('[UI Test] 순수 컴포넌트 렌더링 확인');
+    screen.debug();
+
+    // 3. 검증
+    // h1 태그 안에 이름이 들어있는지 확인
+    expect(screen.getByRole('heading')).toHaveTextContent('KIM CHULSU');
+    // 이메일이 문서에 존재하는지 확인
+    expect(screen.getByText('test@example.com')).toBeInTheDocument();
+  });
+});
+```
+
+<Ads3/>
+
+## Running and analyzing the tests
+
+Run the test in the terminal.
+
+```bash title="Terminal"
+npm test -- src/components/UserProfileView.test.tsx
+```
+
+### Checking the success log
+<Img src="/251227-163122.webp" width={500} alt="Checking the success log"/>
+
+```text
+[UI Test] 순수 컴포넌트 렌더링 확인
+<body>
+  <div>
+    <div>
+      <h1>
+        KIM CHULSU
+      </h1>
+      <p>
+        test@example.com
+      </p>
+    </div>
+  </div>
+</body>
+
+PASS src/components/UserProfileView.test.tsx
+```
+
+### Analyzing the results
+
+- **Purity:** The logs show our supplied `KIM CHULSU` data rendered directly, without `fetch` loading states or error messages.
+- **Removed dependencies:** The UI test succeeds regardless of whether the API server is running.
+- **Speed:** Without asynchronous waits such as `await findBy...`, the test finishes immediately.
+
+<Ads4/>
+
+## Conclusion
+
+The source is available at [GitHub — Promleeblog/react-tdd-setup](https://github.com/PROMLEE/my-tdd-app/tree/part11).
+```bash title="Terminal"
+git clone https://github.com/PROMLEE/my-tdd-app.git
+cd my-tdd-app
+git checkout part11
+```
+
+We improved a structure that obstructed testing and checked the result.
+- **Separation of concerns**
+  Separating data logic in the container from the view made UI tests simple and fast.
+- **Result analysis**
+  Logs confirmed that data rendered immediately, without unnecessary loading work.
+<br/>
+When tests are difficult to write, treat that as a signal to *improve the structure* rather than forcing tests onto it.
+Better structure naturally makes testing easier.
+> Part 12, **Organizing Tests to Support Refactoring**, explains how to keep tests stable when design or implementation changes.
+
+### References
+- [Container/Presentational Pattern](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0)
+  Dan Abramov introduced this pattern; its separation-of-concerns principle remains useful.
+- [Setup Custom Render](https://testing-library.com/docs/react-testing-library/setup#custom-render)
+  React Testing Library's guide to custom renders for global providers.

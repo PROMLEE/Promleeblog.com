@@ -1,0 +1,99 @@
+---
+post_id: '143'
+locale: ja
+title: Expoプロジェクトを作成する（macOS）
+description: macOSでExpoプロジェクトを作り、エミュレーターやExpo Goで動作を確認する手順です。
+source_hash: 91783ea6ad34c8e21fe65a03f9f68af7fa8319f105c4045a5ce80278f647102a
+---
+## はじめに
+> 開発環境にはM3搭載のMac、Xcode、Android Studio、Visual Studio Codeを使いました。
+
+### Expoとは？
+[Expo](https://expo.io/)
+React Nativeでアプリを作るとき、Expoを使うと開発が簡単になります。AndroidとiOSのアプリに必要な多くの設定をExpoが代わりに行います。無料で利用でき、ビルドと配布も手軽です。Expo Goをインストールすると、開発中のアプリを実機でリアルタイムに確認できます。
+
+### ExpoとReact Native CLI
+Expoを使うと、ビルドや配布が簡単になります。ただし、一部のライブラリが使えず、ネイティブ機能を追加できない場合があります。Expoで実現できないネイティブ機能を追加するなら、React Native CLIを使います。
+> プロジェクトの機能がExpoで使えるか確認し、対応しない場合はReact Native CLIを検討します。
+
+[React Native CLIのインストール手順](/blog/post/114-rn-init)
+
+<Ads1 />
+## 1. Node.jsとnpmをインストールする
+Node.jsはJavaScriptランタイムで、React Nativeの開発に必要です。公式サイトでLTS版をダウンロードしてインストールします。Macでは、Homebrewとnvmを使うと簡単です。次の記事を参照してください。
+[macOSにNode.jsをインストールする（Homebrew、nvm、npm）](/blog/post/120-macos-nodejs)
+インストール後は、ターミナルでnode -v、npm -vを実行し、バージョンを確認します。
+```bash
+node -v
+npm -v
+```
+<Img src="/posts/250305-093829.png" width={200} alt=""/>
+
+## 2. Expoを設定してプロジェクトを作る
+### 2.1. Expoアカウントとプロジェクトを作る
+Expoを使うにはExpoアカウントが必要です。公式サイトで登録してログインします。
+[Expo公式サイト](https://expo.io/)
+ログインするとExpoプロジェクトを作成できます。Create a new projectを押し、名前を入力するとプロジェクトが作られます。
+<Img src="/posts/240729-002615.png" width={400} alt="Testプロジェクトを作成する"/>
+
+### 2.2. Expo CLIをインストールしてローカルプロジェクトを作る
+必要に応じて、ターミナルでexpo-cliをグローバルにインストールします。
+インストールしなくても、npx expoでプロジェクトを作成して実行できます。
+```bash
+npm install --global expo-cli
+```
+expo-cliを入れたら、expo initでプロジェクトを作ります。
+```bash
+npx create-expo-app@latest
+```
+yを入力して追加パッケージをインストールし、プロジェクト名を設定します。
+<Img src="/posts/250305-094759.png" width={400} alt="✅ Your project is ready! と表示されたら成功"/>
+
+プロジェクトを実行する前にExpoへログインします。
+```bash
+npx expo login	# expo 계정 입력
+```
+作成後は、プロジェクトフォルダーに移動し、Expo上のプロジェクトと接続します。プロジェクトIDは詳細ページで確認できます。
+<Img src="/posts/240729-004021.png" width={500} alt=""/>
+
+```bash
+cd my-new-project
+eas init --id {expo 프로젝트 id}
+```
+接続後、Expoプロジェクトを実行します。
+```bash
+npm start
+```
+
+<Img src="/posts/240729-004744.png" width={300} alt=""/>
+起動後、aを押すとAndroid Studioのエミュレーター、wを押すとWebブラウザでアプリを確認できます。iを押すとXcodeのiOSシミュレーターで確認できます。この選択肢はmacOSに限られます。
+
+<Ads2 />
+### 2.3. Expo Goをインストールして接続する
+スマートフォンにExpo Goをインストールします。
+[Expo Goをダウンロード（Android）](https://play.google.com/store/apps/details?id=host.exp.exponent&hl=ko&gl=US)
+[Expo Goをダウンロード（iOS）](https://apps.apple.com/kr/app/expo-go/id982107779)
+Expo GoでQRコードを読み取ると、開発中のアプリを実機でリアルタイムに確認できます。ログインしてExpo Goを開き、開発中のアプリへのリンクを入力する方法もあります。
+
+## おわりに
+ExpoとReact Native CLIは、プロジェクトに合う方を選びます。Expoは開発を簡単にしますが、使えないライブラリや追加できないネイティブ機能があります。Expoで実現できない機能を追加する場合は、React Native CLIやexpo ejectを使う方法があります。
+
+### もう少し考えてみる
+#### expo eject
+expo ejectでExpoプロジェクトをReact Native CLIのプロジェクトに変換できると言われています。ただし、現在は非推奨で、[prebuild](https://docs.expo.dev/workflow/prebuild/)に置き換わっています。公式ドキュメントも参照してください。
+[is expo eject deprecated?](https://docs.expo.dev/faq/#is-expo-eject-deprecated)
+
+<Ads3 />
+#### expo prebuild
+アプリ設定ファイルを使い、ネイティブのソースコードを含むExpoプロジェクトを生成できます。
+```bash
+expo prebuild
+```
+`android/` と `ios/` が作られ、ネイティブコードを含むプロジェクトになります。
+その後、次のコマンドでprebuildしたアプリを起動できます。
+```bash
+npx expo run:android
+npx expo run:ios
+```
+### 参考
+- [Expoドキュメント](https://docs.expo.dev/)

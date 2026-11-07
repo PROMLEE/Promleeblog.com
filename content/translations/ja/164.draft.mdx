@@ -1,0 +1,89 @@
+---
+post_id: '164'
+locale: ja
+title: '[PGM] PCCP過去問・第3問 衝突リスクを探す (Python)'
+description: ProgrammersのPCCP過去問、第3問「衝突リスクを探す」をPythonで解きます。
+source_hash: c5257d3218228466a3e648939b682279be6496761ddb6d3aadae29bc17e0d959
+---
+> https://school.programmers.co.kr/learn/courses/30/lessons/340211
+## アルゴリズムの分類
+実装
+## 問題の説明
+- pointsは二次元配列で、*出発点や到着点*の座標を表します。
+- routesも二次元配列で、*各ロボットの移動経路*を表します。
+- 例えばpoints = [[0, 0], [0, 1], [1, 1], [1, 0]]、routes = [[1, 2, 3, 4], [4, 3, 2, 1]]とします。最初のロボットは(0, 0)から出発し、(0, 1)、(1, 1)を経由して(1, 0)へ到着します。二番目は(1, 0)から出発し、(1, 1)、(0, 1)を経由して(0, 0)へ到着します。
+- ロボットは一度に一マスずつ、上下左右へ移動します。最短経路を使い、同じ長さの最短経路が複数ある場合は、x軸方向を先に進みます。移動先に*ほかのロボットがいると衝突*が起こります。
+
+## 解き方
+1. まず、ロボットが移動する経路を*paths*に格納します。routesの各経路をコピーした、二次元配列です。
+   - 形式は、[[[出発点], [到着点1], [到着点2], ...], [[出発点], [到着点1], [到着点2], ...], ...]となります。
+2. *grid*という二次元配列を作り、各座標に現在何台のロボットがいるかを記録します。
+3. paths内の各経路について移動を進め、衝突の有無を確認します。
+   - *衝突したら、answerへ1を加えます。*
+   - 衝突しなければ、gridへロボットがいることを記録します。
+   - 出発点と到着点が同じになったら、その区間を削除します。
+     - 経路に二つ以上の地点が残っていれば、到着点を削除します。
+     - すべての地点へ到着していれば、出発点を[0, 0]へ変更します。
+4. すべてのロボットが移動を終えたら、answerを返します。
+
+## コード — Python
+``` python
+def solution(points, routes):
+	answer = 0
+	paths = [[points[j - 1][:] for j in route] for route in routes]
+	
+	grid = [[0] * 101 for _ in range(101)]
+	
+	for path in paths: # 출발 지점에서의 충돌 확인
+		x, y = path[0]
+		if grid[x][y] == 1:
+			grid[x][y] += 1
+			answer += 1
+		elif grid[x][y] == 0:
+			grid[x][y] = 1
+	
+	while True:
+		active_paths = len(paths) # 활성화된 경로의 수 (0이면 종료)
+		grid = [[0] * 101 for _ in range(101)] # 그리드 초기화
+		
+		for path in paths: 
+			if path[0] == [0, 0]: # 최종 도착지에 도착한 로봇
+				active_paths -= 1
+				continue
+		
+			x1, y1 = path[0] 
+			x2, y2 = path[1]
+			
+			if x1 < x2: # 경로 이동 (x축 우선)
+				path[0][0] += 1
+			elif x1 > x2:
+				path[0][0] -= 1
+			elif y1 < y2:
+				path[0][1] += 1
+			elif y1 > y2:
+				path[0][1] -= 1
+			
+			x, y = path[0] # 충돌 확인
+			if grid[x][y] == 1:
+				grid[x][y] += 1
+				answer += 1
+			elif grid[x][y] == 0:
+				grid[x][y] = 1
+			
+			if path[0] == path[1]: # 도착지에 도착한 경우
+				if len(path) > 2:	# 추가 경로가 있는 경우
+					del path[1]
+				else:	 # 모든 경로를 이동한 경우
+					path[0] = [0, 0]
+					active_paths -= 1
+		
+		if active_paths == 0:
+			break
+	
+	return answer
+```
+
+## 要点
+- 衝突の確認にかかる探索時間を減らすために、gridを使います。
+- 複数のロボットが同じ場所で衝突しても、一度だけ数えます。
+- 到着点が複数ある場合、その地点をどう管理するかが重要です。

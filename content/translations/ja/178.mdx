@@ -1,0 +1,77 @@
+---
+title_ko: Next.js 데이터 패칭 완전 정복 1 - 개요와 기본 개념
+title_en: Complete Guide to Data Fetching in Next.js 1 - Overview and Core Concepts
+desc: 'Next.js 앱 라우터 환경에서의 데이터 패칭 개념을 이해하고, 서버 컴포넌트를 중심으로 하는 데이터 흐름을 배웁니다.'
+thumbnail_url: /250404-093858.webp
+metatag: 'nextjs, data fetching, 서버 컴포넌트, fetch, 캐싱'
+post_id: '178'
+locale: ja
+title: Next.jsデータ取得完全ガイド1：概要と基本概念
+description: Next.js App Routerでのデータ取得と、Server Componentsを中心とするデータの流れを学びます。
+source_hash: f73233c91f0647bab1eb670206bab75ce30386bb1ce25c69636bfee39419e6b2
+reviewed_at: '2026-11-06T14:52:04.850Z'
+---
+## はじめに
+> Next.js 15を基準にしています。以降のバージョンでは、一部の内容が変わる場合があります。
+
+Next.jsのApp Routerは最新のReact機能と連携し、サーバー中心のデータ取得を提供します。
+より効率的で高速なウェブアプリケーションを構築できます。
+このシリーズでは、基本から応用まで詳しく学びます。
+第1回では次の内容を扱います。
+- App Routerでデータを取得する場所
+- fetchの動作
+- Server Componentsを中心とするデータフロー
+- fetchの基本例
+
+## データ取得の概要
+App RouterはReactのServer Components（SSR）を基盤としています。
+ブラウザーで使えないサーバー専用の機能を利用でき、データ取得もその一つです。
+Next.jsは基本的に*サーバーでデータを取得する方法*を推奨します。
+クライアントへ渡すHTMLを事前に完成させるため、読み込み速度とSEOに有利です。
+### いつ、どこで取得するか
+取得できる場所は次のとおりです。
+- *Server Components（既定）*：大部分のデータは、ここから取得することが推奨されます。
+- *Client Components*：ユーザーの操作後など、動的に取得する必要がある場合に使います。
+- *Route Handler（API route）*：バックエンドAPIとして外部システムと通信します。
+App Routerはフォルダー基準のルーティングなので、`app/`内のコンポーネントファイルで取得します。
+
+<Ads1 />
+## fetchの基本
+Next.jsでよく使う取得関数が`fetch`です。
+ブラウザー標準の`fetch`とほぼ同じですが、Next.jsでは特別な動きをします。
+JSONPlaceholderから記事を取得する例です。
+
+```tsx title="app/page.tsx"
+export default async function Page() {
+  const res = await fetch('https://jsonplaceholder.typicode.com/posts');
+  const posts = await res.json();
+  return (
+    <ul>
+      {posts.map((post) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  );
+}
+```
+Server Componentsで動作し、HTMLを描画する前にデータを取得します。
+クライアントで取得して読み込み表示を出す方式より、速く安定したユーザー体験を提供します。
+
+## fetchの動作と特徴
+Next.jsの`fetch`には、次の特徴があります。
+- 自動キャッシュ：既定では、同じ要求の`fetch`結果をキャッシュします。
+- 無効化可能：設定でキャッシュを切れます（`cache: 'no-store'`）。
+- ISR対応：一定時間ごとの更新を指定できます（`next.revalidate`）。
+
+これらの設定は次回詳しく説明します。
+
+## まとめ
+Next.jsのデータ取得の仕組み、実行場所、fetchの基本を学びました。
+Server Componentsでデータを事前に描画する方法は、性能とSEOの両方に利点があります。
+次回は`fetch`の高度な設定、キャッシュ、ISRを紹介します。
+### さらに考える
+- Server Componentsはどのように動作し、Client Componentsとどう区別されるでしょうか。
+- サーバーでの取得は、なぜクライアント側より有利なのでしょうか。
+### 参考
+- [Next.js公式ドキュメント：Data Fetching and Caching](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching)
+- [JSONPlaceholder無料API](https://jsonplaceholder.typicode.com/)

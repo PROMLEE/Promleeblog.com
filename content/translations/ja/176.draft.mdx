@@ -1,0 +1,137 @@
+---
+title_ko: Next.js 15 버전으로 안전하게 업그레이드하는 방법
+title_en: How to Safely Upgrade to Next.js 15
+desc: >-
+  Next.js 15 버전으로의 업그레이드는 몇 가지 주요 변경 사항을 포함하고 있습니다. 이 글에서는 업그레이드 방법과 발생할 수 있는 문제
+  해결 방법을 단계별로 설명드립니다.
+thumbnail_url: /posts/250402-222541.webp
+metatag: 'nextjs, upgrade, next15, migration guide'
+post_id: '176'
+locale: ja
+title: Next.js 15へ安全にアップグレードする方法
+description: Next.js 15への更新に伴う主な変更点、移行手順、発生しうる問題と解決方法を段階的に説明します。
+source_hash: f22f6790dd5fb98fbbe079b8646790740f5f4795d42c40b7dba0393bc182fdbd
+---
+## はじめに
+Next.jsは進化を続け、より速く効率的なウェブアプリケーション開発環境を提供しています。
+2024年に公開された**Next.js 15**には重要な変更がいくつかあるため、既存プロジェクトをアップグレードする前に、順を追って準備する必要があります。
+今回は、Next.js 14から15へ更新する方法を、例を使って一つずつ説明します。
+14より古いバージョンを使っている場合は、まず14へ上げることをおすすめします。
+## 主な変更点
+移行前に、何が変わったかを簡単に確認します。
+- `next/image`の`priority`が非推奨になった
+- `next/font`の`fallback`の変更
+- Turbopackの更新
+- 新しいMDXサポート方式
+- Strict Modeの強化
+- **Async Request APIの正式導入**
+- **公式Codemodによる移行の自動化**
+それぞれについて、以下で詳しく見ていきます。
+## バージョンの確認と依存関係の整理
+まず、現在のNext.jsのバージョンを確認し、使用中の関連パッケージを整理します。
+
+```bash
+npm list next
+```
+14.xを使っている場合は、次のコマンドで15へ更新できます。
+
+```bash
+npm install next@latest react@latest react-dom@latest
+```
+yarnの場合はこちらです。
+
+```bash
+yarn add next@latest react@latest react-dom@latest
+```
+> *注意*：Next.jsはReactとReactDOMのバージョンに密接に関連するため、一緒に更新するとエラーを減らせます。
+<Ads1 />
+## 問題と解決
+### 1. `next/image`の`priority`を削除する
+Next.js 15以降、`priority`は使われなくなりました。
+たとえば、以前のコードが次のようなものだったとします。
+
+```tsx
+<Image src="/logo.png" alt="logo" width={100} height={100} priority />
+```
+`priority`を削除し、代わりに`<link rel="preload">`を直接使うか、`loading="eager"`を検討します。
+
+```tsx
+<Image src="/logo.png" alt="logo" width={100} height={100} loading="eager" />
+```
+### 2. `next/font`のfallback設定の変更
+以前、次のようにfallbackを設定していた場合を考えます。
+
+```ts
+const inter = Inter({ subsets: ['latin'], fallback: ['Arial'] });
+```
+現在は`fallback`が文字列の配列とは異なる新しい方式で処理され、警告が出ることがあります。
+その場合は、公式ドキュメントのフォント設定ガイドに従うとよいでしょう。
+### 3. Turbopackを使うプロジェクトの場合
+Next.js 15ではTurbopackが強化されています。
+`next.config.js`で次のように明示的に設定できます。
+
+```js
+const nextConfig = {
+  experimental: {
+    turbo: true,
+  },
+};
+module.exports = nextConfig;
+```
+ただし、まだすべての機能が安定しているわけではないため、問題があれば無効にすることも検討してください。
+### 4. Async Request APIの導入
+Next.js 15では**Async Request API**が正式に導入されました。
+これは、Server Components内での`request.cookies`や`request.headers`などの非同期APIへのアクセスを簡単にする機能です。
+以前は`headers()`のようなヘルパー関数を使う必要がありました。
+
+```tsx
+import { headers } from 'next/headers';
+export default async function Page() {
+  const headerList = headers();
+  const token = headerList.get('Authorization');
+  return <div>Header 확인</div>;
+}
+```
+現在は、propsで受け取った`request`オブジェクトから、直接非同期でアクセスできます。
+
+```tsx
+export default async function Page({ request }) {
+  const token = await request.headers.get('Authorization');
+  return <div>Header 확인</div>;
+}
+```
+コードを簡潔にでき、`cookies`、`headers`、`url`、`body`など、さまざまなプロパティにアクセスできます。
+ただし、まだ実験的な機能なので、[公式ドキュメント](https://nextjs.org/docs/app/building-your-application/upgrading/codemods#next-async-request-api)を参考に、段階的に導入するとよいでしょう。
+### 5. Codemodで移行を自動化する
+Next.js 15には**Codemodツール**が用意されており、繰り返しが多くミスをしやすいコード変更を自動処理できます。
+主に次のような作業を行います。
+- 非推奨になった属性の削除や変更（`priority`など）
+- 新しいAPIに合わせたコードのリファクタリング
+- Async Request APIに関する変更の自動反映
+使い方は次のとおりです。
+
+```bash
+npx @next/codemod <transform> <path>
+```
+たとえば、`priority`を削除する場合は次のようになります。
+
+```bash
+npx @next/codemod remove-priority-image ./src
+```
+Codemodの一覧は[公式ドキュメント](https://nextjs.org/docs/app/building-your-application/upgrading/codemods)で確認できます。
+適用前には、必ずGitなどのバージョン管理システムでバックアップを作ってください。
+<Ads2 />
+## まとめ
+Next.js 15への更新には注意点があるものの、一つずつ確認しながら進めれば、大きな問題なく移行できます。
+特に、非推奨になった属性や設定は、リリースノートをよく確認して対応することが重要です。
+予想外のビルドエラーや動作不良があれば、まず以前のバージョンからどの機能が変わったかに着目して、コードを見直してみてください。
+### さらに考える
+- `eslint-config-next`も一緒に最新版へそろえたか確認しましたか。
+- プロジェクトでTurbopackの長所と短所を体験したら、整理しておくとよい記録になります。
+- Async Request APIで便利になった点や、予想と異なった点も記録してみましょう。
+- Codemodで自動化できた部分と、手作業で修正した部分を比較するのもよい方法です。
+### 参考
+- [Next.js公式アップグレードガイド](https://nextjs.org/docs/app/building-your-application/upgrading/version-15)
+- [Next.jsのGitHubリリースノート](https://github.com/vercel/next.js/releases)
+- [Async Request APIのドキュメント](https://nextjs.org/docs/app/building-your-application/upgrading/codemods#next-async-request-api)
+- [Next.js Codemod公式ガイド](https://nextjs.org/docs/app/building-your-application/upgrading/codemods)

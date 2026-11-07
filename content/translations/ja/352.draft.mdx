@@ -1,0 +1,262 @@
+---
+title_ko: Zustand 핵심 개념 파헤치기 - Zustand 기초부터 아키텍쳐 설계까지 2편
+title_en: Deep Dive into Zustand's Core Concepts - From Basics to Architecture Part 2
+desc: >-
+  Zustand의 핵심인 create 함수를 타입스크립트와 함께 완벽히 이해합니다. selector와 shallow를 사용한 성능 최적화,
+  get, set, subscribe 등 고급 스토어 메서드 활용법을 알아봅니다.
+thumbnail_url: /250719-190129.webp
+metatag: >-
+  Zustand, TypeScript, React, State Management, Selector, Shallow, Performance
+  Optimization, 리액트, 상태 관리, 타입스크립트, 성능 최적화, create, get, set, subscribe
+post_id: '352'
+locale: ja
+title: Zustandの主要概念を掘り下げる：基礎からアーキテクチャ設計まで2
+description: TypeScriptでcreateを理解し、selectorとshallowによる最適化やget・set・subscribeなどのストア操作を学びます。
+source_hash: 06fcddda909bab89e63b3cdc2caf7c32d6e990e53f02cf5d18216100f0f3cf9c
+---
+## はじめに
+前回はZustandで簡単なカウンターを作り、状態管理の第一歩を踏み出しました。
+`create`でストアを作り、フックから状態を利用する方法の簡潔さを体験できたと思います。
+<br/>
+今回は、その表面に隠れている本当の力を探ります。
+安全で明確なストア設計、不要な描画を防いで性能を高める工夫、Reactの外から状態を操作する技術まで確認します。
+単なる保存場所ではなく、精密な状態管理システムとして使うための主要概念を見ていきましょう。
+
+## `create()`とTypeScriptによるストア定義
+Zustandのストアは、すべて`create`から始まります。
+TypeScriptと組み合わせると、小さな関数から大きな安全性と開発のしやすさが得られます。
+<br/>
+まず、状態とアクションの型を分けて定義するとよいでしょう。
+
+```typescript title="store/userStore.ts"
+
+// 1. 상태(State)와 행동(Actions)에 대한 타입 정의
+interface UserState {
+  name: string;
+  email: string;
+  isLoggedIn: boolean;
+}
+
+interface UserActions {
+  setName: (name: string) => void;
+  login: (email: string) => void;
+  logout: () => void;
+}
+
+// 2. 두 타입을 합쳐 스토어의 전체 타입을 정의
+type UserStore = UserState & UserActions;
+```
+型を分離すると、ストアの構造をひと目で理解しやすくなります。
+続いて、これらの型を`create`のジェネリクス（`<>`）へ渡して作成します。
+
+```typescript title="store/userStore.ts"
+import { create } from 'zustand'
+
+// ... 타입 정의에 이어서 작성 ...
+
+// 3. create 함수에 타입을 적용하여 스토어 생성
+const useUserStore = create<UserStore>((set) => ({
+  // 초기 상태 (State)
+  name: 'Guest',
+  email: '',
+  isLoggedIn: false,
+
+  // 상태를 변경하는 함수들 (Actions)
+  setName: (newName) => set({ name: newName }),
+
+  login: (userEmail) => set({ 
+    isLoggedIn: true, 
+    email: userEmail,
+    name: '사용자' // 로그인 시 기본 이름 설정
+  }),
+
+  logout: () => set({ 
+    isLoggedIn: false, 
+    email: '', 
+    name: 'Guest' 
+  }),
+}));
+
+export default useUserStore;
+```
+`create<UserStore>(...)`のように型を明示すると、内部のオブジェクトが必ず`UserStore`を満たすよう、TypeScriptへ伝えられます。
+`name`を書き忘れたり、`login`の引数の型を間違えたりすると、すぐにエラーを見つけられます。
+
+<Ads1/>
+
+## 不要な再レンダリングを防ぐ
+Zustandの特に強力な機能の一つが、性能の最適化です。
+あるコンポーネントがストアの全状態を購読しているとします。
+
+```tsx title="components/UserProfile.tsx"
+import useUserStore from '../store/userStore';
+
+function UserProfile() {
+  // 스토어의 모든 것을 가져옵니다.
+  const { name, email, isLoggedIn } = useUserStore();
+
+  console.log('UserProfile 컴포넌트가 리렌더링 되었습니다!');
+
+  return (
+    <div>
+      <p>이름: {name}</p>
+      <p>이메일: {email}</p>
+      <p>로그인 상태: {isLoggedIn ? '로그인 됨' : '로그아웃 됨'}</p>
+    </div>
+  );
+}
+```
+別のコンポーネントが`setName`で`name`を変えると、`UserProfile`も再描画されます。
+これは期待どおりです。
+しかし、このコンポーネントが使うのは`name`だけで、`email`や`isLoggedIn`を使わないとしたらどうでしょうか。
+`email`の変更でも再描画されるのは無駄です。
+
+### 解決策1：一つの値を選ぶ`selector`
+`selector`は、ストアから必要な状態だけを選ぶ仕組みです。
+`useUserStore`の引数として`selector`関数を渡します。
+
+```tsx title="components/UserNameDisplay.tsx"
+import useUserStore from '../store/userStore';
+
+function UserNameDisplay() {
+  // state 객체에서 name 속성만 선택합니다.
+  const name = useUserStore((state) => state.name);
+
+  console.log('UserNameDisplay 컴포넌트가 리렌더링 되었습니다!');
+
+  return <p>사용자 이름: {name}</p>;
+}
+```
+これで、`UserNameDisplay`は`useUserStore`の`name`が変わるときだけ再描画されます。
+`email`や`isLoggedIn`が変わっても影響しません。
+内部では古い`name`と新しい`name`を`Object.is`（ほぼ`===`と同じ）で比較し、変更を判断します。
+
+### 解決策2：複数の値を選ぶ`shallow`
+名前（`name`）とログイン処理（`login`）の両方が必要な場合はどうするのでしょうか。
+次のように書くと問題が生じます。
+
+```tsx
+// 이렇게 사용하면 안 됩니다!
+const { name, login } = useUserStore((state) => ({ 
+  name: state.name, 
+  login: state.login 
+}));
+```
+状態が変わらなくても、*毎回再レンダリング*されます。
+Reactの描画のたびに`(state) => ({...})`が実行され、内容が同じでもメモリー上のアドレスが違う*新しいオブジェクト*が作られるからです。
+Zustandは前後のオブジェクトを`===`で比較して異なると判断し、再描画します。
+<br/>
+この問題を解決するのが`shallow`です。
+
+```tsx title="components/LoginManager.tsx" {12}
+import useUserStore from '../store/userStore';
+import { shallow } from 'zustand/shallow';
+
+function LoginManager() {
+  // shallow 함수를 두 번째 인자로 전달합니다.
+  const { name, login, logout } = useUserStore(
+    (state) => ({
+      name: state.name,
+      login: state.login,
+      logout: state.logout,
+    }),
+    shallow // 이 부분이 핵심인데, shallow를 사용하면 객체 내부의 값들을 1단계 깊이에서 비교합니다.
+  );
+
+  console.log('LoginManager 컴포넌트가 리렌더링 되었습니다!');
+  // ...
+}
+```
+`shallow`は、オブジェクト内の値を1段階の深さで比較します。
+オブジェクト自体ではなく、内部の`name`、`login`、`logout`が実際に変わった場合だけ再描画します。
+これにより、不要な描画を防げます。
+<Ads2/>
+
+## get・set・subscribe・destroyの活用
+Zustandのストアは、Reactフックだけでなく、組み込みメソッドからも直接制御できます。
+通常のJavaScriptモジュールやイベントハンドラーなど、React以外から状態へアクセスする場合に便利です。
+
+### `set`：状態の更新
+`set`は、`create`内で使ってきた基本的な更新関数です。
+`set`は既存状態を丸ごと置き換えるのではなく、渡されたオブジェクトを既存の状態へマージします。
+
+### `get`：購読せずに状態を読む
+`get`ならReactフックを使わず、コンポーネントの再描画に結び付けることなく、現在値をすぐに読み取れます。
+
+```typescript
+// utils/api.ts
+import useUserStore from '../store/userStore';
+
+function sendAnalyticsEvent(eventName: string) {
+  // 훅을 사용하지 않고 현재 상태에 접근합니다.
+  const { email, isLoggedIn } = useUserStore.getState();
+
+  if (isLoggedIn) {
+    console.log(`이벤트 전송: ${eventName}, 사용자: ${email}`);
+    // api.send({ event: eventName, user: email });
+  }
+}
+```
+`useUserStore.getState()`は、すべての状態とアクションを含むオブジェクトを返します。
+
+### `subscribe`：状態の変化を検知する
+`subscribe`は、状態が変わるたびに実行する関数を登録します。
+Reactの`useEffect`に似ていますが、コンポーネントのライフサイクルではなく、ストアそのものの変化を検知します。
+
+```typescript
+// logger.ts
+import useUserStore from './store/userStore';
+
+console.log('초기 이름:', useUserStore.getState().name);
+
+// 상태 변경을 구독합니다.
+const unsubscribe = useUserStore.subscribe(
+  (state, prevState) => {
+    // state: 변경 후 상태, prevState: 변경 전 상태
+    if (state.name !== prevState.name) {
+      console.log(`이름이 변경되었습니다: ${prevState.name} -> ${state.name}`);
+    }
+  }
+);
+
+// 나중에 구독을 취소하고 싶을 때 이 함수를 호출합니다.
+// unsubscribe();
+```
+`subscribe`は、購読を解除する`unsubscribe`を返します。
+`useEffect`のクリーンアップと同じように、不要になったら必ず呼び、メモリーリークを防ぐのがよい方法です。
+
+### `destroy`：ストアを破棄する
+`destroy`は、そのストアの全購読を初期化し、メモリーから取り除く関数です。
+一般的なSPAではほとんど使いませんが、独立した複数のアプリが動くマイクロフロントエンドなどで、モジュールを取り除く際にストアをきれいに片付ける用途があります。
+`useUserStore.destroy()`のように呼びます。
+
+## 不変性を保った安全な更新
+Reactの状態更新では、不変性を守ることが重要です。
+既存のオブジェクトや配列を直接変更せず、常に新しいコピーを作って変更します。
+<br/>
+Zustandの`set`は、この不変性の維持を簡単にします。
+
+```typescript
+// 나쁜 예: 상태를 직접 수정 (Don't do this!)
+// set((state) => {
+//   state.isLoggedIn = true; // 원본 state 객체를 직접 변경
+//   return state;
+// });
+
+// 좋은 예: 새로운 객체를 반환
+set((state) => ({ isLoggedIn: true }));
+```
+`set((state) => ({...}))`は現在の`state`を受け取り、変えたい部分だけを持つ*新しいオブジェクト*を返します。
+Zustandはそれを既存状態へマージし、全体を更新します。
+この処理が自動的に不変性を守るため、複雑なスプレッド演算子（`...`）やImmerのようなライブラリがなくても、安全に状態を管理できます。
+
+## まとめ
+TypeScriptでの安全な設計から、`selector`と`shallow`による性能最適化、`get`や`subscribe`などの高度なAPIまで確認しました。
+<br/>
+これらは、複雑なアプリケーションの状態を効率的かつ安定して管理するための重要な鍵です。
+特に`selector`の原理を理解して活用することは、Zustandを使うすべての開発者にとって大切な技術です。
+> 次回は今回の概念を総動員し、実践例としてTo-Doリストアプリを作ります。
+
+### 参考
+- [Zustand公式ドキュメント：TypeScriptガイド](https://github.com/pmndrs/zustand/blob/main/docs/guides/typescript.md)
+- [Zustand公式ドキュメント：`shallow`](https://github.com/pmndrs/zustand#selecting-multiple-state-slices)

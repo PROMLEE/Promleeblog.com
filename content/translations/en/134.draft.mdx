@@ -1,0 +1,67 @@
+---
+title_ko: Firebase에 Flutter 기반 앱 동시 등록하기
+title_en: Register Flutter-based apps in Firebase at the same time
+desc: >-
+  Flutter로 개발한 앱을 Firebase에 등록하는 방법을 알아보자. Let's find out how to register an app
+  developed with Flutter in Firebase.
+thumbnail_url: 'https://firebase.google.com/static/images/brand-guidelines/logo-vertical.png'
+post_id: '134'
+locale: en
+title: Registering Flutter Apps with Firebase Together
+description: >-
+  Register a Flutter project with Firebase using FlutterFire CLI and initialize
+  Firebase in the app.
+source_hash: 7df11997b61028fbc5c1d529447e0ec8394b241f4a0ae71613e998873d1b51f1
+---
+## Before getting started
+Firebase offers many services, including App Distribution, Authentication, Crashlytics, and Analytics.
+In this post, let's look at how to register Flutter-based apps with Firebase together.
+
+
+## 1. Configuring the Firebase project
+Create a Firebase project and register the apps.
+To create the project, sign in with Google at the [Firebase console](https://console.firebase.google.com/u/0) and click Create a project.
+<Img src="/posts/250225-114901.png" width={500} alt="Creating a Firebase project"/>
+<Img src="/posts/250225-115137.png" width={300} alt="Creating a Firebase project"/>
+Then click the `계속` (Continue) button to create it.
+
+<Ads1 />
+## 2. Registering the apps
+After creating the project, add an app from its overview screen.
+Since we are using Flutter, choose the Flutter app option.
+<Img src="/posts/250225-115354.png" width={400} alt="Selecting Flutter"/>
+
+### 2.1. Preparing the workspace
+On the following screen, complete step 1 if you do not have a Flutter project, or start from step 2 if you already have one.
+Install Flutter CLI and the Flutter SDK in order, then create a Flutter project.
+<Img src="/posts/250225-115511.png" width={400} alt="Preparing the workspace"/>
+
+### 2.2. Installing and running FlutterFire CLI
+Install FlutterFire CLI and connect the project.
+<Img src="/posts/250225-145649.png" width={400} alt="Installing FlutterFire CLI"/>
+```bash
+dart pub global activate flutterfire_cli
+flutterfire configure --project={프로젝트 이름}
+```
+
+### 2.3. Initializing Firebase and adding plugins
+Check whether the following Firebase initialization code has been added to `main.dart`, and add it if necessary.
+```dart title="/lib/main.dart"
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+// ...
+
+await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+);
+```
+<Img src="/posts/250225-115617.png" width={500} alt="Firebase initialization code"/>
+Firebase integration is now complete.
+
+## Conclusion
+You can see that both apps have been registered with Firebase together.
+Now try the various services available in the Firebase console.
+
+### References
+- [Registering Flutter apps with Firebase](https://firebase.google.com/docs/flutter/setup)

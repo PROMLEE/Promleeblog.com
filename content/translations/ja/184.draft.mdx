@@ -1,0 +1,130 @@
+---
+post_id: '184'
+locale: ja
+title: IndexNowを設定する - NaverとBingへのインデックス登録リクエスト
+description: IndexNowの仕組みとNaverへの連携手順を、公式ドキュメントに沿って詳しく説明します。
+source_hash: abb42aaf5263dd310575bd8a285e453cd3e204cbd605e95ddcf45d7ccba387a2
+---
+## はじめに
+Webサイトを作ったら、検索結果に表示されるよう、検索エンジンに登録を依頼するとよいでしょう。
+変更を検索結果へ早く反映するには、検索エンジンに*インデックス登録のリクエスト*を送ることが大切です。従来はサイトマップの提出や手動の登録依頼が中心でしたが、*IndexNow*という標準プロトコルで通知を自動化できるようになりました。
+特にNaverは2023年からIndexNowを正式にサポートしており、開発者がページを検索に反映させやすくなりました。今回は公式ドキュメントをもとに、IndexNowの流れとNaverに連携する手順を整理します。
+## IndexNowとは？
+[https://www.indexnow.org/ko_kr/](https://www.indexnow.org/ko_kr/)
+IndexNowは、簡単なHTTPリクエストで、Webページの追加、更新、削除を検索エンジンに知らせるオープンプロトコルです。主な特徴は次のとおりです。
+- 検索エンジンにすばやくインデックス登録を依頼できます。
+- sitemap.xmlがなくても、URLの変更を通知できます。
+- 複数の検索エンジンに*一度に*リクエストを送れます。
+
+IndexNowに対応する代表的な検索エンジンには、次のものがあります。
+- [Naver](https://www.naver.com/)
+- [Bing](https://www.bing.com/)
+- [Yandex](https://yandex.com/)
+
+<Ads1 />
+## 基本の流れ
+IndexNowの基本動作は次のとおりです。
+1. **キーの生成と認証**
+   サイトの所有者であることを示すために、固有のキーを作り、サイトのルートにアップロードします。
+2. **URLを送信する**
+   ページを作成または更新したとき、そのURLをIndexNow APIへPOSTで送信します。
+3. **検索エンジンに反映される**
+   検索エンジンが通知を受け取り、URLをクロールして検索結果に反映します。
+## キーを作成してアップロードする
+まず固有のキーを作ります。キーには文字、数字、ハイフンが使え、長さは8〜128文字です。
+ここではBingで生成します。[Bing - IndexNow](https://www.bing.com/indexnow/getstarted#implementation)を開き、次のようにキーを作ります。
+形式は `abc123...` のようになります。生成したら、キーと同じ名前のtxtファイルをWebサイトのルートにアップロードします。
+```txt title="abc123....txt"
+abc123...
+```
+このファイルには `https://yourdomain.com/abc123...` からアクセスできる必要があります。別のディレクトリに置くこともできますが、ここではルートへの配置を推奨します。
+## IndexNowにリクエストを送る
+### 1. GETを使う
+URLを1つだけ送る場合はGETを使えます。URLはクエリ文字列で渡します。
+```http
+https://<searchengine>/indexnow?url=url-changed&key=your-key
+```
+例えば `https://yourdomain.com/updated-page` を通知するなら、次のようにリクエストします。
+```http
+https://<searchengine>/indexnow?url=https://yourdomain.com/updated-page&key=abc123...
+```
+
+### 2. POSTを使う
+複数のURLをまとめて送る場合はPOSTを使います。TypeScriptの例です。
+```ts
+import axios from 'axios'
+const INDEXNOW_API = '<searchengine-host-url>'
+async function sendToIndexNow(urls: string[], key: string) {
+  await axios.post(INDEXNOW_API, {
+    host: 'yourdomain.com',
+    key,
+    keyLocation: `https://yourdomain.com/${key}`,
+    urlList: urls
+  })
+}
+```
+この関数にURLの一覧とキーを渡すと、検索エンジンに通知されます。1回で最大10,000件を送れます。必要なら、HTTPとHTTPSのURLを混在させることもできます。
+## Naver Search Advisorと連携する
+Naverは[Search Advisor](https://searchadvisor.naver.com/)でIndexNow APIを正式にサポートしています。開発者はAPIキーを作成し、Naverにも登録リクエストを送れます。
+ほかの検索エンジンのエンドポイントは[https://www.indexnow.org/ko_kr/faq](https://www.indexnow.org/ko_kr/faq)で確認できます。
+### 1. 送信用APIのドキュメント
+Naverへの送信には、次のAPIドキュメントを参照してください。POSTの形式はIndexNowとほぼ同じです。
+[https://searchadvisor.naver.com/guide/indexnow-request](https://searchadvisor.naver.com/guide/indexnow-request)
+リクエストの例は次のとおりです。
+```json
+{
+  "host": "yourdomain.com",
+  "key": "naver-issued-key",
+  "keyLocation": "https://yourdomain.com/naver-issued-key",
+  "urlList": [
+    "https://yourdomain.com/updated-page"
+  ]
+}
+```
+<Ads2 />
+## よくある問題と確認項目
+IndexNowを使うときによくある問題と対処をまとめます。
+- キーファイルを開けない場合は、ファイル名と配置先を確認します。
+- 400または403が出る場合は、リクエスト形式の誤りや認証失敗が考えられます。
+- NaverとBingには別々のキーを使うことも、同じキーを使うこともできます。
+
+### CORSの問題
+ブラウザからIndexNowを呼ぶと、CORSエラーが出ることがあります。そのため、サーバーから直接リクエストする方法が適しています。例えば、Node.jsサーバーでaxiosを使う場合は次のとおりです。
+```js
+import axios from 'axios'
+const INDEXNOW_API = '<searchengine-host-url>'
+async function sendToIndexNow(urls: string[], key: string) {
+	await axios.post(INDEXNOW_API, {
+		host: 'yourdomain.com',
+		key,
+		keyLocation: `https://yourdomain.com/${key}`,
+		urlList: urls
+	})
+}
+```
+これでCORSの問題を避けられます。サーバーから送るのが、より安全で効率的な方法です。
+### ターミナルからリクエストする
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{
+	"host": "yourdomain.com",
+	"key": "naver-issued-key",
+	"keyLocation": "https://yourdomain.com/naver-issued-key",
+	"urlList": [
+		"https://yourdomain.com/updated-page"
+	]
+}' https://api.searchadvisor.naver.com/indexnow
+```
+この形式でリクエストを送れます。手早く試すのに便利です。Postmanなどのツールを使う方法もあります。
+<Ads3 />
+## おわりに
+IndexNowは、サイトの変更を検索結果に早く反映するのに役立ちます。Naverが正式に対応したことで、検索最適化が必要な韓国のサイト運営者にも便利になりました。
+Search Advisorでのキー発行とAPIリクエストには設定が必要ですが、一度済ませればコード1行で登録を依頼でき、作業の効率を高められます。
+### もう少し考えてみる
+- 更新を検知する処理とIndexNowをつなぎ、通知を自動化する。
+- sitemap.xmlを維持しながらIndexNowを併用すると、インデックスの漏れを減らせます。
+- GoogleはまだIndexNowをサポートしていません。今後の動向も確認していきましょう。
+### 参考
+- [IndexNow公式サイト](https://www.indexnow.org/ko_kr/)
+- [IndexNowのドキュメント](https://www.indexnow.org/ko_kr/documentation)
+- [Naver IndexNow キー発行ガイド](https://searchadvisor.naver.com/guide/indexnow-api-key)
+- [Naver IndexNow リクエストガイド](https://searchadvisor.naver.com/guide/indexnow-request)

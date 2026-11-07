@@ -1,0 +1,385 @@
+---
+post_id: '254'
+locale: ja
+title: Reactの開発者ツールとテスト - Reactを理解して使う13日目
+description: >-
+  React DevToolsのComponentsとProfilerの使い方、JestとReact Testing
+  Libraryによるイベント・非同期処理・モックのテスト例、StorybookとChromaticでUIを開発してテストする手順を学びます。
+source_hash: 4169579a72c6c3589e4547b67e6eb354d9eb51aad0011c6ae87ab43f88ab2f9d
+---
+## はじめに
+
+これまでReactの基本概念から状態管理、ルーティング、セキュリティまで、多くのことを学んできました。今回は、書いたコードが正しく動くか確認し、性能のボトルネックを見つけて改善し、将来コードを変更しても既存の機能が壊れないという自信を得るためのツールと手法を扱います。コードを書く力と同じように、デバッグ、性能分析、テストを書く力も大切です。
+<br/>
+<br/>
+
+React開発を効率化し、安定性を高める公式の開発ツールである*React DevTools*、コード品質を支える*テスト*、特にJestとReact Testing Libraryの組み合わせを詳しく見ていきます。UIコンポーネントの開発と視覚的なテストに役立つ*Storybook*と*Chromatic*も取り上げます。
+
+## React DevToolsでコンポーネントの内部を見る
+[React DevTools - Chromeウェブストア](https://chromewebstore.google.com/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi)
+React DevToolsは、Reactアプリケーションを調査、デバッグするための公式ブラウザ拡張機能です。Chrome、Firefox、Edgeなどで使えます。コンポーネントのツリーやprops、state、フックの状態をリアルタイムで確認、操作でき、開発やデバッグを効率化できます。
+
+### 主な機能
+
+React DevToolsをインストールしてブラウザの開発者ツールを開くと、「Components」と「Profiler」のタブが追加されます。
+
+#### 1. Componentsタブで構造と状態を確認する
+
+- **コンポーネントツリーの可視化**
+  現在のページを構成するReactコンポーネントの階層がツリーで表示されます。通常のDOMツリーとは異なり、Reactコンポーネントを基準に構造を把握できます。
+- **PropsとStateの確認・変更**
+  コンポーネントを選ぶと、右のパネルに受け取ったprops、内部のstate、利用中のフックの現在値が詳しく表示されます。開発者ツールから値を直接変更して、UIの変化をリアルタイムで確認できます。変更は開発中のみ一時的に適用されます。
+- **再レンダリングの原因を追跡**
+  どのpropやフックの状態が変わり、特定のコンポーネントが再レンダリングされたかを追跡できます。利用には設定が必要です。
+- **コンポーネントのソースコードへ移動**
+  コンポーネント名をクリックして対応するソースコードへ移動できます。ソースマップの設定が必要です。
+
+<Img src="/250504-212806.webp" width={800} alt="React DevToolsのComponentsタブ"/>
+
+コンポーネントをクリックすると、右側にprops、state、フックの状態が表示されます。
+
+#### 2. Profilerタブで性能のボトルネックを探す
+
+Profilerは、Reactアプリケーションのレンダリング性能を分析し、ボトルネックを見つけるために使います。描画が遅いコンポーネントや、不要な描画を頻繁に行うコンポーネントを特定し、最適化するのに役立ちます。
+- **記録（Record）**。青い記録ボタンを押し、ページの読み込み、ボタンのクリック、入力などを行ってから、もう一度押してプロファイルを取得します。
+- **結果の分析**。記録が終わったら、次の形式で描画性能を分析できます。
+  - **Flamegraphチャート**
+    コミット（レンダリングの更新）ごとに、どのコンポーネントが描画され、どれほど時間がかかったかを、炎の形をした階層的な棒グラフで表示します。棒が広いほど時間がかかっており、どのコンポーネントがボトルネックかを視覚的に判断できます。
+  - **Rankedチャート**
+    各コミットで、レンダリング時間の長い順にコンポーネントを一覧表示します。優先して改善する対象を素早く見つけられます。
+  - **Componentチャート**
+    コンポーネントを選ぶと、記録中のどの時点で、なぜレンダリングされたかを詳しく確認できます。
+
+<Img src="/250504-214802.webp" width={800} alt="React DevToolsのProfilerタブ"/>
+
+### デバッグとプロファイリングのコツ
+
+- Componentsタブで想定外のpropsやstateを見つけたら、どこでどのように値が変わったのか、親コンポーネントから下に向かって追跡します。
+- 特定の操作でアプリが遅くなったら、Profilerでその操作を記録します。描画に時間がかかる、あるいは不要に描画が繰り返されるコンポーネントを見つけ、React.memo、useMemo、useCallbackなどによる最適化を検討します。
+- Profilerの結果を見る際は、描画時間の長いコンポーネントに加え、予想外に描画されているコンポーネントも確認します。
+
+<Ads1 />
+
+## Jest + React Testing Library
+
+テストを使うと、変更によって既存機能が壊れていないか確認でき、動作を文書化し、自信を持ってリファクタリングできます。Reactアプリケーションでは、テストランナーの*Jest*とテスト用ユーティリティライブラリの*React Testing Library（RTL）*を組み合わせる方法が広く使われています。
+
+### Jest
+Facebook（Meta）が開発したJavaScriptのテストフレームワークです。テストランナー、コードカバレッジ、モック、アサーションなど、テストに必要な機能の大半を備えており、別途多くのツールをインストールせずに使えます。Create React App（CRA）など、多くのReactプロジェクトのテンプレートに標準で含まれています。
+### React Testing Library（RTL）
+コンポーネントの*内部実装*よりも、*ユーザーから見た動作*をテストするよう促すライブラリです。特定のテキストを探す、ボタンを押す、フォームに入力するといった実際の操作に近いテストを書けます。内部構造の変更でテストが壊れにくくなり、ユーザー体験に関わる問題を見つけやすくなります。
+
+### テストを実行する
+テストは、コードを書くことと同じくらい大切な開発工程です。簡単なカウンターを例に、段階を追ってテストを書きましょう。
+
+#### 1. テスト対象のコンポーネントを作る
+
+まず、簡単なCounterコンポーネントを書きます。
+
+```tsx title="/src/components/Counter.tsx"
+import React, { useState } from "react";
+
+function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    <div>
+      <p>현재 카운트: {count}</p>
+      <button onClick={() => setCount(count + 1)}>증가</button>
+      <button onClick={() => setCount(count - 1)}>감소</button>
+    </div>
+  );
+}
+
+export default Counter;
+```
+
+#### 2. テストファイルを作る
+
+上のコンポーネントをテストするコードを書きます。
+
+```tsx title="/src/components/Counter.test.tsx"
+import React from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import "@testing-library/jest-dom"; // 커스텀 DOM 매처 사용 (toBeInTheDocument 등)
+import Counter from "./Counter";
+
+describe("Counter 컴포넌트", () => {
+  it("초기값이 0으로 렌더링된다", () => {
+    render(<Counter />); // 1. 컴포넌트 렌더링
+    // 2. 화면에서 요소 찾기 (텍스트 내용으로)
+    const countElement = screen.getByText("현재 카운트: 0");
+    // 3. 단언(Assertion) - 요소가 존재하는지 확인
+    expect(countElement).toBeInTheDocument();
+  });
+
+  it("증가 버튼 클릭 시 카운트가 1 증가한다", () => {
+    render(<Counter />);
+    // 버튼 찾기 (버튼의 텍스트 이름으로)
+    const incrementButton = screen.getByRole("button", { name: "증가" });
+    // 이벤트 발생시키기
+    fireEvent.click(incrementButton);
+    // 결과 확인 (변경된 텍스트로 요소 찾기)
+    const countElement = screen.getByText("현재 카운트: 1");
+    expect(countElement).toBeInTheDocument();
+  });
+
+  it("감소 버튼 클릭 시 카운트가 -1 감소한다", () => {
+    render(<Counter />);
+    const decrementButton = screen.getByRole("button", { name: "감소" });
+    fireEvent.click(decrementButton);
+    const countElement = screen.getByText("현재 카운트: -1");
+    expect(countElement).toBeInTheDocument();
+  });
+});
+```
+
+#### 3. テストを実行する
+Jestの実行方法はプロジェクトの設定によって多少異なりますが、一般には次の方法を使います。
+1. **すべてのテストを実行する**。`package.json` の `scripts` で定義されたテストコマンドを実行します。Create React Appなどで作ったプロジェクトでは、通常は次のとおりです。
+
+```bash
+npm test
+# 또는
+yarn test
+```
+
+    通常は*watchモード*で実行され、ファイルの変更を検出して、関係するテストだけを自動で実行し直します。初回はすべてのテストファイルを探して実行します。
+2. **特定のファイルをテストする**。watchモードを使わずに特定のファイルだけをテストするなら、Jestの実行コマンドにファイルパスを直接指定できます。設定によってコマンドは異なります。
+
+```bash
+npx jest src/components/Button.test.tsx
+```
+
+3. **Watchモードのオプション**。さまざまなキーを押して実行方法を制御できます。
+   - `a` ですべてのテストを再実行します。
+   - `f` で失敗したテストだけを再実行します。
+   - `p` でファイル名のパターンによる絞り込みを行います。
+   - `t` でテスト名のパターンによる絞り込みを行います。
+   - `q` でwatchモードを終了します。
+   - `Enter` で変更を検出してテストを再実行します。
+
+#### 4. テスト結果を読む
+
+成功したテストは次のように表示されます。
+
+```
+ PASS  src/components/Counter.test.tsx
+  Counter 컴포넌트
+    ✓ 초기값이 0으로 렌더링된다 (56 ms)
+    ✓ 증가 버튼 클릭 시 카운트가 1 증가한다 (119 ms)
+    ✓ 감소 버튼 클릭 시 카운트가 -1 감소한다 (36 ms)
+```
+
+失敗した場合は詳しいエラーが表示されます。例えば、ボタンが期待どおりに動かない場合です。
+
+```
+● Counter 컴포넌트 › 증가 버튼 클릭 시 카운트가 1 증가한다
+
+  TestingLibraryElementError: Unable to find an element with the text: 현재 카운트: 1
+```
+
+### パターン別のテスト例
+
+#### 基本的なレンダリングテスト
+
+```tsx
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom'; // 추가적인 DOM 매처 사용 가능
+import Button from './Button'; // 테스트할 컴포넌트
+
+test('버튼이 정상적으로 렌더링된다', () => {
+  render(<Button>클릭하세요</Button>);
+
+  // '클릭하세요' 텍스트를 가진 버튼(role)이 화면에 있는지 확인
+  const buttonElement = screen.getByRole('button', { name: '클릭하세요' });
+  expect(buttonElement).toBeInTheDocument();
+});
+
+test('disabled prop이 전달되면 버튼이 비활성화된다', () => {
+  render(<Button disabled>클릭하세요</Button>);
+
+  const buttonElement = screen.getByRole('button', { name: '클릭하세요' });
+  // 버튼이 비활성화 상태인지 확인
+  expect(buttonElement).toBeDisabled();
+});
+```
+
+#### イベントハンドラーのテスト
+
+```tsx
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event'; // 사용자 이벤트 시뮬레이션
+import Button from './Button';
+
+test('버튼 클릭 시 onClick 핸들러가 호출된다', async () => {
+  const handleClick = jest.fn(); // jest.fn()으로 모의(mock) 함수 생성
+  render(<Button onClick={handleClick}>클릭하세요</Button>);
+
+  const buttonElement = screen.getByRole('button', { name: '클릭하세요' });
+  // 사용자 이벤트 시뮬레이션 (실제 클릭과 더 유사)
+  await userEvent.click(buttonElement);
+
+  // handleClick 함수가 1번 호출되었는지 확인
+  expect(handleClick).toHaveBeenCalledTimes(1);
+});
+```
+`fireEvent` よりも `userEvent` の利用が推奨されます。`userEvent` はマウスの移動やフォーカスなど、実際の操作の流れをより正確に再現します。
+
+#### 非同期テスト（API呼び出し後の状態変更など）
+
+API呼び出しなどの非同期処理は、`async/await` とRTLの `find*` クエリ、または `waitFor` ユーティリティでテストします。
+```tsx
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import axios from 'axios'; // API 호출 라이브러리
+import UserProfileLoader from './UserProfileLoader';
+
+// axios.get 함수를 모킹
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+
+test('사용자 데이터 로드 후 프로필 정보 표시', async () => {
+  // API 성공 응답 모킹
+  const mockUserData = { name: 'Alice', email: 'alice@example.com' };
+  mockedAxios.get.mockResolvedValue({ data: mockUserData });
+
+  render(<UserProfileLoader userId="1" />);
+
+  // 초기 로딩 상태 확인 (선택적)
+  expect(screen.getByText(/로딩 중/i)).toBeInTheDocument();
+
+  // API 호출 후 데이터가 화면에 표시될 때까지 기다림
+  // findBy* 쿼리는 요소가 나타날 때까지 자동으로 기다림 (기본 타임아웃 1000ms)
+  const userNameElement = await screen.findByText(mockUserData.name);
+  expect(userNameElement).toBeInTheDocument();
+
+  // waitFor: 특정 조건이 만족될 때까지 기다림 (find* 로 충분하지 않을 때 사용)
+  // await waitFor(() => {
+  //   expect(screen.getByText(mockUserData.email)).toBeInTheDocument();
+  // });
+
+  // 로딩 메시지가 사라졌는지 확인
+  expect(screen.queryByText(/로딩 중/i)).not.toBeInTheDocument();
+});
+
+test('API 호출 실패 시 에러 메시지 표시', async () => {
+  // API 실패 응답 모킹
+  const errorMessage = '데이터를 불러올 수 없습니다.';
+  mockedAxios.get.mockRejectedValue(new Error(errorMessage));
+
+  render(<UserProfileLoader userId="1" />);
+
+  // 에러 메시지가 화면에 표시될 때까지 기다림
+  const errorElement = await screen.findByText(new RegExp(errorMessage, 'i'));
+  expect(errorElement).toBeInTheDocument();
+});
+```
+テストで大切なのは、APIの呼び出し自体よりも、その結果にコンポーネントがどう反応するかです。そのため、`jest.mock` でAPIモジュールをモックに置き換えます。
+
+<Ads2 />
+
+## StorybookとChromaticでコンポーネントを開発し、見た目をテストする
+
+Storybookは、UIコンポーネントを独立して開発し、文書化するためのツールです。ChromaticはStorybookと連携し、見た目の変化を自動でテストするサービスです。
+
+### Storybook
+
+#### 1. インストール
+
+ReactプロジェクトにまだStorybookがなければ、ターミナル（コマンドを入力する黒い画面）を開き、プロジェクトフォルダ内で次のコマンドを入力します。ここではTypeScriptプロジェクトを想定します。
+```bash
+npx storybook@latest init
+```
+コマンドがプロジェクトを調べ、必要な設定ファイルとサンプルを自動で作ってくれます。おもちゃ箱を持ってきてくれるようなものです。
+
+#### 2. 起動
+
+インストールが終わったら、ターミナルで次のコマンドを実行してStorybookを開きます。
+```bash
+npm run storybook
+ # 또는 (yarn을 사용한다면)
+yarn storybook
+```
+少し待つとブラウザが自動で開き、作ったコンポーネントをプレビューできるStorybookページが表示されます。
+
+#### 3. 結果を確認する
+- **左のサイドバー**
+  作ったコンポーネントが一覧に並びます。フォルダを開いて名前をクリックすると、そのコンポーネントのさまざまな「ストーリー」を見られます。ストーリーは通常のボタン、赤いボタン、無効化されたボタンなど、異なる状態を示します。
+- **中央のキャンバス**
+  サイドバーでストーリーを選ぶと、そのコンポーネントの実際の見た目が中央に描画されます。ボタンを押したり文字を入力したりして、コンポーネントを操作できます。
+- **下部のパネル（Addons）**
+  - **Controlsタブ**
+    コンポーネントへ渡すpropsの値を変えられる操作パネルです。色、文字、サイズを調整しながら、変化をリアルタイムで確認できます。
+  - **Actionsタブ**
+    ボタンのクリックなど、コンポーネントで発生したイベントが記録されます。ボタンをクリックすると「ボタンが押されました！」のようなメッセージが表示され、期待どおりに反応したか確認できます。
+  - **Docsタブ**
+    コンポーネントの使い方やpropsの種類などが、自動生成されたドキュメントで表示されます。
+
+<Img src="/250504-224149.webp" width={500} alt="StorybookのUI"/>
+
+Storybookを使うと、コンポーネントを整理して管理し、手軽にテストし、ほかの人と共有できます。
+
+#### ストーリーの例
+
+コンポーネントの異なる状態を示すストーリーは、次のように書きます。
+```tsx title="/src/components/Button.stories.tsx"
+import React from 'react';
+import type { Meta, StoryObj } from '@storybook/react';
+import Button from './Button'; // 실제 컴포넌트
+
+// 메타 정보: 컴포넌트 설명서 표지 같은 거예요
+const meta: Meta<typeof Button> = {
+  title: 'Components/Button', // 어디에 둘지 정해요
+  component: Button, // 주인공 컴포넌트
+  tags: ['autodocs'], // 자동으로 설명서 만들기
+  argTypes: { /* ... props 조종판 설정 ... */ },
+};
+export default meta;
+
+type Story = StoryObj<typeof Button>;
+
+// 첫 번째 이야기: 기본 모습 버튼
+export const Primary: Story = {
+  args: { primary: true, label: 'Button' }, // 이렇게 생겼어요 하고 알려줘요
+};
+
+// 두 번째 이야기: 보조 역할 버튼
+export const Secondary: Story = {
+  args: { label: 'Button' },
+};
+
+// ... 더 많은 이야기들 ...
+```
+
+### ChromaticでUIの変化を自動検出する
+
+- **主な機能**
+  - Storybookのストーリーをもとに、コンポーネントのスクリーンショットを比較します。
+  - コード変更後の意図しない見た目の変化（回帰）を自動で検出します。
+  - UIの一貫性を保ち、見た目のバグを防ぎます。
+  - プルリクエストと連携し、見た目のレビューを支援します。
+
+Storybookでコンポーネントを開発し、Chromaticで見た目の一貫性を保てば、UIの品質を効果的に高められます。
+
+<Ads3 />
+
+## おわりに
+今回は、React開発の生産性とコード品質を高める開発ツールとテスト戦略を学びました。
+- **React DevTools Profiler**は描画性能を分析し、ボトルネックを見つけて改善するための重要なツールです。
+- **Jest**と**React Testing Library（RTL）**を組み合わせると、ユーザー視点で動作を確かめ、自信を持ってコードを変更できます。**実行方法**（`npm test`）と、**確認すべき項目**（描画、操作、props、状態の変化、アクセシビリティ）を理解することが大切です。
+- **Storybook**はUIコンポーネントを独立して開発、文書化、可視化するのに役立ちます。**Chromatic**はStorybookと連携し、視覚的な回帰テストを自動化してUIの一貫性を保ちます。
+
+これらを継続して使うと、最初は時間や手間が増えるように見えても、長期的にはバグや保守コストを減らし、安定した高品質のアプリケーションを作る助けになります。
+> 次回は、TypeScriptとReactを組み合わせる際に役立つ工夫やパターンを紹介します。ジェネリックコンポーネントの型付けから、カスタムフックの型推論、ZodやYupによる型安全性の強化まで扱います。
+
+### 参考
+
+- React DevTools（Chromeウェブストア） [https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi)
+- React公式ドキュメント - Profiler [https://react.dev/reference/react-dom/profiling](https://react.dev/reference/react-dom/profiling)（最新の公式ドキュメント）
+- Jest公式ドキュメント [https://jestjs.io/](https://jestjs.io/)
+- React Testing Library公式ドキュメント [https://testing-library.com/docs/react-testing-library/intro/](https://testing-library.com/docs/react-testing-library/intro/)
+- Storybook公式ドキュメント [https://storybook.js.org/](https://storybook.js.org/)
+- Chromatic公式サイト [https://www.chromatic.com/](https://www.chromatic.com/)

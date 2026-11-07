@@ -1,0 +1,44 @@
+---
+post_id: '38'
+locale: en
+title: Duplicating a Repository with the mirror Option
+description: How to use the mirror option to copy a repository in full.
+source_hash: bd2fb5d462c18312fb29ed77fa11dc8c095042c8fb791f3a27cafa3eea112c32
+reviewed_at: '2026-11-06T14:50:16.883Z'
+---
+When working on a team project, we often create an organization and collaborate in a repository within it.
+After the project ends, you may want a complete copy of that repository under your own ownership.
+You can fork it, but that approach has the drawback of having to continue managing the original repository.
+Here is how to copy a repository into your own GitHub account using the `--mirror` option.
+
+## Create a new repository
+Create a new repository to receive a copy of the existing one.
+1. Log in to GitHub and open https://github.com/new
+2. Enter the name of the destination repository.
+3. Choose Public or Private.
+4. Click Create repository.
+   <Img src="/posts/240606-152842.png" alt="240606-152842" width="600"/>
+
+<Ads1 />
+## Copy the repository locally and push it
+5. Copy the *address of the existing repository you want to duplicate*.
+   <Img src="/posts/240606-154630.png" alt="240606-154630" width="800"/>
+6. Clone it to a suitable location on your computer with the following command. The Korean placeholder denotes the repository address copied in step 5.
+   `git clone {5번에서 복사한 Repository 주소}{:bash}`
+   <Img src="/posts/240606-154920.png" alt="240606-154920" width="600"/>
+7. Move into the cloned repository, using `cd Old_repo{:bash}` in this example. The placeholder below is the repository name.
+   `cd {Repository 이름}{:bash}`
+8. Use `--mirror` to push the original repository to the new one. The placeholder is the new repository's address.
+   `git remote set-url --push origin {새로운 Repository 주소}{:bash}`
+   `git push --mirror{:bash}`
+   <Img src="/posts/240606-155454.png" alt="240606-155454" width="900" />
+
+## Check the result
+Open the new repository and check that the push completed correctly.
+Also verify that the commit history was copied as expected.
+<Img src="/posts/240606-155552.png" alt="240606-155552" width="800"/>
+
+<Ads2 />
+## References
+[github docs](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/duplicating-a-repository)
+[Copying an existing Git repository into a new repository](https://projooni.tistory.com/entry/%EA%B8%B0%EC%A1%B4-Git-Repository%EB%A5%BC-%EB%B3%B5%EC%82%AC%ED%95%98%EC%97%AC-%EC%83%88%EB%A1%9C%EC%9A%B4-Repository-%EB%A7%8C%EB%93%A4%EA%B8%B0)

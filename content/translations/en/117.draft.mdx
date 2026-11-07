@@ -1,0 +1,116 @@
+---
+post_id: '117'
+locale: en
+title: Creating an Expo Project on Windows
+description: >-
+  Set up an Expo project on Windows, run it in an Android emulator or Expo Go,
+  and troubleshoot PowerShell execution policy errors.
+source_hash: ba4e0de6fc68c2819e557faf7ea29f1671ad8a841629032c8436eeefb38f5589
+---
+## Before We Begin
+> I used Windows, Android Studio, and Visual Studio Code for this guide.
+### What Is Expo?
+[Expo](https://expo.io/) simplifies React Native app development by handling much of the configuration needed for Android and iOS. You can use Expo for free, and it makes building and distributing apps easier. With Expo Go installed, you can preview the app you're developing on a physical device in real time.
+
+### Expo vs. React Native CLI
+Expo makes building and distributing an app easier. In the Expo Go workflow, however, some libraries are unavailable and you cannot add custom native features. React Native CLI gives you direct access to the native project when the features you need aren't available through that workflow.
+> Check whether the features your project needs are compatible with Expo. If they aren't, consider React Native CLI.
+
+[Set up React Native CLI](https://www.promleeblog.com/blog/post/114-rn-init)
+
+<Ads1 />
+## Install Node.js and npm
+Node.js is the JavaScript runtime required for React Native development. Download and install the LTS version.
+[Official Node.js website](https://nodejs.org/ko/)
+After installation, run node -v and npm -v in a terminal to check the versions.
+```bash
+node -v
+npm -v
+```
+
+## Install Expo and Create a Project
+### Create an Expo Account and Project
+Sign up on the Expo website and sign in to your account.
+[Official Expo website](https://expo.io/)
+Click Create a new project and enter a name to create your Expo project.
+<Img src="/posts/240729-002615.png" width={400} alt="Creating a project named Test"/>
+
+<Ads2 />
+### Install Expo CLI and Create a Local Project
+You can optionally install expo-cli globally from the terminal. You can also use npx expo commands without installing expo-cli globally.
+```bash
+npm install --global eas-cli
+```
+After installing expo-cli, use expo init to create the project.
+```bash
+npx create-expo-app@latest my-new-project
+```
+Sign in to Expo before running the project.
+```bash
+npx expo login	# expo 계정 입력
+```
+Once the project has been created, enter the project directory and link it to your Expo project. Find the project ID on the Expo project details page.
+<Img src="/posts/240729-004021.png" width={500} alt=""/>
+
+```bash
+cd my-new-project
+eas init --id {expo 프로젝트 id}
+```
+Once the project is linked, start it.
+```bash
+npm start
+```
+
+<Img src="/posts/240729-004744.png" width={300} alt=""/>
+Press a to view the app in the Android Studio emulator or w to open it in a browser. Press i to open it in the Xcode iOS Simulator on macOS.
+
+<Ads3 />
+### 2.3. Install and Connect Expo Go
+Install Expo Go on your phone.
+[Download Expo Go for Android](https://play.google.com/store/apps/details?id=host.exp.exponent&hl=ko&gl=US)
+[Download Expo Go for iOS](https://apps.apple.com/kr/app/expo-go/id982107779)
+Scan the QR code to preview your app on the device as you develop it. You can also sign in, open Expo Go, and enter the link for your development app.
+
+## Troubleshooting
+### Error When Running an Expo Command
+<Img src="/posts/240729-011136.png" width={2000} alt=""/>
+> expo: The C:\~\expo.ps1 file cannot be loaded because running scripts is disabled on this system. See about_Execution_Policies (https://go.microsoft.com/fwlink/?LinkID=135170) for more information.
+> At line:1 char:1
+> \+ expo init
+> \+ \~\~\~\~
+> \+ CategoryInfo          : SecurityError: (:) [], PSSecurityException
+> \+ FullyQualifiedErrorId : UnauthorizedAccess
+
+PowerShell's execution policy can prevent expo init from running. Changing the policy resolves the error described here. Open PowerShell as an administrator and enter the following command.
+```bash
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted
+```
+<Img src="/posts/240729-011422.png" width={2000} alt="Enter Y to confirm"/>
+Check the execution policy with the following command.
+```bash
+Get-ExecutionPolicy -List
+```
+<Img src="/posts/240729-011520.png" width={400} alt="Verify that LocalMachine shows Unrestricted"/>
+
+<Ads4 />
+## Conclusion
+Choose between Expo and React Native CLI based on your project's needs. Expo makes development easier, but Expo Go has limits on the libraries and native features you can use. For features outside that workflow, consider React Native CLI or the Expo native project workflow described below.
+
+### Further Considerations
+#### expo eject
+Expo previously used expo eject to convert an Expo project to a React Native CLI project. That command was deprecated and replaced by [prebuild](https://docs.expo.dev/workflow/prebuild/).
+[Expo FAQ: Is expo eject deprecated?](https://docs.expo.dev/faq/#is-expo-eject-deprecated)
+
+#### expo prebuild
+Prebuild uses your app configuration to generate native source files for your Expo project.
+```bash
+expo prebuild
+```
+This generates the `android/` and `ios/` folders containing native code.
+Then run the prebuilt app with the following commands.
+```bash
+npx expo run:android
+npx expo run:ios
+```
+### References
+- [Expo documentation](https://docs.expo.dev/)

@@ -1,0 +1,166 @@
+---
+title_ko: 패킷 캡처와 분석 Wireshark 활용 - 코딩과 함께 배우는 네트워크 10일차
+title_en: >-
+  Packet Capture and Analysis Using Wireshark - Learning Network with Coding Day
+  10
+desc: >-
+  네트워크 통신을 직접 눈으로 확인하는 강력한 도구, Wireshark의 기본 개념과 설치 방법, 사용법을 알아봅니다. 실제 HTTP 요청
+  패킷을 캡처하고 분석하며 네트워크의 동작을 깊이 이해합니다.
+thumbnail_url: /250515-174745.webp
+metatag: 'Wireshark, 패킷 캡처, 패킷 분석, 네트워크 분석, 프로토콜 분석, HTTP 분석, 네트워크 문제 해결, 개발자, 코딩, IT 기초'
+post_id: '288'
+locale: zh
+title: 用 Wireshark 捕获和分析数据包——用代码学网络，第 10 天
+description: 了解 Wireshark 的基本概念、安装和用法，通过捕获并分析真实的 HTTP 请求理解网络通信。
+source_hash: 23ea60f27f119a2a6b2c79630b5c3aad10ec11175a2f0933b3e4255c27e5f89e
+reviewed_at: '2026-11-07T12:15:28.057Z'
+---
+## 开始之前
+上次学习了保护网络的防火墙和 NAT。
+今天来捕获网络中实际传输的数据片段，也就是*数据包（Packet）*，看看里面有什么。
+我们将使用 *Wireshark* 完成这一操作。
+用它可以直接观察 OSI 七层模型、TCP/IP、HTTP 等此前学过的概念与协议如何体现在实际通信中。
+
+<Ads1 />
+## 什么是数据包捕获？
+数据包捕获是截获经过网络接口（如网卡、Wi-Fi 网卡）的数据包，记录并分析其内容的技术。
+这有点像把往来的信件拆开查看，不过这里用于合法和教学用途。
+<br/>
+开发者与网络管理员可以用抓包完成以下工作。
+
+- **排查网络问题**
+  有助于找出网速慢、无法访问某个服务等问题的原因。
+- **学习协议如何工作**
+  可以观察原先只在理论中学过的协议如何运行，例如 TCP 握手过程与 HTTP 请求和响应的结构。
+- **分析安全问题**
+  可以检测并分析可疑流量或恶意代码活动。
+- **分析性能**
+  可以测量网络延迟和数据传输量，评估性能并找出改进空间。
+
+<Ads2 />
+## Wireshark
+
+Wireshark 是使用最广泛的开源网络协议分析器之一。
+它免费且功能强大，从专业人员到学生都在使用。
+
+<Img src="/250515-172934.webp" width={400} alt="Wireshark"/>
+
+### 安装 Wireshark
+
+Wireshark 支持大多数操作系统，包括 Windows、macOS 和 Linux。
+1. **访问官方网站**
+   打开 [www.wireshark.org](https://www.wireshark.org)。
+2. **下载**
+   下载适合自己操作系统的最新稳定版本。
+3. **安装**
+   运行下载的安装程序，按提示完成安装。
+   - **Windows 用户须知**
+     安装时会看到一项选项，用来安装名为 Npcap 的抓包库（旧版本使用 WinPcap）。
+     必须安装此库才能正常抓包。一般情况下，该选项会默认勾选。
+   - **macOS 用户须知**
+     安装后首次运行时，可能会出现有关权限的提示。请按提示配置所需权限。
+     还要安装 ChmodBPF 来授予抓包权限，可以在应用中点击安装。
+     <Img src="/250515-173227.webp" width={300} alt="安装 ChmodBPF"/>
+
+<Ads3 />
+
+## Wireshark 基本用法
+首次打开 Wireshark 时，界面可能有些复杂，但基本操作并不难。
+下面先了解基本用法，再进行具体练习。
+
+1. **选择网络接口**
+   - 启动 Wireshark 后，会显示计算机上的网络接口列表，例如 Ethernet 和 Wi-Fi。
+   - 选择目前已连接互联网、正在产生流量的接口。如果不确定，可以查看各接口名称旁的小图表，选流量活动明显的接口。
+   - 双击接口，或选中后点击顶部的蓝色鲨鱼鳍图标“开始捕获数据包（Start capturing packets）”，即可开始抓包。
+
+2. **开始和停止捕获**
+   - 开始捕获后，屏幕上会实时显示大量数据包。
+   - 收集到所需数据后，点击红色方形图标“停止捕获数据包（Stop capturing packets）”。
+
+3. **了解 Wireshark 界面**
+   捕获到的数据包通常分三个窗格显示。
+   - **数据包列表窗格（Packet List Pane）**
+     按时间顺序逐行显示数据包摘要。每行对应一个数据包，显示编号、时间、源 IP 和目的 IP、协议、长度及摘要等。
+   - **数据包详情窗格（Packet Details Pane）**
+     在列表中选择某个数据包后，详情窗格会以树形结构显示各层协议的信息，例如以太网头、IP 头、TCP 头和 HTTP 数据。展开协议字段可以查看具体值。
+   - **数据包字节窗格（Packet Bytes Pane）**
+     显示所选数据包的原始数据，包括十六进制字节和 ASCII 字符。选中详情窗格中的某个字段时，字节窗格会高亮对应位置，便于与原始数据对照。
+   <Img src="/250515-175806.webp" width={500} alt="Wireshark 界面"/>
+4. **使用过滤器**
+   - 如果抓到的数据包太多，可以用*显示过滤器（Display Filter）*，只查看符合条件的数据包。
+   - 在顶部的过滤器输入框输入条件并按回车。
+   - **常用过滤器**
+     - `ip.addr == 192.168.0.1`：源或目的 IP 为 `192.168.0.1` 的数据包。
+     - `tcp.port == 80`：源或目的 TCP 端口为 80 的数据包，通常是 HTTP。
+     - `tcp.port == 443`：源或目的 TCP 端口为 443 的数据包，通常是 HTTPS。
+     - `http`：使用 HTTP 协议的数据包。
+     - `dns`：使用 DNS 协议的数据包。
+     - `!(arp)`：排除 ARP 数据包，感叹号表示取反。
+     - `tcp.flags.syn == 1 && tcp.flags.ack == 1`：TCP SYN-ACK 数据包，是三次握手的一部分。
+
+## 实践：分析 HTTP 请求，观察访问网站时的数据包
+
+现在使用 Wireshark 观察访问网站时实际传输了哪些数据包。
+
+1. **准备**
+   启动 Wireshark，选择网络接口。
+   - 如果有多个接口，选择当前连接互联网的接口。
+   <Img src="/250516-091231.webp" width={600} alt="本例通过 Wi-Fi 联网，因此选择 Wi-Fi"/>
+   准备一个简单的 HTTP 网站地址进行分析。
+   > HTTPS 已加密，较难查看内容，因此这里用 HTTP 网站作示例。如果没有用于测试的 HTTP 网站，可以找一个仍使用 HTTP 的旧网站，或启动一个简单的本地 Web 服务器再访问。公开的 HTTP 网站正在减少。
+   - 如果找不到合适的网站，可以试试 `http://example.com`（为示例保留的域名）或 `http://info.cern.ch`（第一个网站）。
+2. **在 Wireshark 中开始抓包**
+   选择要使用的网络接口并开始捕获数据包。
+   点击顶部的蓝色鲨鱼鳍图标，或选择 `Capture > Start`。
+   <Img src="/250516-091513.webp" width={300} alt="开始捕获按钮"/>
+3. **在浏览器中访问 HTTP 网站**
+   打开浏览器，访问准备好的 HTTP 地址，等待页面完全加载。
+4. **停止抓包**
+   页面加载完毕后，回到 Wireshark 并停止捕获。
+   点击顶部的红色方形图标，或选择 `Capture > Stop`。
+   <Img src="/250516-091731.webp" width={600} alt="数据包捕获过程"/>
+5. **过滤 HTTP 数据包**
+   在过滤器输入框输入 `http` 并按回车，只显示与 HTTP 相关的数据包。
+   <Img src="/250516-092239.webp" width={300} alt="过滤 HTTP 数据包"/>
+6. **分析数据包**
+   - **查找 HTTP GET 请求**
+     在数据包列表中，选择从客户端（自己的 IP 地址）发往服务器（网站服务器的 IP 地址）的 `GET / HTTP/1.1` 或类似请求。
+   - **查看请求详情**
+     在详情窗格展开 Hypertext Transfer Protocol，查看请求行（Request Line）和请求头（Headers），例如 `Host` 和 `User-Agent`。
+   - **查找 HTTP 响应**
+     选择服务器发回客户端的 `HTTP/1.1 200 OK` 或类似响应。
+   - **查看响应详情**
+     在详情窗格查看状态行（Status Line）、响应头（Headers）和响应正文（如果有），例如 HTML 代码。HTML 可能显示为 Line-based text data。
+   - **查看 TCP 握手（可选）**
+     清除 HTTP 过滤器，查找 HTTP 请求之前的 TCP 三次握手（SYN、SYN-ACK、ACK 数据包）。过滤器示例：`tcp.port == 80 && (tcp.flags.syn == 1 || tcp.flags.ack == 1)`。
+     <Img src="/250516-094952.webp" width={500} alt="TCP 握手"/>
+
+通过这个练习，可以在数据包层面观察浏览器与 Web 服务器的实际通信过程，加深对 HTTP 协议结构的理解。
+
+<Ads4 />
+
+## Wireshark 使用技巧
+
+- **保存与打开捕获文件**
+  捕获的数据包可以通过 `File > Save As` 保存，之后再用 `File > Open` 打开分析。
+- **使用统计功能**
+  Wireshark 在 `Statistics` 菜单中提供多种统计功能。
+  例如，可以通过协议层次分布、会话（Conversation）列表和端点（Endpoint）列表来了解流量的整体特征。
+- **着色规则**
+  Wireshark 会根据协议或特定条件为数据包列表着色，让重要数据包更容易辨认。设置入口为 `View > Coloring Rules`。
+- **使用右键菜单**
+  在数据包列表或详情窗格中点击鼠标右键，可以使用 Follow > TCP Stream 等分析选项。Follow TCP Stream 能重组并显示某个 TCP 连接的完整数据流。
+
+## 结语
+
+今天介绍了用于网络分析的 Wireshark，了解了基本操作，并练习了捕获和分析实际的 HTTP 通信数据包。
+Wireshark 能让原本看不见的网络通信过程变得可观察，有助于排查网络问题和理解协议如何工作。
+<br/>
+刚开始可能觉得复杂，但多用几次，试试不同的过滤条件，就能进一步加深对网络的理解。
+> 下一篇将介绍优化网络性能的方法，以及如何解决瓶颈。
+
+### 参考资料
+
+- [Wireshark 官网（Go Deep.）](https://www.wireshark.org/)
+- [Wireshark Wiki - Npcap](https://wiki.wireshark.org/Npcap)
+- [GeeksforGeeks - Wireshark 显示过滤器表达式对话框](https://www.geeksforgeeks.org/display-filter-expression-dialog-box-in-wireshark/)

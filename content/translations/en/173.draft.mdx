@@ -1,0 +1,90 @@
+---
+title_ko: Xcode 다운그레이드 방법
+title_en: How I Downgraded Xcode
+desc: >-
+  React Native + Expo 환경에서 Xcode 16.3 업데이트 후 발생한 빌드 오류를 해결하기 위해 Xcode 버전을 16.2로
+  되돌린 과정을 정리한 글입니다.
+thumbnail_url: /posts/250402-101544.webp
+metatag: 'ReactNative, Expo, Xcode, iOS, 오류해결, 다운그레이드'
+post_id: '173'
+locale: en
+title: How I Downgraded Xcode
+description: >-
+  Downgrade Xcode from 16.3 to 16.2 to resolve React Native and Expo build
+  errors involving std::char_traits<unsigned char>.
+source_hash: 676b5c3a7fb8e3055d2196e239cb7043208b09611023277c9956c1141b6937ba
+---
+
+## Before getting started
+While developing a React Native and Expo app, unexpected build errors began immediately after I updated Xcode to 16.3.
+The console repeatedly reported template errors involving `std::char_traits<unsigned char>`, and compilation stopped in some Pods.
+To resolve the problem quickly, I decided to *downgrade* Xcode to 16.2.
+This article describes what happened and walks through a safe downgrade step by step.
+
+### Errors after the Xcode 16.3 update
+After the update, the build stopped with the following error.
+```
+static_assert(is_same<_CharT, typename traits_type::char_type>::value,
+              ^ implicit instantiation of undefined template 'std::char_traits<unsigned char>'
+```
+The error occurred in the C++ standard library around `string_view` and appeared to involve compatibility with React Native Pods such as `RCT-Folly` and `React-perflogger`.
+
+In short, *the new Xcode version was incompatible with some existing C++ native code*.
+Because I do not work directly with C++ code in this Expo project, returning to a stable previous version was faster than addressing the underlying issue.
+
+<Ads1 />
+## Downgrading Xcode from 16.3 to 16.2
+The process has four main steps.
+### 1. Removing or renaming Xcode 16.3
+Only one application named `Xcode.app` can occupy the location, so delete the existing version or rename it.
+**To delete it:**
+```
+sudo rm -rf /Applications/Xcode.app
+```
+**Alternatively, rename it and keep it:**
+```
+sudo mv /Applications/Xcode.app /Applications/Xcode-16.3.app
+```
+This provides a backup if you want to use 16.3 again later.
+
+### 2. Downloading Xcode 16.2
+Download Xcode 16.2 from the following page.
+🔗 [Apple Developer Downloads](https://developer.apple.com/download/all/)
+- Sign in with your Apple ID.
+- Search for Xcode 16.2 and download the `.xip` file.
+<Img src="/posts/250402-101948.webp" width={500} alt=""/>
+
+### 3. Installing Xcode 16.2
+Double-click the downloaded `.xip` file to extract it, then move the application to `/Applications`.
+You can also drag and drop it there.
+```
+sudo mv ~/Downloads/Xcode.app /Applications/
+```
+<Img src="/posts/250402-102241.webp" width={300} alt="Checking the Applications folder"/>
+
+### 4. Activating Xcode 16.2
+Finally, use `xcode-select` to specify which Xcode installation the system should use.
+```
+sudo xcode-select -s /Applications/Xcode.app
+```
+Verify the active version with the following command.
+```
+xcodebuild -version
+```
+Expected output:
+```
+Xcode 16.2
+Build version 16Cxxx
+```
+Building the project again should now work without the error.
+## Conclusion
+This experience reminded me that *the latest version is not always the most stable*.
+For frameworks tied to native components, such as React Native, pay attention to compatibility with Xcode and Android Studio versions.
+Before major updates, I plan to check GitHub issues and Expo release notes.
+
+<Ads2 />
+### References
+- [GitHub issue](https://github.com/facebook/react-native/issues/50411#issuecomment-2769166147)
+- [Xcode All Downloads — Apple Developer](https://developer.apple.com/download/all/)
+- [React Native GitHub Issues](https://github.com/facebook/react-native/issues)
+- [Expo Documentation](https://docs.expo.dev/)

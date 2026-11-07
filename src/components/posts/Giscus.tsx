@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useLocale } from "@/components/i18n/LocaleProvider";
 import { useTheme } from "next-themes";
 
 export default function Giscus() {
+  const locale = useLocale();
   const ref = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
 
@@ -28,10 +30,10 @@ export default function Giscus() {
     scriptElem.setAttribute("data-emit-metadata", "0");
     scriptElem.setAttribute("data-input-position", "bottom");
     scriptElem.setAttribute("data-theme", theme);
-    scriptElem.setAttribute("data-lang", "ko");
+    scriptElem.setAttribute("data-lang", locale === "zh" ? "zh-CN" : locale);
 
     ref.current.appendChild(scriptElem);
-  }, [theme]);
+  }, [theme, locale]);
 
   // https://github.com/giscus/giscus/blob/main/ADVANCED-USAGE.md#isetconfigmessage
   useEffect(() => {
@@ -42,7 +44,7 @@ export default function Giscus() {
       { giscus: { setConfig: { theme } } },
       "https://giscus.app",
     );
-  }, [theme]);
+  }, [theme, locale]);
 
   return <section ref={ref} />;
 }

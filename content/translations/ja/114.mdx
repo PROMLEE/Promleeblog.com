@@ -1,0 +1,112 @@
+---
+post_id: '114'
+locale: ja
+title: React Nativeプロジェクトを作成する（Windows・Android）
+description: WindowsにReact Nativeの開発環境を構築し、Android Studioでエミュレーターを起動するまでの手順を説明します。
+source_hash: 6f1fa6edf971a6b572d31c1d119efdf9735ffba8e73a9edc19e543b73c6860cb
+reviewed_at: '2026-11-07T07:02:46.540Z'
+---
+## はじめに
+React NativeはFacebookが開発したオープンソースのモバイルアプリ開発フレームワークです。JavaScriptとReactでiOSとAndroidのアプリを開発できます。
+この記事では、React Nativeの開発環境を用意する手順を見ていきます。筆者はWindows環境で作業しました。
+セットアップには、Expo CLIとReact Native CLIの2つの方法があります。ここではReact Native CLIを使います。事前に、*Node.js*、*JDK*、*Android Studio*をインストールする必要があります。
+
+## Node.jsのインストール
+Node.jsはJavaScriptのランタイムで、React Nativeの開発に必要です。
+Node.jsの公式サイトからLTS版をダウンロードし、インストールします。
+[Node.js公式サイト](https://nodejs.org/ko/)
+インストールが終わったら、次のコマンドでバージョンを確認します。
+```bash
+node -v
+```
+
+<Ads1 />
+## JDKのインストール
+JDKはJavaの開発環境で、React Nativeの開発に必要です。
+Oracle JDKまたはOpenJDKのどちらかをインストールします。
+<Rbox>JDK 20以下をダウンロードします。</Rbox>
+[Oracle JDKのダウンロード（推奨）](https://www.oracle.com/java/technologies/javase/jdk20-archive-downloads.html)
+[OpenJDKのダウンロード](https://adoptopenjdk.net/)
+
+### 環境変数を設定する
+JDKのインストール先を環境変数に登録します。
+1. コントロールパネル → システムとセキュリティ → システム → システムの詳細設定 → 環境変数へ進みます。
+2. システム環境変数の「新規」をクリックし、変数名にJAVA_HOME、変数値にJDKのインストール先を入力します。
+   - 標準の場所は `C:\Program Files\Java\jdk-버전` です。「버전」の箇所にはバージョンが入ります。
+3. システム環境変数のPathを選び、「編集」をクリックします。
+4. 「新規」をクリックし、%JAVA_HOME%\bin を入力します。
+   <Img src="/posts/240711-201602.png" width={400} alt=""/>
+5. 「OK」を押して設定を保存します。
+
+インストールが終わったら、次のコマンドでバージョンを確認します。
+```bash
+java -version
+```
+
+<Ads2 />
+## Android Studioのインストール
+Android StudioはAndroidアプリ向けの統合開発環境で、React Nativeの開発に必要です。
+公式サイトからダウンロードし、インストールします。
+[Android Studio公式サイト](https://developer.android.com/studio)
+### 環境変数を設定する
+1. 起動後、More Action → SDK ManagerをクリックしてSDKのパスを確認します。
+2. コントロールパネル → システムとセキュリティ → システム → システムの詳細設定 → 環境変数へ進みます。
+3. システム環境変数の「新規」をクリックし、変数名にANDROID_HOME、変数値にSDKのパスを入力します。
+   - 標準の場所は `C:\Users\사용자명\AppData\Local\Android\Sdk` です。「사용자명」の箇所にはユーザー名が入ります。
+4. システム環境変数のPathを選び、「編集」をクリックします。
+5. 「新規」をクリックし、%ANDROID_HOME%\platform-tools を入力します。
+6. 「OK」を押して設定を保存します。
+
+インストールが終わったら、次のコマンドでバージョンを確認します。
+```bash
+adb --version
+```
+
+<Ads3 />
+## React Nativeのセットアップ
+### React Nativeプロジェクトを作る
+次のコマンドでReact Nativeプロジェクトを作ります。
+```bash
+npx react-native init {프로젝트명}
+```
+### Android Studioを起動する
+Android Studioを起動し、AVD（Android Virtual Device）を作ります。
+1. More Actions → VD Managerをクリックします。
+   <Img src="/posts/240711-215946.png" width={500} alt=""/>
+2. Create Virtual Deviceをクリックし、目的のデバイスを選びます。
+3. Nextをクリックし、システムイメージを選びます。
+4. Finishをクリックして仮想デバイスを作ります。
+5. 仮想デバイスができたら、Startをクリックして起動します。
+   <Img src="/posts/240711-220142.png" width={500} alt=""/>
+
+### プロジェクトを実行する
+プロジェクトフォルダーに移動し、次のコマンドでプロジェクトを実行します。
+```bash
+npm start
+```
+選択画面が出たら `a` を押し、Androidアプリを実行します。
+
+<Img src="/posts/240711-215622.png" width={500} alt="AVDが起動するとアプリがインストールされ、実行される"/>
+
+<Ads4 />
+## 問題と対処法
+### ビルドエラー java.io.UncheckedIOException
+> java.io.UncheckedIOException: Could not move temporary workspace
+<Img src="/posts/240711-210715.png" width={500} alt=""/>
+次の例を参考にファイルを編集し、Gradleのバージョンを8.5に変更します。
+
+```bash title="[YourApp]/android/gradle/wrapper/gradle-wrapper.properties" {3}
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-all.zip  # 8.6 -> 8.5로 변경
+networkTimeout=10000
+validateDistributionUrl=true
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+```
+[参考（Stack Overflow）](https://stackoverflow.com/questions/78384724/react-native-error-java-io-uncheckedioexception-could-not-move-temporary-work)
+
+<Ads5 />
+## 参考
+[React Native公式ドキュメント](https://reactnative.dev/docs/environment-setup)
+[WindowsでReact Nativeの開発環境を構築し、テストする](https://velog.io/@zzxy72/%EC%9C%88%EB%8F%84%EC%9A%B0Windows%EC%97%90-react-native-%EA%B0%9C%EB%B0%9C-%ED%99%98%EA%B2%BD-%EA%B5%AC%EC%B6%95-%EB%B0%8F-Test)

@@ -1,0 +1,43 @@
+---
+post_id: '38'
+locale: zh
+title: 使用mirror选项复制仓库
+description: 介绍用于完整复制仓库的mirror选项及其用法。
+source_hash: bd2fb5d462c18312fb29ed77fa11dc8c095042c8fb791f3a27cafa3eea112c32
+---
+开展协作项目时，我们通常会创建Organization，再在其中建立Repository进行协作。
+项目结束后，有时会希望将整个Repository复制到自己名下。
+虽然可以通过Fork获取仓库，但这种方式的缺点是仍然需要继续管理原始Repository。
+下面介绍如何使用`--mirror`选项，将Repository复制到自己的GitHub中。
+
+## 创建新的Repository
+创建一个新的Repository，用来接收现有Repository的副本。
+1. 登录GitHub，打开 https://github.com/new
+2. 输入目标Repository的名称。
+3. 选择Public或Private。
+4. 点击Create repository按钮。
+   <Img src="/posts/240606-152842.png" alt="240606-152842" width="600"/>
+
+<Ads1 />
+## 在本地复制Repository并push
+5. 复制现有的*待复制Repository地址*。
+   <Img src="/posts/240606-154630.png" alt="240606-154630" width="800"/>
+6. 使用以下命令，将它clone到自己电脑上的合适位置。韩语占位符表示第5步复制的仓库地址。
+   `git clone {5번에서 복사한 Repository 주소}{:bash}`
+   <Img src="/posts/240606-154920.png" alt="240606-154920" width="600"/>
+7. 进入clone得到的Repository，这里使用`cd Old_repo{:bash}`。下面的占位符表示Repository名称。
+   `cd {Repository 이름}{:bash}`
+8. 使用`--mirror`选项，将原始Repository push到新的Repository。占位符表示新Repository的地址。
+   `git remote set-url --push origin {새로운 Repository 주소}{:bash}`
+   `git push --mirror{:bash}`
+   <Img src="/posts/240606-155454.png" alt="240606-155454" width="900" />
+
+## 检查结果
+进入新建的Repository，检查push是否成功。
+另外，还需要检查提交历史是否完整复制。
+<Img src="/posts/240606-155552.png" alt="240606-155552" width="800"/>
+
+<Ads2 />
+## 参考资料
+[github docs](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/duplicating-a-repository)
+[复制现有Git Repository并创建新的Repository](https://projooni.tistory.com/entry/%EA%B8%B0%EC%A1%B4-Git-Repository%EB%A5%BC-%EB%B3%B5%EC%82%AC%ED%95%98%EC%97%AC-%EC%83%88%EB%A1%9C%EC%9A%B4-Repository-%EB%A7%8C%EB%93%A4%EA%B8%B0)

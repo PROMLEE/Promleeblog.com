@@ -1,0 +1,359 @@
+---
+post_id: '105'
+locale: ja
+title: SupabaseからNext.jsへデータを取得する（CSR・SSR）
+description: 独自APIとPrisma、およびSupabase REST APIを使い、Next.jsのCSR・SSRでデータを取得する方法を紹介します。
+source_hash: bf1a799d80d1dd5a074b6679558a66e83e3910b6ed1505be0c1ce5a572421ea1
+reviewed_at: '2026-11-06T14:37:51.540Z'
+---
+## はじめに
+SupabaseからNext.jsへデータを取得する方法には、大きく二つあります。
+1. *独自のAPIエンドポイント*を作って取得する方法と[Prisma](https://www.prisma.io/)の利用
+2. Supabaseの*REST API*を使う方法
+
+それぞれの長所と短所を比較すると、次のようになります。
+| 方法 | 長所 | 短所 |
+| --- | --- | --- |
+| 独自のAPIエンドポイント | ORMを使えるため、データベースを扱いやすい。<br/>データベースへ直接アクセスでき、より効率的にデータを取得できる。 | APIを自作するため時間がかかる。<br/>データベースへ直接アクセスするため、セキュリティ上の弱点が生じる可能性がある。<br/>比較的複雑。 |
+| Supabase REST API | データベースへ直接アクセスしなくてよい。<br/>コードが非常に簡潔。 | データ取得に制約がある場合がある。<br/>取得に時間がかかる場合がある。 |
+
+直感的かつ簡潔にデータを取得したければ**Supabase REST API**、
+データをより効率的に扱いたければ**独自のAPIエンドポイント**を作る方法が向いています。
+私は両方を組み合わせてこのブログを作ったので、その方法を紹介します。
+
+<Ads1 />
+## 独自のAPIエンドポイントを使う
+### Prismaのインストール
+
+``` bash
+npm i -D prisma
+npm i @prisma/client
+```
+これでnpxからPrismaを実行できます。
+Next.jsでPrismaを使うには初期設定が必要です。
+
+``` bash
+npx prisma init
+```
+initを実行するとprismaフォルダーが作成され、その中にschema.prismaが生成されます。
+.envも作成されるので、そこにDB_URLを設定します。
+Supabaseの自分のプロジェクトから、Settings > Configurations > Database > Connection stringで確認できます。
+<Img src="/posts/240621-203617.png" width={800}/>
+
+`[YOUR-PASSWORD]{:bash}`は、自分のプロジェクトのパスワードに置き換えます。
+末尾に付いている`:[포트번호]/postgress`は削除します。
+
+``` bash title="./.env"
+DATABASE_URL="postgres://postgres.[Reference ID]:[YOUR-PASSWORD]@aws-0-ap-northeast-2.pooler.supabase.com
+```
+DIRECT_URLはPrismaクライアントを使うときに必要な環境変数です。
+Next.jsプロジェクトをデプロイする場合は、ビルド時にもPrismaクライアントを使えるよう、コマンドを追加します。
+
+``` json title="./package.json"
+{
+  "scripts": {
+		// ...
+    "postinstall": "prisma generate"
+	}
+}
+```
+
+### データベースのスキーマを取得する
+Prismaを使うとデータベースのスキーマを取得できます。
+
+``` bash
+npx prisma db pull
+```
+このコマンドで、prisma/schema.prismaにデータベースのスキーマが自動追加されます。
+
+``` prisma title="./prisma/schema.prisma (예)"
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Tag { // 추가
+  id       BigInt     @id @unique @default(autoincrement())
+  name     String     @default("")
+}
+```
+追加したスキーマからPrismaクライアントを生成します。
+
+``` bash
+npx prisma generate
+```
+
+### スキーマをデータベースに反映する
+スキーマを変更した場合は、その変更をデータベースへ反映する必要があります。
+
+``` bash
+npx prisma db push
+```
+変更後のスキーマでPrismaクライアントを再生成します。
+
+``` bash
+npx prisma generate
+```
+
+### APIエンドポイントを作る
+Prismaクライアントでデータを取得するAPIエンドポイントを作ります。
+
+``` javascript title="./src/app/api/tag/route.ts"
+const { PrismaClient } = require("@prisma/client");
+import { NextResponse, NextRequest } from "next/server";
+
+const prisma = new PrismaClient();
+
+export async function GET() {
+  try {
+    return NextResponse.json( {data: await getTags()}, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error || "Tags not Found" },
+      { status: 405 },
+    );
+  }
+}
+
+async function getTags() {
+  const Tags = await prisma.tag.findMany({
+    orderBy: {
+      id: "asc",
+    },
+  });
+  return Tags;
+}
+```
+Prismaでのフィルター、並べ替え、ページングなどについては、[Prisma Docs](https://www.prisma.io/docs/orm/prisma-client/queries/filtering-and-sorting)を参照してください。
+
+### データを取得する
+これでNext.jsのページからAPIエンドポイントを使ってデータを取得できます。
+`${process.env.NEXT_PUBLIC_API_BASE_URL}{:javascript}`は、`.env.local`で設定したAPIのURLです。
+デバッグモードでは`http://localhost:3000`、デプロイ時は`https://[your-domain]`を設定します。
+
+``` javascript title="./src/app/tag/page.ts - SSR"
+export const Page = async () => {
+	let tags;
+  try {
+    tags = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tag`,
+      { next: { revalidate: 60 } },
+    )
+      .then((res) => res.json())
+      .then((data) => data.data);
+  } catch (e) {
+    tags = [];
+  }
+	return (
+		<div>
+			{tags.map((tag) => (
+				<div key={tag.id}>
+					<h1>{tag.name}</h1>
+				</div>
+			))}
+		</div>
+	);
+};
+```
+
+``` javascript title="./src/app/tag/page.ts - CSR"
+"use client";
+import { useState, useEffect } from "react";
+
+export const Page = () => {
+	const [tags, setTags] = useState([]);
+	useEffect(() => {
+		fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tag`)
+			.then((res) => res.json())
+			.then((data) => setTags(data.data));
+	}, []);
+	return (
+		<div>
+			{tags.map((tag) => (
+				<div key={tag.id}>
+					<h1>{tag.name}</h1>
+				</div>
+			))}
+		</div>
+	);
+};
+```
+<Ads2 />
+## Supabase REST APIを使う
+### Supabaseのインストールと基本設定
+Supabase REST APIを使いやすくするライブラリをインストールします。
+
+``` bash
+npm i @supabase/supabase-js @supabase/ssr
+```
+Supabaseへアクセスするために、プロジェクトの環境変数を設定します。
+[Supabaseの案内](https://supabase.com/docs/guides/getting-started/quickstarts/nextjs)の中ほどにある`3. Declare Supabase Environment Variables`で確認できます。
+<Img src="/posts/240621-231736.png" width={800}/>
+
+``` bash title="./.env.local"
+NEXT_PUBLIC_SUPABASE_URL=https://[your-project-id].supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=[your-anon-key]
+```
+### Supabaseクライアントを作る
+*SSR*用と*CSR*用のクライアントを分け、それぞれのユーティリティーファイルを作成します。
+
+``` typescript title="./src/utils/serverclientSSR.ts - SSR"
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { cookies } from "next/headers";
+
+export const createClient = () => {
+  const cookieStore = cookies();
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value, ...options });
+          } catch (error) {
+          }
+        },
+        remove(name: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value: "", ...options });
+          } catch (error) {
+          }
+        },
+      },
+    },
+  );
+};
+```
+
+``` typescript title="./src/utils/serverclientCSR.ts - CSR"
+import { createClient } from "@supabase/supabase-js";
+
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+);
+```
+
+### データを取得する
+Supabase REST APIでのデータ取得は簡単です。
+
+``` typescript title="./src/app/tag/page.ts - SSR"
+import { createClient } from "@/utils/serverclientSSR";
+interface Tag { // 데이터의 타입 정의
+	id: number;
+	name: string;
+}
+
+const getData = async () => {
+  const supabase = createClient();
+  const { data }: { data: Tag[] } = await supabase
+    .from("Tag") // 테이블 이름
+    .select(); // 모든 열의 데이터 가져오기
+  return data;
+};
+
+export const Page = async () => {
+	const tags = await getData();
+	return (
+		<div>
+			{tags.map((tag) => (
+				<div key={tag.id}>
+					<h1>{tag.name}</h1>
+				</div>
+			))}
+		</div>
+	);
+};
+```
+
+``` typescript title="./src/app/tag/page.ts - CSR"
+"use client";
+import { supabase } from "@/utils/serverclientCSR";
+import { useEffect, useState } from "react";
+interface Tag { // 데이터의 타입 정의
+	id: number;
+	name: string;
+}
+
+export const Page = () => {
+	const [tags, setTags] = useState<Tag[]>([]);
+	useEffect(() => {
+		const getData = async () => {
+			const { data }: { data: Tag[] } = await supabase
+				.from("Tag") // 테이블 이름
+				.select(); // 모든 열의 데이터 가져오기
+			setTags(data);
+		};
+		getData();
+	}, []);
+	return (
+		<div>
+			{tags.map((tag) => (
+				<div key={tag.id}>
+					<h1>{tag.name}</h1>
+				</div>
+			))}
+		</div>
+	);
+};
+```
+フィルターメソッドの使い方は、[Supabase - Fetch data](https://supabase.com/docs/reference/javascript/select)を参照してください。
+
+<Ads3 />
+## 問題と解決
+### .envのDATABASE_URLがOSの設定に依存して変更できない
+[github issue](https://github.com/prisma/prisma/discussions/12170)
+#### 解決方法
+DATABASE_URLの変数名を変更します。
+
+``` bash title="./.env"
+NEWNAME_DATABASE_URL="postgres://postgres.[Reference ID]:[YOUR-PASSWORD]@aws-0-ap-northeast-2.pooler.supabase.com"
+```
+
+``` ts title="./prisma/schema.prisma"
+datasource db {
+	provider = "postgresql"
+	url      = env("NEWNAME_DATABASE_URL")
+}
+```
+### Prisma generateでエラーが発生する
+`Error: EPERM: operation not permitted, unlink "C:\\**\\node_modules\\.prisma\\client\\query-engine-windows.exe"`
+#### 解決方法
+[stackoverflow link](https://stackoverflow.com/questions/46020018/error-eperm-operation-not-permitted-unlink-d-sources-node-modules-fseven)
+VSCodeを一度終了し、起動し直せば解決します。
+## まとめ
+
+### さらに考える：どちらの方法が速いか
+私は当然、**Supabase REST API**のほうが速く効率的だと思っていました。
+データ取得に二段階の処理が必要な**独自のAPIエンドポイント**は、遅いはずだと考えたのです。
+Server Actionではなく、クライアント側で同じ条件を使って比較しました。
+ところが結果を見ると、**独自のAPIエンドポイント**で取得したデータのほうが、ユーザーに*早く*表示されていました。
+実際の描画時間には、体感できるほどの差がありました。
+<Img src="/posts/240621-234146.png" width={800}/>
+
+*links*は**独自のAPIエンドポイント**による取得時間、
+*Category ~*は**Supabase REST API**による取得時間です。
+キャッシュを無効にして何度か試した結果、**独自のAPIエンドポイント**で取得したデータは、*平均100ms早く*表示されました。
+- \<**独自のAPIエンドポイント**の詳細データ\>
+	<Img src="/posts/240621-234251.png" width={300}/>
+- \<**Supabase REST API**の詳細データ\>
+	<Img src="/posts/240621-234304.png" width={300}/>
+最も大きな影響を与えた要素は**Queuing**でした。
+データ取得の優先順位が高い**独自のAPIエンドポイント**のデータが、先に表示されるのです。
+実際に、**独自のAPIエンドポイント**のデータ取得がすべて完了した後に、**Supabase REST API**のデータが取得されます。
+**独自のAPIエンドポイント**を取り除いても、**Supabase REST API**のキュー待ち時間は変わりませんでした。
+これはユーザー体験に直結するため、解決方法が見つかるまでは、主に**独自のAPIエンドポイント**を使うことになりそうです。
+### 参考
+[Prisma Quickstart](https://www.prisma.io/docs/getting-started/quickstart)
+[Supabase Docs](https://supabase.com/docs/guides)
+[Supabase DatabaseをPrismaとNext.jsで素早く始める](https://www.heropy.dev/p/bCffI2)

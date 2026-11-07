@@ -1,0 +1,212 @@
+---
+title_ko: Expo(RN) 앱에서 딥링크를 QR 코드로 만들기 (react-native-qrcode-svg)
+title_en: Generating QR Code for Deep Links in Expo(RN) Apps (react-native-qrcode-svg)
+desc: >-
+  Expo 앱에서 특정 URL 주소, 특히 딥링크를 QR 코드로 생성하여 화면에 표시하는 방법을 알아봅니다.
+  react-native-qrcode-svg 라이브러리를 사용하여 간단하게 구현하는 예제를 살펴봅니다.
+thumbnail_url: /250430-172023.webp
+metatag: >-
+  Expo, React Native, QR Code, 큐알코드, Deep Link, 딥링크, react-native-qrcode-svg,
+  react-native-svg, URL Scheme, 모바일 앱 개발, TypeScript
+post_id: '239'
+locale: en
+title: Turn Deep Links into QR Codes in an Expo App with react-native-qrcode-svg
+description: >-
+  Use react-native-qrcode-svg to turn a URL, including a deep link, into a QR
+  code and display it in an Expo app.
+source_hash: e1764ff4f762f4a6a1b73d14ec5fcbed6b220663cfc8a37942af0dbeb7c36ebd
+---
+## Before We Begin
+
+Today we will look at how to display information as a *QR code* in an Expo app.
+In particular, we will turn the *deep link* URL from the previous post into a QR code that users can scan to open a specific screen in the app.
+We will use *react-native-qrcode-svg*, a widely used library for generating QR codes in Expo projects, and walk through how to convert and display the deep link we created.
+
+## Install the Libraries
+To generate QR codes, install `react-native-qrcode-svg` and its dependency `react-native-svg`.
+In an Expo project, use the following command.
+```bash
+npx expo install react-native-qrcode-svg react-native-svg
+```
+The `expo install` command installs library versions compatible with your Expo project.
+For npm or Yarn, use the corresponding command below.
+```bash
+npm i -S react-native-svg react-native-qrcode-svg
+```
+```bash
+yarn add react-native-svg react-native-qrcode-svg
+```
+
+<Ads1 />
+
+## Generate and Display a QR Code
+
+With the libraries installed, let's create a component that displays a QR code on the screen.
+Set up the directory structure as follows.
+
+```
+expo-app
+├── app
+│   ├── generateQRScreen.tsx // QR 코드 화면
+│   └── ... // 다른 화면들
+├── components
+│   ├── MyQRCode.tsx // QR 코드 컴포넌트
+│   └── ... // 다른 컴포넌트들
+```
+
+### 1. Basic Usage
+
+Import the `QRCode` component from `react-native-qrcode-svg`.
+The main prop is `value`, which takes the string you want to encode, such as a URL or some text.
+
+```tsx title="/components/MyQRCode.tsx"
+import React from 'react';
+import { View, StyleSheet, Text } from 'react-native';
+import QRCode from 'react-native-qrcode-svg'; // 라이브러리에서 QRCode 컴포넌트 가져오기
+
+interface MyQRCodeProps {
+  value: string; // QR 코드로 만들 값 (URL 등)
+  size?: number;  // QR 코드 크기 (선택적)
+}
+
+const MyQRCode: React.FC<MyQRCodeProps> = ({ value, size = 128 }) => {
+  if (!value) {
+    // value 값이 없을 경우 에러 처리 또는 대체 UI 표시
+    return (
+      <View style={styles.container}>
+        <Text>QR 코드를 생성할 값이 없습니다.</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <QRCode
+        value={value} // QR 코드로 변환할 문자열 전달
+        size={size}   // QR 코드의 가로, 세로 크기 (기본값 128)
+        // --- 추가 옵션들 ---
+        // color="black" // QR 코드 색상 (기본값 black)
+        // backgroundColor="white" // 배경색 (기본값 white)
+        // quietZone={10} // QR 코드 주변의 여백 크기
+      />
+      <Text style={styles.valueText}>데이터: {value}</Text>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  valueText: {
+    marginTop: 10,
+    fontSize: 12,
+    color: '#666',
+  },
+});
+
+export default MyQRCode;
+```
+- Import the `QRCode` component.
+- Pass the string you want to encode, such as a URL, to the `value` prop.
+- Use the `size` prop to set the QR code's size. The default is 128.
+
+### 2. Example of a QR Code for a Deep Link
+
+Now let's use `MyQRCode` to display a deep link as a QR code.
+
+```tsx title="/app/generateQRScreen.tsx"
+import React from 'react';
+import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import MyQRCode from '../components/MyQRCode'; // 위에서 만든 QR 코드 컴포넌트
+
+export default function GenerateQRScreen() {
+  // 예시 딥링크 URL (실제 앱 스킴과 경로에 맞게 수정 필요)
+  const deepLinkUrl = 'myawesomeapp://products/detail?productId=777&source=qrcode';
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <Text style={styles.title}>상품 상세 페이지 딥링크 QR 코드</Text>
+        <Text style={styles.description}>
+          아래 QR 코드를 스캔하면 앱의 상품 상세 페이지(ID: 777)로 이동합니다.
+        </Text>
+
+        {/* MyQRCode 컴포넌트에 딥링크 URL 전달 */}
+        <MyQRCode value={deepLinkUrl} size={200} />
+
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  description: {
+    fontSize: 14,
+    color: '#555',
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+});
+```
+
+- Put the deep link you want to encode in `deepLinkUrl`. It must match the app's `scheme` and the Expo Router path.
+- Render `MyQRCode` with `deepLinkUrl` as its `value` and the desired `size`, such as 200.
+
+<Img src="/250430-155500.webp" width={300} alt=""/>
+When you open this screen in the app, it generates and displays a QR code for the deep link. Users can scan it with another device's camera or a QR scanner app to open the link.
+
+<Ads2 />
+
+## Customization Options
+`react-native-qrcode-svg` offers more ways to customize the code.
+- `color` sets the QR code color. For example, use `color="blue"`.
+- `backgroundColor` sets the background color. For example, use `backgroundColor="#f0f0f0"`.
+- `logo` places a logo image in the center of the QR code. Use `require` to specify a local image path.
+- `logoSize`, `logoBackgroundColor`, `logoMargin`, and `logoBorderRadius` control the logo's styling.
+- `ecl` sets the error correction level. Choose from 'L', 'M', 'Q', or 'H'. A higher level makes a partially damaged QR code more likely to scan but makes the pattern more complex. 'H' is sometimes recommended when including a logo.
+
+```tsx
+// 로고를 포함한 예시
+import logoImage from '../assets/my_app_logo.png'; // 로고 이미지 import
+
+// ... 컴포넌트 내부 ...
+<QRCode
+  value={deepLinkUrl}
+  size={250}
+  logo={logoImage} // 로고 이미지 전달
+  logoSize={40}
+  logoBackgroundColor="transparent"
+  ecl="H" // 오류 복원 수준 높게 설정
+/>
+// ...
+```
+
+<Img src="/250430-165829.webp" width={300} alt="QR code with a custom logo"/>
+
+## Conclusion
+We used `react-native-qrcode-svg` to generate and display a QR code for a URL, including a deep link, in an Expo app. QR codes connect online and offline experiences and make links easier for users to open.
+
+### References
+
+- react-native-qrcode-svg on GitHub: [https://github.com/awesomejerry/react-native-qrcode-svg](https://github.com/awesomejerry/react-native-qrcode-svg)
+- react-native-svg on GitHub: [https://github.com/react-native-svg/react-native-svg](https://github.com/react-native-svg/react-native-svg)
+- Official Expo documentation: [https://docs.expo.dev/](https://docs.expo.dev/)

@@ -1,0 +1,469 @@
+---
+title_ko: Expo 푸시 알림 설정부터 전송까지 (A to Z) - expo-notification
+title_en: Expo Push Notifications Setup to Sending (A-Z) - expo-notification
+desc: >-
+  Expo 앱에 푸시 알림 기능을 단계별로 추가하는 방법을 알아봅니다. expo-notifications 설치, 푸시 토큰 획득, 알림 전송
+  및 수신 처리, 네이티브 설정(FCM, APNs)까지 상세히 안내합니다.
+thumbnail_url: /expo-push-notifications-guide.webp
+metatag: >-
+  Expo, 푸시 알림, Push Notifications, React Native, expo-notifications, Expo Push
+  Token, FCM, APNs, 모바일 앱 개발, 알림 설정, EAS Build, EAS Credentials
+post_id: '234'
+locale: zh
+title: Expo 推送通知完整指南：从配置到发送
+description: 分步骤介绍如何为 Expo 应用安装 expo-notifications、获取推送令牌、发送和接收通知，并配置 FCM 与 APNs。
+source_hash: 508f8acb2184f71e35bd204f4ba34a7e60a96354cff21429f160b77c59ca87e0
+reviewed_at: '2026-11-07T12:11:41.185Z'
+---
+
+## 开始之前
+开发移动应用时，如果想及时告知用户重要信息，或者邀请他们再次打开应用，就会用到*推送通知*。即使用户没有使用应用，也可以向其发送消息。不过第一次配置时，步骤可能显得有些复杂。
+本文将逐步介绍如何在 Expo React Native 应用中配置和使用推送通知。从安装工具、申请用户权限、获取专用令牌，到从服务器发送通知、在应用中接收通知，都会详细讲解。
+
+## 为什么需要推送通知？它是如何工作的？
+
+推送通知可以鼓励用户参与，也能及时传达重要信息。新消息提醒、活动通知和促销信息等，都可以引导用户再次打开应用。
+Expo 推送通知的大致流程如下。
+
+1. **应用**
+   Expo 应用在用户设备上运行。
+2. **获取推送令牌**
+   应用向用户请求通知权限。获得授权后，获取一个能标识设备的专用 *Expo 推送令牌*。
+3. **在服务器保存令牌**
+   应用把获取的推送令牌发送到开发者管理的后端服务器并保存。要向指定用户发送通知，就需要知道哪个令牌属于哪个用户。
+4. **请求发送通知**
+   当服务器需要向一位或多位用户发出通知时，将已保存的推送令牌与消息内容一起提交给 *Expo 推送服务* API。
+5. **Expo 推送服务**
+   Expo 运营的服务器会接收请求，并负责实际的推送流程。
+6. **原生推送服务（APNs／FCM）**
+   Expo 推送服务将通知交给对应平台的原生推送服务，iOS 使用 APNs，Android 使用 FCM。
+7. **设备接收**
+   APNs 或 FCM 最终将通知送达设备。
+8. **应用处理通知**
+   通知抵达设备后，应用可以接收并显示它，也可以执行特定操作。
+
+为了简化整个流程，Expo 提供了名为 `expo-notifications` 的库。接下来用这个库动手实现。
+
+## 第 1 步：准备工具（安装 expo-notifications）
+首先安装 `expo-notifications`，以便使用推送通知功能。在 Expo 项目中，建议使用 `expo install` 安装，以保证原生模块的兼容性，也可以和 `npm` 或 `yarn` 的安装方式区分开来。
+
+```bash
+npx expo install expo-notifications expo-device expo-constants
+```
+expo-notifications 用来请求用户权限，并获取发送推送通知所需的 ExpoPushToken。
+expo-device 用来检查应用是否在真机上运行。
+expo-constants 用来从应用配置读取 projectId。
+
+## 第 2 步：请求用户允许通知
+> 现在开始编写代码。完整代码见下方的[代码直达链接](#결론)。
+
+<Rbox>本示例无法在 Android 和 iOS 模拟器上运行。请连接真机测试！</Rbox>
+发送推送通知前，必须获得用户明确授权。iOS 和 Android 都有这一要求，也是保护用户隐私的必要步骤。
+
+### 检查并请求权限
+
+应用启动时或使用特定功能前，应检查当前通知权限。如果尚未授权，就需要请求用户授权。可以使用 `expo-notifications` 提供的函数。
+```tsx
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
+
+function handleRegistrationError(errorMessage: string) {
+  alert(errorMessage);
+  throw new Error(errorMessage);
+}
+
+async function registerForPushNotificationsAsync() {
+  if (Platform.OS === 'android') {
+    Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  }
+
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+      handleRegistrationError('Permission not granted to get push token for push notification!');
+      return;
+    }
+    const projectId =
+      Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+    if (!projectId) {
+      handleRegistrationError('Project ID not found');
+    }
+    try {
+      const pushTokenString = (
+        await Notifications.getExpoPushTokenAsync({
+          projectId,
+        })
+      ).data;
+      console.log(pushTokenString);
+      return pushTokenString;
+    } catch (e: unknown) {
+      handleRegistrationError(`${e}`);
+    }
+  } else {
+    handleRegistrationError('Must use physical device for push notifications');
+  }
+}
+```
+
+<Bbox>请务必将上述代码中的 YOUR_EXPO_PROJECT_ID 替换成自己的 Expo 项目 ID。可以在 app.json 的 extra.eas.projectId 字段，或 Expo 网站的项目设置中查看。</Bbox>
+
+也可以用以下代码获取 `projectId`。
+```javascript
+const projectId =
+      Constants?.expoConfig?.extra?.eas?.projectId ??
+      Constants?.easConfig?.projectId;
+```
+<Img src="/250429-160430.webp" width={300} alt="打开应用时弹出的通知权限提示"/>
+
+## 第 3 步：获取唯一标识 Expo 推送令牌
+
+获得用户授权后，就可以获取用于标识设备的 *Expo 推送令牌*。这个令牌类似一个唯一地址，Expo 推送服务可凭它把通知发往指定设备。
+调用 `Notifications.getExpoPushTokenAsync()` 后会得到一个令牌对象，其中的 `data` 属性才是实际令牌值。这一步已经包含在上面的 `registerForPushNotificationsAsync` 函数示例中。
+
+```tsx
+registerForPushNotificationsAsync()
+  .then(token => 
+    // sendTokenToServer(token); // 서버에 토큰 전송하는 함수 (직접 구현 필요)
+  )
+  .catch((error: any) => console.log(error));
+```
+
+获取推送令牌后，需要把它发送到自己的后端服务器保存。维护用户与令牌的对应关系，日后才能向指定用户发送推送通知。
+如果用户卸载并重新安装应用，或者更换设备，令牌可能变化。因此可能需要在每次启动应用时检查令牌，必要时更新服务器上的记录。
+
+<Ads1 />
+
+## 第 4 步：在应用中接收推送通知
+成功发送推送通知后，接下来看看应用如何接收和处理它。具体方式取决于应用是在前台运行、处于后台，还是已经退出。
+
+### 在应用前台运行时接收通知（Foreground）
+应用在用户眼前运行时收到通知，默认不会弹出系统通知。可以通过 `Notifications.addNotificationReceivedListener` 获取通知数据，并在应用内按需处理，例如显示应用内消息。
+```tsx
+notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+  setNotification(notification);
+});
+return () => {
+  notificationListener.current &&
+    Notifications.removeNotificationSubscription(notificationListener.current);
+};
+```
+如果希望前台也显示系统通知，可以在应用启动时配置 `Notifications.setNotificationHandler`，设置 `shouldShowAlert: true`。
+```tsx
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+  }),
+});
+```
+
+### 响应用户点击通知
+用户点击收到的推送通知时，需要定义应用的行为。这里指应用退出或在后台时收到的系统通知。比如，可以跳转到特定页面，或显示相关数据。
+为此可使用 `Notifications.addNotificationResponseReceivedListener`。用户与通知交互（点击）时会调用这个监听器，回调参数 `response` 对象提供通知信息（`response.notification`）。服务器发送的附加数据位于 `response.notification.request.content.data` 中，可以据此采取不同处理方式。参见上面的 `App` 组件示例。
+```tsx
+responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+  console.log(response);
+});
+return () => {
+  responseListener.current &&
+    Notifications.removeNotificationSubscription(responseListener.current);
+};
+```
+### 应用退出或在后台时的默认行为
+如果应用已经退出或在后台运行，推送通知会由 iOS 或 Android 的系统通知机制显示在屏幕顶部、锁屏等位置。声音、角标、是否显示在通知中心等表现，取决于启动时通过 `Notifications.setNotificationHandler` 预先设置的方式。
+```tsx
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
+```
+在后台刚收到通知时，立即执行复杂逻辑可能受到限制。常见做法是在用户点击后，通过 `addNotificationResponseReceivedListener` 进行后续处理。
+
+
+<Ads2 />
+
+
+## 第 5 步：配置原生推送（重要）
+
+以上内容主要以 Expo Go 测试环境为例。
+如果要构建提交到应用商店的*独立应用（Standalone App）*，必须完成 Android 和 iOS 各自的原生推送配置。
+否则，实际发布的应用将无法使用推送通知。
+Expo 提供 EAS（Expo Application Services），用来简化配置流程。
+
+### Android：配置 FCM
+
+Android 推送通知通过 *FCM（Firebase Cloud Messaging）* 发送。
+
+1.  **创建 Firebase 项目**
+  在 Google Firebase 控制台（[https://console.firebase.google.com/](https://console.firebase.google.com/)）创建新项目，或使用已有项目。
+2.  **添加 Android 应用**
+  在 Firebase 项目设置中添加 Android 应用，并准确输入应用包名，即 `app.json` 中的 `android.package`。
+3.  **下载 `google-services.json` 文件**
+  在添加应用的过程中下载 `google-services.json`。这个文件包含 FCM 配置信息。
+4.  **查看 FCM 服务器密钥**
+  在 Firebase 项目设置的“云消息传递”标签页中查看服务器密钥。原文所述的 Expo 流程主要采用直接上传 `google-services.json` 的方式来替代服务器密钥。
+5.  **通过 EAS CLI 上传凭据**
+  在项目目录中用 EAS CLI 将下载的 `google-services.json` 上传到 Expo 服务器。
+    ```bash
+    # 아직 설치하지 않았다면: npm install -g eas-cli
+    eas login # Expo 계정 로그인
+    eas credentials 
+    ```
+    > Android
+    -> Google Service Account
+    -> Manage your Google Service Account for Push Notifications (FCM V1)
+    -> Set up a Google Service Account Key for Push Notifications (FCM V1)
+    -> 选择 Google 账号
+
+    上传的凭据会在 EAS Build 时自动包含到应用中。
+6.  **检查 app.json 配置**
+  确认 app.json 文件中的 android.googleServicesFile 路径正确。
+    ```json title="app.json"
+    {
+    "expo": {
+      "android": {
+          "googleServicesFile": "./path/to/google-services.json"
+        }
+      }
+    }
+    ```
+
+### iOS：配置 APNs
+
+iOS 推送通知通过 *APNs*（Apple Push Notification service）发送。
+
+1.  **Apple Developer 账号**
+  需要付费的 Apple Developer 账号。
+2.  **设置 Bundle Identifier**
+  设置应用唯一的 Bundle Identifier 并在 Apple Developer 网站登记，对应 `app.json` 中的 `ios.bundleIdentifier`。
+3.  **启用 Push Notifications**
+  在 Apple Developer 网站为相应的应用 ID（Bundle Identifier）启用 Push Notifications。
+4.  **生成 APNs 认证密钥（.p8 文件）**
+  在 Apple Developer 网站的“Certificates, Identifiers & Profiles → Keys”中创建启用 Apple Push Notifications service（APNs）的新密钥，下载 `.p8` 文件。也可以使用证书（.p12），但更推荐密钥（.p8）。同时记录 Key ID 和 Team ID。
+5.  **通过 EAS CLI 上传凭据**
+  在项目目录中用 EAS CLI 将下载的 `.p8` 文件和相关信息（Key ID、Team ID、Bundle Identifier）上传到 Expo 服务器。
+    ```bash
+    eas credentials # 명령 실행 후 플랫폼(ios) 선택, 안내에 따라 Push Key (.p8) 파일 경로 및 관련 정보 입력
+    ```
+    这些凭据同样会在 EAS Build 时使用。
+6.  **检查 app.json 配置**
+  确认 `ios.bundleIdentifier` 与 Apple Developer 网站登记的值一致，并检查 `ios.usesAppleSignIn` 等设置。还要确认 `ios.entitlements` 中的 `aps-environment` 按构建环境设置为 'development' 或 'production'。许多情况下，EAS Build 会管理这一项。
+
+原生配置看起来可能比较复杂，但按照 Expo 文档和 EAS CLI 的提示就能完成。
+
+## 第 6 步：发送推送通知（测试与实际发送）
+获取令牌后，就可以发送推送通知了。
+### 最简便的方法：使用 Expo 推送通知工具
+在开发和测试阶段，使用 Expo 提供的网页工具最方便。
+1. **打开 Expo Push Notifications Tool**
+   前往 [https://expo.dev/notifications](https://expo.dev/notifications)。
+2. **输入推送令牌**
+   输入刚从应用获取的 Expo 推送令牌，格式为 `ExponentPushToken[...]`。
+3. **编写消息**
+   输入通知标题和正文。需要时，可以在 `data` 字段加入 JSON 格式的附加数据，应用收到通知后可以使用这些数据。
+4. **发送**
+   点击 Send Notification，就会向对应令牌的设备发送通知。
+
+使用这个工具，即使没有配置服务器，也能测试应用接收和处理通知的逻辑。
+
+### 直接从服务器发送：Node.js
+在实际服务中，后端发生特定事件时，例如收到新消息或发布公告，就需要向用户发送推送通知。为此需要向 Expo 推送服务 API 发送 HTTP POST 请求。
+下面是在 Node.js 中使用 `fetch` API 发送推送通知的简单示例。
+```javascript
+// 이 코드는 백엔드 서버(Node.js 등)에서 실행되어야 합니다.
+// 절대로 앱 클라이언트 코드에 API 키나 토큰을 직접 넣지 마세요!
+const sendPushNotification = async (expoPushToken, title, body, data) => {
+  const message = {
+    to: expoPushToken, // 알림을 받을 대상 토큰 (배열로 여러 명에게 동시 전송 가능)
+    sound: 'default',  // 알림 도착 시 소리 ('default' 또는 null)
+    title: title,      // 알림 제목
+    body: body,        // 알림 본문
+    data: data,        // 앱에서 추가적으로 사용할 데이터 (JSON 객체)
+  };
+  try {
+    const response = await fetch('https://exp.host/--/api/v2/push/send', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Accept-encoding': 'gzip, deflate',
+        'Content-Type': 'application/json',
+        // 'Authorization': `Bearer YOUR_EXPO_ACCESS_TOKEN` // Access Token 방식 사용 시 (선택 사항)
+      },
+      body: JSON.stringify(message),
+    });
+    const result = await response.json();
+    console.log('Push notification sent:', result);
+    // result 객체 예시: { data: { status: 'ok', id: '...' } }
+    // status가 'error'인 경우 details 객체에 오류 정보 포함
+    //   } catch (error) {
+    console.error('Error sending push notification:', error);
+  }
+};
+
+// 사용 예시: 저장된 사용자 토큰으로 알림 보내기
+const userToken = 'ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]'; // 실제 사용자 토큰 사용
+
+sendPushNotification(
+  userToken,
+  '새로운 메시지',
+  '친구가 메시지를 보냈습니다!',
+  { messageId: 123, sender: '친구A' } // 앱에서 활용할 추가 데이터
+);
+```
+<Rbox>如果使用 Expo Access Token 等敏感信息，绝不能把它们写进应用客户端代码。请始终从安全的后端服务器发送 API 请求。</Rbox>
+
+## 自定义与管理通知
+expo-notifications 还提供一些额外功能，帮助更好地使用通知。
+- **设置 Android 通知渠道**：在 Android 8.0（Oreo）及以上版本，需要设置通知渠道（Channel），用户才能按通知类型管理设置。可用 Notifications.setNotificationChannelAsync() 配置渠道 ID、名称、重要性等。参见上面的 `registerForPushNotificationsAsync` 示例。
+- **管理 iOS 角标计数**：可以管理应用图标上的红色数字角标。用 `Notifications.getBadgeCountAsync()` 读取当前计数，再用 `Notifications.setBadgeCountAsync()` 设置计数。需要编写与服务器同步的逻辑。
+- **安排通知**：使用 `Notifications.scheduleNotificationAsync()`，可以在经过一定时间后或按周期发出本地通知。这是本地通知功能，与推送通知不同。
+
+<Ads3 />
+## 结语
+
+<Toggle title="完整代码">
+
+```tsx
+import React, { useState, useEffect, useRef } from 'react';
+import { Text, View, Button, Platform } from 'react-native';
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
+
+// 앱이 실행되는 동안 알림이 도착했을 때 어떻게 처리할지 설정 (Foreground 알림 처리)
+// 소리 재생, 뱃지 표시, 알림 표시 여부 등을 설정할 수 있습니다.
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true, // 알림 도착 시 사용자에게 표시할지 여부
+    shouldPlaySound: true, // 소리 재생 여부
+    shouldSetBadge: true,  // 뱃지 아이콘 표시 여부 (iOS)
+  }),
+});
+
+// 푸시 알림 권한 요청 및 토큰 받기 함수
+async function registerForPushNotificationsAsync() {
+  // 안드로이드 채널 설정 (선택 사항이지만 권장됨)
+  if (Platform.OS === 'android') {
+    Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX, // 알림 중요도 설정
+      vibrationPattern: [0, 250, 250, 250], // 진동 패턴
+      lightColor: '#FF231F7C', // 알림 LED 색상
+    });
+  }
+
+  if (Device.isDevice) {
+    // 현재 권한 상태 확인
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    // 권한이 부여되지 않았다면 요청
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    // 최종적으로 권한이 거부되었다면 함수 종료
+    if (finalStatus !== 'granted') {
+      handleRegistrationError('Permission not granted to get push token for push notification!');
+      return;
+    }
+
+    // 프로젝트 id 추출출
+    const projectId =
+      Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+    if (!projectId) {
+      handleRegistrationError('Project ID not found');
+    }
+
+    // Expo 푸시 토큰 받기
+    try {
+      const pushTokenString = (
+        await Notifications.getExpoPushTokenAsync({
+          projectId,
+        })
+      ).data;
+      console.log(pushTokenString);
+      return pushTokenString;
+    } catch (e: unknown) {
+      handleRegistrationError(`${e}`);
+    }
+  } else {
+    handleRegistrationError('Must use physical device for push notifications');
+  }
+}
+
+export default function App() {
+  const [notification, setNotification] = useState<Notifications.Notification | null>(null);
+  const notificationListener = useRef<Notifications.Subscription>();
+  const responseListener = useRef<Notifications.Subscription>();
+
+  useEffect(() => {
+    // 1. 알림 권한 요청
+    registerForPushNotificationsAsync()
+      .then(token => 
+        // sendTokenToServer(token); // 서버에 토큰 전송하는 함수 (직접 구현 필요)
+      )
+      .catch((error: any) => console.log(error));
+
+    // 2. 알림 수신 리스너 등록 (앱 실행 중 알림 도착 시)
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      console.log('알림 수신 (foreground):', notification);
+      setNotification(notification);
+    });
+
+    // 3. 알림 반응 리스너 등록 (사용자가 알림 탭 시)
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('알림 반응:', response);
+      // 여기서 response.notification.request.content.data 등을 통해
+      // 알림에 포함된 데이터에 접근하고 특정 화면으로 이동하는 등의 로직 처리 가능
+    });
+
+    // 컴포넌트 unmount 시 리스너 해제
+    return () => {
+      if (notificationListener.current) {
+        Notifications.removeNotificationSubscription(notificationListener.current);
+      }
+      if (responseListener.current) {
+        Notifications.removeNotificationSubscription(responseListener.current);
+      }
+    };
+  }, []);
+
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'space-around' }}>
+      <Text>푸시 알림 테스트</Text>
+      {/* 필요 시 버튼 등으로 알림 보내기 기능 트리거 */}
+    </View>
+  );
+}
+```
+</Toggle>
+
+今天逐步介绍了如何使用 Expo 为 React Native 应用添加推送通知。
+1. **安装** expo-notifications。
+2. 请求用户授予通知**权限**。
+3. 获取专用的 **Expo 推送令牌**，并保存到服务器。
+4. 通过 Expo 推送通知工具或自己的**服务器发送**通知。
+5. 在应用中**接收**通知并处理用户操作。
+6. 最后，通过 **FCM 和 APNs 原生配置**为正式发布做好准备。
+
+### 参考资料
+- Expo 推送通知概览：[https://docs.expo.dev/push-notifications/overview/](https://docs.expo.dev/push-notifications/overview/)
+- 使用 FCM 发送推送通知（Android 配置）：[https://docs.expo.dev/push-notifications/using-fcm/](https://docs.expo.dev/push-notifications/using-fcm/)
+- 使用 APNs 发送推送通知（iOS 配置）：[https://docs.expo.dev/push-notifications/using-apns/](https://docs.expo.dev/push-notifications/using-apns/)
+- expo-notifications API 参考：[https://docs.expo.dev/versions/latest/sdk/notifications/](https://docs.expo.dev/versions/latest/sdk/notifications/)
+- EAS 凭据文档：[https://docs.expo.dev/eas/credentials/](https://docs.expo.dev/eas/credentials/)

@@ -1,0 +1,172 @@
+---
+title_ko: 유스케이스로 사용자 요구 정리하기
+title_en: Organizing User Requirements with Use Cases
+desc: >-
+  유스케이스(Use Case)를 활용하여 사용자 요구사항을 효과적으로 분석하고 정리하는 방법을 알아봅니다. 액터, 유스케이스, 시나리오의
+  개념을 이해하고, 기본 흐름과 대안/예외 흐름을 포함한 유스케이스 서술서 작성법을 예시와 함께 쉽게 설명합니다.
+thumbnail_url: /250528-171444.webp
+metatag: >-
+  유스케이스, Use Case, 요구사항 분석, 사용자 요구사항, 액터, 시나리오, 기본 흐름, 대안 흐름, 예외 흐름, 유스케이스
+  다이어그램, 유스케이스 명세서, 소프트웨어 공학
+post_id: '310'
+locale: en
+title: Organizing User Requirements with Use Cases
+description: >-
+  Learn about actors, use cases, and scenarios, and write a use case
+  specification with basic, alternative, and exception flows.
+source_hash: 31ca86fd1c2fc47df296da07cc4c93a5ee78bd1953fc702defea6a12a97c6f41
+---
+## Before We Begin
+
+Last time we looked at ways to uncover users' unspoken requirements. Once collected, those requirements need a clear structure so stakeholders share the same understanding and the development team knows what to build.
+<br />
+A *use case* organizes requirements from the user's perspective around what the user wants to accomplish with the system. This post covers use cases, actors, scenarios, and how to write a use case specification. The [next post](/blog/post/72-use-cases) covers use case diagrams.
+## What Is a Use Case?
+
+The Swedish computer scientist Ivar Jacobson first developed the concept. A use case describes a *valuable function* that a system provides to a user or another system, from that user's perspective. The participant can be a person, an external system, or a device. We call that participant an *actor*.
+<Img src="/250528-164909.webp" width={300} alt="A scenario in which a user achieves a goal"/>
+A use case answers a question through scenarios: “Which actor uses the system to achieve which goal?” An online bookstore might have these use cases.
+
+- A member searches for a book.
+- A member orders a book.
+- An administrator adds a new book.
+
+Use case diagrams typically show use cases as ovals and actors as stick figures, giving a visual overview of the system's scope. The *use case specification*, also called a use case description, explains in detail what happens in each use case.
+
+<Ads1/>
+## Core Elements of a Use Case
+Understanding these three elements helps you write use cases.
+### 1. Actor
+An actor is a person, other system, or device *outside* the system that interacts with it to achieve a goal. An actor may start a use case or be affected by its outcome.
+
+#### Primary Actor
+The primary actor uses the system to achieve the use case's goal and often initiates it. For example, the member is the primary actor in “Order a Book.”
+#### Secondary or Supporting Actor
+The system receives help from or exchanges information with a supporting actor while helping the primary actor achieve the goal. For example, an external payment system supports “Order a Book” by processing payment.
+#### Characteristics
+Actors are external to the system. They represent roles, so one person or system can play several roles. Use case diagrams usually show actors as stick figures.
+
+### 2. Use Case
+A use case represents a *goal* an actor wants to achieve through the system. It covers a complete unit of functionality that the system offers the actor. Names usually use verb phrases such as “Sign In,” “Write a Post,” or “Search for a Product.”
+
+#### Characteristics
+A use case should produce a meaningful outcome for the actor. It can contain several scenarios. In a use case diagram, it appears as an oval.
+
+### 3. Scenario
+
+A scenario describes a *sequence of interactions* between an actor and the system from the start to the end of a use case. Like a scene in a play, it shows who does what, under which conditions, and what happens next.
+
+#### Basic Flow or Main Success Scenario
+The basic flow is the usual successful path, often called the “happy path.” It describes how the actor reaches the goal without errors or exceptions.
+#### Alternative Flows
+These paths depart from the basic flow but still let the actor reach the goal, for example by choosing another option or meeting a condition that triggers different handling.
+#### Exception or Error Flows
+These describe what happens when an error occurs or the actor cannot reach the goal, such as after invalid input or a system failure.
+
+> A use case has one basic flow and can have multiple alternative and exception flows.
+Documenting these scenarios in detail is the heart of a use case specification.
+
+
+<Ads2/>
+## Write a Use Case Specification
+
+A use case specification records the details of a use case. There's no single required template, but common fields include:
+
+1. **Use Case ID**  
+   A unique identifier such as UC-001.
+2. **Use Case Name**  
+   A short name that communicates the goal, such as “Register an Account.”
+3. **Actors**  
+   The primary and supporting actors.
+4. **Brief Description**  
+   A one- or two-sentence summary of the purpose and main functionality.
+5. **Preconditions**  
+   Conditions that must hold before the use case begins, such as “The user is signed in.”
+6. **Postconditions**  
+   The system state or conditions guaranteed after successful completion. For example, the database contains the new member record and the system has sent a welcome email.
+7. **Basic Flow or Main Success Scenario**  
+   The main steps for successful completion in order.
+8. **Alternative Flows**  
+   Other successful paths that depart from the basic flow.
+9. **Exception Flows**  
+   Error handling or scenarios in which the use case fails.
+10. **Special Requirements**  
+    Related nonfunctional requirements, such as performance or security, and business rules.
+11. **Notes and Issues**  
+    Additional details and unresolved questions.
+
+### Example Specification: Order a Book from an Online Bookstore
+Here is a short specification for a member ordering books through an online bookstore.
+**1. Use Case ID**  
+UC-ORD-001
+
+**2. Use Case Name**  
+Order a Book
+
+**3. Actors**
+- Primary actor: Member
+- Supporting actors: Payment system and inventory management system
+
+**4. Brief Description**  
+The member selects books and completes the order by paying.
+
+**5. Preconditions**
+- The member is signed in.
+- The cart contains at least one book to order.
+
+**6. Postconditions**
+- On success, the system records the order.
+- On success, stock levels for the ordered books decrease.
+- On success, the system shows an order confirmation and sends a confirmation email.
+- On failure, the system does not record the order and tells the user why it failed.
+
+**7. Main Success Scenario**
+1. The member clicks Place Order on the cart page.
+2. The system shows the items and total amount, and provides a form for shipping details.
+3. The member enters shipping details and clicks Continue to Payment.
+4. The system shows a screen for choosing a payment method.
+5. The member chooses a method, enters payment details, and clicks Pay.
+6. The system asks the inventory management system to check stock for the books.
+7. The inventory management system confirms that there is enough stock.
+8. The system requests payment from the payment system.
+9. The payment system reports success.
+10. The system saves the order and asks the inventory management system to reduce stock.
+11. The system shows the order confirmation page and sends the confirmation email.
+
+**8. Alternative Flows**
+- **8.1. Change the shipping address**
+  At step 3, the member enters or selects a different shipping address. The system saves the new shipping details.
+- **8.2. Apply a coupon**
+  At step 4, the member applies a coupon they hold. The system calculates and displays the discounted total.
+
+**9. Exception Flows**
+- **9.1. Insufficient stock**
+  At step 7, if the inventory management system reports that a particular book is out of stock:
+  1. The system shows a message identifying the affected book.
+  2. The member can continue without that book or cancel the order.
+- **9.2. Payment failure**
+  At step 9, if the payment system reports a failure:
+  1. The system shows that payment failed and gives a reason, such as an exceeded limit or invalid card details.
+  2. The member can try again with another method or corrected payment details.
+- **9.3. System error**
+  If an unexpected error occurs while processing the order:
+  1. The system shows a message such as “A temporary error occurred. Please try again shortly.”
+  2. The system logs the error.
+
+**10. Special Requirements**
+- Encrypt all sensitive information, including personal and payment details, during order processing.
+- The average response time through order completion must be no more than five seconds.
+
+> A use case specification gives the development team detailed scenarios to understand what users need and guide implementation.
+
+
+## Conclusion
+
+Use cases help define and analyze system functions from the user's point of view. We looked at actors, use cases, and scenarios, then used those concepts to write a detailed specification.
+
+> Next time, we'll look at **system modeling with context and activity diagrams** to describe the system as a whole and define how it relates to its surroundings.
+
+### References
+
+- [Use case — Wikipedia](https://en.wikipedia.org/wiki/Use_case) (English. An overview of use cases.)
+- [Use Case Tutorial — Visual Paradigm](https://www.visual-paradigm.com/guide/uml-unified-modeling-language/what-is-use-case/) (English. A use case tutorial.)

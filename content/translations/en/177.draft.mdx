@@ -1,0 +1,153 @@
+---
+title_ko: 'Next.js 블로그 성능 개선 사례 정리 - fetch 병렬 처리, Suspense 최적화'
+title_en: >-
+  Optimizing Next.js Blog Performance - Fetch Parallelization, Suspense
+  Optimization
+desc: '중복 fetch 제거, Suspense 최적화, 클라이언트 포맷 처리 등 실전 Next.js 프로젝트에서 성능을 개선한 방법을 정리합니다.'
+thumbnail_url: /250404-111537.webp
+metatag: 'nextjs, 성능 최적화, suspense, generateMetadata, hydration mismatch, fetch 병렬 처리'
+post_id: '177'
+locale: en
+title: >-
+  Improving Next.js Blog Performance: Parallel Fetching and Suspense
+  Optimization
+description: >-
+  Practical performance improvements in a Next.js blog, including removing
+  duplicate fetches, simplifying Suspense, and formatting dates on the client.
+source_hash: 4b108663f828ff1dd8131e440ba0dbda682a9f4106a2c1ca9ffa8bca07eace40
+---
+## Before We Begin
+Next.js's App Router and React 18 Server Components let us build flexible, scalable web applications. Used incorrectly, however, they can slow down entire pages or trigger *unnecessary server requests*.
+This post walks through how I addressed performance bottlenecks found in a production blog, focusing on:
+- Parallel fetching.
+- Eliminating duplicate API calls.
+- Optimizing nested Suspense boundaries.
+- Resolving hydration mismatches caused by date formatting.
+- Reducing the impact of generateMetadata.
+
+<Ads1 />
+## Problem 1: Optimizing Parallel API Calls
+Previously, data was fetched sequentially as follows:
+```ts
+const post = await PostService().getPost({ post_id: id });
+await PostService().viewIncrement({ post_id: id });
+```
+These requests do not depend on one another, so running them in parallel can improve performance.
+### Solution: Run Requests in Parallel with `Promise.all()`
+```ts
+const [markdownsource] = await Promise.all([
+    PostService().getPost({ post_id: id }),
+  PostService().viewIncrement({ post_id: id }),
+]);
+```
+This can make a significant difference, especially when `viewIncrement` is slow or involves external database I/O.
+
+<Ads2 />
+## Problem 2: Nested Suspense Rendering
+Initially, `Suspense` was nested in several places:
+```tsx
+<Suspense fallback={<Loading />}>
+  <BreadCrumb params={markdownsource} />
+</Suspense>
+<Suspense fallback={<Loading />}>
+  <MdxHeader props={...} />
+</Suspense>
+<Suspense fallback={<Loading />}>
+  <Giscus />
+</Suspense>
+```
+This allowed loading to be controlled per component, but introduced *unnecessary React boundary overhead* during rendering and made the experience feel slower to users.
+
+### Solution: Consolidate into One Suspense Boundary
+```tsx
+<Suspense fallback={<Loading />}>
+  <>
+    <BreadCrumb params={markdownsource} />
+    <MdxHeader props={{ ... }} />
+    <div className="ml-auto text-right">
+      📅 <LocalizedDate isoString={markdownsource.init_date} />
+    </div>
+    <div className="prose mt-10 ...">
+      <MdxBody content={markdownsource.posting} />
+      <RightSidebarComp content={markdownsource.posting} />
+    </div>
+    <Giscus />
+  </>
+</Suspense>
+```
+This removed duplicate loading indicators and kept the rendering order between components consistent.
+
+<Ads3 />
+## Problem 3: Hydration Mismatch from Date Formatting
+The initial code formatted dates on the server:
+```ts
+const dateString = dayjs(markdownsource.init_date).locale("ko").format("YYYY년 MM월 DD일");
+```
+If the server and client use different locales, this can produce different rendered output and cause a hydration mismatch.
+### Solution: Format Dates on the Client
+I changed the server to pass only the original ISO string, with dayjs formatting handled in a client component.
+```tsx
+'use client';
+import dayjs from 'dayjs';
+import 'dayjs/locale/ko';
+export const LocalizedDate = ({ isoString }: { isoString: string }) => {
+    const [text, setText] = useState('');
+  useEffect(() => {
+      dayjs.locale('ko');
+    setText(dayjs(isoString).format('YYYY년 MM월 DD일'));
+  }, [isoString]);
+  return <span>{text}</span>;
+};
+```
+Usage:
+```tsx
+<LocalizedDate isoString={markdownsource.init_date} />
+```
+This ensures dates are rendered in a format appropriate for the client environment.
+
+## Problem 4: Duplicate Calls to PostService().getPost()
+A common issue in the Next.js App Router is *fetching the same data separately* in `generateMetadata()` and the page component body.
+```ts
+// metadata.ts에서 호출
+const markdownsource = await PostService().getPost({ post_id: params.post });
+// page.tsx에서도 또 호출
+const markdownsource = await PostService().getPost({ post_id: params.post });
+```
+This means **the same data is requested twice to load one page**. It is particularly wasteful when the dataset is large or requests involve external APIs.
+### Solution: Extract a getPostMeta() Method
+generateMetadata() does not need all the data required for rendering. It only needs *a few fields such as title, description, and og:image*. I therefore created a separate lightweight API:
+```ts
+const getPostMeta = async (params: { post_id: string }) => {
+  const response = await CustomFetch(`/post/meta${getParams(params)}`, {
+    method: "GET",
+  });
+  return response.body.data;
+};
+```
+I changed generateMetadata() to use only this metadata API:
+```ts
+export async function generateMetadata({ params }) {
+    const meta = await PostService().getPostMeta({ post_id: params.post });
+  return GenerateMeta({ meta, param: params.post });
+}
+```
+This **reduced unnecessary full-data fetching and eliminated duplicate calls**.
+
+<Ads4 />
+## Conclusion
+| Item | Before | After | Benefit |
+|------|---------|----------|------|
+| Duplicate `getPost` calls | Duplicate requests in `generateMetadata` and the body | Separate metadata API | Lower API costs |
+| Suspense | Multiple nested boundaries | One consolidated boundary | Optimized rendering |
+| Date formatting | Server formatting | Client formatting | Resolved hydration mismatch |
+| API calls | Sequential | Parallel | Faster responses |
+
+Next.js has strong baseline performance, but your code structure can still introduce bottlenecks. These improvements can be applied to other projects and benefit both perceived speed and server costs.
+Following the fundamentals—removing redundant work, simplifying Suspense, optimizing render timing, and parallelizing fetches—can create a much smoother user experience.
+
+### Further Considerations
+- Use cache policies such as `revalidateTag` and `cache: 'no-store'`.
+- Consider `dynamic(import, { ssr: false })` for logic needed only on the client.
+### References
+- [Official Next.js documentation: App Router optimization](https://nextjs.org/docs/app/building-your-application/optimizing)
+- [Understanding React Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html)

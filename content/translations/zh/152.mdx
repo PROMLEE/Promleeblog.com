@@ -1,0 +1,122 @@
+---
+title_ko: Flutter에서 앱 아이콘/이름 설정하기 (flutter_launcher_icons)
+title_en: Setting App Icon/Name in Flutter (flutter_launcher_icons)
+desc: >-
+  Flutter에서 앱 아이콘과 이름을 설정하는 방법을 알아봅니다. Let's learn how to set app icon and name
+  in Flutter.
+thumbnail_url: 'https://storage.googleapis.com/cms-storage-bucket/847ae81f5430402216fd.svg'
+metatag: '앱 아이콘 변경, 앱 이름 변경, 이미지 설정'
+post_id: '152'
+locale: zh
+title: 在Flutter中设置应用图标与名称
+description: 使用flutter_launcher_icons生成应用图标，并修改Android与iOS应用的显示名称。
+source_hash: ee0647dca669e494c5ce9c176c9b8c26f8ea906591c48178538a7dc8c4e17635
+reviewed_at: '2026-11-06T14:46:35.460Z'
+---
+## 开始之前
+> 本文基于Flutter 3.24编写。
+假设你已经完成Flutter安装。
+
+### 概述
+创建Flutter项目后，应用图标默认是Flutter标志。有时我们希望更换这个图标，这时可以使用`flutter_launcher_icons`包。借助它，可以更方便地设置Flutter项目的应用图标和名称。
+
+## 更换应用图标
+### 1. 安装包
+安装`flutter_launcher_icons`。
+
+```bash
+flutter pub add flutter_launcher_icons
+```
+
+### 2. 生成配置文件
+输入以下命令，生成配置文件。
+
+```bash
+dart run flutter_launcher_icons:generate
+```
+
+执行后会生成如下文件。
+
+```yaml title="flutter_launcher_icons.yaml"
+# flutter pub run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: "assets/icon/icon.png"
+
+  android: "launcher_icon"
+  # image_path_android: "assets/icon/icon.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  # adaptive_icon_background: "assets/icon/background.png"
+  # adaptive_icon_foreground: "assets/icon/foreground.png"
+  # adaptive_icon_monochrome: "assets/icon/monochrome.png"
+
+  ios: true
+  # image_path_ios: "assets/icon/icon.png"
+  remove_alpha_channel_ios: true
+  # image_path_ios_dark_transparent: "assets/icon/icon_dark.png"
+  # image_path_ios_tinted_grayscale: "assets/icon/icon_tinted.png"
+  # desaturate_tinted_to_grayscale_ios: true
+
+  web:
+    generate: true
+    image_path: "path/to/image.png"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+
+  windows:
+    generate: true
+    image_path: "path/to/image.png"
+    icon_size: 48 # min:48, max:256, default: 48
+
+  macos:
+    generate: true
+    image_path: "path/to/image.png"
+```
+### 3. 准备图标图片
+将图片放到`assets/logo/icon.png`。如果还没有图片，可以通过以下链接生成图标。
+- [appicon](https://www.appicon.co/)：已有基础图片时使用。
+- [icon Kitchen](https://icon.kitchen/i/H4sIAAAAAAAAA6tWKkvMKU0tVrKqVkpJLMoOyUjNTVWySkvMKU6t1VHKzU8pzQHJRisl5qUU5WemKOkoZeYXA8ny1CSl2FoApT8%2BHkAAAAA%3D)：没有基础图片时也可以创建。
+
+### 4. 应用图标
+修改`flutter_launcher_icons.yaml`。
+
+```yaml
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo/icon.png"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/logo/icon.png"
+  remove_alpha_ios: true
+```
+
+执行以下命令，应用图标。
+
+```bash
+flutter pub get
+dart run flutter_launcher_icons
+```
+图标就更换完成了。接下来修改应用名称。
+
+<Ads1 />
+## 修改应用名称
+### 1. Android
+打开`android/app/src/main/AndroidManifest.xml`，按以下方式修改。在`android:label`中填写应用名称。
+
+```xml {2}
+<application
+		android:label="앱 이름"
+		android:icon="@mipmap/ic_launcher">
+```
+
+### 2. iOS
+打开`ios/Runner/Info.plist`，按以下方式修改。在`CFBundleDisplayName`中填写应用名称。
+
+```xml {2}
+<key>CFBundleDisplayName</key>
+<string>앱 이름</string>
+```
+## 结论
+### 参考资料
+- [flutter_launcher_icons](https://pub.dev/packages/flutter_launcher_icons)
+- [appicon](https://www.appicon.co/)
+- [Stack Overflow](https://stackoverflow.com/questions/49353199/how-can-i-change-the-app-display-name-build-with-flutter)

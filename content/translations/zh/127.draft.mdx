@@ -1,0 +1,281 @@
+---
+title_ko: 네비게이션 바 탭 단위 스택 유지하기
+title_en: Maintaining a per-tab stack of navigation bars
+desc: '하단 네비게이션 바를 설정하고, 각 탭을 눌렀을 때 해당 페이지로 이동하도록 설정해보겠습니다.'
+post_id: '127'
+locale: zh
+title: 为Flutter导航栏的每个标签保留独立页面栈
+description: 使用IndexedStack和Navigator保留底部导航栏及标签状态，并在重复点击当前标签时返回栈顶页面。
+source_hash: e833b162f2edf1b035393cd1682dad8276b71248689ebbf229ca9fbc90b7db46
+---
+## 开始之前
+> 1. 目标、条件与初始配置：[链接](/blog/post/124-goals-init-paging)
+> 2. 登录页面分流（FlutterSecureStorage）：[链接](/blog/post/125-login-branch-paging)
+> 3. 设置底部导航栏：[链接](/blog/post/126-bt-navigation-paging)
+>
+> 假设已经按顺序参考上述文章完成项目配置。
+> 本文基于Flutter 3.24编写。
+
+此前已经完成了登录页面分流和底部导航栏配置。现在为各个标签增加更深层页面，让标签内部也能执行页面跳转。
+
+本文使用的lib文件结构如下，提前创建好会更方便。
+```plaintext
+📦 lib
+┣ 📂 model						// 데이터 보관하는 모델 폴더(이번 포스팅에서는 사용하지 않음)
+┣ 📂 view						// 화면을 구성하는 뷰 폴더
+┃ ┣ 📂 tabs						// 탭 4개를 구성하는 화면
+┃ ┃ ┣ 📜 home_screen.dart
+┃ ┃ ┣ 📜 notifications_screen.dart
+┃ ┃ ┣ 📜 profile_screen.dart
+┃ ┃ ┗ 📜 search_screen.dart
+┃ ┣ 📜 external_screen.dart
+┃ ┣ 📜 login_page.dart
+┃ ┗ 📜 main_page.dart
+┣ 📂 viewModel					// 데이터와 화면을 잇는 viewModel 폴더
+┃ ┗ 📜 auth_service.dart
+┗ 📜 main.dart
+```
+<Ads1 />
+## 在标签内部实现页面跳转
+### 1. 添加External Screen
+External Screen不是通过底部导航栏直接进入的标签页，而是从其他页面跳转进入的页面。这里添加一个External Screen，并让Home Screen能够跳转到它。
+```dart title="lib/view/external_screen.dart"
+import 'package:flutter/material.dart';
+
+class ExternalScreen extends StatelessWidget {
+  const ExternalScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('External Screen'), // 추가 화면 제목
+      ),
+      body: const Center(
+        child: Text('External Screen', style: TextStyle(fontSize: 24)),
+      ),
+    );
+  }
+}
+```
+
+### 2. 修改Home Screen
+在Home Screen中添加一个按钮，用于跳转到External Screen。
+```dart title="lib/view/home_screen.dart"
+import 'package:flutter/material.dart';
+import 'package:navigationbar_example/view/external_screen.dart';
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('Home Screen', style: TextStyle(fontSize: 24)),
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ExternalScreen()));
+              },
+              icon: const Icon(Icons.next_plan))
+        ],
+      ),
+    );
+  }
+}
+```
+
+### 3. 确认运行结果
+Home Screen中已经添加了跳转按钮。
+<Img src="/posts/250113-173304.gif" width={200} alt=""/>
+但出现了一个问题：External Screen中看不到底部导航栏。为了解决这个问题，我们使用IndexedStack，为每个标签保留自己的栈。
+
+<Ads2 />
+## 在额外页面中保留导航栏
+为了在额外页面中显示导航栏，使用*IndexedStack*和*Navigator*管理各标签的独立栈。
+这样，在标签内部跳转页面时，底部导航栏也能保持显示。
+```dart title="lib/view/main_page.dart"import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+
+import 'package:navigationbar_example/view/tabs/home_screen.dart';
+import 'package:navigationbar_example/view/tabs/notifications_screen.dart';
+import 'package:navigationbar_example/view/tabs/profile_screen.dart';
+import 'package:navigationbar_example/view/tabs/search_screen.dart';
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  MainPageState createState() => MainPageState();
+}
+
+class MainPageState extends State<MainPage> {
+  int _currentIndex = 0; // 현재 선택된 탭의 인덱스
+
+  // 각 탭에서 보여줄 화면 리스트
+  final List<Widget> _pages = [
+    const HomeScreen(), // 첫 번째 탭 화면
+    const SearchScreen(), // 두 번째 탭 화면
+    const NotificationsScreen(), // 세 번째 탭 화면
+    ProfileScreen(), // 네 번째 탭 화면
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack( // 각 탭마다 스택을 유지하도록 설정
+        index: _currentIndex,
+        children: List.generate(_pages.length, (index) {
+          return Navigator( // 탭 선택 시 페이지 이동을 위한 Navigator
+            onGenerateRoute: (routeSettings) {
+              return MaterialPageRoute(	
+                builder: (context) => _pages[index],
+              );
+            },
+          );
+        }),
+      ), // 선택된 탭의 화면을 보여줄 위젯
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex, // 선택된 탭 인덱스
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index; // 탭 전환 시 상태 업데이트
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        selectedItemColor: Colors.blue, // 선택된 아이템 색상
+        unselectedItemColor: Colors.grey, // 선택되지 않은 아이템 색상
+      ),
+    );
+  }
+}
+```
+### 确认运行结果
+可以看到，在标签内部切换页面时，底部导航栏仍然存在。
+另外，切换到其他标签后，之前标签的状态也会保留。
+<Img src="/posts/250113-182350.gif" width={200} alt=""/>
+
+## 使用NavigatorStack
+还有一个问题没有解决：概述中要求，当某个标签已经选中时，再次点击它，应当回到该标签的*最顶层页面*。
+为此，使用*NavigatorStack*管理每个标签的栈。
+```dart title="lib/view/main_page.dart"
+import 'package:flutter/material.dart';
+import 'package:navigationbar_example/view/tabs/home_screen.dart';
+import 'package:navigationbar_example/view/tabs/notifications_screen.dart';
+import 'package:navigationbar_example/view/tabs/profile_screen.dart';
+import 'package:navigationbar_example/view/tabs/search_screen.dart';
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  MainPageState createState() => MainPageState();
+}
+
+class MainPageState extends State<MainPage> {
+  int _currentIndex = 0; // 현재 선택된 탭의 인덱스
+
+  // 각 탭에서 보여줄 화면 리스트
+  final List<Widget> _pages = [
+    const HomeScreen(), // 첫 번째 탭 화면
+    const SearchScreen(), // 두 번째 탭 화면
+    const NotificationsScreen(), // 세 번째 탭 화면
+    ProfileScreen(), // 네 번째 탭 화면
+  ];
+
+  final List<GlobalKey<NavigatorState>> _navigatorKeys = [ // 각 탭의 NavigatorKey
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+  ];
+
+  void _onTap(int index) { // 탭 선택 시 호출할 함수
+    if (index == _currentIndex) {
+      _navigatorKeys[index].currentState?.popUntil((route) => route.isFirst); // 탭이 이미 선택된 상태에서 다시 선택할 경우 최상단 페이지로 이동
+    } else {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentIndex,
+        children: List.generate(_pages.length, (index) {
+          return Navigator(
+            key: _navigatorKeys[index], // 각 탭의 NavigatorKey 설정
+            onGenerateRoute: (routeSettings) {
+              return MaterialPageRoute(
+                builder: (context) => _pages[index],
+              );
+            },
+          );
+        }),
+      ), // 선택된 탭의 화면을 보여줄 위젯
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex, // 선택된 탭 인덱스
+        onTap: _onTap, // 탭 선택 시 호출할 함수
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        selectedItemColor: Colors.blue, // 선택된 아이템 색상
+        unselectedItemColor: Colors.grey, // 선택되지 않은 아이템 색상
+      ),
+    );
+  }
+}
+```
+<Ads3 />
+### 确认运行结果
+可以看到，再次点击已经选中的标签时，会返回该标签的最顶层页面。
+<Img src="/posts/250113-183324.gif" width={200} alt="完成！"/>
+
+## 结论
+本文通过为各个标签保留独立栈，实现了标签内部的页面跳转，也实现了重复点击当前标签时返回最顶层页面。
+### 进一步思考
+- 如何为每个页面分别配置AppBar，让不同页面显示不同的应用栏？
+
+### 参考资料
+- [Flutter Navigator class](https://api.flutter.dev/flutter/widgets/Navigator-class.html)
+- [Flutter IndexedStack class](https://api.flutter.dev/flutter/widgets/IndexedStack-class.html)

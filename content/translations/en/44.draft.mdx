@@ -1,0 +1,73 @@
+---
+post_id: '44'
+locale: en
+title: Principles of Congestion Control
+description: >-
+  Network congestion, its causes and costs, retransmissions, duplicate packets,
+  and throughput under different scenarios.
+source_hash: d02904fc13aa22a1b69640ed629b85aca87f7f6950df352feec472796b7c6a60
+---
+## Principles of congestion control
+> Too many sources send data too quickly for the network to handle.
+
+This differs from *flow control*!
+**Symptoms**
+1. **Packet loss**: When many packets enter the network at once, router buffers can overflow and packets may be lost. This reduces transmission reliability and communication efficiency.
+2. **Long delays**: When network traffic exceeds a router's processing capacity, packets must wait in a queue, causing transmission delays.
+<br/>
+Q. How can congestion be detected?
+Q. How should we respond once it is detected?
+<Ads1 />
+## Causes and costs of congestion: Scenario 1
+**Conditions**
+- Two senders and two receivers.
+- One router with an infinite buffer → No packet loss.
+- Output-link capacity: R.
+- No retransmissions.
+- An unlimited shared output-link buffer.
+
+**Results**
+<Img src="/posts/240615-205929.png" width={500}/>
+- In the arrival-rate vs. throughput graph, the output rate reaches its maximum at $R/2$, then remains constant as the link saturates.
+- In the arrival-rate vs. delay graph, delay rises sharply as the input rate approaches $R/2$.
+
+## Causes and costs of congestion: Scenario 2
+One router with a *finite* buffer.
+The sender retransmits packets that time out.
+- Application-layer input equals application-layer output: $\lambda_{in} = \lambda_{out}$.
+- Transport-layer traffic includes retransmissions: $\lambda'_{in} \geq \lambda_{in}$.
+
+### Scenario 2-1
+An idealized network: The sender has perfect knowledge of the router's buffer state.
+- The sender transmits only when the router's buffer has enough space.
+<Img src="/posts/240615-210938.png" width={200}/>
+
+### Scenario 2-2
+An idealized network: The router reports packet loss.
+- The sender retransmits a packet when the router reports it lost.
+<Img src="/posts/240615-211131.png" width={250}/>
+When transmitting at R/2, some packets are retransmissions, but the asymptotic goodput is still R/2.
+This reflects the mechanism that maintains a certain goodput even under congestion.
+
+### Scenario 2-3
+A realistic network: Duplicates can occur.
+- Packets may be dropped at the router when its buffer fills, so a timeout is needed.
+- The sender may time out prematurely, send two copies, and have both delivered.
+<Img src="/posts/240615-211131.png" width={250}/>
+When transmitting at R/2, some packets are retransmissions, including duplicate packets that are delivered.
+
+#### Costs of congestion
+*More work*: Packet loss during congestion forces the sender to retransmit. The network must handle additional work, using resources inefficiently.
+*Unnecessary retransmissions*: A premature timeout can make the sender transmit the same packet multiple times, consuming link bandwidth with duplicates.
+*Reduced goodput*: More duplicate packets reduce the effective rate of useful delivery, or goodput, lowering overall network performance.
+<Ads2 />
+## Scenario 3
+**Conditions**
+- Four senders and multihop paths.
+- Timeouts and retransmissions.
+- $\lambda_{in}$: Original data; $\lambda'_{in}$: Retransmitted data.
+
+Q. What happens as $\lambda_{in}$ and $\lambda'_{in}$ increase?
+A. As $\lambda'_{in}$ increases, every additional transmitted packet arriving at the upper queue is dropped, and its throughput approaches zero.
+#### Another cost of congestion
+*Packet loss*: Saturated router buffers can drop packets during congestion, reducing data-transmission reliability and communication efficiency.

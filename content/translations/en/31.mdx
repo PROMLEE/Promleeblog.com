@@ -1,0 +1,93 @@
+---
+post_id: '31'
+locale: en
+title: Diffie–Hellman Key Exchange
+description: >-
+  The Diffie–Hellman key-exchange algorithm, examples, computational
+  assumptions, and man-in-the-middle attacks.
+source_hash: ce03e8057a84e1c62534e29b97a98ea1db9a64f0325b0a89f778c8bf6abdcceb
+reviewed_at: '2026-11-07T01:36:41.391Z'
+---
+## Key exchange
+> A method for securely establishing a common key for communication.
+
+Alice and Bob exchange data over a *public channel* to generate a shared secret key.
+A third party cannot learn the key merely by intercepting the data sent over that channel.
+
+## Diffie–Hellman key exchange
+> A public-key technique for exchanging a secret key securely.
+
+Previously shared parameters: A prime $p$, a primitive root $g$, and the finite group $\mathbb{Z}_p^*$.
+
+Alice and Bob proceed as follows.
+- Alice:
+	1. Generate a secret key $a$.
+	2. Calculate $A = g^a \pmod{p}$ and send it to Bob.
+	3. Receive $B$.
+	4. Calculate $K_{AB} = B^a \pmod{p}$.
+- Bob:
+	1. Generate a secret key $a$.
+	2. Calculate $B = g^b \pmod{p}$ and send it to Alice.
+	3. Send $B$ to Alice.
+	4. Receive $A$.
+	5. Calculate $K_{BA} = A^b \pmod{p}$.
+
+$K_{AB} = B^a = (g^b)^a = g^{ab} = (g^a)^b = A^b = K_{BA}$
+
+### Diffie–Hellman example
+$p = 31$, $g = 3$.
+- Alice:
+	1. Generate the secret key $a = 6$.
+	2. Calculate $A = 3^6 \pmod{31} = 729 \pmod{31} = 16$ and send it to Bob.
+	3. Receive $B = 20$ and calculate $K_{AB} = 20^6 \pmod{31} = 64000000 \pmod{31} = 4$.
+- Bob:
+	1. Generate the secret key $b = 8$.
+	2. Calculate $B = 3^8 \pmod{31} = 4,294,967,296 \pmod{31} = 4$ and send it to Alice.
+	3. Receive $A = 16$ and calculate $K_{BA} = 16^8 \pmod{31} = 4,294,967,296 \pmod{31} = 4$.
+
+Key-exchange results:
+- $K_{AB} = 4$
+- $K_{BA} = 4$
+
+## Security of Diffie–Hellman key exchange
+> Man-in-the-middle attacks.
+
+- Eve wants to discover the secret shared by Alice and Bob: $K_{AB} = K_{BA}$.
+- Eve has $(p, g), (A = g^a \mod p), (B = g^b \mod p)$.
+- If Eve knows Alice's secret $a$ or Bob's secret $b$:
+	- $K_{AB} = B^a = (g^b)^a = g^{ab} = (g^a)^b = A^b = K_{BA}$
+	- This equation lets Eve calculate $K_{AB}$.
+	- Since DLP (Diffie–Hellman Problem) is hard, Eve cannot calculate $a$ or $b$.
+
+<Bbox>Computational Diffie–Hellman (CDH)</Bbox>
+
+- Given $(g, g^a, g^b)$, calculate $g^{ab}$.
+Informally, the difficulty of CDH is equivalent to that of DLP when the underlying group has prime order.
+<Ads1 />
+## A man-in-the-middle attack scenario
+1. Alice and Bob perform a key exchange.
+2. Eve sits between them.
+3. Eve sends $g^e$ to Alice.
+4. Eve sends $g^f$ to Bob.
+5. Alice and Bob calculate $g^{ef}$.
+6. Eve calculates $g^{ef}$ and intercepts their communication.
+
+## Explaining and preventing a man-in-the-middle attack
+### Attack explanation
+1. Eve generates a private key $e$ and calculates $E = g^e \mod p$.
+2. Alice and Bob send $A$ and $B$ to one another.
+3. Eve intercepts them and sends $E$ to both parties.
+4. Alice and Bob receive $E$ and calculate:
+	$K_{AE} = E^a = g^{ea} \mod p$, $K_{BE} = E^b = g^{eb} \mod p$.
+
+- When Alice later sends $C = \text{Enc}(K_{AE}, M)$ to Bob, he cannot decrypt it.
+- Eve can use $K_{EA} = A^e = (g^a)^e \mod p$ to obtain $M$.
+
+### Prevention
+- Use certificates.
+	- For example, Alice and Bob can send signatures of their public keys so they can verify one another's keys.
+
+#### Man-in-the-middle summary
+- Diffie–Hellman key exchange is vulnerable to man-in-the-middle attacks.
+- Eve can intercept communication between Alice and Bob.
+- Use certificates to prevent these attacks.

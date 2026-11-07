@@ -1,0 +1,134 @@
+---
+title_ko: 'React SSR 완벽 가이드 1편 - 개념과 기본 흐름, React 18의 스트리밍 렌더링'
+title_en: >-
+  React SSR Deep Dive Part 1 - Concept and Core Flow, React 18 Streaming
+  Rendering
+desc: >-
+  React 개발자를 위한 SSR(Server-Side Rendering) 개념 완전 정복 1편입니다. SSR이 필요한 이유부터 기본 동작
+  방식까지 차근차근 알아봅니다. React 18에서 도입된 스트리밍 기반 SSR 렌더링 방식에 대해 자세히 알아봅니다.
+  renderToPipeableStream과 Suspense의 동작 방식을 단계적으로 설명합니다.
+thumbnail_url: /250414-145708.webp
+metatag: >-
+  React, SSR, 서버 사이드 렌더링, 웹 성능, SEO, 렌더링 전략, 클라이언트 컴포넌트, Next.js, 스트리밍 렌더링,
+  React 18, renderToPipeableStream, Suspense, hydration, 웹 성능, HTML 스트리밍, 서버
+  컴포넌트
+post_id: '200'
+locale: ja
+title: React SSR完全ガイド1：基本の流れとReact 18のストリーミング
+description: SSRの必要性と基本動作、React 18のストリーミング、renderToPipeableStreamとSuspenseの連携を段階的に説明します。
+source_hash: 5e833be27e021e8829435ed4815d0595c439a7116513bd6c3c36570056c9abdf
+---
+## はじめに
+Reactアプリを作ると、一度はサーバーで描画できないかと考えるでしょう。
+SEO、初回の速度、SNSのプレビューを考えると、クライアントだけの描画では不十分に感じます。
+その解決手段の一つがSSR、*Server-Side Rendering*です。
+このシリーズでは、React開発者の視点から、動作、適した用途、制約を段階的に確認します。
+概念と必要性、実際の処理を整理し、React 18の*ストリーミングレンダリング*で何が改善されたかも見ていきます。
+## SSRとは
+SSRは、*ブラウザーではなくサーバーでHTMLを作って送る方式*です。
+通常のReact SPAではJavaScriptの実行後に内容が現れますが、SSRなら事前に描画したHTMLを送れます。
+ユーザーは早く画面を見られ、検索エンジンもHTMLを直接読めるため、SEOにも有利です。
+### クライアント描画との比較
+クライアント描画は、次のように動きます。
+1. ブラウザーがHTMLをダウンロードする。
+2. HTML内のJavaScriptバンドルを読み込む。
+3. JavaScriptを実行し、Reactコンポーネントを描画する。
+4. 画面を表示する。
+
+回線や端末性能によっては、かなり時間がかかります。
+SSRでは次のようになります。
+1. アクセス時にサーバーがReactコンポーネントを描画する。
+2. 作成したHTMLをクライアントへ送る。
+3. ブラウザーがHTMLを受け取り、すぐ表示する。
+4. Reactのhydrateが動き、操作できるアプリになる。
+
+まず素早く見える画面を提供し、その後JavaScriptでアプリを完成させる方式です。
+<Ads1 />
+## なぜSSRが必要なのか
+次のような用途で便利です。
+- **SEOが重要なページ**：検索エンジンがJavaScriptを完全には実行できない場合があるため、HTMLを提供する方式が有利です。
+- **初回の速度が重要なサービス**：事前描画したHTMLを送るため、最初の画面が早く見えます。
+- **SNSでの共有**：FacebookやTwitterなどはHTMLのメタタグからプレビューを作るため、その情報も正確に渡せます。
+たとえばブログへ導入すれば、ユーザー体験と検索での露出を両方改善できます。
+## 基本の処理の流れ
+もう少し具体的に見てみます。
+1. ユーザーがサイトへアクセスする。
+2. サーバーが要求を処理する。
+3. renderToStringやrenderToPipeableStreamでReactコンポーネントをHTMLへ変換する。
+4. HTMLをユーザーへ送る。
+5. ブラウザーが描画して表示する。
+6. JavaScriptをダウンロードし、hydrateが動いて操作可能になる。
+重要なのは、*サーバーでHTMLを作り、クライアントのJavaScriptでアプリへ命を吹き込む過程*です。
+次のパートでは描画の各段階と、React 18の`renderToPipeableStream`などを詳しく分析します。
+<Ads2 />
+## React 18では何が変わったか
+従来はHTML全体を一度に作ってから送っていました。
+単純ですが、すべての生成が終わるまで応答を受け取れず、遅く感じる場合があります。
+React 18は、*部分的に描画したHTMLを順次送る方式*、すなわち*ストリーミングSSR*を導入しました。
+準備できた内容を先に送り、残りを段階的に見せることで、体験が改善します。
+これを可能にするのが`renderToPipeableStream`です。
+## renderToPipeableStreamとは
+`renderToPipeableStream`は、React 18で導入されたSSR関数です。
+サーバーでのHTML生成結果を、*ストリーミング方式*で出力できます。
+準備済みのHTMLから少しずつ送り、未完成の部分は後で埋める仕組みです。
+ページ全体を待たずに、一部の内容を先に見られます。
+### 基本例
+Express.jsと`renderToPipeableStream`を組み合わせた例です。
+
+```ts
+import express from 'express';
+import React from 'react';
+import { renderToPipeableStream } from 'react-dom/server';
+import App from './App';
+const app = express();
+app.get('*', (req, res) => {
+  const { pipe } = renderToPipeableStream(<App />, {
+    onShellReady() {
+      res.setHeader('Content-Type', 'text/html');
+      pipe(res);
+    },
+    onError(err) {
+      console.error(err);
+    }
+  });
+});
+```
+`onShellReady`はHTMLの基本構造が整うと呼ばれ、その時点からクライアントへ送信し始めます。
+## Suspenseとの連携
+もう一つ重要なのが`Suspense`との統合です。
+データやコンポーネントの読み込み中に代替UIを表示する機能で、ストリーミングと組み合わせると、*準備のできた部分から順に表示*できます。
+次の構成を考えます。
+
+```tsx
+function App() {
+  return (
+    <div>
+      <Header />
+      <Suspense fallback={<div>Loading content...</div>}>
+        <MainContent />
+      </Suspense>
+      <Footer />
+    </div>
+  );
+}
+```
+`<Header />`と`<Footer />`はすぐ描画できても、`<MainContent />`のデータ取得に時間がかかるとします。
+ストリーミングSSRなら、HeaderとFooterを先に送って表示し、MainContentは準備ができた時点で埋めます。
+ユーザーには段階的に画面が見えるため、快適に感じられます。
+## 注意点
+便利な方法ですが、注意も必要です。
+- 代替UIが頻繁に出ると、かえって不自然に見える場合がある。
+- Suspenseが深すぎたり依存関係が複雑だったりすると、性能の問題が生じうる。
+- サーバー環境がストリーミング非対応なら利用できない。
+
+そのため、*部分描画の区切りが明確な構造*に適用するのが効果的です。
+<Ads3 />
+## まとめ
+SSRの概念と必要性、基本動作を確認しました。
+さらに、React 18のストリーミングSSRの中心となる`renderToPipeableStream`とSuspenseの連携を紹介しました。
+SSRは単なるHTML生成を超えて、ユーザー体験、SEO、性能を高める重要な技術です。
+とくにデータ読み込みの多いページで、内容を早く見せるために役立ちます。
+次回はhydration、Server Components、キャッシュ戦略などを詳しく扱います。
+### 参考
+- [https://react.dev/reference/react-dom/server/renderToPipeableStream](https://react.dev/reference/react-dom/server/renderToPipeableStream)
+- [https://www.developerway.com/posts/ssr-deep-dive-for-react-developers](https://www.developerway.com/posts/ssr-deep-dive-for-react-developers)

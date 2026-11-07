@@ -1,0 +1,84 @@
+---
+title_ko: 입출력 시스템의 작동 원리 - 하루 10분 운영체제 12일차
+title_en: How I/O Systems Work - 10 Minutes of OS Day 12
+desc: >-
+  운영체제의 입출력 시스템은 하드웨어와 사용자 간 연결을 담당합니다. 입출력 인터페이스, 커널 서브시스템, 하드웨어 연산 변환 흐름을 쉽게
+  정리합니다.
+thumbnail_url: /250420-025603.webp
+metatag: '입출력 시스템, I/O 하드웨어, 커널 I/O, 시스템 콜, STREAMS, 디바이스 드라이버, 운영체제 면접, 인터럽트, DMA'
+post_id: '218'
+locale: en
+title: 'How I/O Systems Work — 10 Minutes of OS, Day 12'
+description: >-
+  Understand I/O hardware, controllers, kernel subsystems, drivers, system
+  calls, DMA, STREAMS, and I/O scheduling.
+source_hash: c3be8056ee4f25b284d35f7f642c05ec4b1a4b986eeaf449ecd4625e026c9600
+---
+## Before getting started
+Computers cannot function properly without input devices such as mice and keyboards and output devices such as monitors and printers.
+The *I/O system* exchanges information between these devices and the operating system.
+This article explains I/O hardware and how the OS controls and manages it, using practical examples.
+## What is I/O hardware?
+I/O hardware includes every device that communicates with the outside of the computer.
+Typical examples include:
+- Input devices: Keyboards, mice, and scanners.
+- Output devices: Monitors, printers, and speakers.
+- Storage devices: Hard drives, SSDs, and USB drives.
+- Communication devices: Network cards and Bluetooth modules.
+
+These devices connect to the OS through *controllers*.
+A controller manages a device's actual operation and acts as an intermediary transferring data to and from the CPU and memory.
+<Img src="/250420-025810.webp" width={400} alt="data flow"/>
+
+<Ads1 />
+## The kernel I/O subsystem
+Rather than controlling every device directly, the kernel manages them through *drivers* and the *I/O subsystem*.
+### Components
+1. **Device driver**: A program controlling specific hardware, such as a printer driver.
+2. **Buffering and caching**: Store and organize data in memory for faster processing.
+3. **Interrupt handling**: Notify the CPU that a device has completed its work.
+4. **DMA (Direct Memory Access)**: Transfer data directly between a device and memory without CPU involvement.
+
+### Example flow
+When a user prints a document:
+- The program makes a system call.
+- The kernel forwards the request to the printer driver.
+- The driver sends commands to the printer controller.
+- An interrupt signals completion to the CPU.
+<Ads2 />
+## Applications and I/O interfaces
+Applications request I/O from the operating system rather than handling it directly.
+These requests take the form of *system calls*.
+> Examples include read(), write(), open(), and close().
+
+The OS passes the request to the appropriate driver and returns the result to the application.
+Developers can therefore perform I/O without knowing the device's internal details.
+## What is STREAMS?
+UNIX-like systems use a structure called *STREAMS* to organize I/O flows.
+- Connect several I/O modules into a stream.
+- Modules exchange data, with each able to process it independently.
+- Used for networking, terminal I/O, and related tasks.
+> Like connecting filters along a water pipe, this makes I/O processing flexible.
+## I/O and performance
+I/O strongly affects overall system speed.
+Techniques for improving it include:
+- **Asynchronous I/O**: Continue with the next task without waiting after submitting a request.
+- **Buffering and caching**: Compensate for differences between I/O and CPU speeds.
+- **Interrupt-driven processing**: Let devices signal completion instead of polling.
+- **Block I/O**: Process multiple data items together.
+### Example I/O scheduling layers
+Operating systems use queues at several layers to handle requests efficiently.
+1. **Request queue**: Requests waiting in front of a device driver.
+2. **Scheduling algorithm**: Disk algorithms such as FIFO, SSTF, LOOK, and C-LOOK.
+3. **Merging**: Combine adjacent requests to improve processing speed.
+
+These techniques use system resources efficiently.
+<Ads3 />
+## Summary
+We examined the basic structure of I/O hardware and how operating systems control it.
+It is important to understand how system calls, drivers, DMA, and STREAMS connect in a concrete flow.
+The next post covers *file-system interfaces*.
+### References
+- Operating System Concepts (10th Edition)
+- https://en.wikipedia.org/wiki/I/O_scheduling
+- https://www.geeksforgeeks.org/i-o-scheduling-in-operating-systems/

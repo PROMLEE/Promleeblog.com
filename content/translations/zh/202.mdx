@@ -1,0 +1,186 @@
+---
+title_ko: 'React(TanStack) Query 사용법 기초 (React Native, Expo)'
+title_en: React(TanStack) Query Guide for React Native (Expo)
+desc: >-
+  React Native(Expo) 환경에서 TanStack Query를 사용하는 법을 설치부터 네트워크 상태, 포커스 관리, 쿼리 작성까지
+  JSONPlaceholder API 예제와 함께 자세히 설명합니다.
+thumbnail_url: 'https://tanstack.com/_build/assets/logo-color-100w-br5_Ikqp.png'
+metatag: >-
+  react native, expo, react query, tanstack query, 모바일 상태 관리, 데이터 패칭,
+  JSONPlaceholder, useQuery, netinfo, expo-network
+post_id: '202'
+locale: zh
+title: React（TanStack）Query 基础用法（React Native、Expo）
+description: >-
+  结合 JSONPlaceholder API 示例，介绍在 React Native（Expo）中安装 TanStack
+  Query、管理网络和焦点状态，以及编写查询。
+source_hash: 7593c4fb77fff1d9bc2f6f06a1323a38eb5628d4bfce15d40366a8f2f557ca5b
+reviewed_at: '2026-11-07T06:41:01.363Z'
+---
+## 开始之前
+使用 React Native 开发应用时，经常需要从外部 API 获取数据，或把数据保存到服务器。如果只用 `fetch` 函数，每次都要自己实现加载状态、错误处理、缓存等重复逻辑，比较麻烦。
+使用 *TanStack Query*，就能简单而可靠地处理数据请求。本文将结合示例，从基础开始介绍如何在 React Native（Expo）环境中安装和使用 TanStack Query。
+## 什么是 TanStack Query？
+TanStack Query 是一个用于高效管理服务器数据的状态管理库。它以前叫 React Query，如今已发展成支持多个平台的通用工具。
+在 React Native 中，以下场景也适合使用它。
+- 缓存服务器返回的数据，避免重复发送相同请求。
+- 根据网络连接或应用焦点状态自动重新加载数据。
+- 自动处理错误和加载状态。
+## 安装与 Expo 环境配置
+在 React Native（Expo）项目中运行以下命令安装 TanStack Query。
+```bash
+npx expo install @tanstack/react-query
+npm i -D @tanstack/eslint-plugin-query
+```
+<Ads1 />
+## 配置 QueryClientProvider
+安装完成后，创建 `QueryClient`，并用 `QueryClientProvider` 包裹应用最外层的组件。
+```tsx
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+const queryClient = new QueryClient();
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      {/* 앱 컴포넌트들 */}
+    </QueryClientProvider>
+  );
+}
+```
+这样设置后，整个应用就可以使用 TanStack Query 的功能。
+## useQuery 基础用法
+先看最基本的用法。调用 JSONPlaceholder 的用户 API（`/users`），并把结果显示为列表。
+```tsx
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { FlatList, Text, View } from 'react-native';
+
+const fetchUsers = async () => { // 정보를 fetch하는 함수
+  const res = await axios.get('https://jsonplaceholder.typicode.com/users');
+  return res.data;
+};
+
+export default function UserList() {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['users'], // 쿼리의 고유 식별자
+    queryFn: fetchUsers, // 정보를 fetch하는 함수
+  });
+
+  if (isLoading) return <Text>불러오는 중...</Text>;
+
+  if (isError) return <Text>오류 발생: {(error as Error).message}</Text>;
+
+    return (
+    <FlatList
+      data={data}
+      keyExtractor={(item) => item.id.toString()}
+      renderItem={({ item }) => <Text>{item.name}</Text>}
+    />
+  );
+}
+```
+
+<Ads2 />
+## 查询键（queryKey）的重要性
+`queryKey` 用来区分请求和关联缓存。它以数组形式编写，可以根据特定参数设置不同的值。
+```tsx
+useQuery({
+  queryKey: ['user', userId],
+  queryFn: () => fetchUser(userId),
+});
+```
+这里，如果 `userId` 不同，就会被视为不同的查询，分别使用各自的缓存。
+
+## 应用获得焦点时重新请求
+如果希望应用获得焦点时自动重新执行查询，可以使用 `AppState` 和 `focusManager`。
+```tsx
+import { useEffect } from 'react';
+import { AppState, Platform } from 'react-native';
+import { focusManager } from '@tanstack/react-query';
+function onAppStateChange(status) {
+  if (Platform.OS !== 'web') {
+    focusManager.setFocused(status === 'active');
+  }
+}
+useEffect(() => {
+  const subscription = AppState.addEventListener('change', onAppStateChange);
+  return () => subscription.remove();
+}, []);
+```
+## 在 React Navigation 中于页面获得焦点时重新请求
+在 React Navigation 中，可以使用 `useFocusEffect` 在进入页面时更新数据。
+```tsx
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+
+export function useRefreshOnFocus(refetch) {
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [])
+  );
+}
+```
+## useMutation 用法示例
+在服务器上创建或修改数据时，使用 `useMutation`。下面是添加文章的示例。
+```tsx
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
+
+const createPost = async (newPost) => {
+  const res = await axios.post('https://jsonplaceholder.typicode.com/posts', newPost);
+  return res.data;
+};
+
+export function NewPostButton() {
+  const queryClient = useQueryClient(); // 쿼리 클라이언트 인스턴스
+  const mutation = useMutation({
+    mutationFn: createPost, // 뮤테이션 함수
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] }); // 쿼리 데이터 무효화
+    },
+  });
+  return (
+    <Button
+      title="새 글 작성"
+      onPress={() => mutation.mutate({ title: '제목', body: '내용' })} // 뮤테이션 실행
+    />
+  );
+}
+```
+<Ads3 />
+## 在 React Native 中使用 Devtools
+与 Web 环境不同，React Native 无法直接使用 Devtools。可以通过下列工具查看查询状态。
+- [react-query-native-devtools](https://github.com/bgaleotti/react-query-native-devtools)
+- [reactotron-react-query](https://github.com/hsndmr/reactotron-react-query)
+
+### Expo 插件
+运行以下命令安装插件。
+```bash
+npx expo install @dev-plugins/react-query
+```
+要使用插件，需要按如下方式配置。
+```tsx
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useReactQueryDevTools } from '@dev-plugins/react-query';
+
+const queryClient = new QueryClient({});
+
+export default function App() {
+  useReactQueryDevTools(queryClient); // 디버깅 도구 초기화
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      {/* ... */}
+    </QueryClientProvider>
+  );
+}
+```
+现在，在运行应用的终端中按 Shift + M，选择 Open `@dev-plugins/react-query`，即可在浏览器中打开调试工具。
+## 结语
+在 React Native（Expo）中使用 TanStack Query，可以简单、高效地实现数据请求、缓存、错误处理和状态管理。在移动环境中，根据网络连接或应用焦点状态自动同步数据尤其有用。
+希望你通过本文的示例，掌握从基础到实际应用的用法。
+### 参考资料
+- TanStack Query 官方文档（React Native）： https://tanstack.com/query/latest/docs/framework/react/react-native
+- JSONPlaceholder API： https://jsonplaceholder.typicode.com
+- React Navigation： https://reactnavigation.org
+- Expo 官方文档： https://docs.expo.dev

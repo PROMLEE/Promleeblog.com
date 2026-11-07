@@ -1,0 +1,63 @@
+---
+title_ko: 플러터 라우팅 설정하기(로그인 + 네비게이션 바)
+title_en: Setting Up Flutter Routing (Login + Navigation Bar)
+desc: null
+post_id: '124'
+locale: en
+title: 'Flutter Navigation: Goals, Requirements, and Initial Setup'
+description: >-
+  Set navigation requirements for login, bottom tabs, nested stacks, and
+  cross-tab navigation, then configure FlutterSecureStorage and Get.
+source_hash: 99d399d29a236ccbbc2f6c52f5bfdc1880211f2b91ef26f6fa11133193fbf6a9
+reviewed_at: '2026-11-06T14:49:24.972Z'
+---
+## Before getting started
+> This post was written for Flutter 3.24.
+It assumes Flutter is already installed.
+
+Let's look at the initial setup I commonly use for navigating between pages in Flutter.
+Before implementation, we will define the goals and requirements and install the necessary packages.
+
+## Goals and requirements
+<Bbox>Before development, I want to add the following requirements to Flutter's basic page-navigation capabilities.</Bbox>
+1. Create a login page and allow access to other pages only after login, using *FlutterSecureStorage*.
+	[➡️ Link: Login-page branching with FlutterSecureStorage](/blog/post/125-login-branch-paging)
+2. Show no navigation bar on the login page, but display it on *every page* after login.
+	[➡️ Link: Setting up a bottom navigation bar](/blog/post/126-bt-navigation-paging)
+3. Each navigation tab can contain additional pages. Even when nested several levels deep, selecting a tab should move to *that tab*. If the current tab is selected again, navigate to its *top-level page*.
+	[➡️ Link: Configuring navigation-bar tab events](/blog/post/127-nav-tabevent-paging)
+4. On every page except login, allow navigation to another tab through a *separate button*, without using the bottom navigation bar.
+	[➡️ Link: Using navigation-bar tab events from widgets](/blog/post/128-nav-tabevent-widget-paging)
+
+<Ads1 />
+## Creating and running a Flutter project
+Create a Flutter project.
+```bash
+flutter create navigationbar_example
+```
+Run the generated project.
+```bash
+cd navigationbar_example
+flutter run
+```
+<Img src="/posts/250113-125205.png" width={200} alt="The project is running successfully."/>
+
+## Installing FlutterSecureStorage and Get
+Install [FlutterSecureStorage](https://pub.dev/packages/flutter_secure_storage) to store login information.
+The [Get](https://pub.dev/packages/get/install) package helps with state management, routing, dialogs, and more.
+```bash
+flutter pub add flutter_secure_storage get
+```
+Check that the packages have been added to pubspec.yaml.
+```yaml
+dependencies:
+	flutter_secure_storage: ^9.2.4
+	get: ^4.6.6
+```
+
+## Conclusion
+In the next post, we will use FlutterSecureStorage to build a login page according to these requirements, then add a navigation bar.
+
+### References
+- [Flutter official documentation](https://flutter.dev/docs)
+- [FlutterSecureStorage](https://pub.dev/packages/flutter_secure_storage)

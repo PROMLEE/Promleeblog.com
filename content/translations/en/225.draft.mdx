@@ -1,0 +1,89 @@
+---
+title_ko: 운영체제 보호 메커니즘 - 하루 10분 운영체제 17일차
+title_en: OS Protection Mechanisms - 10 Minutes of OS Day 17
+desc: >-
+  운영체제는 시스템 자원을 안전하게 지키기 위해 다양한 보호 메커니즘을 사용합니다. 도메인, 접근 제어, 보안 정책까지 예시를 들어 차근차근
+  정리합니다.
+thumbnail_url: /250423-193143.png
+metatag: '운영체제 보호, 도메인 구조, 접근 제어, 권한 관리, 보안 정책, 보호 시스템, 운영체제 기초, 기술 면접'
+post_id: '225'
+locale: en
+title: 'Operating-System Protection Mechanisms — 10 Minutes of OS, Day 17'
+description: >-
+  Understand protection principles, domains, access-control matrices, ACLs,
+  capabilities, and operating-system protection policies.
+source_hash: 9dd0b6e75b4bbf9a1f11e9f80801cfd60c76baa989f5a2e633b213733e89e260
+---
+## Before getting started
+If security is about stopping external threats, *protection* prevents internal users and programs from misusing system resources.
+Operating systems provide fine-grained protection mechanisms for this purpose.
+This article walks through protection principles, domain structure, access-control methods, and protection policies.
+## Basic protection principles
+Operating-system protection starts with two questions:
+1. Who?
+2. What are they allowed to do?
+
+To answer, the OS explicitly defines *which permissions each user has for which resources*, then allows or denies access accordingly.
+### Example
+Consider a school library.
+Teachers may borrow every book, while students may borrow only some.
+Staff may enter every reading room, while students may enter only room A.
+Defining who can do what is the core of protection.
+## Domain structure
+A domain is the *set of permissions* available to a user or program.
+When a user signs in or a program runs, the OS allows actions only within that domain.
+### Domain examples
+- User A's domain: Can read files but cannot change system settings.
+- Administrator domain: Can access all resources.
+- Program domain: Can access only part of memory; network access is blocked.
+<Img src="/250423-193300.png" width={500} alt="Restricted access"/>
+
+<Ads1 />
+
+## Access control
+The OS carefully manages who can access each resource and how.
+Several access-control techniques support this.
+### 1. Access-control matrix
+- Rows: Users or domains.
+- Columns: Resources such as files, directories, or printers.
+- Cells: Allowed permissions, such as read, write, or execute.
+```text
+예: 사용자 A가 파일 X를 읽고 쓸 수 있음 → 행 A, 열 X = read/write
+```
+> In practice, this matrix becomes too large, so the following two approaches optimize it.
+### 2. Access-control list (ACL)
+- Stores a list of allowed users for each resource.
+- Example: File X → \{A: read/write, B: read only\}.
+### 3. Capability list
+- Stores a list of accessible resources for each user.
+- Example: User A → \{File X: read/write, Printer: execute\}.
+### 4. Bitmap
+- Represents resource-access permissions as bits.
+- Example: One bit for access to file X, with 0 meaning denied and 1 meaning allowed.
+```text
+예: 파일 X에 대한 접근 권한 비트맵
+파일 X: 1100 (사용자 A: 읽기, 쓰기 가능, 사용자 B: 읽기 불가)
+```
+## Protection policies
+Operating systems design protection systems around the following principles.
+### Least privilege
+- Users should have *only the minimum permissions required for their work*.
+- Example: A user who only writes posts should not be allowed to change settings.
+### Isolation
+- Separate resources so users and programs do not affect one another.
+- Example: A failure in one app does not affect another.
+### Auditing
+- Record and analyze access events so problems can be traced.
+- Example: A system log records that user B accessed file X.
+
+<Img src="/250423-195859.png" width={600} alt=""/>
+<Ads2 />
+
+## Summary
+Operating-system protection goes beyond setting permissions: It is a complete system for safely separating, controlling, and recording resource use.
+Understanding protection principles, domains, access-control methods, and policy design strengthens your security foundations.
+The next post covers *virtual machines and hardware virtualization*.
+### References
+- Operating System Concepts (10th Edition)
+- https://en.wikipedia.org/wiki/Access_control
+- https://man7.org/linux/man-pages/man5/acl.5.html

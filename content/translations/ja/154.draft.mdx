@@ -1,0 +1,189 @@
+---
+post_id: '154'
+locale: ja
+title: React Native（Expo）でSecureStoreを使う
+description: React Native（Expo）でSecureStoreを設定し、安全な保存と生体認証を使う方法を学びます。
+source_hash: 7836afe57dabeb53b0119507d6c4c1534f888090dd07a11da75a4844b5339a46
+---
+## はじめに
+> この記事では、基本的なExpoプロジェクトを作成済みとします。作成方法は[Windows版](/blog/post/117-expo-proj-init)、[Mac版](/blog/post/143-expo-init-mac)を参照してください。
+> 基本的なReact Native CLI環境でも、設定を追加すれば使えます。
+### SecureStoreとは？
+> Expo SecureStoreは、キーと値の組を暗号化し、端末内に安全に保存する方法を提供します。Expoプロジェクトごとに保存領域が分かれており、別のプロジェクトの保存領域にはアクセスできません。（公式ドキュメント）
+
+React Nativeには、キーと値の形式で端末にデータを保存する[AsyncStorage](/blog/post/129-async-storage)があります。では、ExpoでSecureStoreを使う理由は何でしょうか。名前のとおり、SecureStoreではAsyncStorageより安全にデータを保存できます。
+Androidでは、Androidのキーストアシステムで暗号化したSharedPreferencesに値を保存します。iOSでは、キーチェーンサービスを使い、kSecClassGenericPasswordとして値を保存します。また、iOSではkSecAttrAccessible属性を設定して、値を取得できるタイミングを制御できます。
+### SecureStoreの特徴
+expo-secure-storeで保存したデータは、アプリをアンインストールすると削除されます。また、新しい指紋の登録などでユーザーの生体認証設定が変わると、requireAuthenticationをtrueにして保護したデータにはアクセスできなくなります。
+<Ads1 />
+## SecureStoreのインストールと設定
+次のコマンドでSecureStoreをインストールします。
+```bash
+npx expo install expo-secure-store
+```
+### Expo環境での設定
+Expoプロジェクトの `app.json` に次の設定を追加します。
+```json title="app.json"
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true,
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
+        }
+      ]
+    ]
+  }
+}
+
+```
+### React Native CLI環境での設定
+React Native CLIでは、次のコマンドを実行するだけです。
+```bash
+npx pod-install
+```
+### Appleの審査に向けて暗号化の設定を追加する
+App Store Connectでは、アプリで使う暗号化アルゴリズムの種類について確認が求められます。これは輸出コンプライアンス情報と呼ばれ、アプリの公開時やTestFlightへの提出時に表示されます。
+Appleの審査に進むと、次の画像のような項目が表示されます。アプリで使用する暗号化を申告するための項目です。
+<Img src="/posts/250314-133431.png" width={400} alt=""/>
+expo-secure-storeを使う場合、アプリ設定の `ios.config.usesNonExemptEncryption` をfalseにすると、申告の免除対象外となる暗号化を使っていないことを設定で示せます。
+```json title="app.json"
+{
+  "expo": {
+    "ios": {
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    }
+  }
+}
+```
+
+<Ads2 />
+## SecureStoreを使う
+ページコンポーネントに次のコードを追加します。
+<Toggle title="/app/index.tsxのコードを表示する">
+
+```tsx title="/app/index.tsx" {6, 10}
+import * as SecureStore from 'expo-secure-store';
+import { useState } from 'react';
+import { Text, View, StyleSheet, TextInput, Button, Alert } from 'react-native';
+
+async function save(key: string, value: string) {
+  await SecureStore.setItemAsync(key, value);
+}
+
+async function getValueFor(key: string) {
+  let result = await SecureStore.getItemAsync(key);
+  if (result) {
+    Alert.alert("🔐 Here's your value 🔐 \n" + result);
+  } else {
+    Alert.alert('No values stored under that key.');
+  }
+}
+
+const App = () => {
+  const [key, onChangeKey] = useState('Your key here');
+  const [value, onChangeValue] = useState('Your value here');
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.paragraph}>Save an item, and grab it later!</Text>
+      {}
+
+      <TextInput
+        style={styles.textInput}
+        clearTextOnFocus
+        onChangeText={(text) => onChangeKey(text)}
+        value={key}
+      />
+      <TextInput
+        style={styles.textInput}
+        clearTextOnFocus
+        onChangeText={(text) => onChangeValue(text)}
+        value={value}
+      />
+      {}
+      <Button
+        title="Save this key/value pair"
+        onPress={() => {
+          save(key, value);
+          onChangeKey('Your key here');
+          onChangeValue('Your value here');
+        }}
+      />
+      <Text style={styles.paragraph}>🔐 Enter your key 🔐</Text>
+      <TextInput
+        style={styles.textInput}
+        onSubmitEditing={(event) => {
+          getValueFor(event.nativeEvent.text);
+        }}
+        placeholder="Enter the key for the value you want to get"
+      />
+    </View>
+  );
+};
+
+export default App;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingTop: 10,
+    backgroundColor: '#ecf0f1',
+    padding: 8,
+  },
+  paragraph: {
+    marginTop: 34,
+    margin: 24,
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  textInput: {
+    height: 35,
+    borderColor: 'gray',
+    borderWidth: 0.5,
+    padding: 4,
+  },
+});
+```
+</Toggle>
+<Img src="/posts/250314-141219.gif" width={200} alt=""/>
+このコードでは、`SecureStore.setItemAsync(key, value)` で値を保存し、`SecureStore.getItemAsync(key)` で読み出します。AsyncStorageと使い方は似ていますが、データをより安全に保存できます。
+SecureStore.deleteItemAsync(key, options) で特定のキーの値を削除できます。また、SecureStore.deleteAllItemsAsync() で値をすべて削除できます。
+
+## 生体認証を追加する
+SecureStoreには、生体認証を追加する機能があります。次のように、`requireAuthentication` で認証が必要かどうかを、`authenticationPrompt` で認証時のメッセージを設定できます。
+SecureStore.canUseBiometricAuthentication() で、端末が生体認証を利用できるか確認できます。
+```tsx title="/app/index.tsx" {5,6}
+// ...
+async function save(key: string, value: string) {
+	if (SecureStore.canUseBiometricAuthenticationAsync()) {
+		await SecureStore.setItemAsync(key, value, {
+			requireAuthentication: true,
+			authenticationPrompt: 'Authenticate to save the value',
+		});
+	} else {
+		await SecureStore.setItemAsync(key, value);
+	}
+}
+// ...
+```
+動作はプラットフォームによって異なります。Androidではすべての操作でユーザー認証が必要です。iOSでは既存の値を読み取るか更新するときに認証を求め、新しい値を作成するときは求めません。
+シミュレーターは生体認証に対応していないため、実機でテストしてください。
+<Ads3 />
+## おわりに
+SecureStoreとAsyncStorageを用途で使い分けると、不要なリソース消費を抑えられます。ログインのトークンやユーザー情報にはSecureStore、簡単な設定値やテーマなどにはAsyncStorageが適しています。
+### もう少し考えてみる
+- SecureStoreを使う場合の長所と短所は何でしょうか。
+- ほかの保存方法との比較
+  - [Expo FileSystem](https://docs.expo.dev/versions/latest/sdk/filesystem/)
+  - [Expo SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/)
+### 参考
+- [Expo SecureStore](https://docs.expo.dev/versions/latest/sdk/securestore/)
+- [npm](https://www.npmjs.com/package/expo-secure-store)
+- [Expoでデータを保存する](https://docs.expo.dev/develop/user-interface/store-data/)

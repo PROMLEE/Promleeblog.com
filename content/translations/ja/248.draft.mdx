@@ -1,0 +1,376 @@
+---
+title_ko: 'React Router 원리와 활용법 - React, 알고 쓰자 6일차'
+title_en: React Router Principles and Usage - React Explained Day 6
+desc: >-
+  React Router v6의 동작 원리와 사용법을 알아봅니다. History API, URL 매칭, 중첩 라우트/Outlet, Link,
+  useNavigate 등 주요 기능과 코드 스플리팅까지, SPA 라우팅의 핵심을 설명합니다.
+thumbnail_url: /250502-161806.webp
+metatag: >-
+  React, React Router, React Router v6, 라우팅 원리, History API, SPA, 중첩 라우트,
+  Outlet, Link, useNavigate, useParams, 코드 스플리팅, 프론트엔드, 면접
+post_id: '248'
+locale: ja
+title: React Routerの原理と活用：Reactを理解して使う6日目
+description: React Router v6のHistory API、URL照合、入れ子のルート、Outlet、Link、useNavigate、コード分割を学びます。
+source_hash: 38d5e27bbda192fb371b5e13e4728fea50e081031d7f3f3b29d993409a8edad7
+---
+
+## はじめに
+
+これまでコンポーネント、状態管理、画面の更新を学びました。
+多くのウェブアプリは複数のページを持ち、ユーザーは自由に行き来する必要があります。
+従来のサイトは遷移ごとにHTMLを受け取りますが、Reactなどの*SPA*では異なります。
+最初に一つのHTMLを読み、その後は全体を要求せず、JavaScriptで内容だけを動的に変えます。
+そのページ移動、つまり*ルーティング*を実装する代表的なライブラリがReact Routerです。
+今回は当時の最新版v6を中心に、使い方だけでなく*内部の原理*と多様な機能も探ります。
+
+## React Router v6の基本設定
+最初にインストールし、基本の構造を設定します。
+### インストール
+react-router-domを、npmやyarnなどで追加します。
+
+```bash
+npm install react-router-dom
+ # 또는
+yarn add react-router-dom
+```
+
+### BrowserRouter・Routes・Route
+
+基本設定には、次のコンポーネントを使います。
+- **BrowserRouter**
+  HTML5 History APIでURLとUIを同期します。アプリの上位を囲み、アドレスバーのパスを管理します。詳しくは後で説明します。
+- **Routes**
+  複数のRouteを含む入れ物です。現在のURLに最もよく一致する最初のRouteを探し、elementを描画します。
+- **Route**
+  pathと、そのとき表示するelementを結び付けます。
+
+```tsx
+import React from 'react';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'; // Link 추가
+
+// 페이지 컴포넌트 예시
+function HomePage() {
+  return <h2>홈 페이지</h2>;
+}
+
+function AboutPage() {
+  return <h2>소개 페이지</h2>;
+}
+
+// 네비게이션 컴포넌트 예시
+function Navigation() {
+  return (
+    <nav>
+      <ul>
+        <li><Link to="/">홈</Link></li>
+        <li><Link to="/about">소개</Link></li>
+      </ul>
+    </nav>
+  );
+}
+
+
+function App() {
+  return (
+    <BrowserRouter>
+      <h1>나의 앱</h1>
+      <Navigation /> {/* 네비게이션 링크 */}
+      <Routes>
+        {/* path="/"는 홈페이지 경로 */}
+        <Route path="/" element={<HomePage />} />
+        {/* path="/about"은 소개 페이지 경로 */}
+        <Route path="/about" element={<AboutPage />} />
+        {/* 정의되지 않은 다른 모든 경로 처리 (예: 404 페이지) */}
+        <Route path="*" element={<h2>페이지를 찾을 수 없습니다 (404)</h2>} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+```
+`/`ならHomePage、`/about`ならAboutPageを表示します。
+`path="*"`はワイルドカードで、ほかに一致しないすべてのパスを扱います。
+通常は404ページを表示します。
+
+## React Routerの仕組み
+
+URLの変化で適切なコンポーネントを表示する中心には、History APIと内部の照合ロジックがあります。
+
+### History API：履歴の操作
+BrowserRouterは組み込みの*History API*で動きます。
+JavaScriptからセッションの訪問履歴スタックを操作する機能です。
+主なものは次のとおりです。
+- **pushState(state, title, url)**
+  履歴へ新しい状態を加えます。
+  アドレスバーは変えますが、再読み込みはしません。これがSPAで遷移に見せる中心です。
+  Linkのクリック時、内部で使われます。
+- **replaceState(state, title, url)**
+  現在の履歴を置き換えます。戻る操作で以前の記録を残したくないときに使います。
+- **popstateイベント**
+  戻る・進むボタンや`history.back()`、`history.forward()`でURLが変わると発生します。
+  BrowserRouterが検知し、現在のURLに応じて再描画します。
+
+BrowserRouterはURL変更を*検知*し、どのコンポーネントを表示するか決める役割です。
+
+### URLの照合
+
+Linkを押したりURLが変わったりすると、現在のパスとRoutes内の各Routeを比べる*マッチング*を行います。
+- 子Routeを上から順番に確認する。
+- pathと現在のパスを比べる。
+- 最もよい*best match*を探す。v6では相対パスや順位付けのアルゴリズムが精密になった。
+- 一致したelementを描画して終了する。
+- 一致がなければ、定義済みの`path="*"`を選ぶ。
+
+この照合で、現在のURLに正しいUIを表示します。
+
+### 描画とOutlet
+
+選ばれたRouteのelementを描画します。
+入れ子の場合は、まず親を描き、内部のOutletへ一致した子を描きます。
+Outletは「ここに子ルートの内容を入れる」という目印です。
+複雑なレイアウトも、整理して扱えます。
+
+## 主なコンポーネントとフック
+
+原理の観点から、主要機能を確認します。
+### Linkによる移動
+クリックできる内部リンクには、通常の`<a>`ではなくLinkを使います。
+#### 仕組み
+クリック時には、次の処理を行います。
+1. `<a>`の標準動作である再読み込みをpreventDefaultで止める。
+2. `pushState`で`to`の値へURLを変え、履歴に追加する。
+3. 変更を検知し、新しいURLに合う表示へ再描画する。
+
+**`<a>`との違い**は、全ページをサーバーから読み直さず、速く滑らかに遷移できる点です。
+
+```tsx
+// Navigation 컴포넌트 예시 (기존과 동일)
+import { Link } from 'react-router-dom';
+
+function Navigation() {
+  return (
+    <nav>
+      <ul>
+        <li>
+          {/* to prop에 이동할 경로 지정 */}
+          <Link to="/">홈</Link>
+        </li>
+        <li>
+          <Link to="/about">소개</Link>
+        </li>
+      </ul>
+    </nav>
+  );
+}
+```
+
+> Q：「LinkとHTMLの`<a>`はどう違いますか。」
+A：History APIを使い、再読み込みを避ける内部動作も含めて説明します。
+
+### useNavigateによるプログラムからの移動
+
+ボタンの処理後など、コードから遷移するときにuseNavigateを使います。
+#### 仕組み
+返されたnavigateを呼ぶと、通常は`pushState`、指定時には`replaceState`でURLを変え、再描画を起こします。
+渡したパスや数値に応じ、適切なHistory APIを使います。
+
+```tsx
+import { useNavigate } from 'react-router-dom';
+
+function LoginPage() {
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    const isLoggedIn = true;
+    if (isLoggedIn) {
+      // 내부적으로 history.pushState('/') 와 유사하게 동작
+      navigate('/');
+      // 로그인 페이지 기록을 남기지 않으려면 replace 사용
+      // navigate('/', { replace: true }); // history.replaceState('/') 와 유사
+    } else {
+      alert('로그인 실패!');
+    }
+  };
+
+  return (
+    <div>
+      <h2>로그인</h2>
+      <button onClick={handleLogin}>로그인 하기</button>
+    </div>
+  );
+}
+```
+
+### useParamsでURLパラメーターを読む
+
+動的なパス部分の値を取得します。
+#### 仕組み
+照合中にURLとpathを比べ、動的セグメントの値を抽出します。
+useParamsはそれをオブジェクトとして返し、簡単に使えるようにします。
+
+```tsx
+import { useParams } from 'react-router-dom';
+
+// Route 설정
+// <Route path="/users/:userId" element={<UserProfilePage />} />
+
+function UserProfilePage() {
+  // URL이 '/users/alice' 라면, params는 { userId: 'alice' } 가 됨
+  const params = useParams<{ userId: string }>();
+
+  return (
+    <div>
+      <h2>사용자 프로필</h2>
+      <p>사용자 ID: {params.userId}</p>
+    </div>
+  );
+}
+```
+
+### その他の便利なフック
+
+- **useLocation**：pathname、search、hash、stateを持つlocationを返します。URLの変化ごとに更新され、利用者は最新情報を受け取ります。
+- **useSearchParams**：クエリ文字列の解析と更新を簡単にします。location.searchを読み、URLSearchParamsで操作し、必要ならnavigateでURLを更新します。
+
+<Ads1 />
+
+## 入れ子のルートとOutletでレイアウトを管理する
+
+共通レイアウトを効率よく管理する方法です。
+#### 仕組み
+現在のURLに最も合う入れ子のパスを探します。
+`/dashboard/analytics`なら、`/`のMainLayout、`dashboard`のOutlet、`analytics`のDashboardAnalyticsへと照合します。
+親MainLayoutを描画し、そのOutletへ最深部のDashboardAnalyticsを表示します。
+
+```tsx
+// 중첩 라우트 설정 예시 (기존과 동일)
+import React from 'react'; // React 임포트
+import { BrowserRouter, Routes, Route, Link, Outlet } from 'react-router-dom'; // 필요한 모듈 임포트
+
+// 공통 레이아웃 컴포넌트
+function MainLayout() { /* ... Outlet 포함 ... */ }
+// 페이지 컴포넌트들
+function DashboardHome() { return <h3>대시보드 홈</h3>; }
+function DashboardAnalytics() { return <h3>대시보드 분석</h3>; }
+function SettingsPage() { return <h2>설정</h2>; }
+
+function AppNested() { // 컴포넌트 이름 변경 (App 중복 방지)
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<h2>홈페이지 컨텐츠</h2>} />
+          <Route path="dashboard" element={<Outlet />}>
+            <Route index element={<DashboardHome />} />
+            <Route path="analytics" element={<DashboardAnalytics />} />
+          </Route>
+          <Route path="settings" element={<SettingsPage />} />
+        </Route>
+        <Route path="*" element={<h2>페이지를 찾을 수 없습니다 (404)</h2>} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+```
+
+## 動的ルーティングとコード分割
+
+React.lazyとSuspenseで実装します。
+#### 仕組み
+React.lazyのコンポーネントは、対応ルートが初めて一致して描画されるとき、非同期に読み込みます。
+その間はSuspenseが代替UIを見せ、完了すると読み込んだコンポーネントを表示します。
+WebpackやViteの動的import()と連携し、小さなchunkに分けて必要時だけ取得します。
+
+```tsx
+import React, { lazy, Suspense } from 'react'; // lazy, Suspense 임포트
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'; // 필요한 모듈 임포트
+
+// 동적 임포트
+const LazyHomePage = lazy(() => import('./pages/HomePage'));
+const LazyAboutPage = lazy(() => import('./pages/AboutPage'));
+
+function AppLazy() { // 컴포넌트 이름 변경 (App 중복 방지)
+  return (
+    <BrowserRouter>
+      <nav>
+        <Link to="/">홈</Link> | <Link to="/about">소개</Link>
+      </nav>
+      <Suspense fallback={<div>페이지 로딩 중...</div>}>
+        <Routes>
+          <Route path="/" element={<LazyHomePage />} />
+          <Route path="/about" element={<LazyAboutPage />} />
+          <Route path="*" element={<h2>페이지를 찾을 수 없습니다 (404)</h2>} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
+  );
+}
+
+// ./pages/HomePage.tsx 예시 (default export 필요)
+// import React from 'react';
+// function HomePage() { return <h2>홈 페이지</h2>; }
+// export default HomePage;
+```
+
+<Ads2 />
+
+## URLパラメーターに応じた描画と最適化
+
+変更時のデータ再取得は、useEffectの依存配列で実現します。
+### 仕組み
+URLが変わると、新しいパラメーターで再描画します。
+useParamsも新しい値を返し、useEffectは`[userId]`の変更を検知して、データ要求のeffectを再実行します。
+これで、パラメーターに応じた更新が自動で行われます。
+
+```tsx
+// useEffect를 사용한 데이터 페칭 예시 (기존과 동일)
+import React, { useState, useEffect } from 'react'; // useState, useEffect 임포트
+import { useParams } from 'react-router-dom'; // useParams 임포트
+
+// 가짜 API 함수
+async function fetchUserData(userId: string): Promise<{ id: string; name: string }> { /* ... */ return { id: userId, name: `사용자 ${userId.toUpperCase()}` }; }
+
+function UserProfilePageFetch() { // 컴포넌트 이름 변경
+  const { userId } = useParams<{ userId: string }>();
+  const [userData, setUserData] = useState</*...*/ | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (userId) {
+      // ... 데이터 요청 로직 ...
+    }
+  }, [userId]); // userId 변경 시 재실행
+
+  // ... 렌더링 로직 ...
+  if (!userData) return null; // 초기 렌더링 또는 오류 시 null 반환
+  return (
+    <div>
+      <h2>사용자 프로필</h2>
+      <p>ID: {userData.id}</p>
+      <p>이름: {userData.name}</p>
+    </div>
+  );
+}
+```
+
+## まとめ
+
+React Router v6の使い方と、内部動作を確認しました。
+- SPAは**History API**で、再読み込みせずURLとUIを変える。
+- **URL照合**で、現在のパスに合うRouteを見つけて表示する。
+- **Link**は`pushState`で、**useNavigate**はコードからURLを変える。
+- **useParams**や**useLocation**でURL情報を簡単に扱える。
+- **入れ子のルート**と**Outlet**でレイアウトやコードを整理し、子の表示位置を決める。
+- **コード分割**はReact.lazyとSuspense、動的importで初期表示を改善する。
+
+原理を理解すると、単に機能を使うだけでなく、問題の解決や効率的なアプリ構造の設計にも役立ちます。
+> 次回はSSR、SSG、Hydrationの原理を学び、表示方式の長所・短所を比べ、性能とSEOを改善する方法を探ります。
+
+### 参考
+
+- React Router公式：[https://reactrouter.com/](https://reactrouter.com/)
+- MDN Web Docs：History API：[https://developer.mozilla.org/ko/docs/Web/API/History_API](https://developer.mozilla.org/ko/docs/Web/API/History_API)
+- React公式ドキュメント：Code-Splitting：[https://reactjs.org/docs/code-splitting.html](https://reactjs.org/docs/code-splitting.html)

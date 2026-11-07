@@ -1,0 +1,114 @@
+---
+title_ko:
+  - BOJ
+title_en: Snake and Ladder Game (Python)
+desc: A classic game of snakes and ladders implemented in Python.
+thumbnail_url: 'https://d2gd6pc034wcta.cloudfront.net/tier/11.svg'
+metatag: >-
+  algorithm, python, boj, baekjoon, snake, ladder, game, graph, bfs,
+  shortest_path, 16928
+post_id: '257'
+locale: en
+title: '[BOJ] #16928 Snakes and Ladders (Python)'
+description: >-
+  A Python BFS solution to finding the fewest die rolls in a game of snakes and
+  ladders.
+source_hash: c96cdd984955b0147e102108c353be13385d5d967de720e91cca3ae9559ef650
+reviewed_at: '2026-11-06T14:41:47.072Z'
+---
+> https://www.acmicpc.net/problem/16928
+## Algorithm categories
+Graph theory, graph traversal, breadth-first search (BFS).
+
+## Problem description
+This problem implements the familiar game of snakes and ladders.
+Move across a board of 100 squares by rolling a die, which can show a number from 1 to 6.
+The goal is to find the minimum number of rolls needed to move from square 1 to square 100.
+<Img src="/250505-185431.webp" width={300} alt="Snakes and ladders"/>
+### Input
+- The first line gives the number of ladders N (1 ≤ N ≤ 15) and snakes M (1 ≤ M ≤ 15).
+- Lines 2 through N + 1 give the start and end positions of each ladder. (1 ≤ start < end ≤ 100)
+- Lines N + 2 through N + M + 1 give the start and end positions of each snake. (1 ≤ start < end ≤ 100)
+### Output
+- Print the minimum number of die rolls required to reach square 100 from square 1.
+
+## Solution
+0. Build a dictionary mapping each snake or ladder's starting position to its ending position.
+1. Use a one-dimensional array of 100 squares to store the minimum number of rolls needed to reach each square, initially set to 99.
+2. Starting from square 1, consider rolls from 1 to 6 and store the previous square's roll count plus 1 for each reachable square.
+3. If a square's value is updated, add it to the queue.
+4. Remove a square from the queue and again inspect the squares reachable by rolling 1 through 6.
+5. Repeat until no squares remain in the queue.
+6. Print the roll count for the final square, square 100.
+
+## Code — Python
+```python
+import sys
+from collections import deque
+
+N, M = list(map(int, sys.stdin.readline().split()))
+arr = [99] * 101 # 1부터 100까지의 칸을 저장하는 배열, 기본값은 99로 설정
+snakes = {} # 사다리와 뱀의 위치를 저장하는 딕셔너리
+
+for _ in range(N + M):
+  a, b = list(map(int, sys.stdin.readline().split()))
+  snakes[a] = b # 사다리와 뱀의 시작 위치를 key로, 끝 위치를 value로 저장
+
+arr[1] = 0
+dq = deque([1]) # 큐에 1번 칸을 추가
+
+while dq:
+  x = dq.pop() # 큐에서 꺼낸 칸
+  for i in range(1, 7): # 1부터 6까지의 주사위를 굴려서 이동할 수 있는 칸을 확인
+    if x + i > 100: # 100번 칸을 넘어가면 무시
+      continue
+    elif x + i in snakes.keys(): # 사다리와 뱀의 위치를 확인
+      if arr[x] + 1 < arr[snakes[x+i]]: # 값이 업데이트되는 경우
+        arr[snakes[x+i]] = arr[x] + 1
+        dq.append(snakes[x+i]) # 업데이트된 칸을 큐에 추가
+    else: # 사다리와 뱀의 위치가 아닌 경우
+      if arr[x] + 1 < arr[x + i]: # 값이 업데이트되는 경우
+        arr[x + i] = arr[x] + 1
+        dq.append(x + i) # 업데이트된 칸을 큐에 추가
+
+print(arr[-1]) # 마지막 칸(100번 칸)의 주사위 굴리기 횟수를 출력
+```
+
+## Key points
+- Use BFS to find the shortest path from square 1 to square 100.
+- Manage snake and ladder positions in a dictionary to look up reachable squares easily.
+- Implement BFS with a queue.
+
+## Additional test cases, excluding the examples
+```bash title="answer: 4"
+2 1
+2 60
+21 99
+61 20
+```
+```bash title="answer: 2"
+1 5
+2 99
+3 2
+4 2
+5 2
+6 2
+7 2
+```
+```bash title="answer: 17"
+0 0
+```
+```bash title="answer: 4"
+1 5
+2 92
+94 3
+95 4
+96 5
+97 6
+98 7
+```
+```bash title="answer: 3"
+1 1
+13 99
+8 7
+```

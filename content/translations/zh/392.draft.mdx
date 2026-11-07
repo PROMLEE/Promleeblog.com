@@ -1,0 +1,276 @@
+---
+title_en: API Mocking Strategy and Using MSW - TDD with React Part 9
+title_ko: API Mock 전략과 MSW 활용 - React로 시작하는 TDD 9편
+url: api-mocking-msw
+series_no: 9
+desc: >-
+  실제 서버 없이도 네트워크 요청을 가로채서 테스트할 수 있게 해주는 MSW(Mock Service Worker)의 도입 방법과 활용 전략,
+  그리고 에러 상황 테스트 방법을 배웁니다.
+thumbnail_url: /251221-231556.webp
+metatag: >-
+  React, TDD, MSW, MockServiceWorker, API, Mocking, Testing, Frontend, Vitest,
+  ErrorHandling
+tags: 'React, Javascript, Typescript, Next.js'
+post_id: '392'
+locale: zh
+title: API Mock 策略与 MSW 应用——用 React 开始 TDD，第 9 篇
+description: 学习引入 MSW 拦截网络请求，在无需真实服务器的情况下测试 API，并验证服务器错误等场景。
+source_hash: e4885a1b0e15d38611eee91984cdb960283f70300f4ca398dbc8b32e2c7fa297
+---
+
+## 开始之前
+
+第 8 篇中，我们直接拦截 `global.fetch` 来进行测试。
+但这种方法每次都需要重新定义代码，也难以完整模拟实际的网络行为。
+<br/>
+今天引入被称为前端测试*事实标准（De facto standard）*的 **MSW（Mock Service Worker）**。
+这个工具扮演网络请求拦截器（Interceptor）的角色，不仅能够测试成功场景，也能自由测试**服务器错误（500）场景**。
+
+<Ads1/>
+
+## 第 1 步：安装与配置 MSW
+
+首先安装依赖库。
+（请在终端进入项目文件夹后执行。）
+
+```bash title="Terminal"
+npm install -D msw
+```
+
+### 创建处理器（Handler）
+
+*处理器（Handler）*是一份规则，定义“收到发往特定 URL 的请求时，应该如何响应”。
+创建 `src/mocks` 文件夹，并在其中创建 `handlers.ts` 文件。
+
+```typescript title="src/mocks/handlers.ts" showLineNumbers
+import { http, HttpResponse } from 'msw';
+
+// 가짜 API 주소를 정의합니다.
+// 실제 UserList 컴포넌트가 호출하는 URL과 똑같아야 합니다.
+export const handlers = [
+  http.get('https://jsonplaceholder.typicode.com/users', () => {
+    // 이 URL로 GET 요청이 오면, 아래 JSON 데이터를 돌려줍니다.
+    return HttpResponse.json([
+      { id: 1, name: 'Leanne Graham (MSW)' },
+      { id: 2, name: 'Ervin Howell (MSW)' },
+    ]);
+  }),
+];
+```
+
+### 配置测试服务器
+
+我们在终端（Node.js 环境）中运行测试，而不是在浏览器中运行。
+因此，需要创建 **Node.js 服务器**，而非浏览器使用的 Worker。
+创建 `src/mocks/server.ts` 文件。
+
+```typescript title="src/mocks/server.ts" showLineNumbers
+import { setupServer } from 'msw/node';
+import { handlers } from './handlers';
+
+// 위에서 만든 핸들러들을 묶어서 가짜 서버를 생성합니다.
+export const server = setupServer(...handlers);
+```
+
+<Ads2/>
+
+## 第 2 步：在测试环境中应用 MSW
+
+接下来配置模拟服务器，让它在测试开始时启动，结束时关闭。
+修改之前创建的 `src/setupTests.ts` 文件。
+
+```typescript title="src/setupTests.ts" showLineNumbers
+import '@testing-library/jest-dom';
+import { server } from './mocks/server';
+import { beforeAll, afterEach, afterAll } from 'vitest';
+
+// [설정] 모든 테스트가 시작되기 전에 가짜 서버를 켭니다.
+beforeAll(() => server.listen());
+
+// [정리] 각 테스트가 끝날 때마다 핸들러를 초기화합니다.
+// (테스트 중간에 에러 상황으로 바꿨더라도 다시 정상 상태로 되돌립니다)
+afterEach(() => server.resetHandlers());
+
+// [종료] 모든 테스트가 끝나면 서버를 끕니다.
+afterAll(() => server.close());
+```
+
+## 第 3 步：为组件添加功能（错误处理）
+
+要测试错误，组件就需要在发生错误时向界面展示相应内容。
+修改 `src/components/UserList.tsx`，使其能够处理错误状态。
+
+```tsx title="src/components/UserList.tsx" showLineNumbers
+import { useEffect, useState } from 'react';
+
+interface User {
+  id: number;
+  name: string;
+}
+
+export default function UserList() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  // [추가] 에러 메시지를 저장할 상태
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/users')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('서버 에러가 발생했습니다.');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setUsers(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        // [추가] 에러 발생 시 상태 업데이트
+        setError('에러가 발생했습니다.');
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <p>불러오는 중...</p>;
+  
+  // [추가] 에러 메시지가 있으면 표시
+  if (error) return <p>{error}</p>;
+
+  return (
+    <ul>
+      {users.map((user) => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+<Ads3/>
+
+## 第 4 步：编写测试（验证成功与错误）
+
+现在修改 `UserList.test.tsx`。
+删除原先所有 `global.fetch` 代码，使用 **MSW** 同时测试成功与失败场景。
+这里的关键是：**可以使用 MSW 的 `server.use` 方法，仅在某个特定测试中覆盖处理器**。
+
+```tsx title="src/components/UserList.test.tsx" showLineNumbers highlight="{27-32}"
+import { render, screen } from '@testing-library/react';
+import { describe, test, expect } from 'vitest';
+import { http, HttpResponse } from 'msw'; // MSW 모듈 import
+import { server } from '../mocks/server'; // 가짜 서버 import
+import UserList from './UserList';
+
+describe('UserList 컴포넌트 (MSW 적용)', () => {
+
+  test('데이터를 불러오는 동안 로딩 문구가 뜨고, 이후 데이터가 표시된다', async () => {
+    render(<UserList />);
+
+    console.log('[Test 1] 로딩 상태 확인');
+    expect(screen.getByText('불러오는 중...')).toBeInTheDocument();
+
+    console.log('[Test 1] MSW 정상 응답 대기');
+    // handlers.ts에 정의한 "Leanne Graham (MSW)" 데이터가 오길 기다립니다.
+    const userItem = await screen.findByText('Leanne Graham (MSW)');
+    
+    console.log('[Test 1] 데이터 수신 완료');
+    screen.debug();
+
+    expect(userItem).toBeInTheDocument();
+  });
+
+  // [추가] 에러 상황 테스트
+  test('서버 에러 발생 시 에러 문구가 표시된다', async () => {
+    // 1. 이 테스트 동안만 서버가 500 에러를 뱉도록 설정을 덮어씁니다(Override).
+    server.use(
+      http.get('https://jsonplaceholder.typicode.com/users', () => {
+        return new HttpResponse(null, { status: 500 });
+      })
+    );
+
+    render(<UserList />);
+    
+    console.log('[Test 2] 로딩 상태 확인');
+    expect(screen.getByText('불러오는 중...')).toBeInTheDocument();
+
+    console.log('[Test 2] 에러 발생 대기');
+    
+    // 2. 컴포넌트가 에러를 감지하고 "에러가 발생했습니다."를 띄울 때까지 기다립니다.
+    const errorMsg = await screen.findByText('에러가 발생했습니다.');
+
+    console.log('[Test 2] 에러 UI 렌더링 확인');
+    screen.debug();
+
+    expect(errorMsg).toBeInTheDocument();
+  });
+});
+```
+
+<Ads4/>
+
+## 第 5 步：运行测试并分析结果
+
+在终端中运行测试。
+
+```bash title="Terminal"
+npm test -- src/components/UserList.test.tsx
+```
+
+### 查看运行日志
+<Img src="/251221-231356.webp" width={600} alt="查看运行日志"/>
+```text
+[Test 1] 로딩 상태 확인
+[Test 1] MSW 정상 응답 대기
+[Test 1] 데이터 수신 완료
+<body>
+  <div>
+    <ul>
+      <li>Leanne Graham (MSW)</li>
+      <li>Ervin Howell (MSW)</li>
+    </ul>
+  </div>
+</body>
+
+[Test 2] 로딩 상태 확인
+[Test 2] 에러 발생 대기
+[Test 2] 에러 UI 렌더링 확인
+<body>
+  <div>
+    <p>에러가 발생했습니다.</p>
+  </div>
+</body>
+
+PASS src/components/UserList.test.tsx
+```
+
+从日志可以看到，**Test 1** 正常获取了列表，**Test 2** 则借助 `server.use` 收到 500 错误并显示错误信息。
+无需关闭真实服务器或破坏代码，我们就验证了错误场景。
+
+## 结语
+
+源代码可在 [GitHub - Promleeblog/react-tdd-setup](https://github.com/PROMLEE/my-tdd-app/tree/part9) 查看。
+```bash title="Terminal"
+git clone https://github.com/PROMLEE/my-tdd-app.git
+cd my-tdd-app
+git checkout part9
+```
+
+今天，我们通过引入 MSW 升级了 API 测试策略。
+- **引入 MSW**
+  在 `handlers.ts` 中统一管理 API 响应，提高了可维护性。
+- **自动应用**
+  通过配置 `setupTests.ts`，让模拟服务器自动服务于所有测试文件。
+- **模拟错误**
+  使用 `server.use`，仅在指定测试中强制产生错误，验证组件的应对能力。
+<br/>
+现在，我们已经掌握了获取数据（GET）的测试。
+不过，用户输入数据并发送到服务器（POST）的表单处理也同样重要。
+> 下一篇将通过**第 10 篇：表单输入与校验测试**，学习如何测试用户输入文本并点击提交按钮的过程。
+
+### 参考资料
+- [MSW Network Behavior](https://mswjs.io/docs/network-behavior/rest)
+  介绍使用 MSW 模拟各种网络状态（状态码、延迟等）的方法。
+- [Testing Library Async](https://testing-library.com/docs/dom-testing-library/api-async/)
+  findBy、waitFor 等异步测试核心 API 的文档。

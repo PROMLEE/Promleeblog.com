@@ -1,0 +1,119 @@
+---
+title_en: Overview of TDD in React Environment - TDD with React Part 1
+title_ko: React 환경에서의 TDD 개요 - React로 시작하는 TDD 1편
+url: react-tdd-overview
+series_no: 1
+desc: >-
+  프론트엔드 개발에서 테스트가 왜 중요한지, 그리고 React 환경에서 TDD를 도입했을 때 얻을 수 있는 이점과 테스트 범위에 대해
+  알아봅니다.
+thumbnail_url: /react-tdd-overview.webp
+metatag: 'React, TDD, Frontend, Testing, Jest, RTL, JavaScript, WebDevelopment'
+tags: 'React, TDD, Frontend'
+post_id: '384'
+locale: en
+title: 'An Introduction to TDD in React — TDD with React, Part 1'
+description: >-
+  Learn why frontend testing matters, what TDD offers React projects, and which
+  behaviors to cover with tests.
+source_hash: 0b3f9a5c44dc2b96445872a890561e3bab8046c790ec5cdc4afc96c69ae44283
+---
+## Before We Begin
+
+Hello!
+Today we're starting a new series, *TDD with React*. Many students and junior developers are familiar with backend tests in Java or Spring but have little experience testing the frontend.
+<br/>
+“Can't I just open the browser and click around to see if it works?”
+<br/>
+Checking the UI yourself is useful. As the project grows, however, you can't click every button after each change.
+In this series, we'll learn how to make *React* components more robust and how tests can make development more enjoyable.
+
+<Img src="/251217-181326.webp" width={500} alt="How to make components more robust"/>
+## What Frontend Tests Do
+
+Frontend tests go beyond checking that the screen renders. They verify the *actions users take* on your site and *what they experience*.
+
+- **Verify user behavior**
+  For example, when a user clicks Sign In, does a loading screen appear, and does the app then navigate to the main page?
+- **Check business logic**
+  For example, does the shopping cart calculate the total with a 10% discount applied?
+- **Catch regressions**
+  When you add a feature, tests automatically check that existing behavior, such as account registration, still works.
+
+<Ads1/>
+
+## Why Use TDD in React?
+
+Why use *test-driven development (TDD)*, where you write tests first, in a *React* project?
+
+### 1. Refactor with Confidence
+
+Frontend code changes often. Designs evolve, and components get split up.
+Without tests, you may find yourself refreshing the browser after every change and wondering whether something broke.
+With tests, you can change the structure freely and check that the tests still pass.
+
+### 2. Keep Documentation That Stays Current
+
+When you use someone else's component, you may need to ask which props it expects. Tests can answer that question by showing exactly how the component behaves in different situations.
+
+```javascript title="src/components/Button.test.js" showLineNumbers
+// 이 테스트만 봐도 Button 컴포넌트의 주 사용법을 알 수 있습니다.
+test('클릭하면 onClick 함수가 실행된다', () => {
+  const handleClick = jest.fn();
+  render(<Button onClick={handleClick}>저장</Button>);
+  
+  fireEvent.click(screen.getByText('저장'));
+  
+  expect(handleClick).toHaveBeenCalledTimes(1);
+});
+```
+
+### 3. Get Faster Feedback
+
+Opening the browser, signing in, navigating to a page, and clicking a button takes longer than it sounds.
+With TDD, a single command can check hundreds of behaviors in seconds. That also speeds up development.
+
+<Ads2/>
+
+## What to Test
+
+What should we cover? Testing everything is impractical. The central principle of *React* testing is to **focus on behavior from the user's perspective**.
+
+- **What to test**
+  - What happens when the user clicks a button.
+  - How a form value changes when the user types.
+  - Whether the screen shows an error message when something goes wrong.
+- **What to leave out**
+  - Whether a component's internal state variable is called `isVisible` or `show`.
+  - Whether the *React* framework itself works. The *React* team tests useState.
+  - Whether CSS styling has been applied. Use visual testing tools to check appearance.
+
+> Suggested illustration: [An iceberg. Above the surface are the screens and actions users can see, which are in scope for testing. Below the surface are internal variables and implementation details, which are out of scope.]
+
+<Ads3/>
+
+## Tools We'll Use
+
+This series introduces widely used testing tools.
+
+- **Jest**
+  A *test runner* that runs tests and reports their results, much like JUnit on the backend.
+- **React Testing Library (RTL)**
+  A tool for rendering *React* components in a test environment and simulating user actions such as clicking and typing.
+- **MSW (Mock Service Worker)**
+  A tool that intercepts network requests and responds with mock data.
+
+<Ads4/>
+
+## Conclusion
+
+We looked at why TDD matters in a *React* project and which behaviors to test. The goal is to write code your users can rely on.
+<br/>
+Writing tests can feel tedious or difficult at first. Once it becomes a habit, writing code without tests can feel like driving without a seat belt.
+
+> Next time, we'll create a project and set up **Jest** and **React Testing Library** for our first test environment.
+
+### References
+- [Testing Library Docs](https://testing-library.com/docs/react-testing-library/intro/)
+  The official documentation for React Testing Library, which we'll use throughout the series.
+- [Why TDD?](https://kentcdodds.com/blog/write-tests)
+  React Testing Library creator Kent C. Dodds explains why you should write tests.

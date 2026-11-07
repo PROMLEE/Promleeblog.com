@@ -1,0 +1,164 @@
+---
+title_ko: Expo의 페이지/다이나믹 라우팅 (expo-router)
+title_en: Expo's page/dynamic routing (expo-router)
+desc: >-
+  Expo의 페이지/다이나믹 라우팅 (expo-router)에 대한 설명입니다. In this post, I will explain about
+  Expo's page/dynamic routing (expo-router).
+thumbnail_url: 'https://cdn.worldvectorlogo.com/logos/expo-go-app.svg'
+metatag: >-
+  setting expo page routing, setting expo dynamic routing, expo-router, expo
+  Navigation, dynamic routing on folder
+post_id: '150'
+locale: zh
+title: Expo 的页面路由与动态路由（expo-router）
+description: 介绍 expo-router 的页面路由、布局、路由分组及文件和文件夹中的动态路由配置。
+source_hash: 610cb8d50cb1af5034ed0a63977039dae6bc1fef49c09e94fd2e60cc33da9665
+---
+## 开始之前
+> 本文假设你已创建基本的 Expo 项目。创建方法请参考 Expo 项目创建：[Windows](/blog/post/117-expo-proj-init)、[Mac](/blog/post/143-expo-init-mac)。
+
+### Expo 的路由
+Expo Router 是面向 React Native 与 Web 应用的文件路由器。它管理应用各个界面之间的导航，让用户在 Android、iOS、Web 等平台上，使用同一套组件，在应用 UI 的各个部分之间顺畅切换。在 `App` 目录中添加文件后，该文件就会自动成为一个导航路由。
+下面介绍 Expo 路由支持的页面路由与动态路由。
+## 1. 创建页面
+在 app 目录中创建文件后，它就会自动成为应用的路由。例如，以下文件会生成相应路径。
+```
+📦 app
+ ┣ 📜 index.tsx  ->  '/'
+ ┣ 📜 home.tsx		->  '/home'
+ ┣ 📂 setting		
+ ┗ ┗ 📜 index.tsx		-> '/setting'
+```
+在上面的示例中，`index.tsx` 对应根路径，`home.tsx` 对应 `/home` 路径。配置好的路由可以这样使用。
+```tsx title="/app/index.tsx"
+import { router } from 'expo-router';
+import { Button } from 'react-native';
+
+export default function Index() {
+
+	return (
+		<>
+			<Button
+				title="Go to Home"
+				onPress={() => router.push('/home')}
+			/>
+			<Button
+				title="Go to Setting"
+				onPress={() => router.push('/setting')}
+			/>
+		</>
+	);
+}
+```
+
+<Ads1 />
+## 2. 配置布局
+目录中的布局文件用于定义头部、标签栏等共享 UI 元素，使其在不同路由之间持续存在。每次创建新项目时，app 目录默认包含根布局文件（app/_layout），用于定义所有路由的布局。布局文件可以这样使用。
+```
+📦app
+ ┣ 📜 _layout.tsx  -> 루트 레이아웃
+ ┣ 📜 index.tsx
+ ┣ 📜 home.tsx
+ ┣ 📂 setting		
+ ┗ ┗ 📜 index.tsx   -> /setting에 적용되는 레이아웃
+```
+## 3. 设置路由分组
+路由分组用于组织路由，并指定它们共享布局。分组可以按如下方式使用：`(그룹명)`。
+这样创建的分组*不会影响路由地址*。
+```
+📦app
+┣ 📜 _layout.tsx
+┣ 📜 index.tsx
+┣ 📜 home.tsx
+┣ 📂 setting
+┗ ┗ 📜 index.tsx
+┗ 📂 (group)  -> 그룹 생성
+┗ ┗ 📜 _layout.tsx
+┣ ┗ 📜 sitemap.tsx		 	-> '/sitemap'
+┗ ┗ 📜 about.tsx			-> '/about'
+```
+
+<Ads2 />
+## 4. 动态路由
+动态路由是在路径中使用动态参数来生成路由的方法。动态参数是路径的一部分，不会影响路径的其他部分。使用 `[]` 可以创建动态路由，如下所示。
+```
+📦app
+┣ 📜 _layout.tsx
+┣ 📜 index.tsx
+┣ 📜 home.tsx
+┣ 📂 user
+┗ ┗ 📜 [id].tsx  -> '/user/{id}'
+```
+上面的示例中，`user/[id].tsx` 对应 `/user/{id}` 路径。配置好的路由可以这样使用。
+```tsx title="/app/index.tsx"
+import { router } from 'expo-router';
+import { Button } from 'react-native';
+
+export default function Index() {
+
+	return (
+		<>
+			<Button
+				title="Go to User"
+				onPress={() => router.push('/user/1')}
+			/>
+		</>
+	);
+}
+```
+`id` 作为动态参数使用，可以在 `user/[id].tsx` 文件中读取 `id`。
+```tsx title="/app/user/[id].tsx"
+import { useLocalSearchParams } from 'expo-router';
+import { Text, View } from 'react-native';
+
+export default function User() {
+  const { id } = useLocalSearchParams();
+
+	return (
+		<View>
+			<Text>{id}</Text>
+		</View>
+	);
+}
+```
+<Ads3 />
+## 问题与解决方法
+### 文件夹也能设置动态路由吗？
+希望实现的结构
+```
+📦app
+┣ 📜 _layout.tsx
+┣ 📜 index.tsx
+┣ 📜 home.tsx
+┣ 📂 [id]
+┣ ┣ 📜 mypage.tsx  -> '/{id}/mypage'
+┗ ┗ 📜 edit.tsx  -> '/{id}/edit'
+```
+结论是，文件夹也支持动态路由。只需使用 `[]` 设置文件夹名称即可。
+```tsx title="/app/[id]/mypage.tsx"
+import { useLocalSearchParams } from 'expo-router';
+import { Text, View } from 'react-native';
+
+export default function MyPage() {
+	const { id } = useLocalSearchParams<{ id: string }>();
+	return (
+		<View>
+			<Text>{id}</Text>
+		</View>
+	);
+}
+```
+<Ads4 />
+## 结语
+本文介绍了 Expo 的路由，它与 Next.js 的 App 路由方式相似，同时提供多种功能。通过管理应用页面之间的导航，用户可以在 Android、iOS、Web 等平台上，使用同一套组件，在应用 UI 的不同部分之间顺畅切换。
+### 进一步思考
+- 按平台配置路由
+  - 从 Expo Router 3.5.x 版本开始，可以按平台配置路由，为 iOS、Android、Web 设置不同的路由。
+  - [平台专用扩展](https://docs.expo.dev/router/create-pages/#platform-specific-extensions)
+### 参考资料
+- [Expo Router](https://docs.expo.dev/router/)
+- [Expo Router - 创建页面](https://docs.expo.dev/router/create-pages)
+- [Expo Router - 布局](https://docs.expo.dev/router/layouts/)
+- [Expo Router - 路由分组](https://docs.expo.dev/develop/file-based-routing/#groups)
+- [Expo Router - 动态路由](https://docs.expo.dev/develop/dynamic-routes/)
+- [Expo Router - 平台专用扩展](https://docs.expo.dev/router/create-pages/#platform-specific-extensions)

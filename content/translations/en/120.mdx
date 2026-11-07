@@ -1,0 +1,89 @@
+---
+post_id: '120'
+locale: en
+title: 'Installing Node.js on macOS with Homebrew, NVM, and npm'
+description: >-
+  Install NVM through Homebrew, configure the shell, and manage Node.js and npm
+  versions on macOS.
+source_hash: 9e74ad3c0e11951d0ff7304f731bc0277647bb149bb5f6a43ce659a0232993f1
+reviewed_at: '2026-11-07T01:38:11.601Z'
+---
+<Bbox>This post was written for macOS.</Bbox>
+
+## Before getting started
+### What is Node.js?
+>Node.js is an open-source and cross-platform JavaScript runtime environment. It is a popular tool for almost any kind of project!
+>Node.js is an open-source, cross-platform JavaScript runtime. It is a popular tool used for almost every kind of project.
+
+[Node.js](https://nodejs.org/en/learn/getting-started/introduction-to-nodejs)
+It enables JavaScript, normally run in a browser, to run on the server as well.
+It is also an essential tool when working with frameworks such as React, Angular, and Vue.js.
+The npm package manager lets you install and manage a wide variety of libraries.
+### What is npm?
+>npm is the world's largest Software Registry. Open source developers from every continent use npm to share and borrow packages, and many organizations use npm to manage private development as well.
+>npm is the world's largest software registry. Open-source developers around the world share and reuse packages through npm, and many organizations also use it to manage private development.
+
+[NPM](https://docs.npmjs.com/about-npm)
+This package manager is installed automatically with Node.js and supports installing and managing libraries.
+
+### What is NVM?
+>Node Version Manager - Simple bash script to manage multiple active node.js versions
+>NVM is a simple Bash script for managing several active Node.js versions.
+
+[NVM](https://github.com/nvm-sh/nvm)
+It is a tool for managing Node.js versions.
+When working on several projects, each may require a different version.
+NVM makes managing these versions convenient.
+
+<Ads1 />
+### Installing Node.js on macOS
+[Node.js](https://nodejs.org/ko/)
+You can install Node.js on macOS by downloading the installer from its website.
+However, to use version management, I will show how to install NVM first and then Node.js.
+#### Installing Homebrew
+Install Homebrew first to make installing NVM easy.
+Follow this guide before continuing.
+[Installing Homebrew on macOS](/blog/post/119-homebrew)
+## Installing NVM
+Open a terminal and run the following command.
+```bash
+brew install nvm
+```
+<Img src="/posts/240831-161255.png" width={500} alt=""/>
+
+### Configuring environment variables
+Open a terminal and enter these commands to configure the environment for NVM.
+```bash
+echo '[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && . "/opt/homebrew/opt/nvm/nvm.sh"' >> ~/.zshrc
+echo '[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && . "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"' >> ~/.zshrc
+source ~/.zshrc
+```
+Then verify that the nvm command is available.
+```bash
+nvm --version
+```
+## Installing Node.js
+Use the following command to install the LTS, or latest stable, Node.js version.
+```bash
+nvm install --lts
+```
+After installation, check the Node.js and npm versions.
+```bash
+node -v
+npm -v
+```
+<Ads2 />
+## NVM commands
+- nvm install [version]: Install a particular Node.js version.
+- nvm use [version]: Use a particular Node.js version.
+- nvm ls: List installed Node.js versions.
+- nvm ls-remote: List available Node.js versions.
+- nvm uninstall [version]: Uninstall a particular Node.js version.
+- nvm alias default [version]: Set the default Node.js version.
+- nvm alias [name] [version]: Create an alias for a version.
+
+## References
+[Node.js](https://nodejs.org/en/learn/getting-started/introduction-to-nodejs)
+[NPM](https://docs.npmjs.com/about-npm)
+[NVM](https://github.com/nvm-sh/nvm)
+[Installing Homebrew, Node.js, npm, and NVM](https://renee.tistory.com/46)

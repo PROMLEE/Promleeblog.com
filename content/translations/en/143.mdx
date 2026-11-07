@@ -1,0 +1,109 @@
+---
+title_ko: Expo 프로젝트 생성하기(Mac Os)
+title_en: Create an Expo project(Mac Os)
+desc: Expo 프로젝트를 생성하는 방법을 알아보자. Let's find out how to create an Expo project.
+thumbnail_url: 'https://cdn.worldvectorlogo.com/logos/expo-go-app.svg'
+tag:
+  - Expo
+  - React Native
+  - Mac
+  - Typescript
+post_id: '143'
+locale: en
+title: Creating an Expo Project on macOS
+description: >-
+  Set up Expo on macOS, create and link a project, and run the app in an
+  emulator, a simulator, or Expo Go.
+source_hash: 91783ea6ad34c8e21fe65a03f9f68af7fa8319f105c4045a5ce80278f647102a
+reviewed_at: '2026-11-07T12:33:45.248Z'
+---
+## Before We Begin
+> I used an M3 Mac, Xcode, Android Studio, and Visual Studio Code for this guide.
+
+### What Is Expo?
+[Expo](https://expo.io/) simplifies React Native app development by handling much of the configuration needed for Android and iOS. You can use Expo for free, and it makes building and distributing apps easier. Install Expo Go to preview your app on a physical device as you work.
+
+### Expo vs. React Native CLI
+Expo simplifies building and deploying an app. In the Expo Go workflow, some libraries aren't available and you can't add custom native features. React Native CLI gives you direct access to the native project when you need functionality outside that workflow.
+> Check whether the features you need are compatible with Expo. If they aren't, consider React Native CLI.
+
+[Set up React Native CLI](/blog/post/114-rn-init)
+
+<Ads1 />
+## 1. Install Node.js and npm
+Node.js is the JavaScript runtime required for React Native development. You can download the LTS version from the Node.js website or install it on a Mac with Homebrew and nvm. Follow the guide below to set it up.
+[Install Node.js on macOS with Homebrew, nvm, and npm](/blog/post/120-macos-nodejs)
+Then run node -v and npm -v in a terminal to check the versions.
+```bash
+node -v
+npm -v
+```
+<Img src="/posts/250305-093829.png" width={200} alt=""/>
+
+## 2. Install Expo and Create a Project
+### 2.1. Create an Expo Account and Project
+Sign up on the Expo website and sign in.
+[Official Expo website](https://expo.io/)
+Click Create a new project and enter a name to create your project.
+<Img src="/posts/240729-002615.png" width={400} alt="Creating an Expo project named Test"/>
+
+### 2.2. Install Expo CLI and Create a Local Project
+You can optionally install expo-cli globally from the terminal. You can also create and run the project with npx expo commands without installing expo-cli globally.
+```bash
+npm install --global expo-cli
+```
+If you installed expo-cli, use expo init to create the project.
+```bash
+npx create-expo-app@latest
+```
+Enter y to install any additional packages, then set the project name and let the setup finish.
+<Img src="/posts/250305-094759.png" width={400} alt="Setup is complete when you see ‘Your project is ready!’"/>
+
+Sign in to Expo before running the project.
+```bash
+npx expo login	# expo 계정 입력
+```
+Once the local project is ready, enter its directory and link it to your Expo project. Find the project ID on the Expo project details page.
+<Img src="/posts/240729-004021.png" width={500} alt=""/>
+
+```bash
+cd my-new-project
+eas init --id {expo 프로젝트 id}
+```
+Once it is linked, start the project.
+```bash
+npm start
+```
+
+<Img src="/posts/240729-004744.png" width={300} alt=""/>
+Press a to open the app in the Android Studio emulator, w to open it in a browser, or i to open it in the Xcode iOS Simulator, which is available on macOS.
+
+<Ads2 />
+### 2.3. Install and Connect Expo Go
+Install Expo Go on your phone.
+[Download Expo Go for Android](https://play.google.com/store/apps/details?id=host.exp.exponent&hl=ko&gl=US)
+[Download Expo Go for iOS](https://apps.apple.com/kr/app/expo-go/id982107779)
+Scan the QR code to preview the app on the device as you develop. You can also sign in to Expo Go and open the link to your development app.
+
+## Conclusion
+Choose Expo or React Native CLI based on your project. Expo simplifies app development, while Expo Go has limits on which libraries and native features are available. For features outside that workflow, consider React Native CLI or the Expo native project workflow below.
+
+### Further Considerations
+#### expo eject
+Expo previously used expo eject to convert an Expo project to a React Native CLI project. The command was deprecated and replaced by [prebuild](https://docs.expo.dev/workflow/prebuild/).
+[Expo FAQ: Is expo eject deprecated?](https://docs.expo.dev/faq/#is-expo-eject-deprecated)
+
+<Ads3 />
+#### expo prebuild
+Prebuild uses the app configuration to generate native source files for an Expo project.
+```bash
+expo prebuild
+```
+This creates `android/` and `ios/` folders with native code.
+Then run the prebuilt app with the following commands.
+```bash
+npx expo run:android
+npx expo run:ios
+```
+### References
+- [Expo documentation](https://docs.expo.dev/)

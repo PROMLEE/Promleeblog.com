@@ -1,0 +1,189 @@
+---
+title_ko: 로그인 페이지 분기(FlutterSecureStorage)
+title_en: Log in page branch (FlutterSecureStorage)
+desc: >-
+  플러터 페이지 이동 방식 세팅(로그인 + 라우팅 + 네비게이션 바), 로그인 페이지 분기(FlutterSecureStorage), Log
+  in page branch
+post_id: '125'
+locale: zh
+title: 使用FlutterSecureStorage进行登录页面分流
+description: 通过FlutterSecureStorage保存登录状态，使用Get实现登录页、主页和退出登录之间的页面跳转。
+source_hash: b2089e018452e1915ce9c184ae493ee248f4eb10a627a0871ae4e76a1a153141
+---
+## 开始之前
+> 目标、条件与初始配置：[链接](/blog/post/124-goals-init-paging)
+> 本文基于Flutter 3.24编写。
+
+基础开发环境配置完成后，接下来创建登录页面。登录页面是应用的核心之一，也是用户开始使用应用的第一步。
+这里使用*FlutterSecureStorage*和*Get*，介绍如何保存登录信息，并根据登录状态切换页面。
+本文使用的lib文件结构如下，提前创建好这些文件会更方便。
+```plaintext
+📦 lib
+┣ 📂 model				// 데이터 보관하는 모델 폴더(이번 포스팅에서는 사용하지 않음)
+┣ 📂 view				// 화면을 구성하는 뷰 폴더
+┃ ┣ 📜 login_page.dart
+┃ ┗ 📜 main_page.dart
+┣ 📂 viewModel			// 데이터와 화면을 잇는 viewModel 폴더
+┃ ┗ 📜 auth_service.dart
+┗ 📜 main.dart
+```
+<Ads1 />
+## 1. 创建AuthService类
+创建负责登录处理的AuthService类。
+实现登录、退出登录和检查登录状态的方法。
+使用FlutterSecureStorage保存并检查登录状态。
+```dart title="lib/viewModel/auth_service.dart"
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+class AuthService {
+  // FlutterSecureStorage 인스턴스 생성 (보안 데이터 저장용)
+  final _storage = const FlutterSecureStorage();
+
+  // 로그인 상태 저장 (isLoggedIn = true 또는 false)
+  Future<void> saveLoginState(bool isLoggedIn) async {
+    await _storage.write(key: 'isLoggedIn', value: isLoggedIn.toString());
+  }
+
+  // 로그인 상태 불러오기 (저장된 값이 'true'인지 확인)
+  Future<bool> getLoginState() async {
+    final value = await _storage.read(key: 'isLoggedIn');
+    return value == 'true';
+  }
+
+  // 로그아웃 처리 (저장된 로그인 상태 삭제)
+  Future<void> logout() async {
+    await _storage.delete(key: 'isLoggedIn');
+  }
+}
+```
+
+## 2. 创建LoginPage类
+创建用于构建登录页面的LoginPage类。
+点击登录按钮时，调用AuthService的saveLoginState方法保存登录状态。
+```dart title="lib/view/login_page.dart"
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'package:navigationbar_example/viewModel/auth_service.dart';
+import 'package:navigationbar_example/view/main_page.dart';
+
+class LoginPage extends StatelessWidget {
+  final AuthService _authService = AuthService(); // AuthService 인스턴스 생성
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Login')), // 로그인 화면 제목
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () async {
+            // 로그인 성공 시 상태를 저장 (true로 설정)
+            await _authService.saveLoginState(true);
+            // 로그인 후 메인 페이지로 이동
+            Get.offAll(() => MainPage());
+          },
+          child: const Text('Login'), // 로그인 버튼 텍스트
+        ),
+      ),
+    );
+  }
+}
+```
+
+<Ads2 />
+## 3. 创建MainPage类
+创建用于构建主页的MainPage类。
+点击退出登录按钮时，调用AuthService的logout方法删除登录状态。
+```dart title="lib/view/main_page.dart"
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'package:navigationbar_example/view/login_page.dart';
+import 'package:navigationbar_example/viewModel/auth_service.dart';
+
+class MainPage extends StatelessWidget {
+  final AuthService _authService = AuthService(); // AuthService 인스턴스 생성
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Main Page'), // 메인 화면 제목
+        actions: [
+          IconButton(
+            onPressed: () async {
+              // 로그아웃 시 상태 삭제
+              await _authService.logout();
+              // 로그아웃 후 로그인 페이지로 이동
+              Get.offAll(() => LoginPage());
+            },
+            icon: const Icon(Icons.logout), // 로그아웃 버튼 아이콘
+          ),
+        ],
+      ),
+      body: const Center(
+        child: Text('Welcome to Main Page!'), // 메인 화면 환영 메시지
+      ),
+    );
+  }
+}
+```
+
+## 4. 修改main.dart
+```dart title="lib/main.dart"
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'package:navigationbar_example/view/login_page.dart';
+import 'package:navigationbar_example/view/main_page.dart';
+import 'package:navigationbar_example/viewModel/auth_service.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  final AuthService _authService = AuthService();
+  MyApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp( 	// GetMaterialApp으로 변경하여 GetX 사용
+      debugShowCheckedModeBanner: false,
+      home: FutureBuilder<bool>(
+        future: _authService.getLoginState(),	// 로그인 상태 확인 함수 호출 (비동기 처리)
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // 로그인 상태 확인 중일 때 로딩 화면 표시
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.data == true) {
+            // 로그인 상태가 true일 때 MainPage로 이동
+            return MainPage();
+          } else {
+            // 로그인 상태가 false일 때 LoginPage로 이동
+            return LoginPage();
+          }
+        },
+      ),
+    );
+  }
+}
+```
+
+<Ads3 />
+## 5. 确认运行结果
+启动应用后，会显示登录页。点击登录按钮，进入主页；点击退出登录按钮，回到登录页。
+<Img src="/posts/250113-154658.gif" width={200} alt=""/>
+
+## 结论
+本文介绍了通过FlutterSecureStorage保存登录状态，以及使用Get实现页面跳转的方法。
+下一篇将介绍如何在登录后的主页中添加底部导航栏。
+### 进一步思考
+退出登录时，有哪些方式可以弹出确认对话框？
+- 使用GetX的Get.defaultDialog()方法显示确认弹窗。
+- 使用[AlertDialog](https://api.flutter.dev/flutter/material/AlertDialog-class.html) Widget显示确认弹窗。
+
+### 参考资料
+- [FlutterSecureStorage](https://pub.dev/packages/flutter_secure_storage)
+- [GetX](https://pub.dev/packages/get)
+- [Flutter官方文档](https://flutter.dev/docs)

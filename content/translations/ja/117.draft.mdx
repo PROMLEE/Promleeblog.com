@@ -1,0 +1,119 @@
+---
+post_id: '117'
+locale: ja
+title: Expoプロジェクトを作成する（Windows）
+description: WindowsでExpoのプロジェクトを作成し、エミュレーターやExpo Goで動作を確認する手順です。
+source_hash: ba4e0de6fc68c2819e557faf7ea29f1671ad8a841629032c8436eeefb38f5589
+---
+## はじめに
+> 開発環境にはWindows、Android Studio、Visual Studio Codeを使いました。
+### Expoとは？
+[Expo](https://expo.io/)
+React Nativeでアプリを開発するとき、Expoを使うと作業が簡単になります。AndroidとiOSのアプリを開発するための多くの設定を、Expoが代わりに行います。無料で使え、ビルドと配布の作業も簡単になります。Expo Goを入れると、開発中のアプリを実機でリアルタイムに確認できます。
+
+### ExpoとReact Native CLI
+Expoを使うとビルドと配布が簡単になります。ただし、一部のライブラリを使えず、ネイティブ機能を追加できない場合があります。Expoで実現できない機能を追加するなら、ネイティブ機能を追加できるReact Native CLIを使います。
+> プロジェクトで使う機能がExpoに対応するか確認し、対応しなければReact Native CLIを使うとよいでしょう。
+
+[React Native CLIのインストール手順](https://www.promleeblog.com/blog/post/114-rn-init)
+
+<Ads1 />
+## Node.jsとnpmをインストールする
+Node.jsはJavaScriptのランタイムで、React Nativeの開発に必要です。公式サイトからLTS版をダウンロードしてインストールします。
+[Node.js公式サイト](https://nodejs.org/ko/)
+インストール後、ターミナルでnode -v、npm -vを実行してバージョンを確認します。
+```bash
+node -v
+npm -v
+```
+
+## Expoを設定してプロジェクトを作る
+### Expoアカウントとプロジェクトを作る
+Expoを使うにはアカウントが必要です。公式サイトで登録し、Expoアカウントでログインします。
+[Expo公式サイト](https://expo.io/)
+ログイン後、Create a new projectを押してプロジェクト名を入力すると、Expoプロジェクトを作れます。
+<Img src="/posts/240729-002615.png" width={400} alt="Testプロジェクトの作成"/>
+
+<Ads2 />
+### Expo CLIをインストールしてローカルプロジェクトを作る
+ターミナルからexpo-cliをグローバルにインストールできます（任意）。
+expo-cliを入れなくても、npx expoでプロジェクトを作成し、起動できます。
+```bash
+npm install --global eas-cli
+```
+expo-cliをインストールしたら、expo initでプロジェクトを作ります。
+```bash
+npx create-expo-app@latest my-new-project
+```
+実行前にExpoへログインします。
+```bash
+npx expo login	# expo 계정 입력
+```
+プロジェクトを作ったら、フォルダーへ移動してExpo上のプロジェクトと接続します。プロジェクトIDはExpoの詳細ページで確認できます。
+<Img src="/posts/240729-004021.png" width={500} alt=""/>
+
+```bash
+cd my-new-project
+eas init --id {expo 프로젝트 id}
+```
+接続後、Expoプロジェクトを起動します。
+```bash
+npm start
+```
+
+<Img src="/posts/240729-004744.png" width={300} alt=""/>
+起動後にaを押すとAndroid Studioのエミュレーター、wを押すとブラウザで確認できます。iを押すとXcodeのiOSシミュレーターで確認できますが、macOSでのみ利用できます。
+
+<Ads3 />
+### 2.3 Expo Goをインストールして接続する
+スマートフォンにExpo Goをインストールします。
+[Expo Goをダウンロード（Android）](https://play.google.com/store/apps/details?id=host.exp.exponent&hl=ko&gl=US)
+[Expo Goをダウンロード（iOS）](https://apps.apple.com/kr/app/expo-go/id982107779)
+インストール後にQRコードを読み取ると、開発中のアプリを実機でリアルタイムに確認できます。ログインしてExpo Goを開き、開発中のアプリのリンクを入力して確認することもできます。
+
+## 問題と対処法
+### expoコマンドでエラーが出る
+<Img src="/posts/240729-011136.png" width={2000} alt=""/>
+> expo : このシステムではスクリプトを実行できないため、C:\~\expo.ps1 を読み込めません。詳細はabout_Execution_Policies（https://go.microsoft.com/fwlink/?LinkID=135170) を参照してください。
+位置 行:1 文字:1
+>\+ expo init
+>\+ \~\~\~\~
+>       \+ CategoryInfo          : セキュリティエラー: (:) [], PSSecurityException
+>       \+ FullyQualifiedErrorId : UnauthorizedAccess
+
+expo initを実行するとエラーが出ます。
+このエラーはPowerShellの実行ポリシーによるものです。
+実行ポリシーを変更すると解決できます。
+PowerShellを管理者として開き、次のコマンドを実行します。
+```bash
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted
+```
+<Img src="/posts/240729-011422.png" width={2000} alt="続いてYを入力する"/>
+次のコマンドで実行ポリシーを確認できます。
+```bash
+Get-ExecutionPolicy -List
+```
+<Img src="/posts/240729-011520.png" width={400} alt="LocalMachineがUnrestrictedか確認する"/>
+
+<Ads4 />
+## おわりに
+ExpoとReact Native CLIのうち、プロジェクトに合うものを選びます。Expoはアプリ開発を容易にしますが、使えないライブラリや追加できないネイティブ機能があります。Expoで実現できない機能を追加する場合は、React Native CLIやexpo ejectを使う方法があります。
+
+### もう少し考えてみる
+#### expo eject
+expo ejectでExpoプロジェクトをReact Native CLIのプロジェクトに変換できると言われています。ただし、expo ejectは現在非推奨で、[prebuild](https://docs.expo.dev/workflow/prebuild/)に置き換わっています。公式ドキュメントも参照してください。
+[is expo eject deprecated?](https://docs.expo.dev/faq/#is-expo-eject-deprecated)
+
+#### expo prebuild
+簡単に言うと、アプリの設定ファイルから、ネイティブのソースコードを含むExpoプロジェクトを生成できます。
+```bash
+expo prebuild
+```
+`android/` と `ios/` フォルダーが生成され、ネイティブコードを含むプロジェクトになります。
+次のコマンドでprebuildしたアプリを起動できます。
+```bash
+npx expo run:android
+npx expo run:ios
+```
+### 参考
+- [Expoのドキュメント](https://docs.expo.dev/)

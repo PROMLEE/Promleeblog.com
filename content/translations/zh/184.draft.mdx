@@ -1,0 +1,140 @@
+---
+title_ko: 'IndexNow 등록하기 - (Naver, Bing) 색인 요청 프로토콜'
+title_en: 'IndexNow - (Naver, Bing) Index Request Protocol'
+desc: 'IndexNow 프로토콜의 개념부터 네이버와의 연동 방식까지, 공식 문서 기반으로 상세하게 정리한 가이드입니다.'
+thumbnail_url: /250404-230634.webp
+metatag: >-
+  SEO, IndexNow, Naver, 색인요청, 네이버검색, 서치어드바이저, Bing, 검색엔진최적화, 웹사이트검색, 웹사이트개발,
+  웹사이트운영
+post_id: '184'
+locale: zh
+title: 配置 IndexNow：向 Naver 和 Bing 提交索引请求
+description: 依据官方文档，介绍 IndexNow 协议、密钥配置、URL 提交和 Naver 接入方式。
+source_hash: abb42aaf5263dd310575bd8a285e453cd3e204cbd605e95ddcf45d7ccba387a2
+---
+## 开始之前
+开发完网站后，可以向搜索引擎提交索引请求，让网页有机会出现在搜索结果中。
+如果希望网页变更尽快反映到搜索结果里，及时发送*索引请求*很重要。过去主要靠提交站点地图或手动请求索引，现在可以通过名为 *IndexNow* 的标准协议自动提交请求。
+Naver 自 2023 年起正式支持 IndexNow，让开发者更容易将网页更新通知给搜索引擎。本文将依据官方文档，逐步介绍 IndexNow 的工作流程及如何接入 Naver。
+## 什么是 IndexNow？
+[https://www.indexnow.org/ko_kr/](https://www.indexnow.org/ko_kr/)
+IndexNow 是一种开放协议，允许网站用简单的 HTTP 请求向搜索引擎通知网页新增、修改或删除等变化。主要特点如下。
+- 可以快速向搜索引擎发送索引请求。
+- 无需 sitemap.xml 也能通知 URL 变更。
+- 可以*一次*向多个搜索引擎发出索引请求。
+
+支持 IndexNow 的代表性搜索引擎包括：
+- [Naver](https://www.naver.com/)
+- [Bing](https://www.bing.com/)
+- [Yandex](https://yandex.com/)
+
+<Ads1 />
+## 基本流程
+IndexNow 的基本流程如下。
+1. **生成并验证密钥**  
+   生成专用密钥以验证网站所有权，并将密钥文件上传到网站根目录。原文在此称文件为 JSON 格式，后文的实际上传步骤使用 TXT 文件。
+2. **提交 URL**  
+   创建或修改网页后，通过 POST 将相应的 URL 提交给 IndexNow API。
+3. **搜索引擎更新索引**  
+   搜索引擎收到请求后抓取对应 URL，再更新搜索结果。
+## 生成并上传密钥
+要使用 IndexNow，先生成专用密钥。密钥由字母、数字和连字符组成，长度至少 8 个字符，最多 128 个字符。
+这里使用 Bing 提供的密钥。打开 [Bing - IndexNow](https://www.bing.com/indexnow/getstarted#implementation) 页面，按下例生成密钥。
+生成的密钥类似 `abc123...`。生成后，需要将密钥上传到网站根目录。将以密钥命名的 TXT 文件上传到网站根目录。
+```txt title="abc123....txt"
+abc123...
+```
+该文件必须能通过 `https://yourdomain.com/abc123...` 访问。也可以上传到其他目录，但原文不推荐这么做。
+## 发送 IndexNow 请求
+### 1. GET 方式
+只提交一个 URL 时，可以发送 GET 请求，把 URL 作为查询参数传入。
+```http
+https://<searchengine>/indexnow?url=url-changed&key=your-key
+```
+例如，要提交 `https://yourdomain.com/updated-page`，可以按以下方式发送请求。
+```http
+https://<searchengine>/indexnow?url=https://yourdomain.com/updated-page&key=abc123...
+```
+
+### 2. POST 方式
+向 IndexNow 批量提交 URL 时，发送如下 POST 请求。以下是 TypeScript 示例。
+```ts
+import axios from 'axios'
+const INDEXNOW_API = '<searchengine-host-url>'
+async function sendToIndexNow(urls: string[], key: string) {
+  await axios.post(INDEXNOW_API, {
+    host: 'yourdomain.com',
+    key,
+    keyLocation: `https://yourdomain.com/${key}`,
+    urlList: urls
+  })
+}
+```
+将 URL 列表和密钥传入这个函数，对应的 URL 就会自动提交给搜索引擎。每次请求最多可以提交 10,000 个 URL，需要时可以混合提交 HTTP 与 HTTPS URL。
+## 接入 Naver Search Advisor
+Naver 通过 [Search Advisor](https://searchadvisor.naver.com/) 正式支持 IndexNow API。开发者可以生成 API 密钥，并向 Naver 提交索引请求。
+其他搜索引擎的端点见 [IndexNow 常见问题](https://www.indexnow.org/ko_kr/faq)。
+### 1. 请求 API 文档
+向 Naver 提交索引请求时，可以参考以下 API 文档。POST 请求方式与 IndexNow 基本相同。
+[https://searchadvisor.naver.com/guide/indexnow-request](https://searchadvisor.naver.com/guide/indexnow-request)
+请求示例如下。
+```json
+{
+  "host": "yourdomain.com",
+  "key": "naver-issued-key",
+  "keyLocation": "https://yourdomain.com/naver-issued-key",
+  "urlList": [
+    "https://yourdomain.com/updated-page"
+  ]
+}
+```
+<Ads2 />
+## 常见问题与检查项
+以下是使用 IndexNow 时的常见问题及解决方法。
+- 无法访问密钥文件：检查文件名或位置是否有误。
+- 出现 400 或 403 错误：很可能是请求格式错误或验证失败。
+- 需要给不同搜索引擎配置不同的密钥吗？Naver 和 Bing 可以使用不同的密钥，也可以共用同一密钥。
+
+### CORS 问题
+IndexNow 不提供浏览器跨域请求所需的支持，因此建议直接从服务器发送请求。从客户端发起请求可能遇到 CORS 错误。
+从服务器发送请求更稳妥。下面是在 Node.js 服务器中用 axios 发送请求的示例。
+```js
+import axios from 'axios'
+const INDEXNOW_API = '<searchengine-host-url>'
+async function sendToIndexNow(urls: string[], key: string) {
+	await axios.post(INDEXNOW_API, {
+		host: 'yourdomain.com',
+		key,
+		keyLocation: `https://yourdomain.com/${key}`,
+		urlList: urls
+	})
+}
+```
+这样可以避开 CORS 问题。直接从服务器发送请求是稳妥、高效的方法。
+### 在终端发送请求
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{
+	"host": "yourdomain.com",
+	"key": "naver-issued-key",
+	"keyLocation": "https://yourdomain.com/naver-issued-key",
+	"urlList": [
+		"https://yourdomain.com/updated-page"
+	]
+}' https://api.searchadvisor.naver.com/indexnow
+```
+可以按上述格式发送请求。这种方式适合快速测试。
+也可以使用 Postman 等工具。
+<Ads3 />
+## 结语
+IndexNow 可以帮助网站更快地将变更反映到搜索结果中。Naver 的正式支持也让它成为需要优化搜索表现的韩国网站运营者的实用工具。
+通过 Search Advisor 获取密钥和配置 API 请求需要一些准备，但配置完成后，只需一行代码就可以提交索引请求，减少重复操作。
+### 进一步思考
+- 可以把更新检测逻辑与 IndexNow 请求结合起来，实现自动通知。
+- 保留 sitemap.xml 的同时使用 IndexNow，有助于减少遗漏索引的概率。
+- 原文写作时，Google 尚不支持 IndexNow，可以继续关注后续动向。
+### 参考资料
+- [IndexNow 官网](https://www.indexnow.org/ko_kr/)
+- [IndexNow 文档](https://www.indexnow.org/ko_kr/documentation)
+- [Naver IndexNow 密钥获取指南](https://searchadvisor.naver.com/guide/indexnow-api-key)
+- [Naver IndexNow 请求指南](https://searchadvisor.naver.com/guide/indexnow-request)
+

@@ -1,0 +1,354 @@
+---
+title_ko: 'React 보안과 안정성 (XSS, CSRF 예방부터 OAuth, 서드파티 관리까지) - React, 알고 쓰자 12일차'
+title_en: >-
+  React Security & Stability (XSS/CSRF Prevention, OAuth, 3rd Party Mgmt) -
+  React Explained Day 12
+desc: >-
+  React 애플리케이션의 보안 위협(XSS, CSRF) 예방 방법을 예시와 함께 알아봅니다. OAuth 2.0/OIDC 인증 플로우, 코드
+  스플리팅 및 서드파티 스크립트의 안정적인 관리 전략까지 설명합니다.
+thumbnail_url: /250504-204120.webp
+metatag: >-
+  React, 보안, XSS, CSRF, 입력 정제, CSP, OAuth, OIDC, 인증, 인가, 코드 스플리팅, 서드파티 스크립트,
+  안정성, 프론트엔드 보안, 면접
+post_id: '253'
+locale: ja
+title: Reactのセキュリティと安定性（XSS・CSRF対策からOAuth、サードパーティ管理まで）- Reactを理解して使う12日目
+description: >-
+  ReactアプリケーションのXSSやCSRFなどの脅威への対策を、例とともに学びます。OAuth
+  2.0/OIDCの認証フロー、コード分割、サードパーティスクリプトを安定して管理する戦略も説明します。
+source_hash: d86baec01a5bb3ca19130e4ec171721c58138e056be96a41da0816c794c01a3e
+reviewed_at: '2026-11-07T01:54:12.839Z'
+---
+
+## はじめに
+
+これまでReactの機能、アーキテクチャ、性能の最適化を学んできました。しかし、どれほど高機能で高速でも、セキュリティが弱かったり動作が不安定だったりすれば、ユーザーの信頼を失い、使われなくなります。個人情報や金融情報を扱うサービスでは、特に重要です。最近のSKTのSIM情報流出やカカオのサービス障害が示すように、セキュリティと安定性は単なる開発上の選択ではなく、企業の存続に直結します。フロントエンド開発者もサーバー開発者と同じように、責任を持って取り組む必要があります。
+<br/>
+<br/>
+
+今回は、代表的な脅威である*クロスサイトスクリプティング（XSS）*と*クロスサイトリクエストフォージェリ（CSRF）*の予防策、安全な認証のための*OAuth 2.0/OIDC*フローにおけるフロントエンドの役割、コード分割や外部ライブラリを使う際の*安定性*について詳しく学びます。
+
+## XSS（クロスサイトスクリプティング）を防ぐ
+
+XSSは、攻撃者が悪意のあるJavaScriptをWebページに埋め込み、そのページを訪れた別のユーザーのブラウザで実行させる攻撃です。Cookieにあるセッション情報や個人情報を盗んだり、ユーザーが意図しない操作を実行させたりできます。
+
+### XSS攻撃の例
+
+よくあるのは、ユーザーが入力した内容をそのまま画面に表示するケースです。プロフィールの自己紹介を入力し、他のユーザーに見せる機能を考えてみましょう。
+<br/>
+<Rbox> このコードは誤った実装例です。演習目的でのみ使用してください。 </Rbox>
+
+入力をHTMLとして直接描画するために、`dangerouslySetInnerHTML` を不用意に使った例です。
+```tsx
+import React from "react";
+
+function UserProfile({ bio }: { bio: string }) {
+  // 사용자가 입력한 bio 내용을 HTML로 해석하여 그대로 삽입
+  // 절대 이렇게 사용하면 안 됩니다!
+  return (
+    <div>
+      <h3>소개</h3>
+      <div dangerouslySetInnerHTML={{ __html: bio }} />
+    </div>
+  );
+}
+
+const UserProfilePage = () => {
+  // 만약 공격자가 bio에 다음과 같은 악성 스크립트를 입력했다면?
+  const bio =
+    '안녕하세요! 저는 웹 개발자입니다. <script>alert("XSS 공격 성공! 쿠키: " + document.cookie);</script>';
+  return (
+    <div>
+      <h1>사용자 프로필</h1>
+      <UserProfile bio={bio} /> 
+      {/* 이 컴포넌트가 렌더링되면, 다른 사용자의 브라우저에서 스크립트가 실행되어 경고창이 뜨고 쿠키 정보가 노출될 수 있습니다. */}
+    </div>
+  );
+};
+export default UserProfilePage;
+```
+<Img src="/250504-183411.webp" width={500} alt="dangerouslySetInnerHTMLで描画した場合"/>
+悪意のあるスクリプトを含む入力を、フィルターを通さず `dangerouslySetInnerHTML` で描画すると、閲覧者のブラウザでスクリプトが実行され、Cookie情報の窃取など深刻な問題につながる可能性があります。
+
+### XSSの予防策
+
+幸い、Reactには基本的なXSSを防ぐ機能があり、さらに防御策を追加できます。
+
+#### 1. Reactの自動エスケープを使う
+
+Reactは、JSXの波括弧 `{}` の内容を基本的に文字列として扱い、HTMLやスクリプトと解釈される可能性のある特殊文字、例えば `<`、`>`、`&` を自動で*エスケープ*します。つまり、文字列として `<script>` タグを渡しても、ブラウザは通常のテキストとして認識し、実行しません。
+```tsx
+import React from "react";
+
+function UserProfile({ bio }: { bio: string }) {
+  // 사용자가 입력한 bio 내용을 HTML로 해석하여 그대로 삽입
+  // 절대 이렇게 사용하면 안 됩니다!
+  return (
+    <div>
+      <h3>소개</h3>
+      <div>{bio}</div>
+    </div>
+  );
+}
+
+const UserProfilePage = () => {
+  // 만약 공격자가 bio에 다음과 같은 악성 스크립트를 입력했다면?
+  const bio =
+    '안녕하세요! 저는 웹 개발자입니다. <script>alert("XSS 공격 성공! 쿠키: " + document.cookie);</script>';
+  return (
+    <div>
+      <UserProfile bio={bio} />
+      {/* 이 컴포넌트가 렌더링되면, 다른 사용자의 브라우저에서 스크립트가 실행되어 경고창이 뜨고 쿠키 정보가 노출될 수 있습니다. */}
+    </div>
+  );
+};
+export default UserProfilePage;
+```
+<Img src="/250504-183638.webp" width={600} alt="文字列として扱う"/>
+
+できる限り `dangerouslySetInnerHTML` を避け、入力は常に*JSXの波括弧* `{}` を通して描画することが、最も基本的で重要な原則です。
+
+#### 2. dangerouslySetInnerHTMLを使う際の注意
+
+名前のとおり、危険な使い方になり得る属性です。本当にHTMLを直接描画する必要がある場合にだけ使い、信頼できるHTMLであることを確認するか、必ず事前に*サニタイズ（Sanitization）*してください。
+
+#### 3. 入力のサニタイズ（Input Sanitization）
+
+ユーザー入力や外部APIのHTMLを表示する前に、危険なスクリプトや属性を除去する処理を*サニタイズ*と呼びます。自作の処理は非常に難しく、ミスも起きやすいため、実績のあるライブラリを使うほうが安全です。
+- **DOMPurify**：広く使われているJavaScript製のHTMLサニタイズライブラリです。許可するタグや属性を設定し、安全でないコードを取り除けます。
+  ```tsx
+  import DOMPurify from 'dompurify';
+
+  function SanitizedHtmlComponent({ dirtyHtml }: { dirtyHtml: string }) {
+    // HTML 정제 수행
+    const cleanHtml = DOMPurify.sanitize(dirtyHtml);
+
+    // 정제된 안전한 HTML만 렌더링
+    return <div dangerouslySetInnerHTML={{ __html: cleanHtml }} />;
+  }
+  ```
+
+#### 4. コンテンツセキュリティポリシー（Content Security Policy、CSP）
+
+CSPは、ブラウザが読み込み、実行できるスクリプト、スタイル、画像などの出所を制御するHTTPレスポンスヘッダーです。サーバーで適切に設定すると、XSSを含む想定外の出所のスクリプトをブラウザ側で遮断でき、効果的な防御になります。例えば *Content-Security-Policy: script-src 'self'* は、現在のドメインから読み込んだスクリプトだけを許可します。
+
+<Ads1 />
+
+## CSRF - クロスサイトリクエストフォージェリ
+
+CSRFは、ユーザーの意思とは無関係に、攻撃者が意図したパスワード変更、記事削除、商品注文などを特定のWebサイトに要求させる攻撃です。主に、ログイン済みのユーザーが悪意のあるスクリプトを含む別サイトやメールを開いたときに起こります。
+
+### CSRF攻撃の例
+ユーザーが `mybank.com` にログインしているとします。その状態で悪意のある `evil.com` を訪れた場合、その `evil.com` には次のようなコードが隠されているかもしれません。
+<br/>
+<Rbox> このコードは誤った実装例です。演習目的でのみ使用してください。 </Rbox>
+
+```html
+<!-- 사용자는 이 이미지를 보지만, 브라우저는 mybank.com으로 요청을 보낸다 -->
+<img src="https://mybank.com/transfer?to=hacker&amount=1000000" width="1" height="1" />
+
+<!-- 또는, 자동으로 제출되는 숨겨진 폼 -->
+<form id="csrf-form" action="https://mybank.com/change-password" method="POST" style="display:none;">
+  <input type="hidden" name="newPassword" value="hacked123" />
+</form>
+<script>document.getElementById('csrf-form').submit();</script>
+```
+ユーザーが `evil.com` を読み込むと、ブラウザは `mybank.com` の*ログインCookieを自動的に付けて*、画像URLへのリクエストやフォーム送信を `mybank.com` のサーバーに送ります。`mybank.com` 側がユーザーの意図した操作か検証しなければ、攻撃者はそのアカウントで送金やパスワード変更などを実行できる可能性があります。
+
+### CSRFの予防策
+
+CSRFは主にサーバー側で防ぐものですが、フロントエンドも協力して防御を実装する必要があります。
+
+#### 1. Synchronizer Token Pattern - CSRFトークンを使う
+
+最も広く使われる方法です。
+- **仕組み**：
+  1. ログイン時やフォームへのアクセス時に、サーバーが予測できないランダムな文字列（*CSRFトークン*）を生成し、セッションに保存します。同時に、HTMLフォームのhiddenフィールド、メタタグ、APIレスポンスなどでクライアントにも渡します。
+  2. クライアントは受け取ったトークンをJavaScript変数などに保存します。
+  3. 送金やパスワード変更など、状態を変える重要な操作の際、トークンをフォームデータや `X-CSRF-Token` などのHTTPヘッダーに含めて送ります。
+  4. サーバーは、リクエストのトークンとセッションに保存したトークンを比較します。
+  5. 一致すれば有効な要求として処理し、一致しなければCSRFとみなして拒否します。
+- **フロントエンドの役割**：
+  - サーバーからトークンを安全に受け取り、保存します。
+  - POST、PUT、DELETEなど、状態を変更するすべての要求にトークンを含めます。Axiosのインターセプターなどを使うと便利です。
+
+<Img src="/250504-191907.webp" width={500} alt="CSRFトークンパターンの処理フロー"/>
+
+#### 2. SameSite Cookie属性を使う
+
+最近のブラウザはCookieの `SameSite` 属性に対応し、CSRFの軽減に役立ちます。
+- **SameSite=Strict**
+  同じサイトで始まったリクエストだけにCookieを送ります。`evil.com` から `mybank.com` への要求など、外部サイトから始まる要求には一切送らないため、強力な防御になります。ただし、外部からリンクで訪れる正常なアクセスでもCookieが送られない場合があります。
+- **SameSite=Lax**
+  `Strict` より少し緩い設定です。リンクのクリック（`<a>` タグ）や `GET` のフォーム送信など、安全とされる一部のトップレベルナビゲーションでは、別サイトからの要求でもCookieを送ります。POSTや `<img>` などによる多くのCSRFを防ぎ、ユーザー体験も大きく損なわないため、既定値として推奨されることが多い設定です。
+- **SameSite=None; Secure**
+  同一サイトか別サイトかを問わず、すべての要求にCookieを送ります。HTTPSだけで送信する `Secure` 属性が必須です。埋め込みコンテンツの認証など、サードパーティの文脈で必要な場合に限定して使います。
+
+重要なセッションCookieに `SameSite=Lax` または `Strict` を設定することは、CSRF対策に大きく役立ちます。フロントエンド開発者も、その意味を理解し、適切な設定か確認しましょう。
+
+#### 3. その他の補助手段
+
+- **Refererヘッダーの検証**
+  `Referer` を確認し、許可したドメインから始まった要求か調べます。ただし、ユーザーの設定やプロキシなどで欠落する場合があり、完全な防御ではありません。
+- **カスタムリクエストヘッダー**
+  `X-Requested-With` など特定のヘッダーを持つ要求だけをサーバーで許可します。同一オリジンポリシーにより、別ドメインからJavaScriptでカスタムヘッダーを付けた要求を送りにくい点を利用します。ただし、CORS設定が誤っていれば回避される可能性があります。
+
+>Q: 「CSRF攻撃とは何ですか？どう防げますか？」
+A: 攻撃の仕組み、CSRFトークンとSameSite Cookieによる対策の原理、フロントエンドの役割を併せて説明する
+
+<Ads2 />
+
+## OAuth 2.0 / OIDC
+
+最近のサービスでは、独自のログインの代わりに、Google、Facebook、カカオなどのアカウントを利用するソーシャルログインがよく提供されます。その実装で標準的に使われるプロトコルが、*OAuth 2.0*と*OpenID Connect（OIDC）*です。
+- **OAuth 2.0**
+  ユーザーがあるサービス（自分たちのアプリなど）に、別のサービス（Googleなど）にあるプロフィールやメールなどの情報へのアクセス権を*委譲（Delegation）*する、*認可（Authorization）*フレームワークです。主にAPIアクセス権の取得に使います。
+- **OIDC**
+  OAuth 2.0の上に構築された*認証（Authentication）*の層で、ユーザーの身元の確認と基本プロフィールの取得に使います。
+
+フロントエンドは、ユーザーを外部の認証サービス（認可サーバー）へ案内し、認証と認可の結果を安全に処理し、最終的なログイン状態を管理する重要な役割を担います。
+
+### 認可コードフロー（Authorization Code Flow with PKCE）
+
+SPAのようなパブリッククライアントには、安全性を高める*PKCE（Proof Key for Code Exchange）*拡張付きの認可コードフローが推奨されます。
+
+1. **認可リクエストの開始**
+    - ユーザーが「Googleでログイン」などをクリックします。
+    - フロントエンドはランダムな秘密の文字列 *code_verifier* を生成し、SHA256などでハッシュ化して *code_challenge* を作ります。
+    - 次のパラメーターを含め、Googleの認可サーバーへリダイレクトします。
+      - `client_id`：事前登録したアプリの識別子。
+      - `redirect_uri`：認可コードを受け取るアプリのアドレス。
+      - `response_type=code`：認可コードを要求する指定。
+      - `scope`：要求する情報の範囲。例は `openid profile email`。
+      - `code_challenge`：生成したハッシュ値。
+      - `code_challenge_method=S256`：ハッシュアルゴリズムの指定。
+      - `state`：CSRF対策のランダムな文字列。任意ですが推奨されます。
+2. **認可コードの受信**
+    - ユーザーがGoogleでログインし、権限に同意すると、指定した `redirect_uri` に戻されます。
+    - URLのクエリパラメーターには、*認可コード（authorization_code）*と、最初に送った `state` が含まれます。
+    - フロントエンドがコードとstateを抽出し、stateの一致を確認してCSRFを防ぎます。
+3. **トークンの要求（バックエンドへの委譲を推奨）**
+    - **セキュリティ上の重要事項**
+      ブラウザからクライアントシークレットを使って直接トークンを要求するのは非常に危険です。そのため、コードをバックエンドまたはBFF（Backend for Frontend）へ渡し、バックエンドが認可サーバーから *Access Token* と *Refresh Token* を取得するのが、一般的で安全な方法です。
+    - フロントエンドはコードと、第1段階で作った *code_verifier* をバックエンドAPIに送ります。バックエンドは両方を認可サーバーに送ってトークンを要求します。
+4. **トークンの受信と保存**
+    - バックエンドは発行されたAccess Tokenと、必要ならRefresh Tokenをフロントエンドへ渡します。
+    - フロントエンドは安全に保存する必要があります。
+      - **Access Token**：通常は短い有効期限を持ち、API要求に使います。JavaScript変数などのメモリに保存するほうが比較的安全です。LocalStorageやSessionStorageはXSSに弱い場合があります。
+      - **Refresh Token**：有効期限が長く、Access Tokenの失効時に新しいAccess Tokenを取得するために使います。非常に機密性が高いため、可能ならサーバー側セッションと結び付けた `HttpOnly`、`Secure`、`SameSite=Strict`（またはLax）のCookieに保存し、JavaScriptから直接アクセスできなくするのが最も安全です。難しい場合はメモリに置き、別の安全策も検討します。
+5. **API要求でトークンを使用**
+    - 保護されたAPIを呼ぶたびに、Access Tokenを `Authorization` ヘッダーに入れます。例は `Authorization: Bearer YOUR_ACCESS_TOKEN` です。
+6. **トークンの更新**
+    - 401 Unauthorizedなど、Access Tokenの失効を示す応答があれば、Refresh Tokenを使ってバックエンドに再発行を求めます。HttpOnly Cookieならブラウザが自動で送り、メモリ保存なら自分で送ります。新しいトークンを保存し、失敗したAPI要求を再試行します。
+7. **ログアウト**
+    - メモリやCookieなどに保存したトークンを削除します。
+    - 必要なら認可サーバーのログアウト用エンドポイントへ移動し、外部サービス側のログアウトも完了します。
+
+<Img src="/250504-201356.webp" width={600} alt="OAuth 2.0の認可コードフロー"/>
+
+### Access Token
+API要求時の認証と認可に使うトークンです。有効期限は短く、通常はAuthorizationヘッダーで送ります。JavaScript変数などの**メモリ**に保存するほうが、XSSに対して比較的安全です。LocalStorageやSessionStorageはスクリプトから参照でき、XSSに弱い保存先です。
+```typescript
+// Zustand 스토어 예시
+import create from 'zustand';
+interface AuthState {
+  accessToken: string | null;
+  setAccessToken: (token: string | null) => void;
+}
+const useAuthStore = create<AuthState>((set) => ({
+  accessToken: null,
+  setAccessToken: (token) => set({ accessToken: token }),
+}));
+
+// 로그인 성공 후 토큰 저장
+// const { setAccessToken } = useAuthStore.getState();
+// setAccessToken(receivedAccessToken);
+
+// API 요청 시 토큰 사용
+// const accessToken = useAuthStore((state) => state.accessToken);
+// axios.get('/api/protected', { headers: { Authorization: `Bearer ${accessToken}` } });
+```
+### Refresh Token
+Access Tokenの失効時、再ログインせずに新しいAccess Tokenを取得するためのトークンです。有効期限は数日から数か月と長く、機密性が高いため、盗まれた場合のリスクが大きいものです。
+#### 選択肢1：サーバー側のHttpOnly Cookie（最も推奨される方法）
+バックエンドがレスポンスで `HttpOnly`、`Secure`、`SameSite=Strict`（または `Lax`）を付けたCookieに保存します。`HttpOnly` によりクライアントのJavaScriptからアクセスできず、XSSでCookieを直接盗むことを防げます。`Secure` はHTTPSでのみ送信させ、`SameSite` はCSRFを防ぎます。
+- **フロントエンドの役割**：Cookieを直接読んだり管理したりする必要はありません。Access Tokenの失効時に `/api/refresh_token` などの更新用エンドポイントを呼ぶだけです。ブラウザがRefresh Token入りのHttpOnly Cookieを自動送信し、バックエンドが読み取って新しいAccess Tokenを返します。
+- **サーバー側のCookie設定例（Node.js/Express）**
+  ```javascript
+  // 백엔드에서 로그인 성공 또는 토큰 발급 시
+  res.cookie('refreshToken', receivedRefreshToken, {
+    httpOnly: true, // JavaScript 접근 불가
+    secure: true, // HTTPS에서만 전송
+    sameSite: 'lax', // 또는 'strict'
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 예: 7일 유효기간
+  });
+  res.json({ accessToken: receivedAccessToken }); // Access Token은 JSON 응답으로 전달
+  ```
+#### 選択肢2：メモリに保存する（次善策、注意が必要）
+Access Tokenと同様に、状態管理ライブラリやContext APIなどのJavaScript変数に保存します。実装が簡単で、CSRFには比較的安全です。
+ただし、**ブラウザを再読み込みするとトークンを失い**、ログインが解除されます。その対策としてLocalStorageやSessionStorageに入れるケースもありますが、**XSSに非常に弱い**ため、Refresh Tokenの保存先には決して推奨されません。メモリ保存でも、攻撃者が特定の時点でメモリダンプなどを試みれば、理論上は窃取される可能性があります。
+
+<br/>
+
+**再読み込みへの対策の試み（安全性が低い方法）**：Refresh TokenをLocalStorageに保存し、起動時に読み出してメモリへ戻す実装もあります。しかし、XSSの危険にさらすため推奨されません。やむを得ず採用する場合、XSS対策に極めて慎重に取り組む必要があります。
+
+<Bbox> 可能であれば、必ずサーバー側のHttpOnly Cookieを使うことが、Refresh Tokenを安全に管理する最善の方法です。 </Bbox>
+
+>Q: 「OAuth 2.0の認可コードフローで、フロントエンドは何を担当しますか？」または「Access Tokenはどこに保存すると安全ですか？」
+A: 各段階の役割と、保存先ごとの安全性（LocalStorageのXSSへの弱さ、HttpOnly CookieのCSRF対策上の利点など）を明確に説明する
+
+## コード分割とサードパーティスクリプトの安定性
+
+安定性はセキュリティと同じくらい重要です。コード分割や外部ライブラリ、サードパーティスクリプトは性能や開発効率を高めますが、新たな検討事項も生みます。
+
+### コード分割とエラーの隔離
+
+React.lazyなどによるコード分割は、初期読み込みの改善だけでなく、エラーの影響範囲を限定する副次的な効果も期待できます。あるページのチャンクを読み込めなかったり、その内部で実行時エラーが起きたりしても、全体を停止せず、SuspenseのfallbackやErrorBoundaryで該当部分だけを処理できる可能性があります。ただし、共通モジュールのエラーは全体に影響し得ます。
+
+### サードパーティスクリプトのリスク
+
+Google Analyticsなどの解析ツール、広告、ソーシャルメディアのウィジェット、外部ライブラリのCDNなどは便利ですが、次のリスクがあります。
+- **性能低下**：外部サーバーの応答遅延、スクリプトのサイズや実行時間により、読み込みや応答性が悪化する場合があります。
+- **セキュリティ上の弱点（サプライチェーン攻撃）**：外部サービスが侵害されたり、悪意のあるコードが混入したりすると、自分たちのアプリを通じた攻撃経路になり得ます。
+- **サービス障害**：外部サービスの停止やエラーによって、アプリの機能が止まる場合があります。
+
+### 監視と管理の戦略
+
+リスクを減らし、安定性を高めるために、次の方法を検討できます。
+- **依存関係の定期的な確認と更新**
+  `npm audit`、Snyk、Dependabotなどで既知の脆弱性を確認し、定期的に更新します。不要な依存は削除します。
+- **サードパーティスクリプトの読み込み制御**：
+  HTMLの `<script>` に `async` や `defer` を付け、ページの描画を妨げないようにします。本当に必要なときだけ動的に読み込む方法も検討します。
+- **Subresource Integrity（SRI）**
+  外部CDNなどのスクリプトやスタイルを読み込む際、予め求めたハッシュ値を `<script>` や `<link>` の `integrity` 属性に指定します。ブラウザは取得後にハッシュを比較し、内容が変わっていれば読み込みを遮断します。
+  ```html
+  <script src="https://example.com/library.js"
+          integrity="sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxy9rx7HNQlGYl1kPzQho1wx4JwY8w/"
+          crossorigin="anonymous"></script>
+  ```
+- **コンテンツセキュリティポリシー（CSP）**
+  信頼できる出所だけを許可する厳密なCSPを設定し、想定外の外部スクリプトの実行を防ぎます。
+- **性能とエラーの監視**
+  LighthouseやWebPageTestで定期的に性能を測り、SentryやDatadogなどで外部スクリプトによる問題を検知して対応します。
+
+<Ads3 />
+
+## おわりに
+
+今回は、Reactアプリケーションのセキュリティと安定性を高める重要な概念と手法を学びました。
+- **XSS**は入力の自動エスケープやサニタイズ、CSPで防ぎます。`dangerouslySetInnerHTML` には細心の注意が必要です。
+- **CSRF**は、予測できないCSRFトークンやSameSite Cookieを用い、サーバーとクライアントが協力して防ぎます。
+- **OAuth 2.0/OIDC**は安全な認証と認可の標準です。フロントエンドはユーザーを認可サーバーへ案内し、トークンを安全に管理します。SPAでは特にPKCE付きの認可コードフローが推奨されます。
+- **コード分割**はエラーの隔離にも一部役立ちます。**サードパーティスクリプト**は便利な反面、性能、セキュリティ、安定性のリスクがあるため、慎重な管理と監視が必要です。SRIやCSPも役立ちます。
+
+これらは一度設定すれば終わりではなく、継続的な注意と努力が必要です。新しい脆弱性や技術の変化に合わせ、防御策も更新し続けなければなりません。設計からデプロイ、運用まで、開発文化の一部として常に意識する姿勢が大切です。
+> 次回は、開発の生産性と品質を高める*開発者ツールとテスト*を学びます。React DevTools、Jest、React Testing Library、Storybookなどを見ていきましょう。
+
+### 参考
+
+- OWASP Top 10（Webアプリケーションの脅威）：[https://owasp.org/www-project-top-ten/](https://owasp.org/www-project-top-ten/)（XSS、CSRFなどを含む）
+- MDN Web Docs - コンテンツセキュリティポリシー（CSP）：[https://developer.mozilla.org/ko/docs/Web/HTTP/CSP](https://developer.mozilla.org/ko/docs/Web/HTTP/CSP)
+- MDN Web Docs - SameSite Cookie：[https://developer.mozilla.org/ko/docs/Web/HTTP/Headers/Set-Cookie/SameSite](https://developer.mozilla.org/ko/docs/Web/HTTP/Headers/Set-Cookie/SameSite)
+- OAuth 2.0公式サイト：[https://oauth.net/2/](https://oauth.net/2/)
+- OpenID Connect（OIDC）公式サイト：[https://openid.net/connect/](https://openid.net/connect/)
+- MDN Web Docs - Subresource Integrity（SRI）：[https://developer.mozilla.org/ko/docs/Web/Security/Subresource_Integrity](https://developer.mozilla.org/ko/docs/Web/Security/Subresource_Integrity)

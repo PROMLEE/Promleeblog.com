@@ -1,0 +1,52 @@
+---
+post_id: '27'
+locale: en
+title: An Overview of Public-Key Cryptography
+description: An explanation of public-key encryption.
+source_hash: 638e4df735a8c7ce9c8ccd33b148d753b5f5e26dc0aa11083447f86a4c53237e
+---
+## What is Public-Key Cryptography?
+The key used for encryption differs from the key used for decryption.
+Examples include RSA, ElGamal, and NTRU.
+Advantages: keys are easy to share, and fewer keys are needed.
+Disadvantage: slower than symmetric-key encryption.
+
+## Definition of Public-Key Cryptography
+Definition: a public-key encryption scheme PKE consists of the following algorithms.
+- KeyGen(λ): takes security parameter λ as input and outputs (pk, sk).
+- Enc(pk, M): takes public key pk and plaintext M as input and outputs ciphertext C.
+- Dec(sk, C): takes private key sk and ciphertext C as input and outputs plaintext M.
+
+Correctness
+A public-key encryption scheme PKE is correct if the following holds for security parameter λ and every plaintext M.
+<Bbox>$$ Dec(sk, Enc(pk, M)) = M $$</Bbox>
+Here, (pk, sk) is the output of KeyGen(λ).
+<Ads1 />
+## Security Model for Public-Key Cryptography
+Consider a game between challenger C and adversary A.
+A's goal is to break public-key encryption: to find plaintext M from a ciphertext.
+
+1. Setup: challenger C takes security parameter λ and outputs (pk, sk).
+
+   C gives public key pk to A.
+2. Phase1: A sends decryption queries to C.
+
+   Specifically, A sends an arbitrary ciphertext $C_i$ to C, and C returns $Dec(sk, C_i) = M_i$.
+3. Challenge: A chooses two plaintexts $M_0, M_1$, and C chooses one of them ($b \in \{1, 2\}$) and returns $Enc(pk, M_b) = C_b$.
+
+   A then guesses $b$, identifying which plaintext the ciphertext corresponds to.
+4. Phase2: A sends decryption queries to C.
+
+   Specifically, A sends an arbitrary ciphertext $C_i$ to C, and C returns $Dec(sk, C_i) = M_i$.
+- A guesses $b$, and the guess is checked.
+
+$Adv_{PKE}(\lambda) = Pr[b = b'] - \frac{1}{2}$
+
+<Ybox>
+
+A public-key encryption scheme is IND-XXX secure when an adversary cannot gain a non-negligible advantage as a function of the security parameter.
+</Ybox>
+XXX is determined by the decryption oracle available to the adversary.
+- CPA (Ciphertext Only Attack): attempts to find the plaintext using only ciphertext.
+- CCA (Chosen Ciphertext Attack): attacks by decrypting arbitrary ciphertext.
+- CCA2: combines ciphertext decryption attacks with access to a decryption oracle.

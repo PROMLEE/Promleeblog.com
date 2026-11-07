@@ -1,0 +1,239 @@
+---
+title_ko: Expo에서 권한 요청 처리하기
+title_en: Handling Permissions in Expo
+desc: >-
+  Expo에서 카메라, 위치, 미디어 등 다양한 권한을 안전하게 요청하고 사용하는 방법을 친절한 설명과 TypeScript 예시를 중심으로
+  안내합니다.
+thumbnail_url: /expo-permissions.webp
+metatag: >-
+  expo, 권한, permissions, react-native, typescript, 카메라 권한, 위치 권한, 미디어 권한,
+  expo-permissions, react-native-permissions, 모바일 앱 개발
+post_id: '204'
+locale: en
+title: Handling Permission Requests in Expo
+description: >-
+  Request camera, media library, notification, microphone, and location
+  permissions in Expo with TypeScript examples.
+source_hash: c28266e361b0bd2fd778d28cad70234a906bda176a2dfcb5aaab6d18053e2542
+reviewed_at: '2026-11-07T17:20:01.921Z'
+---
+## Before We Begin
+When you build an Expo app, request permission before accessing **personal information or device features**. For example, opening the camera requires camera permission, and reading the user's location requires location permission.
+Expo provides APIs for requesting these permissions. We'll walk through them using the [Expo permissions guide](https://docs.expo.dev/guides/permissions/) as a reference.
+## The Basic Permission Flow in Expo
+Expo provides permission APIs through its individual modules. The original guide mentions `expo-modules` and the legacy `expo-permissions` package. The examples below use APIs from the relevant modules.
+1. Check the current permission status.
+2. Request permission when needed.
+3. Decide what the app should do based on the result.
+
+Here's a basic example.
+```tsx
+import * as Location from 'expo-location';
+
+const getLocation = async () => {
+  const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+    alert('위치 권한이 필요합니다.');
+    return;
+  }
+    const location = await Location.getCurrentPositionAsync({});
+  console.log(location);
+};
+```
+It requests location permission and reads the location only if the user grants it.
+<Ads1 />
+## Common Permission Examples
+Let's look at examples for several permissions you can use in an Expo app.
+<Rbox>Use a development build for these examples. After installing each package, run the command below to synchronize the native code.</Rbox>
+```bash
+npx expo prebuild --platform ios
+npx expo run:ios
+
+npx expo prebuild --platform android
+npx expo run:android
+```
+### 1. Camera Permission
+Reference: [Official expo-camera documentation](https://docs.expo.dev/versions/latest/sdk/camera/)
+Install the camera package.
+```bash
+npx expo install expo-camera
+```
+Add the following to app.json.
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera", // 카메라 권한 요청 메시지
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone", // 마이크 권한 요청 메시지
+          "recordAudioAndroid": true // 마이크 권한 요청 여부
+        }
+      ]
+    ]
+  }
+}
+```
+Then request camera permission.
+```tsx
+import * as Camera from 'expo-camera';
+const requestCameraPermission = async () => {
+  const { status } = await Camera.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+    alert('카메라 접근 권한이 필요합니다.');
+    return;
+  }
+    console.log('카메라 권한이 승인되었습니다.');
+};
+```
+### 2. Media Library Permission (Photo Access)
+Reference: [Official expo-media-library documentation](https://docs.expo.dev/versions/latest/sdk/media-library/)
+Install the media library package. You can install it alongside the camera package.
+```bash
+npx expo install expo-media-library
+```
+Add the following to app.json.
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
+          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ]
+    ]
+  }
+}
+```
+Then request media library permission.
+```tsx
+import * as MediaLibrary from 'expo-media-library';
+const requestMediaLibraryPermission = async () => {
+  const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status !== 'granted') {
+    alert('사진 접근 권한이 필요합니다.');
+    return;
+  }
+    console.log('사진 권한 승인 완료');
+};
+```
+<Ads2 />
+### 3. Notification Permission
+Reference: [Official expo-notifications documentation](https://docs.expo.dev/versions/latest/sdk/notifications/)
+Install the notifications package.
+```bash
+npx expo install expo-notifications
+```
+Then request permission to send notifications.
+```tsx
+import * as Notifications from 'expo-notifications';
+const requestNotificationPermission = async () => {
+  const { status } = await Notifications.requestPermissionsAsync();
+    if (status !== 'granted') {
+    alert('알림 권한이 필요합니다.');
+    return;
+  }
+    console.log('알림 권한 승인됨');
+};
+```
+### 4. Microphone Permission
+Reference: [Official expo-av documentation](https://docs.expo.dev/versions/latest/sdk/av/)
+Install the package used in this microphone example.
+```bash
+npx expo install expo-av
+```
+Add the following to app.json.
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+        }
+      ]
+    ]
+  }
+}
+```
+Then request microphone permission.
+```tsx
+import * as Audio from 'expo-av';
+const requestMicrophonePermission = async () => {
+  const { status } = await Audio.requestPermissionsAsync();
+    if (status !== 'granted') {
+    alert('마이크 권한이 필요합니다.');
+    return;
+  }
+    console.log('마이크 권한이 승인되었습니다.');
+};
+```
+### 5. Location Permission
+Reference: [Official expo-location documentation](https://docs.expo.dev/versions/latest/sdk/location/)
+Install the location package.
+```bash
+npx expo install expo-location
+```
+Add the following to app.json.
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+        }
+      ]
+    ]
+  }
+}
+```
+Then request location permission.
+```tsx
+import * as Location from 'expo-location';
+const requestLocationPermission = async () => {
+  const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+    alert('위치 권한이 필요합니다.');
+    return;
+  }
+    console.log('위치 권한이 승인되었습니다.');
+};
+```
+<Ads3 />
+## Check the Permission Status
+Permission status is usually one of the following.
+- `undetermined` means the user has not yet decided.
+- `granted` means the user allowed access.
+- `denied` means the user declined access.
+```tsx
+const checkCameraPermission = async () => {
+  const { status } = await Camera.getCameraPermissionsAsync();
+    if (status === 'granted') {
+    console.log('이미 권한이 승인됨');
+  } else {
+    console.log('권한이 아직 없거나 거부됨');
+  }
+};
+```
+Check the current status before asking so you can avoid unnecessary prompts.
+## What to Consider When Requesting Permission
+### Explain Why You Need It
+When requesting permission, tell the user which feature needs access and why. “We need photo access so you can upload a picture” is more useful than “Permission required.” Vague explanations can also cause problems during app store review.
+## Conclusion
+Expo's permission APIs are straightforward, but iOS and Android have their own configuration requirements, and the timing and wording of a request matter to users.
+Permission requests affect user trust. Make the purpose of each permission clear and ask only when access is needed. Adapt the examples above to the features in your app.
+### References
+- [Official Expo permissions documentation](https://docs.expo.dev/guides/permissions/)
+- [Expo Camera documentation](https://docs.expo.dev/versions/latest/sdk/camera/)
+- [Expo Location documentation](https://docs.expo.dev/versions/latest/sdk/location/)
+- [Expo Media Library documentation](https://docs.expo.dev/versions/latest/sdk/media-library/)
+- [Expo Notifications documentation](https://docs.expo.dev/versions/latest/sdk/notifications/)
+- [expo-av documentation (Audio and Video)](https://docs.expo.dev/versions/latest/sdk/av/)

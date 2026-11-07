@@ -1,0 +1,62 @@
+---
+title_ko: 플러터 라우팅 설정하기(로그인 + 네비게이션 바)
+title_en: Setting Up Flutter Routing (Login + Navigation Bar)
+desc: null
+post_id: '124'
+locale: zh
+title: Flutter路由的目标、条件与初始配置
+description: 为Flutter登录分流、底部导航栏、独立标签栈与跨标签跳转设定目标，并安装所需依赖。
+source_hash: 99d399d29a236ccbbc2f6c52f5bfdc1880211f2b91ef26f6fa11133193fbf6a9
+reviewed_at: '2026-11-06T14:49:34.312Z'
+---
+## 开始之前
+> 本文基于Flutter 3.24编写。
+假设你已经完成Flutter安装。
+
+这篇文章介绍我在Flutter中实现页面跳转时，常用的初始配置方式。
+开始开发之前，先明确目标和条件，再安装需要的依赖包。
+
+## 目标与条件
+<Bbox>在Flutter默认页面跳转机制的基础上，开发前先增加以下要求。</Bbox>
+1. 创建登录页面，只有登录后才能进入其他页面，使用*FlutterSecureStorage*保存状态。
+	[➡️ 使用FlutterSecureStorage进行登录页面分流](/blog/post/125-login-branch-paging)
+2. 登录页面不显示导航栏，登录后则在*所有页面*显示导航栏。
+	[➡️ 设置底部导航栏](/blog/post/126-bt-navigation-paging)
+3. 导航栏各个标签中还有更深层级的页面。在深层页面选择标签时，跳转到*对应标签*；
+	如果当前标签已经选中，再次点击它时，则回到该标签的*最顶层页面*。
+	[➡️ 配置导航栏标签事件](/blog/post/127-nav-tabevent-paging)
+4. 在所有页面中，除登录页外，即使不点击底部导航栏，也可以通过*独立按钮*切换到其他标签。
+	[➡️ 在Widget中使用导航栏标签切换事件](/blog/post/128-nav-tabevent-widget-paging)
+
+<Ads1 />
+## 创建并运行Flutter项目
+创建Flutter项目。
+```bash
+flutter create navigationbar_example
+```
+运行创建好的项目。
+```bash
+cd navigationbar_example
+flutter run
+```
+<Img src="/posts/250113-125205.png" width={200} alt="可以确认项目已正常运行。"/>
+
+## 安装FlutterSecureStorage与Get
+为了保存登录信息，安装[FlutterSecureStorage](https://pub.dev/packages/flutter_secure_storage)。
+[Get](https://pub.dev/packages/get/install)可以简化状态管理、路由和对话框等操作。
+```bash
+flutter pub add flutter_secure_storage get
+```
+确认pubspec.yaml中已经添加所需依赖。
+```yaml
+dependencies:
+	flutter_secure_storage: ^9.2.4
+	get: ^4.6.6
+```
+
+## 结论
+下一篇将根据这些目标与条件，使用FlutterSecureStorage创建登录页，并介绍添加导航栏的方法。
+
+### 参考资料
+- [Flutter官方文档](https://flutter.dev/docs)
+- [FlutterSecureStorage](https://pub.dev/packages/flutter_secure_storage)

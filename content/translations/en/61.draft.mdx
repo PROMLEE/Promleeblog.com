@@ -1,0 +1,79 @@
+---
+post_id: '61'
+locale: en
+title: Mapping a Design to Code
+description: >-
+  Turn UML design class diagrams and interaction diagrams into classes, method
+  bodies, and collection-based implementations.
+source_hash: 6b80e773fbb71a46a74c652800e15213c951146c662bfd5435fafd2b439832fd
+---
+## Mapping design to code
+UML artifacts created during design, such as interaction diagrams and design class diagrams (DCDs), serve as inputs to code generation.
+**Implementation model**
+- All implementation artifacts:
+	- Source code, database definitions, JSP/XML/HTML pages, and so on.
+
+When implementing a design in an object-oriented language, write source code for:
+- Class and interface definitions.
+- Method definitions.
+
+**Converting a UML design to code**
+- From class diagrams to *class definitions*.
+- From interaction diagrams to *method bodies*.
+<Ads1 />
+## Creating class definitions from a DCD
+A DCD contains enough information to create basic class definitions in an object-oriented language.
+<Img src="/posts/240618-003747.png" width={400}/>
+**Defining attributes as Java fields**:
+Declare the attributes in the DCD as Java fields.
+- For example, `quantity: Integer` maps to `private int quantity;`.
+- For example, `description: ProductDescription` maps to `private ProductDescription description;`.
+
+**Method signatures**:
+Declare the operations in the DCD as Java methods.
+- For example, `getSubtotal(): Money` maps to `public Money getSubtotal() { ... }`.
+
+## Creating method bodies from interaction diagrams
+The message sequence in an interaction diagram becomes a sequence of statements in a method definition.
+<Img src="/posts/240618-004009.png" width={500}/>
+
+**Extracting messages from an interaction diagram**:
+- An `enterItem` message is sent to a `Register` instance, so the `enterItem` method is defined in the `Register` class.
+- Follow the message sequence to implement the method's behavior in code.
+
+**Message sequence**:
+- Message 1: Send `getProductDescription` to the `ProductCatalog` object to retrieve a product description.
+- Message 2: Send `makeLineItem` to the `Sale` object to create a sales line item.
+
+**Java implementation**:
+- Convert the messages into code statements to implement the `enterItem` method.
+	```java title="예시 코드" showLineNumbers=true
+	public class Register {
+			private ProductCatalog catalog;
+			private Sale currentSale;
+			public Register(ProductCatalog catalog) {
+					this.catalog = catalog;
+					this.currentSale = new Sale();
+			}
+			public void enterItem(int itemID, int qty) {
+					ProductDescription desc = catalog.getProductDescription(itemID);
+					currentSale.makeLineItem(desc, qty);
+			}
+	}
+	```
+<Ads2 />
+## Collection classes in code
+> An important tool for managing and manipulating multiple objects in object-oriented programming.
+They are especially useful for representing *one-to-many* relationships.
+
+Object-oriented languages implement this by introducing *collection objects*:
+- List (ArrayList implementing the List interface): An ordered list that can grow.
+- Map (HashMap implementing the Map interface): Key-based lookup.
+- Plain arrays.
+
+## Implementation order
+> Implement classes in order from lower coupling to higher coupling.
+
+<Img src="/posts/240618-004911.png" width={500}/>
+- Payment or ProductDescription can be implemented first.
+- Next come classes that depend only on those already implemented, such as ProductCatalog or SalesLineItem.

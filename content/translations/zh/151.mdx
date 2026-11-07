@@ -1,0 +1,227 @@
+---
+title_ko: React Native(Expo)에서 SVG 이미지 사용하기 (react-native-svg-transformer)
+title_en: Using SVG images in React Native(Expo) (react-native-svg-transformer)
+desc: >-
+  React Native(Expo)에서 SVG 이미지 사용하기 (react-native-svg-transformer)를 사용하여 SVG
+  이미지를 사용하는 방법을 알아보자. Let's find out how to use SVG images using React
+  Native(Expo) (react-native-svg-transformer).
+thumbnail_url: /posts/250310-100159.png
+metatag: >-
+  SVG 이미지를 리액트 컴포넌트로 변환, convert SVG images to React components, svg 속성 props로
+  전달, pass svg attributes as props, Svg
+  fill/stroke/circle/rect/line/polygon/polyline, react-native-svg,
+  react-native-svg-transformer
+post_id: '151'
+locale: zh
+title: 在 React Native（Expo）中使用 SVG 图片（react-native-svg-transformer）
+description: >-
+  介绍如何在 React Native（Expo）中渲染 SVG 图片，用 react-native-svg-transformer 导入 SVG，并通过
+  props 设置样式。
+source_hash: c0340913c6c46dbf968029b45dddffc9bd7e9ecd7480485a154adb9ed61b6dc9
+reviewed_at: '2026-11-07T07:14:23.003Z'
+---
+## 开始之前
+> 本文假设你已经创建了基本的 Expo 项目。创建方法请参阅 Expo 项目创建：[Windows](/blog/post/117-expo-proj-init)、[Mac](/blog/post/143-expo-init-mac)。
+### 为什么使用 SVG 图片？
+图片有许多格式。SVG 的优势是可缩放，放大到不同尺寸时仍然清晰。此外，SVG 可以用 CSS 设置样式，文件也比较小，有助于提高网站性能。在 React Native 中也可以使用 SVG 图片。本文将介绍在 React Native（Expo）中使用 SVG 的方法。
+
+## 安装 react-native-svg
+<Bbox>Expo Go 已包含这个库，所以在 Expo 环境中无需额外安装。</Bbox>
+如果是没有使用 Expo 的 React Native 项目，需要安装 `react-native-svg`。运行以下命令安装。
+```bash
+npm install react-native-svg
+```
+react-native-svg 支持交互与动画，可以在应用中使用 SVG。
+
+<Ads1 />
+## 使用 SVG 图片
+先下载一张 SVG 图片。打开 SVG 文件就能看到源代码，把它复制下来。下面的示例使用 SVG 支持的 circle 和 line 标签。
+```xml title="/assets/image/example.svg (예시 svg 파일)"
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+	<circle cx="12" cy="12" r="10"/>
+	<line x1="12" y1="8" x2="12" y2="16"/>
+	<line x1="8" y1="12" x2="16" y2="12"/>
+</svg>
+```
+<Img src="/posts/250310-103804.png" width={100} alt="示例 SVG 文件"/>
+
+复制 SVG 代码后，可以用 `Svg` 组件显示图片。`Svg` 组件由 `react-native-svg` 提供。在 `Svg` 中使用 `Circle`、`Line` 等组件来转换原有 SVG 代码。转换后的代码如下。
+```jsx title="/assets/image/example.tsx"
+import Svg, { Circle, Line } from 'react-native-svg';
+
+export default function SvgComponent() {
+	return (
+		<Svg width="100" height="100" viewBox="0 0 24 24">
+			<Circle cx="12" cy="12" r="10" fill="none" stroke="black" strokeWidth="2"/>
+			<Line x1="12" y1="8" x2="12" y2="16" stroke="black" strokeWidth="2"/>
+			<Line x1="8" y1="12" x2="16" y2="12" stroke="black" strokeWidth="2"/>
+		</Svg>
+	);
+}
+```
+现在可以使用 `SvgComponent` 在界面上渲染 SVG 图片。
+```jsx title="/app/index.tsx"
+import React from 'react';
+import { View } from 'react-native';
+import SvgComponent from './example';
+
+export default function App() {
+	return (
+		<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+			<SvgComponent />
+		</View>
+	);
+}
+```
+
+<Ads2 />
+## 使用 React SVGR 网站
+也有网站可以把 SVG 图片转换成组件。把 SVG 代码粘贴到 [React SVGR](https://react-svgr.com/playground/?native=true&typescript=true)，就能生成 React 组件，无需手动改写 SVG 代码。上面的示例转换后如下。
+```jsx title="/assets/image/example-svgr.tsx"
+import * as React from "react"
+import Svg, { SvgProps, Circle, Path } from "react-native-svg"
+const SvgComponent = (props: SvgProps) => (
+  <Svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    stroke="currentColor"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth={2}
+    viewBox="0 0 24 24"
+    {...props}
+  >
+    <Circle cx={12} cy={12} r={10} />
+    <Path d="M12 8v8M8 12h8" />
+  </Svg>
+)
+export default SvgComponent
+```
+与手动转换的代码有一点不同，对吧？
+用这个网站转换时，可以通过 `SvgProps` 传入 props。因此，我推荐用这个网站把 SVG 图片转成组件。
+
+## 使用 react-native-svg-transformer
+不过，每次都把 SVG 代码转换成组件，还要修改文件扩展名等，比较麻烦。使用 `react-native-svg-transformer`，就可以自动把 SVG 文件转换成组件。
+### 安装与配置
+#### 安装依赖库
+先安装 `react-native-svg-transformer`。
+```bash
+npm install --save-dev react-native-svg-transformer
+
+  # yarn add --dev react-native-svg-transformer
+```
+#### 添加 metro.config.js 配置
+然后修改项目根目录的 `metro.config.js`，添加配置。普通 React Native 项目中可能没有 `metro.config.js` 文件。这时，在根目录创建 `metro.config.js` 并添加以下设置。添加 module.exports 部分的代码。
+```js title="metro.config.js (Expo 프로젝트 기준)"
+/* eslint-env node */
+const { getDefaultConfig } = require('expo/metro-config');
+
+/** @type {import('expo/metro-config').MetroConfig} */
+
+module.exports = (() => {
+	const config = getDefaultConfig(__dirname);
+
+	const { transformer, resolver } = config;
+
+	config.transformer = {
+		...transformer,
+		babelTransformerPath: require.resolve('react-native-svg-transformer/expo'),
+	};
+	config.resolver = {
+		...resolver,
+		assetExts: resolver.assetExts.filter((ext) => ext !== 'svg'),
+		sourceExts: [...resolver.sourceExts, 'svg'],
+	};
+
+	return config;
+})();
+```
+```js title="metro.config.js (React Native 프로젝트 기준)"
+const { getDefaultConfig, mergeConfig } = require("@react-native/metro-config");
+
+const defaultConfig = getDefaultConfig(__dirname);
+const { assetExts, sourceExts } = defaultConfig.resolver;
+
+/**
+ * Metro configuration
+ * https://reactnative.dev/docs/metro
+ *
+ * @type {import('metro-config').MetroConfig}
+ */
+const config = {
+  transformer: {
+    babelTransformerPath: require.resolve(
+      "react-native-svg-transformer/react-native"
+    )
+  },
+  resolver: {
+    assetExts: assetExts.filter((ext) => ext !== "svg"),
+    sourceExts: [...sourceExts, "svg"]
+  }
+};
+
+module.exports = mergeConfig(defaultConfig, config);
+```
+#### 添加 TypeScript 配置
+如果使用 TypeScript，在 `declarations.d.ts` 中添加以下配置，让 TypeScript 能把 SVG 文件识别为模块。
+如果没有这个文件，请在根目录创建 `declarations.d.ts`，再添加下面的配置。
+```ts title="declarations.d.ts"
+declare module '*.svg' {
+  import React from 'react';
+  import { SvgProps } from 'react-native-svg';
+  const content: React.FC<SvgProps>;
+  export default content;
+}
+```
+
+<Ads3 />
+### 使用 SVG 图片
+现在可以直接导入 SVG 图片。把 SVG 文件添加到 `assets` 目录，使用时通过 `require` 函数加载文件路径。下面是示例代码。
+```jsx title="/app/index.tsx"
+import React from 'react';
+import { View } from 'react-native';
+import SvgComponent from '@/assets/image/example.svg';
+
+export default function App() {
+	return (
+		<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+			<SvgComponent />
+		</View>
+	);
+}
+```
+## 通过 props 传递 SVG 属性
+SVG 图片的属性可以作为 props 传入。例如，可以传入 `fill`、`stroke` 和 `strokeWidth` 等属性，设置 SVG 图片的样式。下面演示如何传入属性。SVG 代码里的 fill 属性对应 `fill` prop，stroke 属性对应 `stroke` prop。如果需要传入可变颜色，可以使用“currentColor”。
+```jsx title="/assets/image/example.svg" {"currentColor"}
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+	<circle cx="12" cy="12" r="10"/>
+	<line x1="12" y1="8" x2="12" y2="16"/>
+	<line x1="8" y1="12" x2="16" y2="12"/>
+</svg>
+```
+之后，使用 SVG 图片时就可以传入 props。
+```jsx title="/app/index.tsx"
+import { View } from 'react-native';
+import SvgComponent from '@/assets/image/example.svg';
+
+export default function App() {
+	return (
+		<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+			<SvgComponent fill={'blue'} stroke={'green'} width={100} height={100} />
+		</View>
+	);
+}
+```
+<Img src="/posts/250310-115319.png" width={100} alt="更改 fill 和 stroke 属性"/>
+此外，还可以通过 props 传入 `width`、`height`、`viewBox` 等属性。
+
+<Ads4 />
+## 结语
+### 进一步思考
+- 使用 SVG 图片有哪些优缺点？
+
+### 参考资料
+- [Expo - React Native SVG](https://docs.expo.dev/versions/latest/sdk/svg/)
+- [react-native-svg](https://github.com/software-mansion/react-native-svg)
+- [react-native-svg-transformer](https://github.com/kristerkari/react-native-svg-transformer)
+- [React SVGR](https://react-svgr.com/playground/?native=true&typescript=true)

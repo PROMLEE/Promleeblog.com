@@ -1,0 +1,315 @@
+---
+post_id: '139'
+locale: ja
+title: FlutterでFCMのプッシュ通知を送る
+description: FlutterでFirebase Cloud Messagingを使い、プッシュ通知を送受信する方法を説明します。
+source_hash: 4011bde545b004013402619c66c6ad823dd3f8bc6be020660095194bf3d0d598
+reviewed_at: '2026-11-07T07:07:25.641Z'
+---
+## はじめに
+
+> この記事はFlutter 3.24を前提にしています。
+
+FlutterプロジェクトとFirebaseプロジェクトは連携済みとします。Firebaseプロジェクトがなければ、次の記事を参考に作成してください。
+[FirebaseにFlutterアプリを登録する](/blog/post/134-flutter-firebase-apps)
+
+### FCMとは？
+
+<Img src="https://firebase.google.com/static/docs/cloud-messaging/images/diagram-FCM.png?hl=ko" width={500} alt="FCMのアーキテクチャ概要（出典） https://firebase.google.com/docs/cloud-messaging/fcm-architecture"/>
+
+Firebase Cloud Messaging（FCM）は、無料でメッセージを安定して送信できるクロスプラットフォームのメッセージングサービスです。
+FCMでメッセージを送受信するには、主に次の2つが必要です。
+
+1. Cloud Functions for Firebaseやアプリサーバーなど、メッセージの作成、宛先の指定、送信ができる信頼できる環境
+2. プラットフォームごとの配信サービスからメッセージを受け取るApple、Android、Web（JavaScript）のクライアントアプリ
+
+通常、1つ目はバックエンド、2つ目はFlutterアプリです。今回は主に2つ目を扱い、FlutterでFCMトークンを取得してプッシュ通知を受け取る方法を見ていきます。
+<Ads1 />
+
+## 1. iOSの設定
+
+> Apple Developerアカウントが必要です。持っていなければ[Apple Developer](https://developer.apple.com/)に登録するか、ここを飛ばしてAndroidの設定だけ行ってください。
+
+### 1.1. APNs認証キーを作成する
+
+[Apple DeveloperポータルのAuth Keys](https://developer.apple.com/account/resources/authkeys/list)にアクセスしてログインし、Keysの右にある「＋」を押して新しい認証キーを作ります。
+
+1. 任意の名前を入力し、APNsを選びます。
+2. Configureを押し、用途に合う項目を選んで設定を完了します。
+3. Continue、Registerの順に押すと、キーが作られます。
+   <Img src="/posts/250228-111329.png" width={500} alt=""/>
+   <Rbox>ここで必ずキーをダウンロードし、安全な場所に保存してください。</Rbox>
+   <Img src="/posts/250228-111742.png" width={500} alt=""/>
+   完了すると、次のようにキーが発行されます。
+   <Img src="/posts/250228-111940.png" width={500} alt=""/>
+
+### 1.2. Identifiersを設定する
+
+[Apple DeveloperポータルのIdentifiers](https://developer.apple.com/account/resources/identifiers/list)にアクセスしてログインし、Identifiersの右にある「＋」を押して新しい識別子を作ります。
+
+1. App IDsを選び、次の画面でAppを選択してContinueを押します。
+   <Img src="/posts/250228-112135.png" width={500} alt=""/>
+   <Img src="/posts/250228-112204.png" width={500} alt=""/>
+2. 説明とBundle IDを入力し、下までスクロールしてPush Notificationsを選びます。Continue、Registerの順に押して識別子の作成を完了します。
+   Bundle IDは `/ios/Runner.xcodeproj/project.pbxproj` の `PRODUCT_BUNDLE_IDENTIFIER` の値です。例は `com.example.promleeblog` です。
+   <Img src="/posts/250228-113603.png" width={500} alt=""/>
+
+### 1.3. XcodeでCapabilityを追加する
+
+VS Codeで `/ios` フォルダーを右クリックし、Open in Xcodeを押します。
+`Runner > Runner > Signing & Capabilities` タブに移動し、`+ Capability` を押して `Push Notifications` を検索し、追加します。
+<Img src="/posts/250228-114611.png" width={500} alt=""/>
+さらに、`Signing & Capabilities` タブのBackground Modesで、次のようにチェックを入れます。
+<Img src="/posts/250228-114820.png" width={400} alt=""/>
+
+### 1.4. Firebaseコンソールを設定する
+
+[Firebase Console](https://console.firebase.google.com)を開いてログインし、対象プロジェクトを選んで、次のように*Cloud Messaging*タブへ移動します。
+<Img src="/posts/250228-115107.png" width={300} alt=""/>
+画面のように、[1.1.](#11-apns-인증키-생성)で作ったキーをアップロードします。キーIDはそのキーの画面で、チームIDは[Apple DeveloperポータルのAccount](https://developer.apple.com/account/resources)で確認できます。
+<Img src="/posts/250228-115935.png" width={500} alt=""/>
+<Img src="/posts/250228-130156.png" width={500} alt="チームIDの確認場所"/>
+これでiOSの設定は完了です。
+
+### 1.5. Podfileで権限を設定する
+
+`/ios/Podfile` に次のように権限を追加します。すでに追加済みなら、`PERMISSION_NOTIFICATIONS` のコメントが解除されていることを確認します。
+<Toggle title="Podfileのコード">
+
+```ruby title="/ios/Podfile"
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+    target.build_configurations.each do |config|
+      # You can remove unused permissions here
+      # for more information: https://github.com/BaseflowIT/flutter-permission-handler/blob/master/permission_handler/ios/Classes/PermissionHandlerEnums.h
+      # e.g. when you don't need camera permission, just add 'PERMISSION_CAMERA=0'
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+        '$(inherited)',
+
+        ## dart: PermissionGroup.calendar
+        # 'PERMISSION_EVENTS=1',
+
+        ## dart: PermissionGroup.calendarFullAccess
+        # 'PERMISSION_EVENTS_FULL_ACCESS=1',
+
+        ## dart: PermissionGroup.reminders
+        # 'PERMISSION_REMINDERS=1',
+
+        ## dart: PermissionGroup.contacts
+        # 'PERMISSION_CONTACTS=1',
+
+        ## dart: PermissionGroup.camera
+        # 'PERMISSION_CAMERA=1',
+
+        ## dart: PermissionGroup.microphone
+        # 'PERMISSION_MICROPHONE=1',
+
+        ## dart: PermissionGroup.speech
+        # 'PERMISSION_SPEECH_RECOGNIZER=1',
+
+        ## dart: PermissionGroup.photos
+        # 'PERMISSION_PHOTOS=1',
+
+        ## The 'PERMISSION_LOCATION' macro enables the `locationWhenInUse` and `locationAlways` permission. If
+        ## the application only requires `locationWhenInUse`, only specify the `PERMISSION_LOCATION_WHENINUSE`
+        ## macro.
+        ##
+        ## dart: [PermissionGroup.location, PermissionGroup.locationAlways, PermissionGroup.locationWhenInUse]
+        # 'PERMISSION_LOCATION=1',
+        # 'PERMISSION_LOCATION_WHENINUSE=0',
+
+        ## dart: PermissionGroup.notification
+        'PERMISSION_NOTIFICATIONS=1',
+
+        ## dart: PermissionGroup.mediaLibrary
+        # 'PERMISSION_MEDIA_LIBRARY=1',
+
+        ## dart: PermissionGroup.sensors
+        # 'PERMISSION_SENSORS=1',
+
+        ## dart: PermissionGroup.bluetooth
+        # 'PERMISSION_BLUETOOTH=1',
+
+        ## dart: PermissionGroup.appTrackingTransparency
+        # 'PERMISSION_APP_TRACKING_TRANSPARENCY=1',
+
+        ## dart: PermissionGroup.criticalAlerts
+        # 'PERMISSION_CRITICAL_ALERTS=1',
+
+        ## dart: PermissionGroup.criticalAlerts
+        # 'PERMISSION_ASSISTANT=1',
+      ]
+
+    end
+  end
+end
+```
+
+</Toggle>
+
+<Ads2 />
+## 2. Androidの設定
+Androidでは、権限を設定します。Android 13（APIレベル33）以降が対象です。
+
+```xml title="/android/app/src/main/AndroidManifest.xml"
+<manifest ...>
+	<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+	<application ...>
+			...
+	</application>
+</manifest>
+```
+
+## 3. Flutterでプッシュ通知を受信するコードを書く
+
+### 3.1. firebase_messagingパッケージをインストールする
+
+```bash
+flutter pub add firebase_messaging
+```
+
+### 3.2. 通知を受信する許可を得る
+
+通知の許可を求める箇所に、次のコードを追加します。
+
+```dart
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+// 적절한 위치에 선언
+FirebaseMessaging messaging = FirebaseMessaging.instance;
+NotificationSettings settings = await messaging.requestPermission(
+  alert: true,
+  announcement: false,
+  badge: true,
+  carPlay: false,
+  criticalAlert: false,
+  provisional: false,
+  sound: true,
+);
+print('User granted permission: ${settings.authorizationStatus}');
+```
+
+### 3.3. プッシュ通知の受信コードを書く（バックグラウンド）
+
+エントリーポイントのmain.dartに、次のコードを追加します。
+
+> バックグラウンドのメッセージハンドラーについて、いくつか注意点があります。
+
+1. 匿名関数は使えません。
+2. トップレベルの関数である必要があります。初期化が必要なクラスメソッドなどは使えません。
+3. Flutter 3.3.0以降では、関数宣言の直前に @pragma('vm:entry-point') を付ける必要があります。付けないと、リリースモードのツリーシェイキングで削除される場合があります。
+
+```dart title="/lib/main.dart"
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+}
+
+void main() {
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  runApp(MyApp());
+}
+```
+
+### 3.4. プッシュ通知の受信コードを書く（フォアグラウンド）
+
+エントリーポイントのファイルに、次のリスナーを追加します。
+
+```dart title="/lib/main.dart"
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+void main(){
+	// ...
+	FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+		print('Got a message whilst in the foreground!');
+		print('Message data: ${message.data}');
+
+		if (message.notification != null) {
+			print('Message also contained a notification: ${message.notification}');
+		}
+	});
+  runApp(MyApp());
+}
+```
+
+<Ads3 />
+## 4. FCMトークンを取得する
+### 4.1. FCMトークンとは？
+FCMトークンは、FlutterアプリがFCMサーバーと通信するための固有の識別子です。Flutterアプリでトークンを取得すると、プッシュ通知を受信できます。
+
+### 4.2. FCMトークンを取得する
+
+```dart
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+// 적절한 위치에 선언
+final req = await FirebaseMessaging.instance.requestPermission(
+	alert: true,
+	badge: true,
+	sound: true,
+);
+final fcmToken = await FirebaseMessaging.instance.getToken();
+if (req.authorizationStatus == AuthorizationStatus.authorized && fcmToken != null) {
+	print('FCM Token: $fcmToken');
+} else {
+	print('FCM Token: null');
+}
+```
+
+## 5. テストメッセージを送る
+
+> まず、端末にアプリがインストールされている必要があります。
+> [Firebase Console - Cloud Messaging](https://console.firebase.google.com/u/0/project/_/messaging)を開き、ログインして対象プロジェクトを選びます。
+> 最初のキャンペーンを作成するボタンを押し、`Firebase 알림 메시지`（Firebase通知メッセージ）を選び、作成を押します。
+> <Img src="/posts/250228-153434.png" width={300} alt=""/>
+> 通知を作成する画面が出たら、タイトルと本文を入力します。「テストメッセージを送信」を押すと、上で取得したFCMトークン宛に通知を送れます。
+> <Img src="/posts/250228-154244.png" width={400} alt=""/>
+
+## 問題と対処方法
+
+### iOSでFCMトークンの取得に失敗する
+
+> apns token has not been set yet. please ensure the apns token is available by calling getapnstoken()
+
+基本設定が正しくてもこのエラーが出る場合、FlutterがAPNsトークンを自動取得できていない可能性があります。その場合は手動でAPNsトークンを取得します。
+
+```dart title="/lib/main.dart" {16}
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+
+void main() async {
+	WidgetsFlutterBinding.ensureInitialized();
+	FirebaseMessaging messaging = FirebaseMessaging.instance;
+	await messaging.requestPermission(
+		alert: true,
+		announcement: false,
+		badge: true,
+		carPlay: false,
+		criticalAlert: false,
+		provisional: false,
+		sound: true,
+	);
+	messaging.getAPNSToken(); // 이 코드 추가
+	await messaging.getToken();
+	runApp(MyApp());
+}
+```
+
+iOSの実機にアプリをインストールして実行すると、上のエラーが出ることがあります。iOSでFCMトークンを取得するには、APNsトークンが必要なためです。アプリを起動し、APNsトークンを取得してからFCMトークンを取得するよう、上記の手順でコードを修正します。
+
+## おわりに
+
+Firebase Cloud Messagingを使えば、プッシュ通知を簡単に送れます。一方で、通知をタップしたときに特定の画面へ移動したり、特定の処理を実行したりするには、追加の実装が必要です。次回の記事で扱います。
+
+### もう少し考えてみる
+
+- HTTP v1 APIでプッシュ通知を送る
+- プッシュ通知をタップしたら特定のページへ移動する
+- プッシュ通知をタップしたら特定の処理を実行する
+
+### 参考
+
+- [FlutterでFirebase FCMを使う](https://velog.io/@tygerhwang/Flutter-Firebase-FCMFirebase-Cloud-Message-%EC%82%AC%EC%9A%A9%ED%95%B4-%EB%B3%B4%EA%B8%B0)

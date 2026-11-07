@@ -1,0 +1,167 @@
+---
+title_ko: React Native(Expo)에서 Toast 메시지 표시하기(react-native-toast-message)
+title_en: 'Display Toast Messages in React Native(Expo, react-native-toast-message)'
+desc: >-
+  React Native(Expo)에서 Toast 메시지를 표시하는 방법을 알아보자. Let's learn how to display
+  toast messages in React Native(Expo).
+thumbnail_url: 'https://cdn.worldvectorlogo.com/logos/react-native-1.svg'
+post_id: '137'
+locale: zh
+title: 在React Native与Expo中显示Toast消息
+description: 使用react-native-toast-message配置Toast提示，介绍Expo、React Native CLI与自定义Toast样式。
+source_hash: e8daee990bec34a4f0f00e40afe07f4fa231efb80255723f456270b440de049a
+---
+## 开始之前
+> 本文基于Expo环境和[react-native-toast-message](https://www.npmjs.com/package/react-native-toast-message) 2.2.1编写。
+React Native CLI环境也可以采用相同方式。
+
+### 什么是Toast消息
+Toast消息也常被称为Snackbar，是一种常用的通知或消息展示方式。用户点击按钮后，可以通过它确认相应交互是否已经完成。
+官方文档提供了下面这样的示例。
+<Img src="https://raw.githubusercontent.com/calintamas/react-native-toast-message/0026645eeda2242ea740250471f1b4f2be894c6e/docs/toast.gif" width={200} alt=""/>
+
+<Ads1 />
+## 1. 安装并配置库
+首先在项目根目录执行以下命令。
+```bash
+npm install react-native-toast-message
+```
+### 1.1 Expo环境配置
+在构成项目最上层页面的`/app/_layout.tsx`中，按以下方式配置。
+```tsx title="app/_layout.tsx"
+import Toast from 'react-native-toast-message';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <View>
+      {children}
+      <Toast />
+    </View>
+  );
+}
+```
+### 1.2 React Native CLI环境配置
+在构成项目最上层页面的`app.tsx`中，按以下方式配置。
+```tsx title="app.tsx"
+import Toast from 'react-native-toast-message';
+
+export function App( props: any ) {
+  return (
+    <>
+      {/* ... */}
+      <Toast />
+    </>
+  );
+}
+```
+
+<Ads2 />
+## 2. 显示Toast消息
+在需要显示Toast的组件中，按以下方式调用。
+```tsx title="app/index.tsx"
+import Toast from 'react-native-toast-message';
+import { Button } from 'react-native'
+
+export function Page() {
+  const showToast = () => {
+    Toast.show({
+      type: 'success',
+      text1: 'Hello',
+      text2: 'This is some something 👋'
+    });
+  }
+
+  return (
+    <Button
+      title='Show toast'
+      onPress={showToast}
+    />
+  )
+}
+```
+
+## 3. 设置Toast样式
+如果希望应用自定义样式，可以在声明Toast的`/app/_layout.tsx`（Expo）或`app.tsx`（React Native CLI）中进行以下配置。
+示例中定义了三类Toast：success和error修改默认样式，tomatoToast则使用自定义布局。
+```tsx title="app/_layout.tsx"
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+
+const toastConfig = { // config 변수 추가
+  success: (props) => (
+    <BaseToast
+      {...props}
+      style={{ borderLeftColor: 'pink' }}
+      contentContainerStyle={{ paddingHorizontal: 15 }}
+      text1Style={{
+        fontSize: 15,
+        fontWeight: '400'
+      }}
+    />
+  ),
+  error: (props) => (
+    <ErrorToast
+      {...props}
+      text1Style={{
+        fontSize: 17
+      }}
+      text2Style={{
+        fontSize: 15
+      }}
+    />
+  ),
+	tomatoToast: ({ text1, props }) => (
+    <View style={{ height: 60, width: '100%', backgroundColor: 'tomato' }}>
+      <Text>{text1}</Text>
+      <Text>{props.uuid}</Text>
+    </View>
+  )
+}
+
+export default function Page() {
+  return (
+    <View>
+      {children}
+      <Toast config={toastConfig} />
+    </View>
+  );
+}
+```
+
+<Ads3 />
+## 4. 使用自定义Toast
+在需要显示Toast的组件中，按以下方式调用。
+```tsx title="app/index.tsx"
+import Toast from 'react-native-toast-message';
+import { Button } from 'react-native'
+
+export function Page() {
+  const showToast = () => {
+    Toast.show({
+			type: 'tomatoToast',
+			props: { uuid: 'uuid example' }
+    });
+  }
+
+	const showErrorToast = () => {
+		Toast.show({
+			type: 'error',
+			text1: 'Error',
+			text2: 'This is some something 👋'
+		});
+	}
+
+  return (
+    <Button	
+      title='Show toast'
+      onPress={showToast}
+    />
+  )
+}
+```
+## 结论
+相比使用不必要的模态框和确认框，Toast消息可能带来更好的用户体验。它也有助于提高开发便利性，因此推荐使用。
+
+### 参考资料
+- [react-native-toast-message](https://github.com/calintamas/react-native-toast-message)
+- [quick start](https://github.com/calintamas/react-native-toast-message/blob/main/docs/quick-start.md)
+- [customization](https://github.com/calintamas/react-native-toast-message/blob/main/docs/custom-layouts.md)

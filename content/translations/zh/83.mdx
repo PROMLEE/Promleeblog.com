@@ -1,0 +1,299 @@
+---
+title_ko: MVC 패턴 완벽 이해 화면과 데이터 로직 깔끔하게 분리하기
+title_en: Mastering MVC Pattern Separating View Logic and Data
+desc: >-
+  대표적인 디자인 패턴인 MVC(Model-View-Controller)를 알아봅니다. 모델, 뷰, 컨트롤러 각 요소의 역할과 상호작용을
+  이해하고, 관심사 분리를 통해 유연하고 확장 가능한 애플리케이션을 만드는 방법을 Java 스타일 예제와 함께 설명합니다.
+thumbnail_url: /250528-131235.webp
+metatag: >-
+  MVC 패턴, 디자인 패턴, 모델, 뷰, 컨트롤러, 관심사의 분리, 웹 개발, 소프트웨어 아키텍처, Java, UI 디자인, 애플리케이션
+  구조, 개발 프레임워크
+post_id: '83'
+locale: zh
+title: 理解 MVC 模式：分离界面与数据逻辑
+description: 介绍模型、视图与控制器的职责和交互，结合 Java 示例说明如何通过关注点分离提高应用的灵活性和可扩展性。
+source_hash: 74cf559761d2fd07bdce25ace5e7b14cb3708bde770477284641808a1b6350e0
+reviewed_at: '2026-11-07T12:24:57.093Z'
+---
+
+## 开始之前
+
+开发软件时，代码往往会越来越复杂，不同部分混在一起，让人不知道该从哪里下手修改。
+尤其是用户看到的界面（UI）代码与核心数据处理逻辑纠缠在一起时，一处小改动也可能影响很大。
+<br /><br />
+今天来了解一种常用的设计模式：*MVC*。
+MVC 是 Model、View 和 Controller 的缩写。它将应用拆成三个各司其职的部分，让它们相互协作，同时减少彼此之间的影响。
+就像厨房里做菜、上菜和洗碗各有分工，MVC 也可以提高软件开发效率，让代码更易维护。
+
+## 什么是 MVC 模式？
+
+MVC 是一种经过长期实践检验的架构模式。它最初于 20 世纪 70 年代末随 Smalltalk 语言的开发在施乐帕洛阿尔托研究中心（Xerox PARC）提出。
+它的主要目标是*关注点分离（Separation of Concerns）*。
+也就是把应用划分成以下三个部分，让每个部分专注于自己的职责。
+
+### 模型（Model）
+> 负责应用的*数据*和*核心业务逻辑*。
+
+模型保存、查询和修改数据，对数据进行校验，并在数据变化时通知相关部分，通常是视图。
+它专注于数据和处理数据的规则，无需负责界面的呈现和用户输入的处理。
+### 视图（View）
+> 负责*用户看到的界面（UI）*。
+
+视图从模型获取数据，以可视方式呈现给用户，并接收按钮点击、文本输入等交互。
+视图主要负责如何呈现模型提供的数据，无需自行存储数据或实现数据处理逻辑。
+### 控制器（Controller）
+> 在模型与视图之间起*协调作用*。
+
+控制器通常通过视图接收用户输入，解释输入，并要求模型执行特定任务。
+它取得模型的处理结果后，将结果传给视图，并要求视图更新用户界面。
+这样，控制器就能掌管应用的整体流程。
+<Bbox>这三个部分并非完全独立，但各自职责明确，可以尽量减少一处改动对其他部分的影响。</Bbox>
+
+<Ads4/>
+## MVC 的组成与交互流程
+
+MVC 中的各个部分如何互相传递消息并协作？
+下面是常见的交互流程。
+<Img src="/250528-132454.webp" width={600} alt="MVC 模式交互流程图"/>
+1. **用户输入**
+   用户与视图交互，例如点击网页按钮或填写表单。
+2. **视图将事件传给控制器**
+   视图检测到用户操作（事件）后，将其交给控制器。
+   视图无需知道应该怎样处理事件。
+3. **控制器向模型发出请求**
+   控制器解释用户请求，再要求模型更新数据或执行必要的业务逻辑，例如“保存新文章”或“获取商品列表”。
+4. **模型处理数据并更新状态**
+   模型按控制器的要求处理数据，必要时改变自身状态。
+   它可以访问数据库或执行复杂计算。
+5. **模型通知视图发生变化（可选）**
+   模型状态变化后，可以通知正在观察它的视图数据已经更新。
+   这可以通过观察者模式实现，也可以由控制器负责通知。
+6. **控制器要求视图更新，或视图查询模型**
+   控制器取得模型的处理结果或得知模型发生变化后，决定要更新哪个视图，并要求该视图刷新界面。
+   视图可以直接向模型获取所需数据，也可以接收控制器从模型取得的数据。
+7. **视图更新界面**
+   视图从模型获取最新数据，或从控制器接收数据，然后更新用户界面，显示变更后的内容。
+
+按这个流程，各个部分可以各司其职。
+
+<Ads1/>
+
+### 模型（Model）
+
+模型是 MVC 的核心，包含应用数据及处理这些数据的业务规则。
+
+#### 职责
+- 保存并管理数据，例如连接数据库或访问文件系统。
+- 校验数据并执行业务逻辑。
+- 数据变化时通知相关组件，通常是视图，也可以通过控制器转达。
+#### 特点
+- 无需了解视图或控制器，因此更容易独立使用和复用。
+- 通常可以使用 POJO（Plain Old Java Object）、数据类或服务类实现。
+
+#### Java 示例
+```java title="User.java (데이터를 담는 간단한 모델 객체 - DTO 또는 Entity 역할)"
+public class User {
+    private String id;
+    private String name;
+    private String email;
+
+    public User(String id, String name, String email) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+    }
+
+    // Getters and Setters
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+}
+```
+```java title="UserService.java (비즈니스 로직을 처리하는 모델 - Service 역할)"
+import java.util.HashMap;
+import java.util.Map;
+
+public class UserService {
+    private Map<String, User> userDatabase = new HashMap<>(); // 간단한 인메모리 DB 역할
+
+    public User getUserById(String id) {
+        return userDatabase.get(id);
+    }
+
+    public void createUser(String id, String name, String email) {
+        if (userDatabase.containsKey(id)) {
+            System.out.println("오류: 사용자 ID '" + id + "'는 이미 존재합니다.");
+            return;
+        }
+        User newUser = new User(id, name, email);
+        userDatabase.put(id, newUser);
+        System.out.println("사용자 '" + name + "'이(가) 성공적으로 생성되었습니다.");
+        // 데이터 변경이 발생했으므로, 옵저버에게 알리는 로직이 추가될 수 있음
+    }
+}
+```
+
+### 视图（View）
+
+视图负责以可视方式呈现信息，并作为接收用户输入的接口。
+
+#### 职责
+- 向用户展示从模型取得的数据，例如通过 HTML、XML 或 GUI 组件呈现。
+- 接收用户输入并转交控制器。
+#### 特点
+- 无需了解应用逻辑或数据处理方式。
+- 同一个模型可以对应多个视图。例如，可以用图表或表格展示同一份数据。
+- 常用界面模板（JSP、Thymeleaf 等 Web 技术）或 GUI 库（Swing、JavaFX、Android UI 等）实现。
+
+#### Java 示例
+```java title="UserView.java (사용자 정보를 출력하는 간단한 뷰)"
+public class UserView {
+    public void printUserDetails(String userName, String userEmail) {
+        System.out.println("--- 사용자 정보 ---");
+        System.out.println("이름: " + userName);
+        System.out.println("이메일: " + userEmail);
+        System.out.println("------------------");
+    }
+
+    public void showMessage(String message) {
+        System.out.println(message);
+    }
+}
+```
+实际应用通常会使用 HTML 或 GUI 框架等技术。
+
+### 控制器（Controller）
+控制器接收用户输入，协调和控制模型与视图之间的交互。
+
+#### 职责
+- 接收视图传来的用户输入（事件）。
+- 解释输入并要求模型执行任务，例如查询或修改数据、执行业务逻辑。
+- 接收模型处理的结果，决定更新哪个视图，再把数据传给视图或要求它刷新。
+#### 特点
+- 连接模型与视图。
+- 管理应用的整体流程。
+- 在 Web 框架中，通常由 Servlet 或控制器类承担此职责。
+
+#### Java 示例
+```java title="UserController.java (모델과 뷰를 연결하는 컨트롤러)"
+public class UserController {
+    private UserService model; // 모델(UserService)에 대한 참조
+    private UserView view;     // 뷰(UserView)에 대한 참조
+
+    public UserController(UserService model, UserView view) {
+        this.model = model;
+        this.view = view;
+    }
+
+    public void handleCreateUserRequest(String id, String name, String email) {
+        model.createUser(id, name, email);
+        // 모델에서 생성 성공/실패 여부를 받아 뷰에 다른 메시지를 보여줄 수도 있음
+        // 여기서는 UserService 내부에서 간단히 출력함
+    }
+
+    public void handleGetUserRequest(String id) {
+        User user = model.getUserById(id);
+        if (user != null) {
+            view.printUserDetails(user.getName(), user.getEmail());
+        } else {
+            view.showMessage("사용자 ID '" + id + "'를 찾을 수 없습니다.");
+        }
+    }
+
+    // main 메서드 (애플리케이션 실행 예시)
+    public static void main(String[] args) {
+        // 1. 모델과 뷰 객체 생성
+        UserService userService = new UserService();
+        UserView userView = new UserView();
+
+        // 2. 컨트롤러 생성 및 모델/뷰 주입
+        UserController userController = new UserController(userService, userView);
+
+        // 3. 사용자 요청 시뮬레이션 (컨트롤러를 통해 상호작용)
+        // 사용자 생성 요청
+        userController.handleCreateUserRequest("user001", "홍길동", "gildong@example.com");
+        userController.handleCreateUserRequest("user002", "이순신", "sunsin@example.com");
+        System.out.println(); // 줄 바꿈
+
+        // 사용자 정보 조회 요청
+        userController.handleGetUserRequest("user001");
+        System.out.println();
+        userController.handleGetUserRequest("user003"); // 존재하지 않는 사용자
+    }
+}
+```
+上面的 `main` 方法创建 MVC 各组件，并模拟用户请求，演示如何通过控制器让各组件协作。
+
+<Ads2/>
+
+## MVC 模式的优缺点
+
+MVC 有很多好处，是否采用仍取决于实际情况。
+
+### 优点
+
+- **关注点分离**
+  各组件都有独立职责，代码更易理解和管理。
+- **更灵活，也更容易扩展**
+  改动某个组件，例如视图，对模型等其他组件的影响较小。
+  因此更容易添加新视图或修改现有视图。
+- **提高可复用性**
+  模型不依赖特定视图，也可以在其他场景复用。
+- **便于团队协作**
+  负责视图的设计人员与负责模型和控制器的开发人员可以明确分工、并行工作。
+- **便于测试**
+  可以独立测试各个组件。
+  尤其是承载业务逻辑的模型与 UI 分离后，更容易做单元测试。
+
+### 缺点
+
+- **增加代码复杂性**
+  对简单应用而言，应用 MVC 反而可能增加类的数量，让结构看起来更复杂，造成过度设计（Over-engineering）。
+- **模型和视图可能难以彻底分离**
+  如果视图必须及时响应模型状态的变化，或模型是为某个特定视图设计的，二者的耦合度可能会增加。
+- **学习成本**
+  初次学习 MVC 的概念及组件之间的交互方式，可能需要一些时间。
+
+## 不同框架如何实现 MVC
+
+MVC 是一种概念模型，不同编程语言和框架的实现略有差异。
+
+### Web 框架
+- **Spring MVC（Java）**
+  这是常见的 Java Web 框架。DispatcherServlet 承担控制器的职责，使用 @Controller 注解的类处理用户请求，并将模型数据交给 JSP、Thymeleaf 等视图。
+- **Ruby on Rails（Ruby）**
+  以“约定优于配置（Convention over Configuration）”为理念，内置对 MVC 的支持。
+  ActiveRecord 负责模型，ActionView 负责视图，ActionController 负责控制器。
+- **Django（Python）**
+  Django 也使用 MVT（Model-View-Template）这个术语，结构与 MVC 很相似。
+  它包含 Model、View 和 Template，其中 Django 的 View 类似 MVC 的 Controller，Template 类似 MVC 的 View。
+- **Express.js（Node.js／JavaScript）**
+  这是基于中间件的灵活框架，开发者可以自行组织 MVC 结构。
+### GUI 应用
+- **Java Swing／JavaFX**
+  可以用事件监听器承担控制器职责，并将数据模型与 UI 组件（视图）分开，以应用 MVC。
+- **Cocoa（macOS／iOS）**
+  使用 Objective-C 或 Swift，并将 MVC 作为推荐的基本设计原则。
+
+<Ybox>许多现代框架以 MVC 或其变体（MVP、MVVM 等）作为基础架构。理解 MVC，有助于学习这些技术。</Ybox>
+
+<Ads3/>
+
+## 结语
+
+本文介绍了如何用 MVC 有条理地设计应用结构。
+将应用拆成模型、视图与控制器，可以明确各部分的职责，提高代码的灵活性、可扩展性和可维护性。
+不同项目的规模和性质不同，是否需要 MVC、如何采用，也会有所差异。
+无论开发哪种软件，MVC 所强调的*关注点分离*都值得牢记。
+> 下一篇将介绍如何明确软件需求并把它们写成文档，也就是**如何编写软件需求规格说明书（SRS）**。
+
+### 参考资料
+
+- [MVC (Model-View-Controller) - MDN Web Docs](https://developer.mozilla.org/ko/docs/Glossary/MVC)（韩文，从 Web 开发角度介绍 MVC）
+- [Model-view-controller - Wikipedia](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller)（英文，详细介绍 MVC 模式）
+- [Understanding the MVC Pattern in Java - Baeldung](https://www.baeldung.com/mvc-pattern-java)（英文，通过 Java 示例解释 MVC 模式）
+- [Spring MVC Tutorial - Spring Framework Documentation](https://docs.spring.io/spring-framework/reference/web/webmvc.html)（英文，Spring MVC 官方文档）
+- [什么是 MVC 设计模式？通过编码学习 MVC](https://opentutorials.org/course/697/3828)（韩文，生活编码提供的 MVC 入门讲解）

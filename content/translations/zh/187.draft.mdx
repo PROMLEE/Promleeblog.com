@@ -1,0 +1,200 @@
+---
+title_ko: MCP 서버를 TypeScript SDK로 구축하는 방법
+title_en: Building an MCP Server with TypeScript SDK
+desc: Model Context Protocol의 TypeScript SDK를 활용하여 MCP 서버를 구축하는 상세 가이드입니다.
+thumbnail_url: /mcp_server_setup.webp
+metatag: 'MCP, TypeScript, 서버 구축, SDK'
+post_id: '187'
+locale: zh
+title: 使用 TypeScript SDK 搭建 MCP 服务器
+description: 详细介绍如何使用 Model Context Protocol 的 TypeScript SDK 搭建 MCP 服务器。
+source_hash: 4bb7a694c5b010c00d50c0bef09d02bd5c348c801f0b0e54b6bb1f908470a455
+---
+## 开始之前
+
+本文将介绍如何使用 *Model Context Protocol（MCP）* 的 TypeScript SDK 构建 MCP 服务器。我们先了解什么是 MCP，再详细讲解如何用 TypeScript SDK 逐步搭建服务器。
+
+## 什么是 Model Context Protocol（MCP）？
+
+MCP 是一种让*大语言模型（LLM）*以安全、标准化的方式访问外部数据和功能的协议。它充当桥梁，让 LLM 从外部获取所需信息或执行特定任务。例如，LLM 需要天气信息时，可以通过 MCP 访问实际的天气 API 并获取数据。更多信息见 [MCP 官方文档](https://modelcontextprotocol.io/)。
+
+<Ads1 />
+## 使用 TypeScript SDK 搭建 MCP 服务器
+
+接下来逐步介绍如何使用 TypeScript SDK 搭建 MCP 服务器。
+
+### 1. 初始化项目
+
+首先创建一个新目录并初始化项目。
+
+````
+mkdir my-mcp-server
+cd my-mcp-server
+npm init -y
+````
+
+这会创建名为 `my-mcp-server` 的文件夹，并在其中初始化 npm 项目。
+
+### 2. 安装必需的软件包
+
+接着安装构建 MCP 服务器所需的软件包。
+
+````
+npm install @modelcontextprotocol/sdk zod
+npm install -D typescript @types/node
+````
+
+其中，`@modelcontextprotocol/sdk` 是 MCP 的 TypeScript SDK，`zod` 用于数据验证。`typescript` 和 `@types/node` 是 TypeScript 开发所需的软件包。
+
+### 3. 创建 TypeScript 配置文件
+
+在项目根目录创建 `tsconfig.json`，指定 TypeScript 编译器配置。
+
+````json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true
+  },
+  "include": ["src"]
+}
+````
+
+这份配置使用最新的 JavaScript 语法，将模块系统设为 ESNext，并将源代码放在 `src` 目录，将编译产物放在 `dist` 目录。
+
+<Ads2 />
+### 4. 创建源码目录和入口文件
+
+创建 `src` 目录，并在其中新建 `index.ts` 文件。
+
+````
+mkdir src
+touch src/index.ts
+````
+
+现在可以在 `src/index.ts` 文件中编写 MCP 服务器代码了。
+
+### 5. 实现 MCP 服务器
+
+接下来实现一个提供简单加法和问候语的 MCP 服务器。
+
+````ts
+import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+const server = new McpServer({
+  name: "Demo",
+  version: "1.0.0"
+});
+
+server.tool(
+  "add",
+  { a: z.number(), b: z.number() },
+  async ({ a, b }) => ({
+    content: [{ type: "text", text: String(a + b) }]
+  })
+);
+
+server.resource(
+  "greeting",
+  new ResourceTemplate("greeting://{name}", { list: undefined }),
+  async (uri, { name }) => ({
+    contents: [{
+      uri: uri.href,
+      text: `안녕하세요, ${name}님!`
+    }]
+  })
+);
+
+const transport = new StdioServerTransport();
+await server.connect(transport);
+````
+
+这段代码创建 MCP 服务器，并添加名为 `add` 的工具（tool），用于计算两个数字的和。它还添加名为 `greeting` 的资源，根据用户姓名动态生成问候语。最后，服务器通过标准输入和输出处理消息。
+
+<Ads3 />
+### 6. 构建并运行服务器
+
+现在构建并运行 MCP 服务器。先编译 TypeScript 代码，再运行编译结果。
+
+```bash
+npx tsc
+node dist/index.js
+```
+
+正常启动后，MCP 服务器会等待标准输入，并可以与客户端通信。
+
+#### 使用 npm 脚本自动执行
+
+如果每次输入 `npx tsc` 和 `node dist/index.js` 比较麻烦，可以按下例修改 `package.json` 的 `scripts` 项。
+
+````json
+"scripts": {
+  "build": "tsc",
+  "start": "node dist/index.js",
+  "dev": "npm run build && npm run start"
+}
+````
+
+现在就能通过以下命令构建并运行 MCP 服务器。
+
+````
+npm run dev
+````
+
+开发期间，使用脚本可以更方便地反复运行服务器。
+
+<Ads4 />
+## 常见问题与解决方法
+
+### 问题 1：模块解析错误
+
+**错误信息**：
+
+```
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '@modelcontextprotocol/sdk/server/mcp.js'
+```
+
+**解决方法**：
+
+在 TypeScript 中使用 ES 模块时，必须显式写出 `.js` 扩展名。也请确认 `tsconfig.json` 中的 `moduleResolution` 已设为 `Node`。
+
+### 问题 2：缺少类型定义
+
+**错误信息**：
+
+```
+Cannot find name 'process'.
+```
+
+**解决方法**：
+
+需要安装 `@types/node`，并在 `tsconfig.json` 中添加如下内容。
+
+````json
+{
+  "compilerOptions": {
+    "types": ["node"]
+  }
+}
+````
+
+## 结语
+
+本文从 MCP 的概念讲起，逐步介绍了如何使用 TypeScript SDK 搭建 MCP 服务器。MCP 让 LLM 以更安全、更一致的方式使用外部数据和功能。SDK 组织得很清晰，搭建服务器相对容易，可以试着扩展不同的功能。
+
+### 进一步思考
+
+- 如何添加认证功能来增强 MCP 服务器的安全性？
+- 能否组合多个 MCP 资源来实现更复杂的功能？
+
+### 参考资料
+
+- https://github.com/modelcontextprotocol/typescript-sdk
+- https://modelcontextprotocol.io/

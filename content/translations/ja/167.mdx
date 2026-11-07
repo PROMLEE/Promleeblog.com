@@ -1,0 +1,94 @@
+---
+post_id: '167'
+locale: ja
+title: ExpoのDevelopment Buildを設定する
+description: Expoで開発ビルドを設定し、ネイティブコードを変更できる環境を作る方法を説明します。
+source_hash: 1e58ac2f1c997587c0c5fe72eec6e66991c7a8f729fdfecb366737d250a04452
+reviewed_at: '2026-11-07T07:01:26.070Z'
+---
+## はじめに
+> この記事では、基本的なExpoプロジェクトを作成済みとします。作成方法は[Windows版](/blog/post/117-expo-proj-init)、[Mac版](/blog/post/143-expo-init-mac)を参照してください。
+
+### Expo Goアプリの制約
+開発ビルドを説明する前に、標準で使うExpo Goアプリを見ていきます。
+> npx create-expo-app で最初のReact Nativeプロジェクトを作成し、npx expo start で起動したときは、開発にExpo Goを使ったかもしれません。Expo Goは、すぐにコードを書き始められるようにExpoが開発し、Google PlayストアやApple App Storeに公開したネイティブアプリです。複数のネイティブライブラリを含む*サンドボックスアプリ*です。依存関係の一覧も参照してください。ローカルのコンピューターでアプリのJavaScriptコードを更新し、Expo Goで変更を確認できます。（出典 [Expo公式ドキュメント](https://docs.expo.dev/develop/development-builds/introduction/)）
+
+簡単に言えば、ビルド済みのExpo Goアプリを器にして、JavaScriptを修正し、結果をすぐ確認できる開発環境です。便利ですが、ネイティブコードは変更できません。そのため、一部のライブラリやプッシュ通知などはExpo Goで動かないことがあります。Expoはこの問題に対応するため、ネイティブコードを変更できる手段を用意しています。それを扱いやすくしたものが開発ビルド（Development Build）です。
+
+<Ads1 />
+## expo-dev-clientをインストールする
+### expo-dev-clientとは？
+Expo Goには開発者向けメニューが組み込まれているので、別途追加する必要はありません。実行中のターミナルでキーボードのmを押すと表示されるメニューです。expo-dev-clientを使えば、このメニューを開発ビルドでも使えます。
+<Img src="/posts/250325-163844.webp" width={200} alt=""/>
+
+### インストール
+```bash
+npx expo install expo-dev-client
+```
+<Ads2 />
+## ネイティブアプリをビルドする
+主な方法は、EASを使う方法と、ローカル環境でビルドする方法の2つです。
+### EASでビルドする
+#### EASとは？
+EASはExpo Application Servicesの略で、Expoが提供するクラウドサービスです。ビルド、アップデート、提出のワークフローに対応するツールで、AndroidとiOS向けのアプリを作れます。ストアに公開する場合や、複数人で開発する場合に適しています。ビルド結果はローカルに自動でインストールされず、利用量にも制限がある点に注意してください。
+始める前に、次のコマンドでEAS CLIをインストールしてログインします。
+```bash
+npm install -g eas-cli
+eas login
+```
+
+#### Androidのビルド
+```bash
+eas build --platform android --profile development
+```
+#### iOSのビルド
+iOSシミュレーター向けにビルドする場合、ルートフォルダーに `eas.json` を追加し、次のように書きます。
+```json
+{
+  "build": {
+    "development": {
+      "ios": {
+        "simulator": true
+      }
+    }
+  }
+}
+```
+次のコマンドを実行します。
+```bash
+eas build --platform ios --profile development
+```
+
+### ローカル環境でビルドする
+#### Androidのビルド
+```bash
+npx expo run:android
+```
+#### iOSのビルド
+```bash
+npx expo run:ios
+```
+実機向けにビルドする場合は、次のコマンドを使います。
+```bash
+npx expo run:ios --device
+```
+### ビルドが終わったら
+#### EASでビルドした場合
+例えばiOSシミュレーター用のビルドが完了すると、自動的にダウンロードするか尋ねられます。[Expoダッシュボード](https://expo.dev/)でも、ビルドが作られたことを確認できます。
+<Img src="/posts/250325-170558.webp" width={400} alt=""/>
+ビルドを選んでダウンロードすると、`~.tar.gz` ファイルを取得できます。展開して出てきたパッケージをシミュレーターにドラッグ＆ドロップすると、アプリがインストールされます。
+<Img src="/posts/250325-171554.webp" width={500} alt=""/>
+
+### ローカルでビルドした場合
+ビルドが終わると、シミュレーターにアプリがインストールされます。Expo Goを使わず、ネイティブコードを変更できる開発環境ができました。`npm start` で起動し、`s` を押して開発ビルドのアプリを開き、作業を進められます。
+<Img src="/posts/250325-172001.webp" width={300} alt=""/>
+
+<Ads3 />
+## おわりに
+プロジェクトのルートには、対象OSのビルドに応じたフォルダー（ios、android）が作られます。その中にあるネイティブコードを編集し、Expo Goでは確認できなかった変更を試せるようになります。
+
+### もう少し考えてみる
+- デプロイを自動化するには、どのような方法があるでしょうか。
+### 参考
+- [Expo公式ドキュメント - Create a development build](https://docs.expo.dev/develop/development-builds/create-a-build)
+- [Expo公式ドキュメント - EAS Build](https://docs.expo.dev/build/introduction/)

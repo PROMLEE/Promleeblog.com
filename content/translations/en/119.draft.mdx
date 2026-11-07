@@ -1,0 +1,95 @@
+---
+post_id: '119'
+locale: en
+title: Installing Homebrew on macOS
+description: >-
+  Install Homebrew, manage packages and applications, and configure the shell
+  environment on macOS.
+source_hash: 8f00d5400796fd7c7db10f8128278a806d6f7fc6284f5d1fd95b3a610006ceb1
+---
+## Before getting started
+### What is Homebrew?
+>Homebrew is the easiest and most flexible way to install the UNIX tools Apple didn’t include with macOS.
+It can also install software not packaged for your Linux distribution without requiring sudo.
+> Homebrew is the easiest and most flexible way to install UNIX tools that macOS does not include.
+It can also install software not packaged for your Linux distribution without requiring sudo.
+
+[Homebrew documentation](https://docs.brew.sh/Manpage)
+It is useful for installing packages and casks, or applications, on macOS.
+### Supported packages
+Browse supported packages and casks at the following links.
+[Homebrew formula list](https://formulae.brew.sh/formula/)
+[Homebrew cask list](https://formulae.brew.sh/cask/)
+[Homebrew search](https://formulae.brew.sh/)
+
+#### Examples
+- [visual-studio-code](https://formulae.brew.sh/cask/visual-studio-code)
+- [node](https://formulae.brew.sh/formula/node)
+- [python](https://formulae.brew.sh/formula/python@3.9)
+- [yarn](https://formulae.brew.sh/formula/yarn)
+...
+
+## Installing Homebrew
+Open a terminal and enter the following command.
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+During installation, follow the prompts, including confirmation requests and password entry.
+Once installation finishes, run the following command to verify it.
+```bash
+brew --version
+```
+If installation succeeded, a version is displayed as follows.
+```bash
+Homebrew 4.3.18
+```
+<Ads1 />
+
+## Installing packages
+Find the package you want under [supported packages](#지원하는-패키지) and install it.
+For example, search for Notion, copy the command shown on the page, and paste it into the terminal.
+<Img src="/posts/240831-151225.png" width={500} alt="https://formulae.brew.sh/cask/notion"/>
+```bash
+brew install --cask notion
+```
+<Img src="/posts/240831-151506.png" width={800} alt="Notion installation complete"/>
+A completion message appears when installation finishes.
+You can find the installed application in Launchpad.
+
+## Troubleshooting
+### Configuring environment variables
+If brew does not work after installation, you may need to configure the environment.
+Enter the following command in the terminal.
+```bash
+echo "eval "$(/opt/homebrew/bin/brew shellenv)"" >> ~/.zshrc
+source ~/.zshrc
+```
+Reopen the terminal and run brew to check that it works.
+```bash
+brew --version
+brew doctor # 홈브루의 상태 확인
+```
+<Ads2 />
+## Conclusion
+Homebrew can install, uninstall, update, and search for packages.
+It simplifies package management and lets you manage package versions.
+You can even create packages of your own.
+It is an almost indispensable tool for MacBook users, so I recommend trying it.
+
+
+### Further ideas
+#### Creating a package
+- [Creating a Homebrew formula](https://docs.brew.sh/Formula-Cookbook)
+- [Creating a Homebrew cask](https://docs.brew.sh/Cask-Cookbook)
+#### Other Homebrew commands
+> brew update: Update Homebrew.
+> brew upgrade [package-name]: Update an installed package.
+> brew list: List installed packages.
+> brew search [package-name]
+> brew uninstall [package-name]
+> brew info [package-name]
+> brew cleanup: Remove unused packages.
+> brew doctor: Check Homebrew's condition.
+
+### References
+[Homebrew official documentation](https://docs.brew.sh/Manpage)

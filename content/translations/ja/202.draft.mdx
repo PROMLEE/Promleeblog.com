@@ -1,0 +1,201 @@
+---
+title_ko: 'React(TanStack) Query 사용법 기초 (React Native, Expo)'
+title_en: React(TanStack) Query Guide for React Native (Expo)
+desc: >-
+  React Native(Expo) 환경에서 TanStack Query를 사용하는 법을 설치부터 네트워크 상태, 포커스 관리, 쿼리 작성까지
+  JSONPlaceholder API 예제와 함께 자세히 설명합니다.
+thumbnail_url: 'https://tanstack.com/_build/assets/logo-color-100w-br5_Ikqp.png'
+metatag: >-
+  react native, expo, react query, tanstack query, 모바일 상태 관리, 데이터 패칭,
+  JSONPlaceholder, useQuery, netinfo, expo-network
+post_id: '202'
+locale: ja
+title: React Native・ExpoでTanStack Queryを使う
+description: >-
+  React NativeとExpoでTanStack
+  Queryを導入し、ネットワーク・フォーカス管理やクエリをJSONPlaceholderの例で学びます。
+source_hash: 7593c4fb77fff1d9bc2f6f06a1323a38eb5628d4bfce15d40366a8f2f557ca5b
+---
+## はじめに
+React Nativeアプリでは、外部APIからの取得やサーバーへの保存がよく発生します。
+単に`fetch`を使うだけだと、読み込み、エラー処理、キャッシュなど、繰り返し現れるパターンを毎回実装する必要があり、手間がかかります。
+*TanStack Query*を使えば、データ取得を簡単かつ安定して処理できます。
+今回はReact Native（Expo）でのインストールと利用方法を、基礎から例とともに説明します。
+## TanStack Queryとは
+サーバーから取得したデータを効率的に管理する状態管理ライブラリです。
+以前はReact Queryという名前でしたが、現在は多様なプラットフォームに対応する汎用ツールになっています。
+React Nativeでも、次のような場面で役立ちます。
+- サーバーのデータをキャッシュし、同じ要求の重複を避けたい
+- ネットワーク接続やアプリのフォーカスに応じて、自動で再取得したい
+- エラーや読み込み状態を自動処理したい
+## インストールとExpoの設定
+React Native（Expo）のプロジェクトには、次のようにインストールします。
+
+```bash
+npx expo install @tanstack/react-query
+npm i -D @tanstack/eslint-plugin-query
+```
+<Ads1 />
+## QueryClientProviderを設定する
+インストール後は`QueryClient`を作り、アプリの最上位を`QueryClientProvider`で囲みます。
+
+```tsx
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+const queryClient = new QueryClient();
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      {/* 앱 컴포넌트들 */}
+    </QueryClientProvider>
+  );
+}
+```
+これで、アプリ全体からTanStack Queryを利用できます。
+## useQueryの基本
+最も基本的な使い方として、JSONPlaceholderのユーザーAPI（`/users`）を取得し、一覧表示します。
+
+```tsx
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { FlatList, Text, View } from 'react-native';
+
+const fetchUsers = async () => { // 정보를 fetch하는 함수
+  const res = await axios.get('https://jsonplaceholder.typicode.com/users');
+  return res.data;
+};
+
+export default function UserList() {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['users'], // 쿼리의 고유 식별자
+    queryFn: fetchUsers, // 정보를 fetch하는 함수
+  });
+
+  if (isLoading) return <Text>불러오는 중...</Text>;
+
+  if (isError) return <Text>오류 발생: {(error as Error).message}</Text>;
+
+    return (
+    <FlatList
+      data={data}
+      keyExtractor={(item) => item.id.toString()}
+      renderItem={({ item }) => <Text>{item.name}</Text>}
+    />
+  );
+}
+```
+
+<Ads2 />
+## queryKeyの重要性
+`queryKey`は要求を区別し、キャッシュを適用するうえで重要です。
+配列で記述し、パラメーターに応じて構成を変えられます。
+
+```tsx
+useQuery({
+  queryKey: ['user', userId],
+  queryFn: () => fetchUser(userId),
+});
+```
+`userId`が異なると、別のクエリとして認識され、それぞれのキャッシュを使います。
+
+## アプリのフォーカスに応じたrefetch
+アプリがフォーカスを得たときに自動で再実行したければ、`AppState`と`focusManager`を使います。
+
+```tsx
+import { useEffect } from 'react';
+import { AppState, Platform } from 'react-native';
+import { focusManager } from '@tanstack/react-query';
+function onAppStateChange(status) {
+  if (Platform.OS !== 'web') {
+    focusManager.setFocused(status === 'active');
+  }
+}
+useEffect(() => {
+  const subscription = AppState.addEventListener('change', onAppStateChange);
+  return () => subscription.remove();
+}, []);
+```
+## React Navigationで画面表示時に再取得する
+React Navigationでは、`useFocusEffect`を使い、画面へ入るときにデータを更新できます。
+
+```tsx
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+
+export function useRefreshOnFocus(refetch) {
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [])
+  );
+}
+```
+## useMutationの例
+サーバーへデータを登録・更新する場合は`useMutation`を使います。
+次は記事を追加する例です。
+
+```tsx
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
+
+const createPost = async (newPost) => {
+  const res = await axios.post('https://jsonplaceholder.typicode.com/posts', newPost);
+  return res.data;
+};
+
+export function NewPostButton() {
+  const queryClient = useQueryClient(); // 쿼리 클라이언트 인스턴스
+  const mutation = useMutation({
+    mutationFn: createPost, // 뮤테이션 함수
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] }); // 쿼리 데이터 무효화
+    },
+  });
+  return (
+    <Button
+      title="새 글 작성"
+      onPress={() => mutation.mutate({ title: '제목', body: '내용' })} // 뮤테이션 실행
+    />
+  );
+}
+```
+<Ads3 />
+## React NativeでDevtoolsを使う
+ウェブと異なり、React NativeではDevtoolsをそのまま利用できません。
+次のようなツールでクエリの状態を確認できます。
+- [react-query-native-devtools](https://github.com/bgaleotti/react-query-native-devtools)
+- [reactotron-react-query](https://github.com/hsndmr/reactotron-react-query)
+
+### Expoプラグイン
+次のコマンドでプラグインをインストールします。
+
+```bash
+npx expo install @dev-plugins/react-query
+```
+利用するには、次の設定が必要です。
+
+```tsx
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useReactQueryDevTools } from '@dev-plugins/react-query';
+
+const queryClient = new QueryClient({});
+
+export default function App() {
+  useReactQueryDevTools(queryClient); // 디버깅 도구 초기화
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      {/* ... */}
+    </QueryClientProvider>
+  );
+}
+```
+アプリを起動したターミナルでshift + Mを押し、Open `@dev-plugins/react-query`を選ぶと、ブラウザーでデバッグツールを開けます。
+## まとめ
+React Native（Expo）でTanStack Queryを使うと、データ取得、キャッシュ、エラー処理、状態管理を簡単かつ効率的に実装できます。
+モバイルでは特に、ネットワーク接続やフォーカスに合わせてデータを自動同期する機能が役立ちます。
+この記事の例を通して、基礎から実際の使い方まで学んでいただければ幸いです。
+### 参考
+- TanStack Query公式ドキュメント（React Native）：https://tanstack.com/query/latest/docs/framework/react/react-native
+- JSONPlaceholder API：https://jsonplaceholder.typicode.com
+- React Navigation：https://reactnavigation.org
+- Expo公式ドキュメント：https://docs.expo.dev

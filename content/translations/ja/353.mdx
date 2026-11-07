@@ -1,0 +1,243 @@
+---
+title_ko: 실전 예제로 배우는 Zustand - Zustand 기초부터 아키텍쳐 설계까지 3편
+title_en: Learning Zustand with Practical Examples - From Basics to Architecture Part 3
+desc: >-
+  이론은 이제 그만! 실제 To-Do 리스트 앱을 만들며 Zustand의 개념을 실전에서 활용해 봅니다. 타입스크립트로 상태 스토어를
+  설계하고, 효율적인 컴포넌트 구조를 만드는 방법을 배웁니다.
+thumbnail_url: /zustand-part-3.webp
+metatag: >-
+  Zustand, React, TypeScript, State Management, To-Do App, 실전 예제, 튜토리얼, 컴포넌트 설계,
+  폼 상태 관리, 리액트, 상태 관리, 타입스크립트
+post_id: '353'
+locale: ja
+title: 実践例で学ぶZustand：基礎からアーキテクチャ設計まで3
+description: To-Doリストを作りながら、TypeScriptでのストア設計、フォームの状態管理、効率的なコンポーネント構成を学びます。
+source_hash: 2f5706a90ac2894bae05a90a632e0cee615155b61ab7ff39850af49152c89f59
+reviewed_at: '2026-11-06T14:49:40.709Z'
+---
+## はじめに
+第1回と第2回では、基本操作から`selector`、`shallow`まで詳しく見てきました。
+今回は代表的なウェブアプリの例として、To-Doリストを実際に作ります。
+作業を通して、次の実践的な技術を自然に身に付けます。
+
+- TypeScriptで安全な状態ストアを設計する
+- フォームの状態を効率的に扱う
+- 状態を使うコンポーネントを適切に構造化する
+<br/>
+コードを書き写すだけでなく、なぜこの構造なのか、各コンポーネントが何を担うべきかを考えながら進めます。
+## 手順1：To-Doアプリのストアを設計する
+最初に、すべての状態と動作をまとめる設計図を描きます。
+つまりZustandストアの設計です。
+<br/>
+必要な状態は、To-Doの一覧です。
+動作には、`할 일 추가하기`（追加）、`할 일 완료 처리하기`（完了切り替え）、`할 일 삭제하기`（削除）が必要です。
+
+これを基に、型とストアを定義します。
+
+```typescript title="store/todoStore.ts"
+import { create } from 'zustand';
+
+// 개별 '할 일' 항목에 대한 타입
+export interface Todo {
+  id: number;
+  text: string;
+  isDone: boolean;
+}
+
+// 스토어의 상태(State)에 대한 타입
+interface TodoState {
+  todos: Todo[];
+}
+
+// 스토어의 행동(Actions)에 대한 타입
+interface TodoActions {
+  addTodo: (text: string) => void;
+  toggleTodo: (id: number) => void;
+  removeTodo: (id: number) => void;
+}
+
+// create 함수로 스토어를 생성합니다.
+export const useTodoStore = create<TodoState & TodoActions>((set) => ({
+  // 초기 상태
+  todos: [
+    { id: 1, text: 'Zustand 공부하기', isDone: true },
+    { id: 2, text: 'To-Do 앱 만들기', isDone: false },
+  ],
+
+  // 할 일을 추가하는 액션
+  addTodo: (text) => 
+    set((state) => ({
+      todos: [
+        ...state.todos,
+        { id: Date.now(), text, isDone: false },
+      ],
+    })),
+
+  // 할 일의 완료 상태를 변경하는 액션
+  toggleTodo: (id) =>
+    set((state) => ({
+      todos: state.todos.map((todo) =>
+        todo.id === id ? { ...todo, isDone: !todo.isDone } : todo
+      ),
+    })),
+  
+  // 할 일을 삭제하는 액션
+  removeTodo: (id) =>
+    set((state) => ({
+      todos: state.todos.filter((todo) => todo.id !== id),
+    })),
+}));
+```
+- **`Todo`型**：各項目の`id`、`text`、`isDone`を定義します。
+- **`TodoState`**：唯一の状態である`todos`配列を定義します。
+- **`TodoActions`**：更新関数`addTodo`、`toggleTodo`、`removeTodo`のシグネチャを定義します。
+- **`create`**：`set`で各アクションの状態更新を実装します。`map`と`filter`で不変性を保ちながら配列を更新する点に注目してください。
+
+<Ads1/>
+
+## 手順2：コンポーネントを設計・実装する
+ストアができたので、ユーザーが操作する画面を作ります。
+良い設計は、各コンポーネントの役割と責任を明確に分けることから始まります。
+
+- **`TodoInput.tsx`**：新しい項目の入力と追加ボタン。
+- **`TodoList.tsx`**：ストアの`todos`を取得し、一覧を表示する。
+- **`TodoItem.tsx`**：一つの項目と、完了・削除のボタンを表示する。
+
+> 図の案：Appの下にTodoInputとTodoListがあり、TodoListの下に複数のTodoItemが並ぶツリー図です。全コンポーネントから中央のuseTodoStoreへ矢印を引き、画面構造とストアの関係を示します。
+<Img src="/250730-221136.webp" width={400} alt="コンポーネントと状態の構造"/>
+### `TodoInput.tsx`：フォームの状態
+新しい項目を入力する`input`の値は、追加ボタンを押すまで他のコンポーネントと共有する必要がありません。
+典型的な*ローカル状態*です。
+そのため、`useState`で管理するのが効率的です。
+
+```tsx title="components/TodoInput.tsx"
+import React, { useState } from 'react';
+import { useTodoStore } from '../store/todoStore';
+
+export function TodoInput() {
+  // 입력값은 컴포넌트 내부의 지역 상태로 관리
+  const [text, setText] = useState('');
+  
+  // 스토어에서 'addTodo' 액션만 선택하여 가져옴
+  const addTodo = useTodoStore((state) => state.addTodo);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!text.trim()) return; // 비어있는 입력은 추가하지 않음
+
+    addTodo(text); // 전역 스토어의 액션을 호출
+    setText('');   // 입력 필드 초기화
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="새로운 할 일을 입력하세요..."
+      />
+      <button type="submit">추가</button>
+    </form>
+  );
+}
+```
+`addTodo`だけを`selector`で取得している点に注目してください。
+`todos`が変わっても、`TodoInput`が不要に再描画されなくなります。
+
+### `TodoList.tsx`と`TodoItem.tsx`：一覧と操作
+`TodoList`はストアから`todos`を取り、各項目を`TodoItem`として描画するだけです。
+
+```tsx title="components/TodoList.tsx"
+import { useTodoStore, Todo } from '../store/todoStore';
+import { TodoItem } from './TodoItem';
+
+export function TodoList() {
+  // 스토어에서 todos 배열만 선택하여 가져옴
+  const todos = useTodoStore((state) => state.todos);
+
+  return (
+    <ul>
+      {todos.map((todo: Todo) => (
+        <TodoItem key={todo.id} todo={todo} />
+      ))}
+    </ul>
+  );
+}
+```
+完了や削除など、実際の操作は`TodoItem`で行います。
+Zustand 4以降では、useShallowを使って適用する必要があります。
+
+```tsx title="components/TodoItem.tsx"
+import { useTodoStore, type Todo } from "../store/todoStore";
+import { useShallow } from "zustand/shallow";
+
+interface TodoItemProps {
+  todo: Todo;
+}
+
+export function TodoItem({ todo }: TodoItemProps) {
+  // toggleTodo와 removeTodo 두 개의 액션을 가져옴
+  const { toggleTodo, removeTodo } = useTodoStore(
+    useShallow((state) => ({
+      toggleTodo: state.toggleTodo,
+      removeTodo: state.removeTodo,
+    })),
+  );
+
+  return (
+    <li>
+      <span
+        onClick={() => toggleTodo(todo.id)}
+        style={{ textDecoration: todo.isDone ? "line-through" : "none" }}
+      >
+        {todo.text}
+      </span>
+      <button onClick={() => removeTodo(todo.id)}>삭제</button>
+    </li>
+  );
+}
+
+```
+`TodoItem`には`toggleTodo`と`removeTodo`の二つのアクションが必要です。
+第2回で学んだように、複数の状態やアクションをオブジェクトにまとめて取得するときは、不要な再描画を避けるために`useShallow`を併用します。
+<Img src="/250730-220727.webp" width={400} alt="完成したTODOリスト"/>
+<Ads2/>
+
+## ページをまたぐ共有状態の仕組み
+作成したTo-Doアプリは単一ページです。
+しかし、実際のプロジェクトには複数ページがあることが多いでしょう。
+設定ページで「完了済みを隠す」フィルターを有効にしたら、メインのTo-Do一覧へ即座に反映したい状況を考えます。
+<br/>
+これが*ページをまたぐ共有状態*の必要な場面で、Zustandなら簡単に解決できます。
+`prop drilling`は不要で、どのページからも同じ`useTodoStore`を呼ぶだけです。
+フィルターの状態を追加します。
+
+```typescript title="store/todoStore.ts"
+// ... 기존 타입 정의
+
+interface TodoState {
+  todos: Todo[];
+  filter: 'all' | 'done' | 'undone'; // 필터 상태 추가
+}
+
+interface TodoActions {
+  // ... 기존 액션들
+  setFilter: (filter: 'all' | 'done' | 'undone') => void; // 필터 변경 액션 추가
+}
+
+// ... create 함수 내부
+// ... 기존 상태 및 액션들
+filter: 'all',
+setFilter: (newFilter) => set({ filter: newFilter }),
+```
+設定ページでは`setFilter`を呼び、To-Doページの`TodoList`では`todos`と`filter`を取得して、絞り込んだ一覧を表示するだけです。
+どのページでも同じストアを見るため、状態は常に同期されます。
+
+## まとめ
+To-Doアプリを作り、理論で学んだZustandの概念を実際に使いました。
+TypeScriptでストアの型を明確に定義し、`useState`のローカル状態とZustandのグローバル状態を、役割に応じて分けました。
+また、`selector`と`useShallow`を適切に使い、コンポーネントの責任を分離しながら性能も考慮する設計を学びました。
+
+### 参考
+- [Zustand公式ドキュメント](https://github.com/pmndrs/zustand)

@@ -1,0 +1,85 @@
+---
+title_ko: Next.js 데이터 패칭 완전 정복 5 - 종합 정리와 전략 선택 가이드
+title_en: >-
+  Complete Guide to Data Fetching in Next.js 5 - Strategy Summary & Best
+  Practices
+desc: '지금까지 배운 Next.js의 데이터 패칭 방식들을 종합 정리하고, 상황에 맞는 최적의 전략 선택 가이드를 제공합니다.'
+thumbnail_url: /250404-093858.webp
+metatag: 'nextjs, data fetching, 전략 정리, 서버 컴포넌트, 클라이언트 컴포넌트, 캐싱'
+post_id: '182'
+locale: en
+title: 'Next.js Data Fetching, Part 5: Strategy Summary and Selection Guide'
+description: >-
+  Compare Next.js data-fetching approaches and choose strategies for static
+  content, authenticated dashboards, interactions, and frequently changing data.
+source_hash: fb9191df73549c3301c245a9c194fbcbf4d679842af54563ad1c3c086af59c75
+---
+## Before getting started
+We have explored several ways of fetching data in Next.js App Router.
+This final part summarizes the series and provides a *practical guide* to selecting a strategy for each situation.
+## Data-fetching strategy summary
+| Strategy: Click for details | Location | When it runs | Advantages | Disadvantages |
+|------|------|------------|------|------|
+| [Fetch in server components](/blog/post/178-nextjs-fetching-1#fetch-함수-기본) | `app/page.tsx`, `app/layout.tsx`, etc. | Before HTML generation | Fast loading and good SEO | Unsuitable for dynamic interactions |
+| [Client component + useEffect](/blog/post/180-nextjs-fetch-3#클라이언트-컴포넌트에서의-데이터-패칭) | A `'use client'` component | After mounting | Can fetch after user interactions | Initial loading may be slower |
+| [SWR or React Query](/blog/post/180-nextjs-fetch-3#swr을-활용한-클라이언트-패칭) | Client component | After mounting, with caching | Automates caching, revalidation, and refetching | May increase bundle size |
+| [Route handler: API](/blog/post/181-nextjs-fetch-4#라우트-핸들러를-이용한-api-구성) | `app/api/**` | When a separate server API is needed | Can provide backend functionality | Requires additional configuration |
+| [ISR: revalidate](/blog/post/179-nextjs-fetch-2#재검증을-통한-isr증분-정적-재생성) | Server component | Cache plus regeneration | Improves data freshness | Keeps cached data during the configured interval |
+| [no-store](/blog/post/179-nextjs-fetch-2) | Server component | Always fresh data | Fetches anew on each request | Higher performance cost |
+
+<Ads1 />
+## Recommended strategies by situation
+### 1. Static content pages, such as blogs and documentation
+- Use *server components with default fetch*.
+- Configure an update interval with `revalidate` if necessary.
+```ts
+fetch('https://api.example.com/docs', {
+  next: { revalidate: 3600 }, // 1시간마다 갱신
+});
+```
+### 2. Dashboards for authenticated users
+- *Read an authentication token with cookies(), then fetch*, or:
+- *Use a route-handler API with cache-tag invalidation*.
+```ts
+const cookieStore = cookies();
+const token = cookieStore.get('auth');
+await fetch('https://api.example.com/user', {
+  headers: { Authorization: `Bearer ${token?.value}` },
+});
+```
+### 3. Data changes after user actions, such as button presses
+- *Use SWR* in a client component.
+```ts
+'use client';
+const { data, mutate } = useSWR('/api/posts', fetcher);
+// 사용자 액션 후 mutate()
+```
+### 4. Real-time or frequently changing data
+- Use `cache: 'no-store'`.
+- Alternatively, fetch periodically on the client with SWR or polling.
+```ts
+await fetch('https://api.example.com/status', { cache: 'no-store' });
+```
+<Ads2 />
+## Next.js's direction and philosophy
+Next.js follows a *server-first* rendering philosophy.
+Together with the *Server Components* concept introduced in React 18, it encourages minimizing client code and fetching on the server wherever possible.
+Benefits include:
+- Smaller client JavaScript bundles.
+- Faster initial page loads.
+- SEO optimization.
+- Better code separation and security.
+However, client-side behavior is sometimes essential, so a *balanced choice* matters.
+## Conclusion
+Across five parts, this series covered Next.js data fetching from basics to advanced techniques: `fetch`, caching strategies, SWR, route handlers, and cache invalidation.
+We covered most of the situations needed in real projects.
+Next.js data fetching is closely connected to React, so understanding *React's data flow* is important too.
+In the App Router era, that flow is becoming increasingly *server-centered*.
+Use this guide when planning your next strategy.
+### Further questions
+- How do React Query and SWR differ?
+- How would you fetch GraphQL data in a server component?
+### References
+- [Next.js official documentation: Data Fetching](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching)
+- [Next.js caching strategies](https://nextjs.org/docs/app/building-your-application/caching)
+- [SWR vs. React Query](https://swr.vercel.app/docs/with-react-query)

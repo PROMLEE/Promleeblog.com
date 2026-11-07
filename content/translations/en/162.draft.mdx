@@ -1,0 +1,176 @@
+---
+title_ko: 파이썬 내장 자료구조 정리
+title_en: Python Built-in Data Structures Summary
+desc: >-
+  파이썬 내장 자료구조인 리스트, 튜플, 딕셔너리, 세트에 대해 정리합니다. Let's learn about Python built-in
+  data structures such as lists, tuples, dictionaries, and sets.
+thumbnail_url: >-
+  https://s3.dualstack.us-east-2.amazonaws.com/pythondotorg-assets/media/community/logos/python-logo-only.png
+metatag: '코딩 테스트용 파이썬 자료구조, 파이썬 리스트, 파이썬 튜플, 파이썬 딕셔너리, 파이썬 세트'
+post_id: '162'
+locale: en
+title: Python's Built-in Data Structures
+description: 'A practical overview of Python lists, tuples, dictionaries, and sets.'
+source_hash: db48469b3071bc904ca6078767d48e4c8cc1f9ecdab259108ea669096808b3f3
+---
+## Lists
+A list stores multiple items in order, supports adding and removing data freely, and preserves that order.
+Items can be accessed by index, and lists provide operations such as copying, slicing, and sorting.
+This is one of the most frequently used data structures, with the following time complexities.
+| Operation | Time complexity |
+|---|---|
+| Lookup | O(1) |
+| Addition | O(1) |
+| Deletion | O(n) |
+| Search | O(n) |
+| Sorting | O(n log n) |
+```python
+ # 과일 이름들을 저장하는 리스트 예제
+fruits = ["apple", "banana", "cherry"]
+
+ # 인덱스로 조회
+print("First fruit:", fruits[0])  # 결과: apple
+
+ # 리스트 뒤집기
+reversed_fruits = fruits[::-1]
+print("Reversed:", reversed_fruits)  # 결과: ['cherry', 'banana', 'apple']
+
+ # 역방향으로 정렬
+fruits.sort(reverse=True)
+print("Reverse sorted:", fruits)  # 결과: ['cherry', 'banana', 'apple']
+
+ # 정렬
+fruits.sort()
+print("Sorted:", fruits)  # 결과: ['apple', 'banana', 'cherry']
+
+ # 리스트에 새로운 과일 추가하기
+fruits.append("orange")
+print("After append:", fruits)  # 결과: ['apple', 'banana', 'cherry', 'orange']
+
+ # 특정 위치에 과일 추가하기
+fruits.insert(1, "kiwi")
+print("After insert:", fruits)  # 결과: ['apple', 'kiwi', 'banana', 'cherry', 'orange']
+
+ # 리스트에서 과일 제거하기
+fruits.remove("banana")
+print("After remove:", fruits)  # 결과: ['apple', 'kiwi', 'cherry', 'orange']
+
+ # 인덱스로 삭제
+del fruits[0]
+print("After delete:", fruits)  # 결과: ['kiwi', 'cherry', 'orange']
+
+ # 리스트 슬라이싱
+print("Sliced list:", fruits[1:])  # 결과: ['cherry', 'orange']
+
+ # pop() 메서드로 마지막 요소 제거
+fruits.pop()
+print("After pop:", fruits)  # 결과: ['kiwi', 'cherry']
+```
+
+### Caution: Copying lists
+Take care when copying a list.
+Assigning a list to another variable actually makes both variables refer to the same list.
+
+```python
+ # 리스트 복사 예제
+a = [1, 2, 3]
+
+ # 리스트를 다른 변수에 할당
+b = a
+b[0] = 4
+print("List a:", a)  # 결과: [4, 2, 3]
+```
+
+In this situation, use the **copy()** method or slicing to create a new list.
+
+```python
+ # 리스트 복사 방법 1: copy() 메서드 사용
+a = [1, 2, 3]
+b = a.copy()
+b[0] = 4
+print("List a:", a)  # 결과: [1, 2, 3]
+
+ # 리스트 복사 방법 2: 슬라이싱 사용
+a = [1, 2, 3]
+b = a[:]
+b[0] = 4
+print("List a:", a)  # 결과: [1, 2, 3]
+```
+
+### Combining two lists
+Use the **+** operator or the **extend()** method to combine two lists.
+
+```python
+ # 두 리스트 합치기 예제
+list1 = [1, 2, 3]
+list2 = [4, 5, 6]
+
+ # + 연산자 사용
+combined = list1 + list2
+print("Combined list:", combined)  # 결과: [1, 2, 3, 4, 5, 6]
+
+ # extend() 메서드 사용
+list1.extend(list2)
+print("Extended list:", list1)  # 결과: [1, 2, 3, 4, 5, 6]
+```
+
+
+<Ads1 />
+## Tuples
+A tuple is similar to a list, but it is immutable: It cannot be changed after creation.
+Like a list, it can hold multiple values and is often used to store values returned from functions.
+```python
+ # 날짜 정보를 튜플로 저장하기 (수정할 필요가 없는 데이터)
+date_info = (2025, 3, 21)
+print("Date:", date_info)  # 결과: (2025, 3, 21)
+```
+
+## Dictionaries
+A dictionary stores data as key–value pairs.
+It is implemented internally using a hash table, allowing fast lookup by key.
+```python
+ # 학생 이름과 점수를 저장하는 딕셔너리
+student_scores = {"Alice": 90, "Bob": 80, "Charlie": 85}
+
+ # 특정 학생의 점수 확인하기
+print("Alice's score:", student_scores["Alice"])  # 결과: 90
+
+ # 딕셔너리에 새로운 학생 추가하기
+student_scores["David"] = 95
+print("Updated scores:", student_scores)
+```
+<Ads2 />
+
+## Sets
+A set is an unordered collection of unique values.
+It is useful for removing duplicates and performing fast membership tests.
+Sets cannot be accessed by index and support set operations such as union, intersection, and difference.
+```python
+ # 숫자 목록에서 중복을 제거하기 위한 세트
+numbers = {1, 2, 3, 2, 1}
+print("Unique numbers:", numbers)  # 결과: {1, 2, 3}
+
+ # 세트에 새로운 원소 추가하기
+numbers.add(4)
+print("After add:", numbers)
+
+ # 세트에서 원소 제거하기
+numbers.remove(2)
+print("After remove:", numbers) # 결과: {1, 3, 4}
+
+ # 세트 연산: 합집합, 교집합, 차집합
+set1 = {1, 2, 3}
+set2 = {3, 4, 5}
+union = set1 | set2
+intersection = set1 & set2
+difference = set1 - set2
+print("Union:", union)  # 결과: {1, 2, 3, 4, 5}
+print("Intersection:", intersection)  # 결과: {3}
+print("Difference:", difference)  # 결과: {1, 2}
+```
+
+## References
+- [top python testing frameworks](https://www.browserstack.com/guide/top-python-testing-frameworks)
+- [using python for data structures interview](https://www.reddit.com/r/embedded/comments/15ukb3e/using_python_for_data_structures_interview/)
+- [solving programming challenges nested data structures python](https://llego.dev/posts/solving-programming-challenges-nested-data-structures-python/)
+- [airbyte python data structures](https://airbyte.com/data-engineering-resources/python-data-structures)

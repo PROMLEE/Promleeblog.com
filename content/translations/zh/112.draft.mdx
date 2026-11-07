@@ -1,0 +1,85 @@
+---
+post_id: '112'
+locale: zh
+title: 创建Next.js项目并配置Tailwind Typography与Shadcn
+description: 创建并运行Next.js项目，按需配置Shadcn/ui和Tailwind CSS Typography插件。
+source_hash: ed8e0cb6db39ac74da653412c1be89b2731c36835ee0ecfa5c9f501b8c99eb46
+---
+## 开始之前
+先完成开发博客所需的基础配置。
+这篇文章将介绍以下内容。
+
+- 创建Next.js项目
+- 配置Tailwind CSS（Shadcn/ui）
+
+<Bbox>需要安装Node.js 18或更高版本以及npm。</Bbox>
+
+## 创建并运行Next.js项目
+### 创建项目
+执行以下命令，创建Next.js项目。
+```bash
+npx create-next-app@latest
+```
+<Img src="/posts/240709-131008.png" width={500} alt="这里全部使用默认设置。"/>
+1. 输入**项目名称**。
+2. 选择是否使用**TypeScript**。
+	- 如果使用JavaScript，请选择**No**。
+3. 选择是否使用**ESLint**。
+4. 选择是否使用**Tailwind CSS**。
+5. 选择是否创建**'src/'**目录。
+6. 选择是否使用**App Router**（Next.js 13及以上版本支持）。
+	- 如果使用Pages Router，请选择**No**。
+7. 选择是否修改**绝对路径配置**。
+	- 默认配置是**'src/'**目录。
+
+### 运行项目
+项目创建完成后，执行以下命令，将相关包安装或更新到最新版本。
+```bash
+cd {프로젝트 이름}
+npm install next@latest react@latest react-dom@latest
+```
+执行以下命令启动项目。
+```bash
+npm run dev
+```
+项目正常启动后，在浏览器中访问[http://localhost:3000](http://localhost:3000)，就会看到如下页面。
+<Img src="/posts/240709-133009.png" width={2000} alt="此页面由`src/app/page.tsx`文件渲染。"/>
+<Ads1 />
+## 配置Tailwind CSS
+### 安装Shadcn/ui（可选）
+Shadcn/ui是一个使用Tailwind CSS的UI库。
+[Shadcn/ui](https://ui.shadcn.com)
+执行以下命令安装Shadcn/ui。
+tailwind-merge是Shadcn/ui所使用的插件。
+```bash
+npx shadcn-ui@latest init
+npm i tailwind-merge
+```
+<Img src="/posts/240709-135300.png" width={500} alt="这里使用默认配置。"/>
+
+
+### 安装tailwindcss/typography（可选）
+创建Next.js项目时，通常已经完成了Tailwind CSS配置。
+不过，Tailwind CSS会重置HTML标签的样式，因此之后渲染Markdown文件时，原本预期的样式不会生效。
+用于解决这个问题的是`prose`选项。
+`prose`通过`tailwindcss/typography`插件，为渲染出的Markdown内容应用样式。
+执行以下命令安装`tailwindcss/typography`插件。
+```bash
+npm i @tailwindcss/typography
+```
+打开tailwind.config.ts文件，按以下方式添加插件。
+```js title="tailwind.config.ts"
+module.exports = {
+	// ...
+	plugins: [
+		require('@tailwindcss/typography'),
+		// ...
+	],
+	// ...
+}
+```
+
+### 参考资料
+[Next.js官方文档](https://nextjs.org/docs/getting-started)
+[Tailwind CSS官方文档](https://tailwindcss.com/docs)
+[Shadcn/ui官方文档](https://ui.shadcn.com/docs/installation/next)

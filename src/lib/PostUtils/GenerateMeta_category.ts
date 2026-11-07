@@ -1,4 +1,5 @@
-const baseUrl = "https://promleeblog.com";
+import { pageLanguages } from "@/lib/i18n/metadata";
+const baseUrl = "https://www.promleeblog.com";
 
 interface params {
   category: string;
@@ -24,10 +25,11 @@ export const GenerateMeta = ({
   const thumbnail = "icons/android-chrome-512x512.png";
   const flattenedPath = params.subject
     ? `blog/${params.category}/${params.subject}`
-    : `blog/${params.category}`;
+    : params.category ? `blog/${params.category}` : "blog";
   return {
     title,
     description,
+    alternates: { canonical: `${baseUrl}/${flattenedPath}`, languages: pageLanguages(`/${flattenedPath}`) },
     keywords: tags,
     openGraph: {
       title,

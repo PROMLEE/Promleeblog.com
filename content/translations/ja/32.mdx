@@ -1,0 +1,47 @@
+---
+post_id: '32'
+locale: ja
+title: ElGamal暗号
+description: 公開鍵暗号で使われるElGamal暗号について説明します。
+source_hash: accdad5fa5bd67441a6217e286c7bc096ec7105fb738dfae4a36bfba28b9e967
+reviewed_at: '2026-11-06T14:47:19.240Z'
+---
+## ElGamal暗号の概要 (ElGamal Encryption Overview)
+- 確率的な暗号方式です。
+- 決定Diffie–Hellman問題を解くことが困難であれば、IND-CPA (INDistinguishability under Chosen-Plaintext Attack) 安全性を提供します。
+
+<Bbox> 決定Diffie–Hellman問題 (DDH, Decisional Diffie-Hellman) </Bbox>
+
+> $g, g^a, g^b$と$X$が与えられたとき、$X$が$g^{ab}$なのか$g^c$なのかを区別する問題です。cはランダムな値です。
+
+DDH問題が困難と考えられるなら、同じインスタンスのCDH問題も困難です。
+元のElGamal暗号には、乗法的な準同型性があります。
+- $E_{K_{pub}}(M_1) \cdot E_{K_{pub}}(M_2) = E_{K_{pub}}(M_1 \cdot M_2)$
+一般的な変換を使うと、IND-CCA2 (INDistinguishability under Chosen-Ciphertext Attack) 安全性を提供できます。
+
+**乗法的な準同型性**とは、暗号化された値を直接掛け合わせ、その結果を復号すると、元の値同士の積と同じ結果が得られる性質です。
+この性質によって、データのプライバシーを守りながら、暗号化されたまま計算できます。
+<Ads1 />
+## ElGamal暗号の処理 (ElGamal Encryption Process)
+- 鍵生成
+  1. 素数$p$を選びます。
+  2. $\mathbb{Z}_p^*$の部分群$\mathbb{G}$で、生成元$g$を選びます。
+     - この部分群の位数は$q$です。
+  3. $\mathbb{Z}_q$からランダムな元$x$を選び、$X = g^x \pmod{q}$を計算します。
+  4. 公開鍵$\text{pk} = (p, q, g, X)$と秘密鍵$\text{sk} = x$を出力します。
+- 暗号化
+  1. $\mathbb{Z}_q$からランダムな元$r$を選びます。
+  2. $C_1 = g^r$と$C_2 = M \cdot X^r$を計算し、暗号文$CT = (C_1, C_2)$を出力します。
+- 復号
+  1. 秘密鍵$\text{sk} = x$と暗号文$CT = (C_1, C_2)$が与えられたとき、
+  2. $C_2 / (C_1)^x (= M \cdot X^r / (g^r)^x  = M)$を計算し、平文$M$を出力します。
+
+### 例：ElGamal暗号
+$p = 23, q = 11, g = 2, x = 6, M = 9$
+- 公開鍵：$\text{pk} = (23, 11, 2, 8)$、秘密鍵：$\text{sk} = 6$。
+- 暗号化
+  - $r = 3$のとき、
+  - $C_1 = 2^3 = 8$
+  - $C_2 = 9 \cdot 8^3 = 9 \cdot 512 = 4608$
+- 復号
+  - $M = 4608 / 8^6 = 9$

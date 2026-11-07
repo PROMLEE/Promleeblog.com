@@ -1,0 +1,91 @@
+---
+title_ko: GitHub Actions Ubuntu 20.04 지원 종료 및및 대응 방법
+title_en: How to Handle GitHub Actions Ubuntu 20.04 Retirement
+desc: >-
+  GitHub Actions에서 Ubuntu 20.04 러너가 2025년 4월 15일에 지원 종료됨에 따라 발생하는 에러 메시지의 의미와 해결
+  방법을 친절하게 설명합니다.
+thumbnail_url: /250416-190748.webp
+metatag: >-
+  GitHub Actions, Ubuntu 20.04, 러너 지원 종료, CI/CD, 워크플로 에러, github workflows, 런타임
+  환경, 런너 변경, 자동화 테스트, 인프라 마이그레이션
+post_id: '206'
+locale: zh
+title: GitHub Actions 停止支持 Ubuntu 20.04 及应对方法
+description: 解释 GitHub Actions 于 2025 年 4 月 15 日停止支持 Ubuntu 20.04 运行器后可能出现的错误，并介绍解决方法。
+source_hash: 41de70a88ee32bd614d2d9e7365e34e6f4819a18ce5988626988fa87c36aed73
+reviewed_at: '2026-11-07T06:46:43.205Z'
+---
+## 开始之前
+最近使用 GitHub Actions 运行 CI/CD 工作流时，你是否看到过以下警告或错误？
+```
+This is a scheduled Ubuntu 20.04 retirement. Ubuntu 20.04 LTS runner will be removed on 2025-04-15. For more details, see https://github.com/actions/runner-images/issues/11101
+```
+<Img src="/250416-190747.png" width={1000} alt=""/>
+
+这是一项可能影响后续工作流运行的重要公告。本文将逐步解释这条消息的含义、出现的原因及解决方法。
+## 什么是 GitHub Actions 运行器（Runner）？
+先简单了解什么是运行器（Runner）。
+在 GitHub Actions 中，实际执行工作流的环境称为*运行器*。运行器通常基于 Ubuntu、Windows 或 macOS 等操作系统。在工作流文件中写入 `runs-on: ubuntu-20.04` 之类的配置，就是在指定运行器。
+来看下面这个工作流示例。
+```yaml title=".github/workflows/action.yml" {3}
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm install
+```
+在上面的示例中，`runs-on: ubuntu-20.04` 表示这个作业（Job）应在 Ubuntu 20.04 环境中执行。
+<Ads1 />
+## 为什么移除 Ubuntu 20.04 运行器？
+Ubuntu 20.04 是 2020 年 4 月发布的 LTS（Long Term Support，长期支持）版本，通常可获得 5 年支持。出于安全维护和系统资源管理的考虑，GitHub 会定期移除旧运行器镜像，并换用新版本。
+因此，*从 2025 年 4 月 15 日起，GitHub Actions 将彻底移除 `ubuntu-20.04` 运行器*，届时将无法再使用它。
+官方公告见下方链接。
+[https://github.com/actions/runner-images/issues/11101](https://github.com/actions/runner-images/issues/11101)
+## 会出现什么问题？
+2025 年 4 月 15 日之后，使用 `ubuntu-20.04` 的工作流可能会报出以下错误，并停止运行。
+```
+The workflow is using ubuntu-20.04, which is not available.
+```
+这是因为 GitHub 不再提供工作流中指定的操作系统镜像，也就无法运行指定的 `ubuntu-20.04` 环境。
+如果 CI/CD 流水线停止，自动测试、部署和 lint 检查都可能中断，从而对服务运营产生明显影响。
+## 如何解决？
+最稳妥的办法是*将运行器换成较新的 LTS 版本*。以 2025 年为准，推荐使用 `ubuntu-22.04` 作为默认替代版本。
+只需修改工作流文件中的 `runs-on` 配置。例如，可以做如下调整。
+### 修改前
+```yaml
+runs-on: ubuntu-20.04
+```
+### 修改后
+```yaml
+runs-on: ubuntu-22.04
+```
+也可以通过以下命令查看当前可用的运行器列表。
+```bash
+gh run list --json name,status,labels
+```
+还可以通过 GitHub 官方文档查看支持的操作系统版本。
+[GitHub 托管的运行器](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners)
+## 补充提示：升级运行器前先测试
+如果现有工作流使用了依赖 `ubuntu-20.04` 的配置或软件包，直接升级可能让人不放心。可以按以下步骤检查。
+1. 在新分支中添加一个只修改运行器版本的工作流。
+2. 确认工作流在该分支上正常运行。
+3. 所有测试通过后，合并到 main 分支。
+
+也可以使用 `matrix` 策略，同时在两个版本上测试。
+```yaml
+strategy:
+  matrix:
+    os: [ubuntu-20.04, ubuntu-22.04]
+```
+<Ads2 />
+## 结语
+GitHub Actions 提供的 `ubuntu-20.04` 运行器于 2025 年 4 月 15 日结束官方支持，此后无法在工作流中继续使用。
+为了避免出问题，建议提前检查工作流文件，将 `runs-on: ubuntu-20.04` 改为 `ubuntu-22.04` 后进行测试。
+编写在不同运行器环境中仍能产生相同结果的代码，也有助于长期维护。
+## 参考资料
+- GitHub Actions 官方运行器镜像公告： https://github.com/actions/runner-images/issues/11101
+- GitHub 托管运行器官方文档： https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners
+- GitHub CLI： https://cli.github.com/
+

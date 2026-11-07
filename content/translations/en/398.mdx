@@ -1,0 +1,122 @@
+---
+title_en: Summary of React TDD Series - TDD with React Part 15
+title_ko: React TDD 정리 - React로 시작하는 TDD 15편
+url: react-tdd-summary
+series_no: 15
+desc: >-
+  1편부터 14편까지의 여정을 요약하고, TDD 도입 전후의 코드 품질 변화와 앞으로 나아갈 방향(E2E, 시각적 테스트)을 제시하며 시리즈를
+  마무리합니다.
+thumbnail_url: /251228-140145.webp
+metatag: >-
+  React, TDD, Summary, CodeQuality, Refactoring, TestingStrategy, Frontend,
+  Vitest, RTL
+tags: 'React, Javascript, Typescript, Next.js'
+post_id: '398'
+locale: en
+title: 'React TDD Recap — TDD with React, Part 15'
+description: >-
+  Review Parts 1–14, see how TDD changed the code, and explore where to go next
+  with end-to-end and visual regression testing.
+source_hash: af480a096712eae0d779854fb79a3ac7fc96a86ddf7a58d1dc34fa46f2c888d7
+reviewed_at: '2026-11-07T06:52:16.600Z'
+---
+## Before We Begin
+
+Hello!
+We've reached the final part of **TDD with React**. Starting from an empty folder, we set up a project with *Vite*, built a *Counter*, mocked a server with *MSW*, and automated our tests with *CI*.
+<br/>
+At first, you might have wondered whether writing tests would take more time. By now, I hope changing code feels exciting and that you feel **confident** making changes.
+Let's revisit the principles we've learned and talk about how to keep growing as developers.
+
+<Ads1/>
+
+## 1. What We Covered
+
+We learned how to use the tools and developed **habits for building better software**.
+
+- **The tools**
+  We set up a test environment with *Vitest* as the test runner and *React Testing Library* to render components.
+- **The user's perspective**
+  We wrote tests around what users see and click, leaving details like state variable names out of the assertions.
+- **Safe refactoring**
+  With tests as a safety net, we could make larger changes, such as splitting components and extracting hooks.
+- **Asynchronous behavior and mocking**
+  With *MSW*, we could keep developing the frontend before the backend API was ready.
+
+## 2. How TDD Changed Our Code
+
+What changed after we started using TDD?
+
+### Before TDD: Spaghetti Code
+If you don't consider how you'll test the code, UI, business logic, and API calls can get tangled in one component. When the immediate goal is to get something working, it is easy to put everything into `useEffect`.
+
+### After TDD: Separate Responsibilities
+Asking yourself how to test the code pushes you to improve its structure.
+
+```typescript title="src/hooks/useUserList.ts" showLineNumbers
+// [변화] 로직은 Hook으로 분리되어 독립적으로 테스트 가능해졌습니다.
+export function useUserList() {
+  const [users, setUsers] = useState([]);
+  // ... 데이터 fetching 로직
+  return { users };
+}
+```
+
+- **Custom hook** — Separating business logic makes it easier to reuse and test.
+- **Container and presenter** — Separating data handling from rendering simplifies UI tests.
+
+<Ads2/>
+
+## 3. Frontend Testing Strategy: The Testing Trophy
+
+In Part 13, we learned about the *Testing Trophy*. Choose a type of test that fits the behavior you're verifying.
+
+- **Static analysis**
+  Use *TypeScript* and *ESLint* to catch typos and basic errors. These checks give you a lot of coverage for little effort.
+- **Unit tests**
+  Check utility functions or complex hook logic.
+- **Integration tests**
+  These are the **most important**. Use *RTL* to verify how users interact with components.
+- **End-to-end (E2E) tests**
+  Verify critical scenarios such as checkout and sign-in in a real browser.
+
+<Ads3/>
+
+## 4. What to Learn Next
+
+The series is ending, but there are more ways to improve the quality of your frontend.
+
+### E2E Testing with Playwright or Cypress
+We tested in jsdom, a simulated browser environment. To check that styles and navigation work in real browsers such as Chrome and Safari, use an *E2E tool*. We'll cover this in an upcoming **bonus installment**.
+
+### Visual Regression Testing with Storybook or Chromatic
+What if a feature still works but someone accidentally changes the button color? These tools compare screenshots pixel by pixel to check visual details that are hard to verify in code.
+
+### Contract Testing with the Backend
+If the frontend's mock data and the real API specification diverge, the application can fail. Contract testing helps catch that by failing a test when the agreed API specification changes.
+
+<Ads4/>
+
+## Conclusion
+
+Find the source code at [GitHub - Promleeblog/react-tdd-setup](https://github.com/PROMLEE/my-tdd-app). Each installment has its own branch.
+
+```bash title="Terminal"
+git clone https://github.com/PROMLEE/my-tdd-app.git
+cd my-tdd-app
+```
+
+TDD takes time to master. At first it can feel tedious, slow, and frustrating. With steady practice it becomes a habit that helps you write **code that can adapt to change** as well as **code with fewer bugs**.
+<br/>
+<br/>
+<br/>
+<Bbox>
+Thank you for following the series.
+Here's to seeing your tests turn green!
+</Bbox>
+
+### References
+- [Testing JavaScript](https://testingjavascript.com/)
+  Kent C. Dodds's premium course covers frontend testing in depth.
+- [Modern React Testing](https://happey.medium.com/modern-react-testing-part-1-best-practices-8e77227d862e)
+  A series of articles on modern React testing practices.

@@ -1,0 +1,118 @@
+---
+post_id: '25'
+locale: en
+title: Stream Ciphers
+description: >-
+  Stream ciphers, random and pseudorandom numbers, RC4, and an introduction to
+  block-cipher modes.
+source_hash: 875417383e95dac87699d61bc139a8eea86e610c00d43cd56ca57c5ee6b0c588
+---
+## What is a stream cipher?
+> A symmetric-key encryption method that encrypts data bit by bit.
+
+Input: Elements received continuously.
+Output: One element at a time.
+Faster than a block cipher.
+The key is used only once.
+Vulnerable to known-plaintext attacks: $M \oplus C = M \oplus (M \oplus k) = k$.
+Examples: LFSR, RC4, and ChaCha.
+
+## Random numbers
+- Widely used in cryptography:
+	- Private keys in public-key cryptography.
+	- Keys for stream ciphers.
+	- Symmetric keys for temporary sessions.
+- Requirements:
+	- Randomness.
+		- Uniform distribution: Each number should occur with the same frequency.
+		- Independence: No value can be inferred from another.
+	- Unpredictability.
+		- Each number is statistically independent of the others.
+		- No one should be able to predict future elements from earlier elements in the sequence.
+<Ads1 />
+## Random vs. pseudorandom numbers
+- True random number generator (TRNG):
+	- Expensive to implement.
+	- Uses a nondeterministic source.
+	- Measures unpredictable natural processes such as radioactivity, gas discharge, or leakage in a capacitor.
+	- Increasingly available in recent processors.
+- Pseudorandom numbers:
+	- Generates sequences that pass statistical randomness tests.
+	- Uses a deterministic source and is therefore more predictable.
+
+## RC4 overview
+RC stands for Rivest Cipher.
+A stream cipher with a variable key size, built from byte-level operations.
+- Expected to be fast in software.
+
+Based on the use of a random permutation.
+
+## RC4: Initializing S
+S: An array of 256 bytes.
+- Initially contains each number from 0 through 255 once, in ascending order.
+T: A temporary vector whose first keylen elements are copied from k.
+- keylen: Key length.
+- k: The key, repeated as necessary to fill T.
+Use T to permute S.
+```python
+j = 0
+for i=0 to 255 do
+	j = (j + S[i] + T[i]) mod 256;
+	Swap(S[i], S[j]);
+```
+## RC4: Stream generation
+Traverse the elements of S[i].
+```python
+i = 0
+j = 0
+while(true)
+	i = (i + 1) mod 256
+	j = (j + S[i]) mod 256
+	Swap(S[i], S[j])
+	t = (S[i] + S[j]) mod 256
+	k = S[t]
+```
+Encryption: XOR k with the next plaintext byte.
+Decryption: XOR k with the next ciphertext byte.
+<Ads2 />
+## RC4: Security analysis
+With a reasonable key size, such as 128 bits, RC4 is considered secure.
+It is vulnerable in the WEB (Wired Equivalent Privacy) protocol.
+
+# Modes of operation
+## What are modes of operation?
+> Methods for encrypting messages using a block cipher.
+
+A block cipher's limitation: Fixed-length plaintext blocks.
+Modes of operation use a block cipher to encrypt messages of arbitrary length.
+- ECB (Electronic Codebook).
+- CBC (Cipher Block Chaining).
+- CFB (Cipher Feedback).
+- OFB (Output Feedback).
+- CTR (Counter).
+
+## ECB mode (Electronic Codebook)
+Encryption: Encrypt one block at a time.
+- At time n, encrypt $P_n$ → $C_n$.
+Decryption: Decrypt one block at a time.
+- At time n, decrypt $C_n$ → $P_n$.
+
+Advantages:
+- No block synchronization is required.
+- A transmission error affects only its own block.
+- Parallel processing is possible.
+
+Disadvantages:
+- Deterministic encryption.
+- Vulnerable to substitution attacks: Identical plaintext blocks can become identical ciphertext blocks.
+<Ads3 />
+## CBC mode (Cipher Block Chaining)
+Encryption: Uses XOR with the previous block's ciphertext and key K.
+- $C_n = E_K(P_n \oplus C_{n-1})$
+Decryption: Uses XOR with the previous block's ciphertext and key K.
+- $P_n = D_K(C_n) \oplus C_{n-1}$
+
+An initialization vector is required.
+
+## CFB mode (Cipher Feedback)
+Encryption: A mode that encrypts and uses the initialization vector with key K and XOR…

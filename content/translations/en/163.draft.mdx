@@ -1,0 +1,160 @@
+---
+title_ko: 파이썬 외부 자료구조 라이브러리 정리
+title_en: Python External Data Structures Libraries
+desc: '파이썬의 collections, heapq, bisect 모듈을 사용하여 코딩 테스트용 자료구조를 구현하는 방법을 알아봅니다.'
+thumbnail_url: >-
+  https://s3.dualstack.us-east-2.amazonaws.com/pythondotorg-assets/media/community/logos/python-logo-only.png
+metatag: '파이썬, collections, heapq, bisect, 자료구조, 코딩 테스트'
+post_id: '163'
+locale: en
+title: Python Libraries for Data Structures
+description: >-
+  Use collections, heapq, bisect, and itertools for data structures and
+  coding-test problems in Python.
+source_hash: 763c273bb31f458e00005a761de60aaa9c8979085fe9c9bae4786070caa91d03
+---
+## collections
+Python's **collections** module provides classes that complement its built-in data structures.
+### deque
+A deque, or double-ended queue, supports fast insertion and removal at both ends.
+It is useful for implementing a queue or a stack.
+```python
+from collections import deque
+
+ # 양쪽 끝에서 데이터를 추가하고 제거할 수 있는 deque 예제
+d = deque(["a", "b", "c"])
+d.append("d")         # 오른쪽에 추가
+d.appendleft("z")     # 왼쪽에 추가
+print("Deque:", d)    # 결과: deque(['z', 'a', 'b', 'c', 'd'])
+
+d.pop()               # 오른쪽에서 제거
+d.popleft()           # 왼쪽에서 제거
+print("Modified deque:", d)  # 결과: deque(['a', 'b', 'c'])
+```
+### Counter
+Counter counts how many times values appear.
+The following example counts the occurrences of each character in a string.
+```python
+from collections import Counter
+
+ # 문자열에서 각 글자의 등장 횟수를 세기
+text = "apple"
+count = Counter(text)
+print("Letter count:", count)  # 결과: Counter({'p': 2, 'a': 1, 'l': 1, 'e': 1})
+```
+
+### defaultdict
+defaultdict is a dictionary that automatically creates a default value when a missing key is accessed.
+```python
+from collections import defaultdict
+
+ # 기본 값이 0인 딕셔너리 생성
+dd = defaultdict(int)
+dd["apple"] += 1
+dd["banana"] += 2
+print("defaultdict:", dict(dd))  # 결과: {'apple': 1, 'banana': 2}
+```
+
+<Ads1 />
+## heapq
+The **heapq** module provides a min-heap data structure.
+A min-heap makes finding the smallest value fast, which is useful for priority queues and task-scheduling problems.
+### Implementing a min-heap
+Use heapq to turn a list into a min-heap and quickly retrieve its smallest value.
+```python
+import heapq
+
+ # 리스트를 최소 힙으로 변환
+heap = [5, 1, 3, 7, 2]
+heapq.heapify(heap)
+print("Heapified list:", heap)  # 결과: [1, 2, 3, 7, 5]
+
+ # 가장 작은 값을 꺼내기
+smallest = heapq.heappop(heap)
+print("Smallest element:", smallest)  # 결과: 1
+print("Heap after pop:", heap)
+
+ # 새로운 값을 힙에 추가하기
+heapq.heappush(heap, 0)
+print("Heap after push:", heap)  # 결과: [0, 2, 3, 7, 5]
+```
+### Implementing a max-heap
+Since heapq supports only min-heaps, negate the values to implement a max-heap.
+```python
+import heapq
+
+ # 리스트를 최대 힙으로 변환
+heap = [5, 1, 3, 7, 2]
+heap = [-x for x in heap]
+heapq.heapify(heap)
+print("Max heap:", [-x for x in heap])  # 결과: [7, 5, 3, 1, 2]
+
+ # 가장 큰 값을 꺼내기
+largest = -heapq.heappop(heap)
+print("Largest element:", largest)  # 결과: 7
+print("Heap after pop:", [-x for x in heap])
+
+ # 새로운 값을 힙에 추가하기
+heapq.heappush(heap, -4)
+print("Heap after push:", [-x for x in heap])  # 결과: [5, 4, 3, 1, 2]
+```
+
+<Ads2 />
+## bisect
+The bisect module performs binary searches on sorted lists to find insertion positions quickly.
+It can serve as an alternative to binary-search trees and other binary-search data structures.
+```python
+import bisect
+
+ # 이미 정렬된 리스트
+sorted_list = [1, 3, 4, 7, 9]
+
+ # 값 5 가 들어갈 적절한 위치 찾기
+position = bisect.bisect_left(sorted_list, 5)
+print("Insertion point for 5:", position)  # 결과: 3
+
+ # 데이터를 삽입하면 정렬된 상태 유지하기
+bisect.insort_left(sorted_list, 5)
+print("List after insertion:", sorted_list)  # 결과: [1, 3, 4, 5, 7, 9]
+```
+
+<Ads3 />
+## itertools
+The itertools module provides tools for creating iterators, which can simplify loop-based code.
+In simple terms, *combinations* treat (1, 2) and (2, 1) as the same, while *permutations* treat them as different.
+```python
+import itertools
+
+list1 = [1, 2, 3]
+
+ # 조합(Combination)
+combinations = itertools.combinations(list1, 2) # 2개의 요소로 이루어진 모든 조합
+print("Combinations:", list(combinations))  # 결과: [(1, 2), (1, 3), (2, 3)]
+
+ # 순열(Permutation)
+permutations = itertools.permutations(list1, 2) # 2개의 요소로 이루어진 모든 순열
+print("Permutations:", list(permutations))  # 결과: [(1, 2), (1, 3), (2, 1), (2, 3), (3, 1), (3, 2)]
+
+ # 중복 조합(Combination with replacement)
+combinations_with_replacement = itertools.combinations_with_replacement(list1, 2) # 2개의 요소로 이루어진 중복 조합
+print("Combinations with replacement:", list(combinations_with_replacement))  # 결과: [(1, 1), (1, 2), (1, 3), (2, 2), (2, 3), (3, 3)]
+
+ # 중복 순열(Permutation with replacement)
+permutations_with_replacement = itertools.product(list1, repeat=2) # 2개의 요소로 이루어진 중복 순열
+print("Permutations with replacement:", list(permutations_with_replacement))  # 결과: [(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2, 3), (3, 1), (3, 2), (3, 3)]
+
+ # 두 리스트의 모든 조합 구하기
+list1 = [1, 2]
+list2 = ["a", "b"]
+
+combinations = itertools.product(list1, list2)
+print("All combinations:", list(combinations))  # 결과: [(1, 'a'), (1, 'b'), (2, 'a'), (2, 'b')]
+```
+
+
+<Ads4 />
+## References
+- [top python testing frameworks](https://www.browserstack.com/guide/top-python-testing-frameworks)
+- [using python for data structures interview](https://www.reddit.com/r/embedded/comments/15ukb3e/using_python_for_data_structures_interview/)
+- [solving programming challenges nested data structures python](https://llego.dev/posts/solving-programming-challenges-nested-data-structures-python/)
+- [airbyte python data structures](https://airbyte.com/data-engineering-resources/python-data-structures)

@@ -1,0 +1,169 @@
+---
+post_id: '20'
+locale: zh
+title: 常见加密技术
+description: 整理移位、仿射、代换、维吉尼亚、置换密码，以及线性反馈移位寄存器及其常见攻击。
+source_hash: 0db53f94dbbfa9c1a5688ec9795d0941eebb093b68bd11caffbd752bcfa1897e
+---
+## 符号说明（Notation）
+<Math>
+
+```math
+Z_m = {0, 1, ..., m - 1}\\
+g mod p: g를 p로 나눈 나머지\\
+10 mod 3 = 1\\
+729 mod 31 = 16 (729 = 23 * 31 + 16)\\
+-7 mod 26 = 19 (-7 = 26 * (-1) + 19)\\
+평문 공간 = 암호문 공간 = 알파벳 문자들 = \mathbb{Z}_{26}
+```
+</Math>
+
+## 移位密码（Shift Cipher）
+将明文中的每个字符移动固定数量的位置。
+<Math>
+
+```math
+0 <= k <= 25\\
+Enc(K, x) = (x + K) mod \;26 \;\;\;(cf. K = 3: 시저 암호)\\
+Dec(K, y) = (y - K) mod \;26\\
+```
+</Math>
+例如：K = 9。
+加密：
+shift (18 7 8 5 19) → +9 mod 26 → (1 16 17 14 2) BQROC
+解密：
+BQROC (1 16 17 14 2) → -9 mod 26 → (18 7 8 5 19) shift
+
+攻击方式：
+暴力破解：秘密密钥只有26个候选值。
+已知明文攻击：对于示例中的(shift, BQROC)，K = B - s = (1 - 18) mod 26 = 9。
+<Ads1 />
+## 仿射密码（Affine Cipher）
+利用线性代数和模运算的加密方式。
+<Math>
+
+```math
+For K = (\alpha ,\beta ) where \alpha, \beta \in \mathbb{Z}_{26} and gcd(\alpha, 26) = 1\\
+Enc(K, x) = (\alpha x + \beta) mod \;26\\
+Dec(K, y) = \alpha^{-1} (y - \beta) mod \;26\\
+```
+</Math>
+
+### 加密
+<Img src="/posts/240424-213613.png"/>
+
+### 解密
+<Img src="/posts/240424-220105.png"/>
+
+攻击方式：
+- 暴力破解：26 × 12（$\alpha$只能取不是26约数的值）= 312个密钥候选值。
+- 已知明文攻击：例如(hot, AXG)，可以构建联立方程。
+	- $7\alpha + \beta = 0\,mod\,6$
+	- $14\alpha + \beta = 23\,mod\,6$
+
+## 代换密码（Substitution Cipher）
+把明文中的每个字符替换为其他字符。
+<Math>
+
+```math
+Enc(K, x) = \pi(x)\\
+Dec(K, y) = \pi^{-1}(y)\\
+```
+</Math>
+示例：
+<Math>
+
+```math
+\pi = \{A(0) \rightarrow 2, B(1) \rightarrow 7, C(2) \rightarrow 9, ..., Z(25) \rightarrow 19\}\\
+Enc(\pi, C) = \pi(C) = 9 = J 
+Dec(\pi, J) = \pi^{-1}(J) = C
+```
+</Math>
+
+攻击方式：
+- 暴力破解：26!个密钥候选值，约为4 × 10^26。
+- 选择明文攻击：利用n组明文与密文来寻找密钥，候选值变为(26-n)!个。
+- 频率分析（Statistical Test）：分析字母出现频率，寻找密钥。
+
+## 维吉尼亚密码（Vigenère Cipher）
+- 从Monoalphabetic（单表）变为Polyalphabetic（多表）。
+<Math>
+
+```math
+K = K_1 K_2 ... K_n where K_m \in \mathbb{Z}_{26}\\
+Enc(K, x_1 x_2 ... x_m) = (x_1 + K_1) mod \;26, (x_2 + K_2) mod \;26, ..., (x_n + K_m) mod \;26\\
+Dec(K, y_1 y_2 ... y_m) = (y_1 - K_1) mod \;26, (y_2 - K_2) mod \;26, ..., (y_n - K_m) mod \;26\\
+```
+</Math>
+
+相关攻击：
+- 暴力破解：$26^m$个密钥候选值。
+- 唯密文攻击：例如Kasiski测试等统计分析。
+- 已知明文攻击：已知明文时比较容易，前提是m已知。
+
+## 置换密码（Permutation Cipher）
+<Math>
+
+```math
+키 K=\pi\;는 {1,...,m} 의 순열\\ 
+Enc(K, x_1 x_2 ... x_m) =( x_{\pi(1)} x_{\pi(2)} ... x_{\pi(m)})\\
+Dec(K, Y_1 Y_2 ... Y_m) =( Y_{\pi^{-1}(1)} Y_{\pi^{-1}(2)} ... Y_{\pi^{-1}(m)})\\
+```
+</Math>
+
+上面的加密算法可以解释为：
+$$(x_1, ...,x_m)P=(Y_1, ... ,Y_m)$$
+当$P$是可逆矩阵时，就成为Hill加密方式。
+
+相关攻击：
+- 暴力破解：$m!$个密钥候选值。
+- 已知明文或选择明文攻击：需要$m$个**独立的密文**，从而求出$P^{-1}$。
+
+## 线性反馈移位寄存器（Linear Feedback Shift Register，LFSR）
+> 输入比特由先前状态的线性函数决定的移位寄存器。
+
+示例1：满足$$x_{m+3}=x_{m+1}+x_m$$的移位寄存器，是一种线性关系。
+
+示例2：给定初始值$$x_1 = 0, x_2 = 1, x_3 = 0, x_4 = 0$$以及$$x_5 = 0$$，使用线性关系$$x_{m+5}=x_{m}+x_{m+2} mod 2$$，生成的序列为$0100010100110111100011$。
+<Ads2 />
+## LFSR密码（LFSR Cipher）
+<Math>
+
+```math
+선형 함수 f(z_1, z_2, ..., z_m) = \sum^l_{i=1}c_iz_i에 대해, 상수 c_i들과\;\\ 키 K=(k_1, ... , k_l)가 (\mathbb{Z}_2)^l에\; 속함\\
+Enc(K, x_1, x_2, ..., x_m) = (x_1, x_2, ..., x_m) + (k_1, k_2, ..., k_l)\\
+Dec(K, y_1, y_2, ..., y_m) = (y_1, y_2, ..., y_m) + (k_1, k_2, ..., k_l)\\
+k_j = f(k_{j-l}, k_{j-l+1}, ..., k_{j-1}) for l+1<=j<=m\\
+```
+</Math>
+
+攻击方式：
+- 已知明文攻击。
+	<Math>
+
+		```math
+		(x_1, x_2, ..., x_m), (y_1, y_2, ..., y_m)에서 k_1, ... ,k_l를 찾음\\
+		다음과 같이 행렬 구성:\\
+		\begin{bmatrix}
+		k_1 & k_2 & ... & k_l\\
+		k_2 & k_3 & ... & k_{l+1}\\
+		... & ... & ... & ...\\
+		k_{l} & k_{l+1} & ... & k_{2l-1}
+		\end{bmatrix}
+		\begin{bmatrix}
+		c_1\\
+		c_2\\
+		...\\
+		c_l
+		\end{bmatrix}
+		=
+		\begin{bmatrix}
+		k_{l+1}\\
+		k_{l+2}\\
+		...\\
+		k_{2l}
+			
+		\end{bmatrix}
+		```
+	</Math>
+	如果矩阵可逆，就可以求出($c_1, ... ,c_m$)。

@@ -1,0 +1,126 @@
+---
+post_id: '58'
+locale: en
+title: 'GRASP: Assigning Responsibilities in Object-Oriented Design'
+description: >-
+  An introduction to the nine GRASP patterns, object responsibilities, coupling,
+  and cohesion in software design.
+source_hash: 4df9c52b94b8f749873401ab53416c44b6d87c009c75596ddecf99440d9501d8
+reviewed_at: '2026-11-07T06:51:36.498Z'
+---
+## What Is GRASP?
+**G**eneral **R**esponsibility **A**ssignment **S**oftware **P**atterns
+- A set of software patterns for assigning responsibilities.
+
+Common tasks in object-oriented analysis and design (OOAD) include:
+- Identifying requirements.
+- Creating a domain model.
+- *Creating a design model*.
+  - *Adding attributes and methods to software classes*.
+  - *Defining how objects interact*.
+<br/>
+
+GRASP shows how to **assign responsibilities** to **collaborating objects**.
+
+## Responsibility
+> A contract or obligation of a class.
+
+**Knowing responsibilities**
+- Knowing about private, encapsulated data.
+- Knowing about related objects.
+- Knowing about information that can be derived or calculated.
+- For example, a Sale is responsible for knowing its total.
+
+**Doing responsibilities**
+- Performing an action itself.
+- Initiating behavior in another object.
+- Controlling and coordinating activities in other objects.
+- For example, a Sale is responsible for creating sale line items.
+<Ads1 />
+## General Principles for Assigning Responsibilities
+1. **Information Expert**
+2. **Creator**
+3. **Controller**
+4. **Low Coupling**
+5. **High Cohesion**
+6. **Polymorphism**
+7. **Pure Fabrication**
+8. **Indirection**
+9. **Protected Variations**
+
+## Modularity
+Design goal
+- Divide a system into modules and assign responsibilities among its components.
+
+Modularity reduces how much complexity a programmer needs to handle at once.
+- Group related functions and assign them to modules (*separation of concerns*).
+- Give modules small, simple, well-defined interfaces (*information hiding*).
+
+Measures of modularity
+- Coupling measures *interdependence* between modules.
+- Cohesion measures how closely *related* the elements within a module are.
+
+## Coupling
+**Coupling**
+- A measure of interdependence between classes or modules.
+- A highly coupled class depends on many other classes.
+- A change to one element can affect other elements connected by dependencies.
+  <Img src="/posts/240617-232229.png" width={400}/>
+
+*Aim for low coupling.*
+High coupling has several disadvantages.
+- Changes in other classes can affect the class.
+- The class is harder to understand on its own.
+- It is harder to reuse.
+<Ads2 />
+## Forms of Coupling in Object-Oriented Languages
+Type X depends on Type Y in cases such as these:
+- Type X has an attribute that references a *Type Y instance* or Type Y itself.
+- Type X has a *method that references* a Type Y instance or Type Y itself. For example, the method may use Type Y for a parameter or local variable, or return a Type Y instance.
+- Type X is a direct or indirect *subclass* of Type Y.
+- Type X *implements* the Type Y interface.
+- Type X *uses* the Type Y interface, for example by accepting it as a method parameter.
+  <Img src="/posts/240617-232608.png" width={500}/>
+  - **Direct reference** uses a solid line and means Type X directly references Type Y.
+  - **Method reference** uses a dotted line and means a method in Type X references Type Y.
+  - **Inheritance** uses a solid line with a hollow arrowhead and means Type X inherits from Type Y.
+  - **Interface implementation** uses a dashed line with a hollow arrowhead and means Type X implements the Type Y interface.
+
+## Cohesion
+> A measure of how closely related the elements in a module are.
+
+Group related responsibilities into one manageable unit. This relates to the Single Responsibility Principle (SRP).
+<br/>
+
+**Aim for high cohesion.**
+High cohesion has several advantages.
+- Code is easier to understand and maintain.
+- Code is easier to reuse.
+- Coupling tends to be lower.
+## GRASP Patterns
+### Creator
+> Creator helps decide which class should be responsible for *creating instances* of another class.
+
+### Information Expert
+> Information Expert assigns a responsibility to the class that has the *information needed* to carry it out.
+
+### Controller
+> Controller helps decide which class should be responsible for *handling user interface events and initiating system operations*.
+
+### Low Coupling
+> Low Coupling guides you in *minimizing dependencies between classes* when assigning responsibilities.
+
+### High Cohesion
+> High Cohesion helps you assess *how closely related the elements inside a class are* when assigning responsibilities.
+
+### Pure Fabrication
+> Pure Fabrication suggests creating a class to take on a responsibility *when no existing class is a good fit*.
+
+### Polymorphism
+> Polymorphism guides you in assigning responsibility for *behavior that varies by object type*.
+
+### Indirection
+> Indirection guides you in *minimizing direct interaction between classes*.
+
+### Protected Variations
+> Protected Variations guides you in *protecting parts of the system from changes elsewhere*.

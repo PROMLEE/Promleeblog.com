@@ -1,0 +1,447 @@
+---
+title_ko: 앱 바텀시트 컴포넌트 만들기 (React Native)
+title_en: Create App Bottom Sheet Component (React Native)
+desc: >-
+  React Native 환경에서 재사용 가능한 앱 바텀시트 컴포넌트를 만들어보자. Let's create a reusable app
+  bottom sheet component in React Native.
+thumbnail_url: 'https://reactnative.dev/img/header_logo.svg'
+metatag: 'React Native, Bottom Sheet, Custom Component, Reusable Component'
+post_id: '168'
+locale: zh
+title: 创建可复用的底部面板组件（React Native）
+description: 在 React Native 中创建可复用的底部面板，涵盖安装配置、常用 props 和自定义遮罩。
+source_hash: dfcbc4ae8aa02418f7ec3fc5bf31d5fbace8dadb22d36aa8ff471e2c243c225a
+reviewed_at: '2026-11-07T12:19:00.850Z'
+---
+## 开始之前
+> 本文假设已经创建了基本的 Expo 项目。创建方法请参阅：[Windows](/blog/post/117-expo-proj-init)、[Mac](/blog/post/143-expo-init-mac)。
+> 在基本的 React Native CLI 开发环境中，也可以通过额外配置使用这个组件。
+### 什么是底部面板？
+底部面板（Bottom Sheet）是移动应用中常见的界面形式，可以从屏幕底部提供补充信息或引导用户执行后续操作。它与模态框类似，特点是从屏幕底部出现。我们将把它做成可在各页面复用的组件。
+<Img src="https://raw.githubusercontent.com/gorhom/react-native-bottom-sheet/HEAD/preview.gif" width={400} alt="示意图来源： https://gorhom.dev/react-native-bottom-sheet"/>
+
+本文使用的 Expo 项目目录结构如下。
+```
+📦 app
+ ┣ 📜 _layout.tsx
+ ┣ 📜 index.tsx
+ 📦 components
+ ┣ 📂 ui
+ ┗ ┗ 📜 CustomBottomSheet.tsx
+```
+
+<Ads1 />
+## 安装和配置 gorhom/bottom-sheet
+根据开发环境选择相应的安装方式，并安装所需依赖。
+### 1. 安装软件包
+```bash title="npm"
+npm install @gorhom/bottom-sheet
+```
+```bash title="yarn"
+yarn add @gorhom/bottom-sheet@^5
+```
+### 2. 安装依赖
+（Expo 环境中很可能已经安装了这些依赖。）
+```bash title="Expo"
+npx expo install react-native-reanimated react-native-gesture-handler
+```
+```bash title="React Native CLI - npm"
+npm install react-native-reanimated react-native-gesture-handler
+```
+```bash title="React Native CLI - yarn"
+yarn add react-native-reanimated react-native-gesture-handler
+```
+### 3. 配置 babel.config.js
+如果 Expo 项目还没有 babel.config.js，运行下面的命令创建它。按空格键选中 babel.config.js，然后按回车生成文件。
+```bash
+npx expo customize
+```
+<Img src="/posts/250326-101430.webp" width={400} alt=""/>
+
+如果没有使用 Expo，请在项目根目录创建 babel.config.js，并按下例将 `react-native-reanimated/plugin` 添加到插件列表中。
+<Rbox>必须将它放在插件列表的最后。</Rbox>
+
+```js {7} title="babel.config.js"
+module.exports = {
+	presets: [
+		... // don't add it here :)
+	],
+	plugins: [
+		...
+		'react-native-reanimated/plugin',
+	],
+};
+```
+### 4. 配置 metro.config.js
+如果没有这个文件，可以用与上面创建 babel.config.js 相同的方法生成。然后在 `metro.config.js` 中，用 `wrapWithReanimatedMetroConfig` 函数包装已有的 Metro 配置。
+```js {3-5, 10} title="metro.config.js"
+// Learn more https://docs.expo.io/guides/customizing-metro
+const { getDefaultConfig } = require("expo/metro-config");
+const {
+  wrapWithReanimatedMetroConfig,
+} = require("react-native-reanimated/metro-config");
+
+/** @type {import('expo/metro-config').MetroConfig} */
+const config = getDefaultConfig(__dirname);
+
+module.exports = wrapWithReanimatedMetroConfig(config);
+```
+用下列命令清除缓存。
+```bash title="expo"
+npx expo start -c
+```
+```bash title="npm"
+npm start -- --reset-cache
+```
+```bash title="yarn"
+yarn start --reset-cache
+```
+
+
+<Ads2 />
+### 5. 添加 GestureHandlerRootView
+使用 GestureHandlerRootView 包裹根组件。
+```tsx title="/app/_layout.tsx" {1, 5, 9}
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+export default function Layout({ children }) {
+  return (
+    <GestureHandlerRootView>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Stack/>
+      </ThemeProvider>
+    </GestureHandlerRootView>
+  );
+}
+```
+
+### 6. 完成最后的配置
+如果要开发 iOS 应用，用以下命令执行 pod install。
+```bash
+cd ios && pod install && cd ..
+```
+如果 Expo 项目使用开发构建，用以下命令同步原生代码。
+```bash
+npx expo prebuild
+```
+
+<Ads3 />
+## 使用底部面板
+先在空白页面实现最简单的打开和关闭功能。导入 BottomSheet 组件并创建 ref，然后调用 expand 和 close 打开或关闭面板。
+```tsx title="/app/index.tsx"
+import React, { useCallback, useRef } from "react";
+import { Text, StyleSheet, View, Button } from "react-native";
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+
+const App = () => {
+  // ref
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  // callbacks
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log("handleSheetChanges", index);
+  }, []);
+
+  // renders
+  return (
+    <View style={styles.container}>
+      <Button title="expand" onPress={() => bottomSheetRef.current?.expand()} />
+      <BottomSheet ref={bottomSheetRef} onChange={handleSheetChanges}>
+        <BottomSheetView style={styles.contentContainer}>
+          <Text>Awesome 🎉</Text>
+          <Button
+            title="close"
+            onPress={() => bottomSheetRef.current?.close()}
+          />
+        </BottomSheetView>
+      </BottomSheet>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 36,
+    alignItems: "center",
+  },
+});
+
+export default App;
+```
+<Img src="/posts/250326-105818.webp" width={300} alt=""/>
+
+### 了解底部面板的 props
+在创建自定义底部面板之前，先看看几个常用的 props。
+| props | 说明 | 类型 | 默认值 | 必填 |
+| ---- | ---- | ---- | ------- | -------- |
+| index | 设置初始状态（0、-1） | number | 0 | NO |
+| snapPoints | 设置停靠点 <br/> 由数字和字符串组成的数组，表示面板停靠的高度。<br/> 例如 [200, "60%"] <br/> enableDynamicSizing 为 false 时必填 | [] | - | YES |
+| animateOnMount | 挂载时是否播放动画 | boolean | true | NO |
+| backdropComponent | 底部面板的背景遮罩组件 | BottomSheetBackdrop | - | NO |
+| enablePanDownToClose | 是否允许向下拖动关闭 | boolean | true | NO |
+
+还有其他可用的 props，详见[官方文档](https://gorhom.dev/react-native-bottom-sheet/props)。
+
+<Ads4 />
+## 创建自定义底部面板
+先设定几个条件。
+1. 通过 props 接收所有设置，便于自定义。
+2. 在底部面板中渲染通过 children 传入的组件。
+3. 提供默认样式，同时允许自定义。
+4. 通过 props 接收回调，以处理面板内部和外部触发的事件。
+
+接下来创建 BottomSheet 组件。先定义接口，再让组件接收 props。
+将 snapPoints 的默认值设为 ["30%"]，并原样转发收到的 props。为了让面板外部也能使用 ref，需要传入 *bottomSheetModalRef*。最后，用 *BottomSheetView* 包裹 children。
+```tsx title="/app/components/ui/CustomBottomSheet.tsx"
+import React from "react";
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+
+interface CustomBottomSheetProps extends BottomSheetProps {
+  bottomSheetModalRef: React.RefObject<BottomSheet>;
+  children: React.ReactNode;
+  snapPoints?: string[];
+}
+
+const CustomBottomSheet: React.FC<CustomBottomSheetProps> = ({
+  bottomSheetModalRef,
+  children,
+  snapPoints = ["30%"],
+  ...props
+}) => {
+
+  return (
+    <BottomSheet
+      ref={bottomSheetModalRef}
+      index={0}
+      snapPoints={snapPoints}
+      style={{
+        zIndex: 10,
+        elevation: 10,
+      }}
+      enableDynamicSizing={false}
+      enablePanDownToClose={false}
+      {...props}
+    >
+      <BottomSheetView style={{ flex: 1 }}>{children}</BottomSheetView>
+    </BottomSheet>
+  );
+};
+
+export default CustomBottomSheet;
+```
+回到 index.tsx，使用刚写好的 BottomSheet 组件。
+```tsx title="/app/index.tsx"
+import React, { useRef } from "react";
+import { Text, StyleSheet, View, Button } from "react-native";
+import BottomSheet from "@gorhom/bottom-sheet";
+import CustomBottomSheet from "@/components/ui/CustomBottomSheet";
+
+const App = () => {
+  // ref
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  // renders
+  return (
+    <View style={styles.container}>
+      <Button title="expand" onPress={() => bottomSheetRef.current?.expand()} />
+      <CustomBottomSheet
+				children={
+          <View style={styles.contentContainer}>
+            <Text>Awesome 🎉</Text>
+            <Button
+              title="close"
+              onPress={() => bottomSheetRef.current?.close()}
+            />
+          </View>
+        }
+        bottomSheetModalRef={bottomSheetRef}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 36,
+    alignItems: "center",
+  },
+});
+
+export default App;
+```
+<Img src="/posts/250326-105818.webp" width={300} alt=""/>
+<Bbox>现在的底部面板与之前的行为完全相同。</Bbox>
+
+<Ads5 />
+### 添加 backdropComponent
+接着添加 backdropComponent，用来定制面板后方的遮罩。这里将它固定在组件内部，无须通过 props 传入。
+使用 useCallback 创建 renderBackdrop 函数，让它返回 BottomSheetBackdrop 组件。然后将 renderBackdrop 传给 BottomSheet 的 backdropComponent prop。
+为了观察各项 props 的效果，可以将 snapPoints 改为 ["30%", "60%"]，将 enablePanDownToClose 设为 true。再把 BottomSheetBackdrop 的 pressBehavior 设为 "close"，使点击遮罩可以关闭面板。设为 "none" 时，点击不会触发操作。
+```tsx title="/app/components/ui/CustomBottomSheet.tsx" {20-30, 41}
+//...
+const CustomBottomSheet: React.FC<BottomSheetProps> = ({
+  bottomSheetModalRef,
+  children,
+  snapPoints = ["30%", "60%"],
+  ...props
+}) => {
+  const renderBackdrop = useCallback(
+    (backdropProps: any) => (
+      <BottomSheetBackdrop
+        {...backdropProps}
+        pressBehavior="close"
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+      />
+    ),
+    []
+  );
+
+  return (
+    <BottomSheet
+      ref={bottomSheetModalRef}
+      index={0}
+      snapPoints={snapPoints}
+      style={{
+        zIndex: 10,
+        elevation: 10,
+      }}
+      backdropComponent={renderBackdrop}
+      enableDynamicSizing={false}
+      enablePanDownToClose={true}
+      {...props}
+    >
+      <BottomSheetView style={{ flex: 1 }}>{children}</BottomSheetView>
+    </BottomSheet>
+  );
+};
+
+export default CustomBottomSheet;
+```
+<Img src="/posts/250326-115929.webp" width={300} alt=""/>
+可以看到面板后方出现了带颜色的遮罩，点击遮罩即可关闭。面板可以停在两个高度上，向下拖到底也能关闭。
+
+<Ads6 />
+## 结语
+### 完整代码
+<Toggle title="展开完整代码">
+
+```tsx title="/app/components/ui/CustomBottomSheet.tsx"
+import BottomSheet, {
+  BottomSheetView,
+  BottomSheetBackdrop,
+  BottomSheetProps,
+} from '@gorhom/bottom-sheet';
+import { BottomSheetDefaultBackdropProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types';
+import React, { useCallback } from 'react';
+
+interface CustomBottomSheetProps extends BottomSheetProps {
+  bottomSheetModalRef: React.RefObject<BottomSheet>;
+  children: React.ReactNode;
+  snapPoints?: string[];
+}
+
+const CustomBottomSheet: React.FC<CustomBottomSheetProps> = ({
+  bottomSheetModalRef,
+  children,
+  snapPoints = ['30%'],
+  ...props
+}) => {
+  const renderBackdrop = useCallback(
+    (backdropProps: BottomSheetDefaultBackdropProps) => (
+      <BottomSheetBackdrop
+        {...backdropProps}
+        pressBehavior="close"
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+      />
+    ),
+    [],
+  );
+
+  return (
+    <BottomSheet
+      ref={bottomSheetModalRef}
+      index={0}
+      snapPoints={snapPoints}
+      style={{
+        zIndex: 10,
+        elevation: 10,
+      }}
+      backdropComponent={renderBackdrop}
+      enableDynamicSizing={false}
+      enablePanDownToClose={true}
+      {...props}
+    >
+      <BottomSheetView style={{ flex: 1 }}>{children}</BottomSheetView>
+    </BottomSheet>
+  );
+};
+
+export default CustomBottomSheet;
+```
+```tsx title="/app/index.tsx"
+import BottomSheet from '@gorhom/bottom-sheet';
+import React, { useRef } from 'react';
+import { Text, StyleSheet, View, Button } from 'react-native';
+
+import CustomBottomSheet from '@/components/atoms/CustomBottomSheet';
+
+const App = () => {
+  // ref
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  // renders
+  return (
+    <View style={styles.container}>
+      <Button title="expand" onPress={() => bottomSheetRef.current?.expand()} />
+      <CustomBottomSheet
+        index={0}
+        children={
+          <View style={styles.contentContainer}>
+            <Text>Awesome 🎉</Text>
+            <Button
+              title="close"
+              onPress={() => bottomSheetRef.current?.close()}
+            />
+          </View>
+        }
+        bottomSheetModalRef={bottomSheetRef}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 36,
+    alignItems: 'center',
+  },
+});
+
+export default App;
+```
+</Toggle>
+
+### 进一步思考
+- [React Native Bottom Sheet Modal](https://gorhom.dev/react-native-bottom-sheet/modal) 是功能更丰富的模态底部面板。可以试用它，做一个自定义面板。
+- 如何在底部面板中放入可滚动的组件？
+### 参考资料
+- [React Native Bottom Sheet](https://gorhom.dev/react-native-bottom-sheet/)
+- [npm - @gorhom/bottom-sheet](https://www.npmjs.com/package/@gorhom/bottom-sheet)
+- [babel.config.js](https://docs.expo.dev/versions/latest/config/babel/)

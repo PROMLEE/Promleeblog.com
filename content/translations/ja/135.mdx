@@ -1,0 +1,99 @@
+---
+post_id: '135'
+locale: ja
+title: FlutterのiOSアプリとAndroidアプリをFirebaseに個別登録する
+description: Flutterで作ったiOSアプリとAndroidアプリを、Firebaseコンソールで個別に登録する手順を説明します。
+source_hash: 6e480503338d8bb4cd29ef7ac7960fe1d5fbd281190003b12271319e8022c839
+reviewed_at: '2026-11-07T12:29:26.320Z'
+---
+## はじめに
+Firebaseは、App Distribution、Authentication、Crashlytics、Analyticsなど、さまざまなサービスを提供しています。この記事では、Flutterで作ったiOSアプリとAndroidアプリをFirebaseに登録する方法を見ていきます。
+<Rbox>特別な理由がなければ、Flutterでは2つのアプリを一括登録する方法をおすすめします。</Rbox>
+[一括登録の手順を見る](/blog/post/134-flutter-firebase-apps)
+
+## 1. Firebaseプロジェクトを設定する
+Firebaseのプロジェクトを作り、アプリを登録します。[Firebaseコンソール](https://console.firebase.google.com/u/0)でGoogleにログインし、「プロジェクトを作成」を押します。
+<Img src="/posts/250225-114901.png" width={500} alt="Firebaseプロジェクトの作成"/>
+<Img src="/posts/250225-115137.png" width={300} alt="Firebaseプロジェクトの作成"/>
+続いて `계속`（続行）ボタンを押し、プロジェクトを作ります。
+
+<Ads1 />
+## 2. Androidアプリを登録する
+作成後、プロジェクトの概要画面からアプリを追加します。まず、Androidアプリを登録します。
+<Img src="/posts/250225-134924.png" width={300} alt="Androidアプリの登録"/>
+
+### 2.1. パッケージ名を入力する
+アプリの名前とパッケージ名を入力します。
+パッケージ名は、`/android/app/src/build.gradle` の `android.namespace` の値、または `/android/app/src/main/AndroidManifest.xml` の `package` の値です。例は `com.example.promleeblog` です。SHA1はあとで入力します。
+<Img src="/posts/250225-135316.png" width={300} alt="パッケージ名を入力する"/>
+
+### 2.2. 設定ファイルを配置する
+設定ファイルをダウンロードし、プロジェクトに追加します。次のディレクトリ構成を参考にしてください。
+<Img src="/posts/250225-135357.png" width={300} alt="設定ファイルをダウンロードする"/>
+```
+📦android
+┣ 📂app
+┃ ┣ 📂src
+┃ ┃ ┣ 📂debug
+┃ ┃ ┣ 📂main
+┃ ┃ ┗ 📂profile
+┃ ┣ 📜build.gradle
+┗ ┗ 📜google-services.json // 구성 파일
+```
+アプリが設定ファイルを参照できるように、次のコードを追加します。
+```kotlin title="android/build.gradle"
+plugins {
+	// ...
+	id 'com.google.gms.google-services' version '4.4.2' apply false
+}
+```
+
+```kotlin title="android/app/build.gradle"
+plugins {
+	// ...
+  id 'com.android.application'
+  id 'com.google.gms.google-services'
+}
+dependencies {
+	// ...
+  implementation platform('com.google.firebase:firebase-bom:33.9.0')
+  implementation 'com.google.firebase:firebase-analytics'
+}
+```
+Androidの設定は完了です。続いてiOSを登録します。
+
+<Ads2 />
+## 3. iOSアプリを登録する
+次の手順でiOSアプリを登録します。
+<Img src="/posts/250225-140648.png" width={300} alt="iOSアプリの登録"/>
+
+### 3.1. Bundle IDを入力する
+アプリの名前と識別子を入力します。
+Bundle IDは `/ios/Runner.xcodeproj/project.pbxproj` の `PRODUCT_BUNDLE_IDENTIFIER` の値です。例は `com.example.promleeblog` です。
+<Img src="/posts/250225-141228.png" width={300} alt="Bundle IDを入力する"/>
+
+### 3.2. 設定ファイルを配置する
+設定ファイルをダウンロードし、プロジェクトに追加します。次のディレクトリ構成を参考にしてください。
+<Img src="/posts/250225-141459.png" width={300} alt="設定ファイルをダウンロードする"/>
+```
+📦ios
+┣ 📂Runner
+┗ ┗ 📜GoogleService-Info.plist // 구성 파일
+```
+
+### 3.3. Firebase SDKを追加する
+iosフォルダーを右クリックし、Xcodeで開きます。
+<Img src="/posts/250225-141753.png" width={200} alt="Xcodeで開く"/>
+プロジェクトを開いた状態で、File → Add Package Dependenciesを押します。
+<Img src="/posts/250225-141949.png" width={200} alt="パッケージを追加する"/>
+表示されたダイアログの右上の検索欄に `https://github.com/firebase/firebase-ios-sdk` と入力します。検索結果が出たらAdd Packageを押します。FirebaseAnalyticsの追加先にRunnerを選び、もう一度Add Packageを押します。
+<Img src="/posts/250225-142445.png" width={500} alt="パッケージを検索する"/>
+手順4の初期化コードは飛ばして完了します。Flutterでは、main.dartに初期化コードを書きます。
+
+## おわりに
+FlutterプロジェクトのAndroidアプリとiOSアプリを、Firebaseに個別登録する方法を見てきました。Firebaseコンソールでアプリを登録し、動作を確認してみましょう。
+次回は、Flutterで両方のアプリを簡単に一括登録する方法を紹介します。
+
+### 参考
+- [FirebaseにiOSアプリを登録する](https://firebase.google.com/docs/ios/setup)
+- [FirebaseにAndroidアプリを登録する](https://firebase.google.com/docs/android/setup)

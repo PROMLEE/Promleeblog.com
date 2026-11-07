@@ -1,0 +1,109 @@
+---
+title_ko: Expo Vector Icons 사용하기 (SVG 아이콘)
+title_en: Usage of Expo Vector Icons (SVG Icons)
+desc: >-
+  Expo Vector Icons를 프로젝트에 적용하고, 사용하는 방법을 알아봅니다. Let's apply and use Expo Vector
+  Icons in the project.
+thumbnail_url: 'https://cdn.worldvectorlogo.com/logos/expo-go-app.svg'
+metatag: >-
+  expo/vector-icons, Expo Vector Icons, SVG Icons, 아이콘 라이브러리, 아이콘 사용하기, 아이콘
+  적용하기, Icon.Button, 아이콘 버튼, 아이콘 컴포넌트
+post_id: '166'
+locale: en
+title: Using Expo Vector Icons
+description: Install and use Expo Vector Icons and configure icon buttons with Icon.Button.
+source_hash: c90d6161dd142c3aaf2eb6d87179dd1d76d561e9f270287ff85e97aa33116e44
+reviewed_at: '2026-11-07T01:38:11.575Z'
+---
+## Before getting started
+> This article assumes a basic Expo project already exists. For setup instructions, see creating an Expo project on [Windows](/blog/post/117-expo-proj-init) or [Mac](/blog/post/143-expo-init-mac).
+
+### What are Expo Vector Icons?
+Expo Vector Icons is Expo's icon library.
+Normally, using SVG files requires downloading separate icon files and installing `react-native-svg`, but this library lets you use the icons you want without additional setup.
+Browse the available icons here: [expo.fyi](https://icons.expo.fyi/Index).
+## Installing Expo Vector Icons
+Expo Vector Icons is installed by default when you create a project with npx create-expo-app.
+If it is missing, install it using the following command.
+```bash
+npm i @expo/vector-icons
+```
+<Ads1 />
+## Using Expo Vector Icons
+First, search for an icon at [expo.fyi](https://icons.expo.fyi/Index).
+Clicking an icon shows two pieces of code.
+<Img src="/posts/250325-111936.webp" width={400} alt=""/>
+
+The first is an import, `import { 아이콘 패키지 } from '@expo/vector-icons';`, and the second is the component, `<아이콘 컴포넌트 />`.
+Copy both into the project to display the icon.
+Here is example code and its result.
+```tsx title="/app/index.tsx"
+import AntDesign from '@expo/vector-icons/AntDesign';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const App = () => {
+  return (
+    <SafeAreaView
+      style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+    >
+      <AntDesign name="checkcircle" size={24} color="black" />
+    </SafeAreaView>
+  );
+};
+
+export default App;
+```
+<Img src="/posts/250325-112315.webp" width={200} alt=""/>
+
+<Ads2 />
+## The button component
+@expo/vector-icons provides a special `Icon.Button` component that combines an icon and text.
+Here is an example and its result.
+```tsx title="/app/index.tsx"
+import AntDesign from '@expo/vector-icons/AntDesign';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const App = () => {
+  return (
+    <SafeAreaView
+      style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+    >
+      <AntDesign.Button
+        name="checkcircle"
+        size={24}
+        color="white"
+        backgroundColor={'green'}
+        onPress={() => console.log('Button Pressed')}
+      >
+        Press Me
+      </AntDesign.Button>
+    </SafeAreaView>
+  );
+};
+
+export default App;
+```
+<Img src="/posts/250325-113330.webp" width={200} alt=""/>
+
+### Detailed props
+| Prop | Description | Type | Default |
+|---|---|---|---|
+| name | Icon name | string | X |
+| size | Icon size | number | 20 |
+| color | Icon color | string | white |
+| backgroundColor | Button background color | string | \#007AFF |
+| onPress | Function called when pressed | () => void | null |
+| borderRadius | Button corner radius | number | 5 |
+| iconStyle | Icon style | StyleProp | \{marginRight: 10\} |
+
+<Ads3 />
+## Conclusion
+Expo includes many commonly used icon collections, making them convenient to use immediately without extra configuration.
+I expect to use the Button component often because it is simple to use without writing lots of CSS and styles.
+### Further questions
+- What other icon libraries are available?
+- The [custom icon fonts](https://docs.expo.dev/guides/icons/#custom-icon-fonts) feature also lets you use custom fonts for icons. When might that be useful?
+
+### References
+- [Expo Vector Icons](https://docs.expo.dev/guides/icons/)
+- [expo.fyi](https://icons.expo.fyi/Index)

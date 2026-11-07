@@ -1,0 +1,95 @@
+---
+post_id: '57'
+locale: en
+title: UML Class Diagrams
+description: >-
+  Design class diagrams, association perspectives, keywords, stereotypes, and
+  deriving classes and code from interaction diagrams.
+source_hash: d787d5ad760b99d67483824852769ca3baaec82321c5c764659fa17e1db2084b
+reviewed_at: '2026-11-06T14:50:38.557Z'
+---
+## Design class diagrams
+The same UML class-diagram notation can be used from different perspectives.
+- Conceptual perspective: A **domain model**.
+	<Img src="/posts/240617-223137.png" width={300}/>
+- Design perspective: A **design class diagram**.
+	<Img src="/posts/240617-223143.png" width={300}/>
+
+## Associations from different perspectives
+**Domain model**:
+- Show association names, but avoid navigability arrows because a domain model is not a software perspective.
+	<Img src="/posts/240617-223346.png" width={300}/>
+	- Association names are often omitted in domain models, although showing them is valid.
+	- When using class diagrams from a software perspective, include association names in the DCD.
+
+**DCD**:
+- Follows the UML specification.
+	<Img src="/posts/240617-223355.png" width={300}/>
+<Ads1 />
+## Keywords
+Use keywords to categorize model elements.
+<Img src="/posts/240617-223758.png" width={200}/>
+For example, use the `«actor»` keyword in a use case diagram to replace a human stick-figure actor icon with a class box when modeling a computer-system or robot actor.
+
+| Keyword | Meaning | Example Usage |
+| --- | --- | --- |
+|«actor» |Indicates that the classifier is an actor|Shown above the classifier name in a class diagram|
+|«interface» |Indicates that the classifier is an interface|Shown above the classifier name in a class diagram|
+|\{abstract\} |An abstract element that cannot be instantiated|Shown after a classifier or operation name in a class diagram|
+|\{ordered\} |An object collection has a defined order|Shown at an association end in a class diagram|
+
+## Stereotypes, profiles, and tags
+**Stereotype**: Represents a refinement of an existing modeling concept.
+- UML stereotypes are defined in the UML specification and are not keywords.
+- They provide an extension mechanism in UML.
+
+**Profile**: A collection of stereotypes, *tags*, and constraints.
+<Ads2 />
+## The relationship between interaction and class diagrams
+Class-diagram definitions can be derived from interaction diagrams.
+- **Drawing an interaction diagram reveals a set of classes and methods.**
+- For example, starting with a `makePayment` sequence diagram lets you derive definitions for the `Register` and `Sale` classes.
+	<Img src="/posts/240617-224513.png" width={500}/>
+	Messages in an interaction diagram represent operations in a class diagram.
+	Classes identified in the interaction diagram are declared in the class diagram.
+
+## Deriving code from an interaction diagram
+<Img src="/posts/240617-224738.png" width={400}/>
+- `A` sends a `doA()` message to object `X`.
+- Object `X` creates object `Y` (`create()`), and `Y` sends a `doB(this)` message to `X`.
+- `X` creates another `Y` (`create()`), then sends `doD(y2)` to the newly created `Y`.
+- Finally, `X` sends a `doE()` message to `Y`.
+
+```java title="예시 코드" {numberLines: true}
+public class X {
+    public void doA() {
+        Y y1 = new Y();
+        boolean flag = y1.doB(this);
+        Y y2 = new Y();
+        this.doD(y2);
+        y2.doE();
+    }
+    public void doD(Y y) {
+        // doD 메소드의 구현
+    }
+}
+
+public class Y {
+    public boolean doB(X x) {
+        Y y2 = new Y();
+        x.doD(y2);
+        // ...
+        return true; // 예시 값
+    }
+    public void doE() {
+        // doE 메소드의 구현
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        X x = new X();
+        x.doA();
+    }
+}
+```

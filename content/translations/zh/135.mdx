@@ -1,0 +1,105 @@
+---
+title_ko: 'Firebase에 Flutter 기반 Ios, Android 앱 분리하여 등록하기'
+title_en: 'Register Flutter-based Ios, Android apps in Firebase separately'
+desc: >-
+  Flutter로 개발한 앱을 Firebase에 등록하는 방법을 알아보자. Let's find out how to register an app
+  developed with Flutter in Firebase separately.
+thumbnail_url: 'https://firebase.google.com/static/images/brand-guidelines/logo-vertical.png'
+post_id: '135'
+locale: zh
+title: 在Firebase中分别注册Flutter的iOS与Android应用
+description: 分别配置Flutter项目中的Android和iOS应用，下载Firebase配置文件，并添加各平台SDK。
+source_hash: 6e480503338d8bb4cd29ef7ac7960fe1d5fbd281190003b12271319e8022c839
+reviewed_at: '2026-11-07T01:45:18.865Z'
+---
+## 开始之前
+Firebase提供App Distribution、Authentication、Crashlytics、Analytics等多种服务。本文介绍如何分别把Flutter的iOS与Android应用注册到Firebase。
+<Rbox>除非有特殊原因，否则建议Flutter用户采用同时注册两个应用的方式。</Rbox>
+[查看同时注册的方法](/blog/post/134-flutter-firebase-apps)
+
+## 1. 配置Firebase项目
+先创建Firebase项目并注册应用。进入[Firebase控制台](https://console.firebase.google.com/u/0)，使用Google账号登录，再点击创建项目。
+<Img src="/posts/250225-114901.png" width={500} alt="创建Firebase项目"/>
+<Img src="/posts/250225-115137.png" width={300} alt="创建Firebase项目"/>
+之后点击`계속`完成项目创建。
+
+<Ads1 />
+## 2. 注册Android应用
+在项目概览页面添加应用，先注册Android。
+<Img src="/posts/250225-134924.png" width={300} alt="注册Android应用"/>
+
+### 2.1. 输入包名
+填写应用名称与包名。
+包名可以在`/android/app/src/build.gradle`中的`android.namespace`，或者`/android/app/src/main/AndroidManifest.xml`中的`package`属性找到，例如`com.example.promleeblog`。SHA1稍后再填。
+<Img src="/posts/250225-135316.png" width={300} alt="输入包名"/>
+
+### 2.2. 配置文件
+下载配置文件并添加到项目，目录结构如下。
+<Img src="/posts/250225-135357.png" width={300} alt="下载配置文件"/>
+```
+📦android
+┣ 📂app
+┃ ┣ 📂src
+┃ ┃ ┣ 📂debug
+┃ ┃ ┣ 📂main
+┃ ┃ ┗ 📂profile
+┃ ┣ 📜build.gradle
+┗ ┗ 📜google-services.json // 구성 파일
+```
+为了让应用读取配置文件，需要添加以下代码。
+```kotlin title="android/build.gradle"
+plugins {
+	// ...
+	id 'com.google.gms.google-services' version '4.4.2' apply false
+}
+```
+
+```kotlin title="android/app/build.gradle"
+plugins {
+	// ...
+  id 'com.android.application'
+  id 'com.google.gms.google-services'
+}
+dependencies {
+	// ...
+  implementation platform('com.google.firebase:firebase-bom:33.9.0')
+  implementation 'com.google.firebase:firebase-analytics'
+}
+```
+Android配置已经完成，接下来注册iOS应用。
+
+<Ads2 />
+## 3. 注册iOS应用
+iOS注册步骤如下。
+<Img src="/posts/250225-140648.png" width={300} alt="注册iOS应用"/>
+
+### 3.1. 输入Bundle ID
+填写应用名称与包名。
+包名对应`/ios/Runner.xcodeproj/project.pbxproj`中的`PRODUCT_BUNDLE_IDENTIFIER`，例如`com.example.promleeblog`。
+<Img src="/posts/250225-141228.png" width={300} alt="输入Bundle ID"/>
+
+### 3.2. 配置文件
+下载配置文件，并按照以下目录结构加入项目。
+<Img src="/posts/250225-141459.png" width={300} alt="下载配置文件"/>
+```
+📦ios
+┣ 📂Runner
+┗ ┗ 📜GoogleService-Info.plist // 구성 파일
+```
+
+### 3.3. 添加Firebase SDK
+右键点击ios文件夹，通过Xcode打开。
+<Img src="/posts/250225-141753.png" width={200} alt="通过Xcode打开"/>
+打开项目后，选择File > Add Package Dependencies。
+<Img src="/posts/250225-141949.png" width={200} alt="添加包"/>
+在弹窗右上角搜索框中输入`https://github.com/firebase/firebase-ios-sdk`。搜索结果出现后点击Add Package，为FirebaseAnalytics添加Runner，再点击Add Package。
+<Img src="/posts/250225-142445.png" width={500} alt="搜索包"/>
+跳过第4步初始化代码，直接完成。在Flutter中，初始化代码写在main.dart。
+
+## 结论
+本文介绍了在Flutter项目中，分别把Android与iOS应用注册到Firebase的方法。现在可以在控制台注册并测试应用。
+下一篇会介绍更便捷地同时注册两个应用的方式。
+
+### 参考资料
+- [注册Firebase iOS应用](https://firebase.google.com/docs/ios/setup)
+- [注册Firebase Android应用](https://firebase.google.com/docs/android/setup)

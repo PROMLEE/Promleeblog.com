@@ -1,0 +1,186 @@
+---
+title_ko: Expo 딥링크 - 쿼리 파라미터로 데이터 전달하고 받기
+title_en: Expo Deep Linking - Passing and Receiving Data with Query Parameters
+desc: >-
+  Expo 앱에서 쿼리 파라미터를 포함한 딥링크를 설정하고 사용하는 방법을 알아봅니다. Expo Router를 사용하여 특정 화면으로 이동하며
+  데이터를 전달하고 추출하는 과정을 쉽게 설명합니다.
+thumbnail_url: 'https://cdn.worldvectorlogo.com/logos/expo-go-app.svg'
+metatag: >-
+  Expo, React Native, Deep Link, 딥링크, URL Scheme, Query Parameters, 쿼리 파라미터,
+  Expo Router, useLocalSearchParams, 앱 개발, 모바일 개발, TypeScript
+post_id: '238'
+locale: en
+title: 'Expo Deep Linking: Pass and Read Query Parameters'
+description: >-
+  Configure deep links in Expo Router, navigate to specific screens, and pass
+  and read data through URL query parameters.
+source_hash: 3146eec381c94feab744598ad6698925d52096d7e200cbb845989ff7d5ec2b63
+---
+## Before We Begin
+
+A *deep link* can take users directly to the part of an Expo app they need. This guide focuses on using *query parameters* to pass data when opening a particular screen.
+<br/>
+<br/>
+Have you ever tapped a link and landed on a specific screen in an app instead of opening a web page? That is a deep link. It directs users from outside the app, such as another app, a website, or a push notification, to content or a feature inside it.
+<br/>
+<br/>
+We'll use Expo Router to set up deep linking, attach query parameters to a URL, and read them from the destination screen.
+
+## Why Use Deep Links and Query Parameters?
+
+### What Is a Deep Link?
+
+A deep link gives an app screen or feature an address, much like a URL on the web, so users can reach it from outside the app. Without a deep link, a user might land on the app's home screen or in the app store, then have to open the app and navigate to the desired screen manually.
+
+### Why Use Query Parameters?
+Sometimes you need to send *additional information* along with the destination:
+- Open the detail page for product ID `123` in a shopping app.
+- Show articles in the sports category of a news app.
+- Display a particular latitude and longitude in a map app.
+
+Put a question mark after the URL path, then add one or more `key=value` pairs separated by `&`.
+<br/>
+<br/>
+
+Example: myapp://products/detail?productId=123&category=electronics
+- `myapp://` is the scheme that identifies the app.
+- `products/detail` is the path inside the app, in this case the product detail screen.
+- `?productId=123&category=electronics` provides the query parameters. The product ID is 123, and the category is electronics.
+
+The path tells the app where to go. The query parameters give the screen the details it needs to show the right content.
+
+## Set Up Deep Linking with Expo Router
+
+Configure your Expo project before using deep links. Expo Router makes the process straightforward.
+
+### 1. Set the URL Scheme
+
+Choose a URL scheme that uniquely identifies your app. For example, if the app is called My Awesome App, you might use myawesomeapp. Set it in `app.json` or `app.config.js`.
+```json title="app.json" {5}
+{
+  "expo": {
+    "name": "My Awesome App",
+    "slug": "my-awesome-app",
+    "scheme": "myawesomeapp", // 여기에 원하는 스킴을 입력합니다.
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router" // Expo Router를 사용하고 있다면 이 플러그인이 필요합니다.
+    ]
+    // ... 기타 설정 ...
+  }
+}
+```
+
+The scheme appears at the start of a deep link, as in `myawesomeapp://...`. Pick a name related to the app that is unlikely to collide with a scheme used by another app.
+When you build the project with the Expo CLI, the scheme is added to the native configuration in iOS's Info.plist and Android's AndroidManifest.xml.
+```bash
+expo prebuild
+```
+
+### 2. Use Expo Router's File-Based Routes
+Expo Router maps files in the `app` directory to URL paths. For example, `app/products/detail.tsx` maps to `myawesomeapp://products/detail`. Add query parameters after that path. They don't require a separate file.
+
+<Ads1 />
+
+## Create Deep Links with Query Parameters
+
+Use deep links in places such as push notifications, websites, and marketing emails. Add `?` after the scheme and path, then join the `key=value` pairs with `&`.
+
+- Open the detail page for product ID `456`: `myawesomeapp://products/detail?productId=456`.
+- Open Alice's profile: `myawesomeapp://users/profile?username=alice`.
+- Search for “react native” on the results page: `myawesomeapp://search?query=react%20native`. URL encoding can represent the space as `%20`.
+
+When a user taps one of these URLs, Expo routes to the appropriate screen and passes the query parameters to its component.
+
+## Read Deep Link Parameters with useLocalSearchParams
+
+Expo Router provides the `useLocalSearchParams` hook to read the query parameters on the destination screen. This example retrieves `productId` in `app/products/detail.tsx`.
+```tsx
+// 파일 경로: app/products/detail.tsx
+
+import { useLocalSearchParams } from 'expo-router';
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+
+export default function ProductDetailScreen() {
+  // useLocalSearchParams 훅을 사용하여 현재 경로에 전달된 파라미터를 가져옵니다.
+  // 제네릭 타입을 사용하여 파라미터의 타입을 명시할 수 있습니다.
+  const params = useLocalSearchParams<{ productId?: string; category?: string }>();
+
+  const productId = params.productId; // 'productId' 키로 값 추출
+  const category = params.category;   // 'category' 키로 값 추출 (있다면)
+
+  console.log('전달받은 Product ID:', productId);
+  console.log('전달받은 Category:', category);
+
+  // productId를 사용하여 상품 정보를 불러오는 등의 로직 수행 가능
+  // useEffect(() => {
+  //   if (productId) {
+  //     fetchProductDetails(productId);
+  //   }
+  // }, [productId]);
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>상품 상세 페이지</Text>
+      {productId ? (
+        <Text>요청된 상품 ID: {productId}</Text>
+      ) : (
+        <Text>상품 ID가 전달되지 않았습니다.</Text>
+      )}
+      {category && ( // category 파라미터가 있을 경우 표시
+        <Text>카테고리: {category}</Text>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+});
+```
+
+1. Calling `useLocalSearchParams` returns an object containing the query parameters for the current route.
+2. Use parameter names such as `productId` and `category` as keys on the returned object, `params`.
+3. In TypeScript, specify parameter types and optionality (`?`) with a generic such as `useLocalSearchParams<{ productId?: string; category?: string }>()`. A single query parameter value comes through as a string. Convert it with a function such as `parseInt()` if you need a number.
+4. Use the extracted value (`productId`) to display data or request details for that ID from the server.
+
+## Testing and Things to Watch For
+<Rbox>Choose a distinctive app scheme to avoid conflicts with other apps.</Rbox>
+### Test a Deep Link
+
+Run the following command to test a link in Expo Go or a development build. The exact command varies by environment.
+```bash
+# Android 에뮬레이터/기기
+npx uri-scheme open myawesomeapp://products/detail?productId=999 --android
+
+# iOS 시뮬레이터/기기
+npx uri-scheme open myawesomeapp://products/detail?productId=999 --ios
+```
+In the iOS Simulator, you can also use Hardware > Open URL. On a physical device, enter the URL in Notes or a messaging app and tap it.
+
+<Ads2 />
+
+## Conclusion
+
+Deep links take users straight to the content they want. Query parameters carry the information the destination screen needs, reducing the steps users have to take and making it easier to engage with the app.
+Use Expo Router's `useLocalSearchParams` hook to retrieve those values in the destination component.
+
+### References
+
+- Expo Routing (Deep Linking): [https://docs.expo.dev/router/guides/deep-linking/](https://docs.expo.dev/router/guides/deep-linking/)
+- Expo Router API Reference (useLocalSearchParams): [https://docs.expo.dev/router/api/use-local-search-params/](https://docs.expo.dev/router/api/use-local-search-params/)
+- Expo Configuration (app.json/app.config.js): [https://docs.expo.dev/versions/latest/config/app/](https://docs.expo.dev/versions/latest/config/app/)
+- uri-scheme CLI tool: [https://github.com/expo/uri-scheme](https://github.com/expo/uri-scheme)

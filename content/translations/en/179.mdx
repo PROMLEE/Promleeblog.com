@@ -1,0 +1,96 @@
+---
+title_ko: Next.js 데이터 패칭 완전 정복 2 - fetch 캐싱 전략과 옵션
+title_en: Complete Guide to Data Fetching in Next.js 2 - fetch Caching and Options
+desc: Next.js의 fetch 함수에서 제공하는 다양한 캐싱 옵션과 그 의미에 대해 자세히 알아봅니다.
+thumbnail_url: /250404-093858.webp
+metatag: 'nextjs, fetch, 캐싱, revalidate, no-store, ISR, 데이터 패칭'
+post_id: '179'
+locale: en
+title: 'Next.js Data Fetching, Part 2: Fetch Caching Strategies and Options'
+description: >-
+  Understand fetch caching, no-store, revalidation, ISR, and cache-key
+  generation in Next.js.
+source_hash: c226de00e42645e6dd5517916c1cae3f14681ef0772bf2511b6a302e77c59124
+reviewed_at: '2026-11-06T14:53:58.692Z'
+---
+## Before getting started
+> This post is based on Next.js 15. Some details may change as versions advance.
+
+The previous part covered the basics of `fetch` and fetching data in server components.
+This part takes a closer look at *caching and revalidation* and the advanced options of `fetch`.
+
+## Fetch caching in Next.js
+Next.js caches all `fetch` requests by default.
+In other words, it reuses the same response when an identical request occurs multiple times, reducing server resource use and improving response speed.
+However, cached data is not always desirable.
+For frequently changing data, you need a way to disable caching or refresh it at intervals.
+
+## Disabling caching with cache: 'no-store'
+By default, Next.js tries to fetch data at build time and serve it statically.
+For real-time data, disable caching as follows.
+```tsx
+const res = await fetch('https://jsonplaceholder.typicode.com/posts', {
+  cache: 'no-store',
+});
+```
+This fetches fresh data for every request.
+
+<Ads1 />
+## Incremental static regeneration through revalidation
+Use the `next.revalidate` option to *revalidate statically cached data after a specified interval*.
+This approach is called ISR, or Incremental Static Regeneration.
+Example:
+```tsx
+const res = await fetch('https://jsonplaceholder.typicode.com/posts', {
+  next: { revalidate: 60 }, // 60초마다 새로 데이터를 가져옵니다
+});
+```
+With this configuration, the first page request uses the static cache, and after 60 seconds the data is fetched again in the background.
+This balances performance and freshness.
+
+## How cache keys are generated
+Next.js internally creates a *unique cache key* based on the request URL, headers, cookies, and related information.
+Different URLs or request headers therefore result in separate cache entries.
+For example, these two requests have different cache keys.
+```ts
+// 서로 다른 캐시 키
+fetch('https://api.example.com/data?lang=en')
+fetch('https://api.example.com/data?lang=ko')
+```
+When *responses need to differ per request*, such as by locale, user permissions, or theme, explicitly distinguish them through query parameters or headers.
+
+## Caching strategy summary
+| Strategy | Configuration | Description |
+|------|-----------|------|
+| Static cache (default) | None | Fetches at build time and uses cached data |
+| No caching | cache: 'no-store' | Always retrieves fresh data |
+| ISR | next: \{ revalidate: n \} | Refreshes the cache in the background every n seconds |
+
+<Ads2 />
+## Example: Revalidating posts periodically
+```tsx
+export default async function Page() {
+  const res = await fetch('https://jsonplaceholder.typicode.com/posts', {
+    next: { revalidate: 3600 }, // 1시간마다 재검증
+  });
+  const posts = await res.json();
+  return (
+    <ul>
+      {posts.map((post: { id: number; title: string }) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  );
+}
+```
+This code serves cached data for page requests, automatically fetching it again after one hour.
+
+## Conclusion
+We have examined advanced `fetch` options, especially caching strategies.
+Understanding `no-store`, `revalidate`, and internal cache-key generation gives you finer control over data flow.
+The next part covers patterns such as *parallel fetches*, *sequential fetches*, and *dynamic fetches*.
+### Further questions
+- How does including headers or cookies affect fetch caching?
+- Can a static site also show some real-time data?
+### References
+- [Next.js official documentation: fetch caching](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching#caching)

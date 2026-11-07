@@ -1,0 +1,66 @@
+---
+title_ko: 가상 머신과 운영체제 - 하루 10분 운영체제 18일차
+title_en: Virtual Machines and OS - 10 Minutes of OS Day 18
+desc: '가상 머신은 운영체제를 효율적으로 분리하고 실행할 수 있도록 도와주는 기술입니다. 개념부터 구조, 장단점까지 예시를 들어 정리합니다.'
+thumbnail_url: /250423-202603.png
+metatag: '가상머신, 운영체제 가상화, VMM, 하이퍼바이저, 하드웨어 지원 가상화, 기술면접, OS 기초, 서버 가상화'
+post_id: '226'
+locale: en
+title: 'Virtual Machines and Operating Systems — 10 Minutes of OS, Day 18'
+description: >-
+  Understand virtualization, virtual-machine architecture, hypervisors, hardware
+  support, and their trade-offs.
+source_hash: 83f01ef9ac788937f445b48c27bcbdc25a62afdd29264b440b04eb4957f74fe0
+reviewed_at: '2026-11-06T14:48:50.184Z'
+---
+## Before getting started
+What if you could run several operating systems on one computer at the same time?
+*Virtual machines* make that possible and are a key foundation of modern cloud computing.
+This post walks through virtualization, virtual-machine architecture, hypervisors, hardware support, and the advantages and disadvantages.
+## What is virtualization?
+> Virtualization uses software to divide and emulate a physical computer's resources.
+## Virtual-machine architecture
+A virtual machine places a software layer above real hardware, allowing an *independent operating system* to run on top.
+### Components
+- Host OS: The operating system running on the physical computer.
+- Hypervisor (VMM): The software layer that manages virtual machines.
+- Guest OS: An operating system running in a virtual environment.
+
+> If you run VirtualBox on Windows and install Linux, the host OS is Windows and the guest OS is Linux.
+
+<Ads1 />
+
+## Types of hypervisors
+A hypervisor is the core component that creates and manages virtual machines.
+### 1. Type 1 (bare metal)
+- Runs directly on hardware.
+- Offers high performance and suits server environments.
+- Examples: VMware ESXi and Microsoft Hyper-V (bare metal).
+### 2. Type 2 (hosted)
+- Runs on a conventional operating system.
+- Easy to install and use; suitable for personal computers.
+- Examples: VirtualBox and VMware Workstation.
+> Think of Type 1 as selling products in a factory-operated store, and Type 2 as selling through a shop inside a dealer's premises.
+## Hardware-assisted virtualization
+Virtualizing access to basic resources such as CPU and memory also requires substantial computation.
+To help, *modern CPUs directly support virtualization instruction sets such as VT-x and AMD-V*.
+- Intel VT-x and AMD-V: CPU-level virtualization support.
+- SR-IOV and IOMMU: Used for virtualizing network and I/O devices.
+## Advantages and disadvantages of virtual machines
+### Advantages
+- Run several operating systems and services on one server → Better resource utilization.
+- Provide independent environments → Useful for testing and development.
+- Isolate failures → A failure in one environment does not affect the others.
+### Disadvantages
+- Overall performance is lower than on a physical machine.
+- Sharing hardware resources can cause performance variation.
+- Initial setup and management may involve costs.
+
+## Summary
+Virtual machines separate operating systems and resources to make efficient use of one physical device.
+Because they underpin cloud, server, and development environments, understanding their structure and operation is useful.
+The next post covers *networks and distributed systems*.
+### References
+- Operating System Concepts (10th Edition)
+- https://en.wikipedia.org/wiki/Virtual_machine
+- https://learn.microsoft.com/en-us/virtualization

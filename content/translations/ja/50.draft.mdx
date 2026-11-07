@@ -1,0 +1,60 @@
+---
+post_id: '50'
+locale: ja
+title: コンピューター通信
+description: 無線移動通信のMAC層と多重化に関連するコンピューター通信の内容です。
+source_hash: 987b5fde78d1f0f2162564f4e6ca7bd26ae0c354f169e107135d828149642d51
+---
+## ネットワークソフトウェア (Network Software)
+ネットワークの階層構造 (Network Layered Architecture)
+- ほとんどのネットワークは、設計の複雑さを抑えるために複数の層で構成されます。
+- 各層の目的は、上位の層へ特定のサービスを提供し、その実装の詳細から上位層を切り離すことです。
+- プロトコルは、通信する当事者間で、通信をどのように進めるかについて取り決めたものです。
+ある層は利用者にサービスを提供しますが、内部の状態やアルゴリズムは隠します。
+
+### 用語 (Terms)
+- **peer**：異なるマシンで、対応する層を構成する実体です。
+- **interface**：下位層が上位層へ提供する操作とサービスです。
+- **network architecture**：複数の層とプロトコルの集合です。
+- **protocol stack**：特定のシステムで使われるプロトコルの一覧です。
+
+## サービスデータ単位SDUとプロトコルデータ単位PDU
+<Img src="/posts/240617-124120.png" width={500}/>
+
+- **SDU**：サービスを提供する層から上位層へ渡されるデータの単位です。
+  例：層kのSDUは、層k+1のPDUになります。
+- **PDU**：プロトコルが使うデータの単位です。
+
+## OSI参照モデル (OSI Reference Model)
+OSI：Open Systems Interconnection
+- ISO（国際標準化機構）が開発したネットワークモデルです。
+
+七つの層で構成されます。
+1. Physical Layer
+2. *Data Link Layer*
+   - 物理リンクを通じた、信頼性のある情報伝送を提供します。
+   - 必要な同期、誤り制御、フロー制御を含め、データブロック（フレーム）を伝送します。
+   - MAC (Medium Access Control)
+   - LLC (Logical Link Control)
+3. Network Layer
+4. Transport Layer
+5. Session Layer
+6. Presentation Layer
+7. Application Layer
+
+## TCP/IP参照モデル (TCP/IP Reference Model)
+インターネットのためのプロトコルスタックです。
+四つの層で構成されます。
+1. Host-to-Network Layer
+2. Internet Layer
+3. Transport Layer
+4. Application Layer
+
+## ハイブリッド参照モデル (Hybrid Reference Model)
+OSIモデルとTCP/IPモデルを組み合わせたモデルです。
+五つの層で構成されます。
+1. Physical Layer
+2. Data Link Layer
+3. Network Layer
+4. Transport Layer
+5. Application Layer

@@ -23,6 +23,7 @@ export async function PATCH(req: NextRequest) {
     });
 
     revalidatePath(`/blog/post/${req.id}-${req.url}`);
+    for (const locale of ["en", "ja", "zh"]) revalidatePath(`/${locale}/blog/post/${req.id}-${req.url}`);
 
     const revalidationUrl = process.env.REVALIDATION_URL;
     if (revalidationUrl) {

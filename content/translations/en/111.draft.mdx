@@ -1,0 +1,74 @@
+---
+post_id: '111'
+locale: en
+title: The Stack and Libraries Behind This Blog
+description: >-
+  The technology stack and libraries used to build this blog, their roles, and
+  why I chose them.
+source_hash: e1ab4c520d25f68c49dcadbe11203354861bcb4edf2f90782b803c28c2524a6c
+---
+## Before getting started
+In this post, I will introduce the stack and libraries used to build the blog, explain their roles, and describe why I chose them.
+## Next.js
+[Next.js](https://nextjs.org/)
+I chose Next.js as the project's core framework.
+Next.js is a framework built on *React* that supports *SSR* (Server-Side Rendering).
+SSR can help with *SEO* (Search Engine Optimization) and deliver good performance when used where it is needed.
+Another advantage is that I can access the database without building a separate backend server.
+### TypeScript
+[TypeScript](https://www.typescriptlang.org/)
+This project is written in TypeScript.
+TypeScript extends *JavaScript* with static typing.
+Using it can improve code readability and reduce runtime errors.
+### Tailwind CSS
+[Tailwind CSS](https://tailwindcss.com/)
+Tailwind CSS is a *utility-first CSS* framework that applies styles through classes.
+The CSS-in-JS approach I had used in React does not work seamlessly with SSR.
+Because that approach applies styles at client runtime, the styles are not applied during SSR.
+[nextjs css-in-js docs](https://nextjs.org/docs/app/building-your-application/styling/css-in-js)
+>If you want to style Server Components, we recommend using *CSS Modules* or other solutions that output CSS files, like PostCSS or *Tailwind CSS*.
+
+Using that approach requires additional configuration.
+*Tailwind CSS*, however, applies styles through classes and therefore works with SSR.
+Its initial setup and usage feel unfamiliar, but I expect development to become faster once I get used to it.
+### Shadcn
+[Shadcn/UI](https://ui.shadcn.com/)
+This is a headless UI library based on Tailwind CSS that is easy to customize.
+It provides basic functionality without requiring me to design everything from scratch, which can speed up development.
+<Ads1 />
+## Main libraries
+### next-mdx-remote
+[next-mdx-remote](https://github.com/hashicorp/next-mdx-remote)
+The posts on this blog are written in Markdown.
+More specifically, they use *MDX* files, which allow Markdown and JSX syntax to be combined.
+I chose the *next-mdx-remote* library to render them.
+There are several other ways to compile MDX files, including velite, contentlayer, and next/mdx.
+I chose next-mdx-remote because some alternatives were not yet stable or had stopped receiving support.
+There was also a substantial amount of reference material, including examples in the official documentation, which helped me decide on this library.
+[Next.js official documentation (next-mdx-remote)](https://nextjs.org/docs/app/building-your-application/configuring/mdx#remote-mdx)
+### gray-matter
+[gray-matter](https://github.com/jonschlinkert/gray-matter)
+I use this library to extract frontmatter from Markdown files.
+Frontmatter appears at the top of a Markdown file and contains metadata.
+Early in development, I stored metadata such as the title and creation date directly in each MDX file and extracted it for use.
+Now I use that arrangement only for testing.
+
+### rehype
+[rehype](https://github.com/rehypejs/rehype/tree/main)
+rehype is a library for parsing and transforming HTML.
+I use next-mdx-remote to convert MDX content to HTML, with rehype handling parsing and transformations in that process.
+Its main role here is styling and customization.
+For example, it can *automatically assign IDs* to headings or *add links* to them.
+In particular, *rehype-katex* can render mathematical expressions.
+
+### Prisma
+[Prisma](https://www.prisma.io/)
+I use this library to access the database when building API endpoints.
+Prisma is an ORM (Object-Relational Mapping) library that lets me access the database without writing SQL.
+I use Supabase's PostgreSQL database, and PostgreSQL is one of Prisma's primary supported databases.
+It also supports TypeScript, with benefits such as code completion and type checking.
+
+## Conclusion
+I believe this stack and these libraries were the best choices available to me at the time.
+Libraries and technologies change quickly, though, so I intend to keep trying new ones.
+To prepare for a future *migration*, I tried to minimize coupling to libraries and make each library's role clear during development.

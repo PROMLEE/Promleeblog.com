@@ -1,0 +1,157 @@
+---
+title_ko: Etherscan API로 여러 체인 잔액 조회하기
+title_en: Querying Multichain Balances with Etherscan API
+desc: >-
+  Etherscan V2 API를 사용해 여러 체인의 잔액을 조회하는 방법과 API 키 생성 과정을 React + TypeScript 예제와
+  함께 자세히 설명합니다.
+thumbnail_url: /250416-103237.webp
+metatag: 'Etherscan, API Key, 다중 체인, 잔액 조회, React, TypeScript, Web3, 지갑, 멀티체인, 이더리움'
+post_id: '205'
+locale: en
+title: Querying Multichain Balances with the Etherscan API
+description: >-
+  Create API keys and retrieve EOA wallet balances across chains using Etherscan
+  V2, React, and TypeScript.
+source_hash: 2f14faa339bcb598efbfe733fa9629542f83c21074933b6cec2cd27f9587eaab
+reviewed_at: '2026-11-07T01:40:49.925Z'
+---
+
+## Before getting started
+Web3 applications often need to check users' wallet balances.
+You may want to display balances across Ethereum mainnet, Arbitrum, Optimism, BSC, and other chains together.
+One useful tool is the *Etherscan V2 API*.
+It provides data in a common format for multiple chains, making balances accessible through simple HTTP requests.
+This article explains **how to query multichain EOA wallet balances with Etherscan V2** and **implement the feature in React**.
+<Ads1 />
+## Creating an API key
+To use the API, obtain an API key from Etherscan.
+A separate key is required for each chain, with nearly identical procedures.
+### 📍 Issuing a key for Ethereum mainnet
+1. Register at [https://etherscan.io/register](https://etherscan.io/register).
+2. Sign in and open *My Profile* > *API Keys* at the upper right.
+3. Click *Add* to create a key.
+4. Enter a name to issue the API key.
+### 📍 API-key pages for other chains
+- Arbiscan (Arbitrum): https://arbiscan.io/myapikey
+- BscScan (Binance Smart Chain): https://bscscan.com/myapikey
+- Optimistic Etherscan (Optimism): https://optimistic.etherscan.io/myapikey
+- PolygonScan (Polygon): https://polygonscan.com/myapikey
+Obtain a separate key for each chain; the URL formats are nearly identical.
+## Querying balances by chain
+Balance requests use the `account` module and `balance` action of each chain's Etherscan API.
+The base URL follows this pattern.
+```
+GET https://<체인>.etherscan.io/api?module=account&action=balance&address=<지갑주소>&apikey=<API_KEY>
+```
+For example, here is an Ethereum-mainnet balance request.
+```
+https://api.etherscan.io/api?module=account&action=balance&address=0x123...abc&apikey=YOUR_API_KEY
+```
+For Arbitrum:
+```
+https://api.arbiscan.io/api?module=account&action=balance&address=0x123...abc&apikey=YOUR_API_KEY
+```
+Responses generally use the following JSON format.
+```json
+{
+  "status": "1",
+  "message": "OK",
+  "result": "1234567890000000000"
+}
+```
+The `result` is in *Wei*, so divide by 10 to the power of 18 to convert it to Ether.
+## React and TypeScript example
+Now let's call the APIs from React to retrieve a wallet's balance, with support for several chains.
+```tsx
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+const ETHERSCAN_APIS = {
+  ethereum: {
+    baseURL: 'https://api.etherscan.io/api',
+    apiKey: 'YOUR_ETHERSCAN_API_KEY', // 여기에 자신의 API Key를 입력해야 합니다.
+  },
+  arbitrum: {
+    baseURL: 'https://api.arbiscan.io/api',
+    apiKey: 'YOUR_ARBISCAN_API_KEY', // 여기에 자신의 API Key를 입력해야 합니다.
+  },
+  optimism: {
+    baseURL: 'https://api-optimistic.etherscan.io/api',
+    apiKey: 'YOUR_OPTIMISM_API_KEY', // 여기에 자신의 API Key를 입력해야 합니다.
+  },
+};
+interface BalanceResult {
+  chain: string;
+  ether: string;
+}
+const WalletBalances: React.FC<{ address: string }> = ({ address }) => {
+  const [balances, setBalances] = useState<BalanceResult[]>([]);
+    useEffect(() => {
+    const fetchBalances = async () => {
+      const results: BalanceResult[] = [];
+        for (const [chain, config] of Object.entries(ETHERSCAN_APIS)) {
+          try {
+            const res = await axios.get(config.baseURL, {
+              params: {
+                module: 'account',
+                action: 'balance',
+                address,
+                apikey: config.apiKey,
+              },
+            });
+            const wei = res.data.result;
+            const ether = (Number(wei) / 1e18).toFixed(4);
+            results.push({ chain, ether });
+          } catch (error) {
+            console.error(`${chain} 오류 발생`, error);
+          }
+        }
+        setBalances(results);
+      };
+    if (address) {
+      fetchBalances();
+    }
+  }, [address]);
+    return (
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-2">지갑 잔액 정보</h2>
+      <ul>
+        {balances.map(({ chain, ether }) => (
+          <li key={chain} className="mb-1">
+            *{chain}*: {ether} ETH
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+export default WalletBalances;
+```
+<Ads2 />
+## Querying multiple chains concurrently
+The example above calls the APIs sequentially in a for...of loop.
+You can instead send requests concurrently with `Promise.all()` to improve speed.
+```ts
+await Promise.all(Object.entries(ETHERSCAN_APIS).map(async ([chain, config]) => {
+  const res = await axios.get(config.baseURL, {
+    params: {
+      module: 'account',
+      action: 'balance',
+      address,
+      apikey: config.apiKey,
+    },
+  });
+  // 이후 로직 동일...
+}))
+```
+APIs have rate limits, so making many requests too close together may result in blocking.
+For heavier use, consider backend caching or delays between requests.
+## Conclusion
+Etherscan V2 lets you retrieve wallet balances across chains with simple API calls.
+With keys issued for each chain, the feature is straightforward to implement in React.
+In practice, account for **request rate limits** and design an efficient API-use strategy.
+Combining this with automatic retrieval of the user's connected wallet address, such as from MetaMask, makes the feature more useful than using a fixed address.
+### References
+- Official documentation: https://docs.etherscan.io/etherscan-v2/apis/accounts#get-account-balance
+- Chain explorers: https://etherscan.io/apis, https://arbiscan.io/apis, and others.
+- Ethers.js: https://docs.ethers.org
+- Unit conversion: 1 Ether = 1e18 Wei.

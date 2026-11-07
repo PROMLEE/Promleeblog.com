@@ -1,0 +1,85 @@
+---
+title_ko: 로컬스토리지와 세션스토리지 - 브라우저 저장소
+title_en: Local Storage and Session Storage - Browser Storage
+desc: >-
+  브라우저 저장소 기술인 로컬스토리지와 세션스토리지의 차이점을 알아봅니다. 데이터의 영속성과 스코프 관점에서 두 기술을 비교하고, 쿠키와의
+  차이점, 그리고 주요 면접 질문까지 학습합니다.
+thumbnail_url: /250624-100507.webp
+metatag: >-
+  Local Storage, Session Storage, Web Storage, Cookie, 로컬스토리지, 세션스토리지, 웹 스토리지,
+  쿠키, 브라우저 저장소, 면접 질문, CS, 프론트엔드
+post_id: '350'
+locale: en
+title: 'Browser Storage: Local Storage and Session Storage'
+description: >-
+  Compare local storage and session storage by persistence and scope, see how
+  they differ from cookies, and review common interview questions.
+source_hash: acb01befa9d26fc00a7ee2df51123d8ddfdb5500b8ea339599ed2a57226e07f2
+---
+## Before We Begin
+This post looks at ways to store data on the client, in the user's browser. Cookies were once the main option, but their limited capacity and automatic inclusion in HTTP requests can add network overhead. HTML5 introduced the **Web Storage API**, whose two main interfaces are **local storage** and **session storage**.
+<br/>
+The two are easy to confuse because their APIs are nearly identical. The key difference is how long the data survives. Let's compare their behavior and see when to use each.
+
+## Local Storage Persists Across Browser Restarts
+**Local storage** is a key-value store that keeps data in the user's browser *persistently*. The data survives closing the browser window or restarting the computer. It has no automatic expiration and can be deleted explicitly with JavaScript.
+- **Usage**
+    ```javascript
+    // 데이터 저장
+    localStorage.setItem('username', 'Alice');
+
+    // 데이터 조회
+    const username = localStorage.getItem('username'); // 'Alice'
+
+    // 데이터 삭제
+    localStorage.removeItem('username');
+
+    // 모든 데이터 삭제
+    localStorage.clear();
+    ```
+- **Common uses**
+  Store settings that should persist when users close and reopen the browser, such as a remembered username for sign-in or a preference for dark or light mode.
+
+<Ads1/>
+
+## Session Storage Lasts for the Life of the Tab
+**Session storage** is also a key-value store, but its data lasts **only for the current session**. Think of a session here as belonging to *one browser tab*. When the user closes the tab, its session storage data disappears.
+- **Usage**
+  The API methods are the same as those for local storage.
+  ```javascript
+  // 데이터 저장
+  sessionStorage.setItem('tempData', '이것은 임시 데이터입니다.');
+
+  // 데이터 조회
+  const tempData = sessionStorage.getItem('tempData');
+  ```
+- **Common uses**
+  Keep information needed temporarily in one tab. You could save an in-progress form so a refresh does not erase it, remember the current page's scroll position, or store whether the user dismissed a one-time pop-up or notice with a “Don't show again today” option.
+<Img src="/250624-100226.webp" width={300} alt="Local storage and session storage"/>
+
+## Common Interview Questions
+The differences between these storage options and cookies are a common way to check a frontend developer's fundamentals.
+
+### 1. What Is the Difference Between Local Storage and Session Storage?
+Describe the difference in terms of *persistence* and *scope*.
+> Both are part of the Web Storage API and use the same methods. They differ in **how long data lives** and **where it is accessible**.
+**Local storage** persists until it is cleared and is *shared* across tabs and windows from the same origin.
+**Session storage** lasts only for the *current tab's session* and is cleared when the tab closes. Its data is confined to that tab and *is not shared with other tabs*.
+
+### 2. How Do Cookies Differ from Web Storage?
+The central distinction is how the data reaches the server.
+> The biggest differences are **server communication** and **capacity**.
+The browser automatically includes applicable **cookies** in HTTP request headers, so they can maintain state the server needs, such as authentication. This adds to network traffic, and a cookie is small, typically around 4 KB.
+**Web storage** stays on the client and is never sent to the server automatically. JavaScript has to retrieve and send the data explicitly. With a capacity of roughly 5–10 MB, it is better suited to data used only on the client.
+
+<Ads2/>
+## Conclusion
+We looked at two ways to store data in a browser.
+- **Local storage** is *persistent storage shared by tabs of the same origin*.
+- **Session storage** is *temporary storage scoped to an individual tab*.
+- The browser does not send either one to the server automatically, as it does with **cookies**. Both can serve as client-only storage.
+
+### References
+- [MDN — Web Storage API](https://developer.mozilla.org/ko/docs/Web/API/Web_Storage_API)
+- [MDN — Window.localStorage](https://developer.mozilla.org/ko/docs/Web/API/Window/localStorage)
+- [MDN — Window.sessionStorage](https://developer.mozilla.org/ko/docs/Web/API/Window/sessionStorage)

@@ -1,0 +1,387 @@
+---
+title_ko: 'TypeScript 환경에서 axios 타입 셋팅하기 (React, Next.js, React Native, node.js, ...)'
+title_en: >-
+  Setting up axios types in a TypeScript environment (React, Next.js, React
+  Native, node.js, ...)
+desc: >-
+  TypeScript 환경에서 axios 타입 셋팅하기 (React, Next.js, React Native, node.js, ...),
+  Setting up axios types in a TypeScript environment (React, Next.js, React
+  Native, node.js, ...)
+thumbnail_url: >-
+  https://camo.githubusercontent.com/2ac485b6967b7c38e2b416b2b1e3c2812a79e146eb37a74bced4305a55e282a4/68747470733a2f2f6178696f732d687474702e636f6d2f6173736574732f6c6f676f2e737667
+post_id: '133'
+locale: en
+title: Typing Axios Requests and Responses in TypeScript
+description: >-
+  Set up a typed Axios client with interceptors and shared request and response
+  types in Next.js, with patterns you can adapt to React, React Native, or
+  Node.js.
+source_hash: 62160e5e216ca6fe88dde87bec35072afe2dce524fced2326ce5d567fe6ca1ef
+---
+## Before We Begin
+> This guide uses Axios 1.7.9.
+
+Axios is a popular npm library for calling servers and public APIs. When an API has a clear contract, defining request and response types helps TypeScript catch errors earlier and makes development more efficient.
+The examples use [Next.js](https://nextjs.org/), but you can adapt them to [React](https://ko.react.dev/), [React Native](https://reactnative.dev/), [Node.js](https://nodejs.org/en), and other environments by adjusting the directory layout and how you store tokens.
+We'll use [JSONPlaceholder](https://jsonplaceholder.typicode.com/) to test the requests.
+Here's the directory structure for my app with file-based routing. Set it up in advance if it suits your project. Outside Next.js, you can focus on the structure inside the util directory.
+```
+📦src
+┣ 📂app
+┃ ┣ 📂test 				// 테스트 페이지(/test)
+┃ ┃ ┗ 📜page.tsx
+┃ ┣ 📜layout.tsx
+┃ ┗ 📜page.tsx				// 홈 페이지(/)
+┗ 📂util
+┃ ┣ 📂apis
+┃ ┃ ┣ 📂@types 				// 타입 폴더
+┃ ┃ ┃ ┣ 📜shared.ts
+┃ ┃ ┃ ┣ 📜test.ts
+┃ ┃ ┣ 📂service 			// api 서비스 폴더
+┃ ┃ ┃ ┣ 📜test.ts
+┃ ┃ ┣ 📜axios.ts 			// axios 설정 파일
+┗ ┗ ┗ 📜index.ts
+```
+## 1. Install and Configure Axios
+Run this command from the project root.
+```bash
+npm install axios
+```
+Then add the API endpoint to an environment variable file such as `.env`.
+```
+NEXT_PUBLIC_SERVER_URL=https://jsonplaceholder.typicode.com
+```
+
+<Ads1 />
+## 2. Write axios.ts
+### 2.1. Create an Axios Instance
+Create `axios.ts` and add the imports below.
+```typescript title="src/util/apis/axios.ts"
+import axios, {
+  AxiosError,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
+```
+Create an Axios instance. Read the baseURL from the environment and set the default `Content-Type` header.
+```typescript title="src/util/apis/axios.ts"
+import axios from 'axios';
+
+export const API = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_SERVER_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+```
+
+### 2.2. Manage Authentication Tokens (Optional)
+There are several ways to manage tokens when implementing sign-in with a backend. In this example, I save and read the token in local storage. Skip this section if your API doesn't use tokens.
+```typescript title="src/util/apis/axios.ts"
+export const AuthStorage = {
+  async setToken( accessToken: string ) {
+    await localStorage.setItem("accessToken", accessToken);
+  },
+
+  async getToken(): Promise<string | null> {
+    return await localStorage.getItem("accessToken");
+  },
+
+  async clear() {
+    await localStorage.removeItem("accessToken");
+  },
+};
+```
+
+### 2.3. Configure the Request Interceptor
+A request interceptor lets you modify a request before Axios sends it. For example, you can add the token to its headers.
+I also log selected details of outgoing requests because that made debugging easier during development. The example logs only the necessary configuration fields.
+```typescript title="src/util/apis/axios.ts"
+API.interceptors.request.use(
+  async (config: InternalAxiosRequestConfig) => {
+    const token = await AuthStorage.getToken(); // 토큰 미사용시 무시
+    if (token) {	// 토큰 사용시 헤더에 토큰 추가
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    console.log({
+      headers: config.headers,
+      method: config.method,
+      url: config.url,
+      baseUrl: config.baseURL,
+      data: config.data,
+      params: config.params,
+    });
+    return config;
+  },
+  (error: AxiosError) => {
+    console.log("API request error", error.config);
+    return Promise.reject(error);
+  }
+);
+```
+
+### 2.4. Configure the Response Interceptor
+A response interceptor lets you inspect or transform a response when it arrives. This example also logs what the server returns.
+Check the response shape before extracting the data you need. The payload may be in data or nested under data.data.
+The example logs more detail when an error occurs. See [the shared types section](#31-공통-타입-설정) for `Shared.ErrorResponse`.
+```typescript title="src/util/apis/axios.ts"
+API.interceptors.response.use(
+	(response: AxiosResponse) => {
+		console.log({
+			status: response.status,
+			statusText: response.statusText,
+			data: response.data,
+		});
+		return response.data;	// 서버에서 받는 데이터가 data 속성에 들어있는 경우
+		// return response.data.data;	// 서버에서 받는 데이터가 data.data 속성에 들어있는 경우
+	},
+	async (error: AxiosError) => {
+		console.warn(error.config?.url + " API response error", {
+			response_data: error.response?.data,
+			status: error.response?.status,
+			request_info: {
+				method: error.config?.method,
+				url: error.config?.url,
+				baseUrl: error.config?.baseURL,
+				headers: error.config?.headers,
+				params: error.config?.params,
+				data: error.config?.data,
+			},
+		});
+		const errorData: Shared.ErrorResponse = error.response?.data as Shared.ErrorResponse;
+		alert(`${errorData.error.code}: ${errorData.error.message}`);
+		return Promise.reject(error);
+	}
+);
+```
+
+<Ads2 />
+## 3. Define Types
+<Bbox>Why declare types in namespaces?</Bbox>
+
+A *namespace* keeps types with the same name in different scopes, which avoids naming collisions. With the ambient declarations used here, the types are also available globally without separate imports, making them easy to use in components. Choose clear names so you can tell what each type represents.
+
+### 3.1. Define Shared Types
+Error responses can take different forms. For example, your server might return the following.
+```json
+{
+  "data": null,
+  "error": {
+    "code": 400,
+    "message": "Bad Request"
+  },
+  "success": false
+}
+```
+Define a shared type for this response. If you're using the ESLint directive shown below, place it at the top of the file.
+```typescript title="src/util/apis/@types/shared.ts"
+/* eslint-disable @typescript-eslint/no-unused-vars */
+namespace Shared {
+  export interface ErrorResponse {
+    data: null;
+    error: {
+      code: number;
+      message: string;
+    };
+    success: boolean;
+  }
+}
+```
+
+You can also define shared types for pagination and simple message responses. Here are the types I use in my project.
+```typescript title="src/util/apis/@types/shared.ts(예시)"
+/* eslint-disable @typescript-eslint/no-unused-vars */
+namespace Shared {
+  export interface ErrorResponse {
+    data: null;
+    error: {
+      code: number;
+      message: string;
+    };
+    success: boolean;
+  }
+
+  export interface messageResponse {
+    message: string;
+  }
+
+  export interface Pagenation {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    content: any;
+    pageable: Pageable;
+    totalPages: number;
+    totalElements: number;
+    last: boolean;
+    size: number;
+    number: number;
+    sort: Sort;
+    first: boolean;
+    numberOfElements: number;
+    empty: boolean;
+  }
+
+  interface Pageable {
+    sort: Sort;
+    pageNumber: number;
+    pageSize: number;
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  }
+
+  interface Sort {
+    sorted: boolean;
+    unsorted: boolean;
+    empty: boolean;
+  }
+}
+```
+
+### 3.2. Define Request Types
+Use the examples in the [JSONPlaceholder guide](https://jsonplaceholder.typicode.com/guide/) to define the request types. The following types describe requests for `GET - https://jsonplaceholder.typicode.com/posts/{id}` and `POST - https://jsonplaceholder.typicode.com/posts`.
+I declare request types in a namespace and use the naming pattern `{메소드}{API 이름}{요쳥형태}` (method, API name, and request shape).
+```typescript title="src/util/apis/@types/test.ts"
+declare namespace TestRequest {
+	export interface GetPostsParams {
+		id: number;
+	}
+	export interface GetPostsQuery {
+		userId: number;
+	}
+	export interface PostPostsBody {
+		title: string;
+		body: string;
+		userId: number;
+	}
+}
+```
+
+### 3.3. Define Response Types
+Declare the response types in a namespace as well. I use the pattern `{메소드}{API 이름}{설명}` (method, API name, and description).
+```typescript title="src/util/apis/@types/test.ts"
+declare namespace TestResponse {
+	export interface GetPosts {
+		id: number;
+		title: string;
+		body: string;
+		userId: number;
+	}
+}
+```
+
+<Ads3 />
+## 4. Write the Service Files
+### 4.1. Create the Service
+Write the service that uses Axios to communicate with the server. I keep my service files in `apis/service`.
+I add a comment to each function describing the API it calls, so readers know what the endpoint does regardless of which feature uses it.
+```typescript title="src/util/apis/service/test.ts"
+import { API } from "../axios";
+
+export const TestService = () => {
+  const url = "/posts";
+
+  /**
+   * 포스트 상세 조회 - id 별 조회
+   * @api-doc: https://jsonplaceholder.typicode.com/guide/
+   */
+  const getPosts = async (
+    params: TestRequest.GetPostsParams,
+    { userId }: TestRequest.GetPostsQuery,
+  ) => {
+    const response = (await API.get(`${url}/${params.id}`, {
+      params: { userId },
+    })) as TestResponse.GetPosts;
+    return response;
+  };
+
+  /**
+   * 포스트 전체 조회
+   * @api-doc: https://jsonplaceholder.typicode.com/guide/
+   */
+  const getAllPosts = async () => {
+    const response = (await API.get(`${url}`)) as TestResponse.GetPosts[];
+    return response;
+  };
+
+  /**
+   * 포스트 생성
+   * @api-doc: https://jsonplaceholder.typicode.com/guide/
+   */
+  const postPosts = async (body: TestRequest.PostPostsBody) => {
+    const response = (await API.post(`${url}`, body)) as TestResponse.GetPosts;
+    return response;
+  };
+
+  return {
+    getPosts,
+    getAllPosts,
+    postPosts,
+  };
+};
+
+```
+
+### 4.2. Write index.ts
+Create an `index.ts` file to make the service easy to import.
+```typescript title="src/util/apis/index.ts"
+export { TestService } from "./service/test";
+```
+
+## 5. Write Code to Test the Service
+Now write a test page. I keep mine in `app/test`.
+```tsx title="src/app/test/page.tsx"
+"use client";
+
+import { TestService } from "@/util/apis";
+import { useEffect, useState } from "react";
+
+export default function TestPage() {
+	const [posts, setPosts] = useState<TestResponse.GetPosts>();
+	const [getAllPosts, setGetAllPosts] = useState<TestResponse.GetPosts[]>();
+	const [postPosts, setPostPosts] = useState<TestResponse.GetPosts>();
+
+	useEffect(() => {
+		const fetchPosts = async () => {  // 포스트 상세 조회
+			const response = await TestService().getPosts({ id: 1 }, { userId: 1 });
+			setPosts(response);
+		};
+		
+		const fetchAllPosts = async () => {  // 포스트 전체 조회
+			const response = await TestService().getAllPosts();
+			setGetAllPosts(response);
+		};
+
+		const postPosts = async () => {  // 포스트 생성
+			const response = await TestService().postPosts({ title: "test123", body: "test123", userId: 1 });
+			setPostPosts(response);
+		};
+
+		fetchPosts();
+		fetchAllPosts();
+		postPosts();
+	}, []);
+
+	return (
+		<div>
+			<div>Test</div>
+			<div>{posts?.title}</div>
+			{getAllPosts?.map((post) => (
+				<div key={post.id}>{post.title}</div>
+			))}
+			<div>{postPosts?.title}</div>
+		</div>
+	);
+}
+```
+<Img src="/posts/250224-205953.png" width={300} alt="Test page"/>
+
+<Ads4 />
+## Conclusion
+Calling the server directly with Axios or fetch may be quicker to set up. When a request fails, however, you'll need a way to handle the error consistently.
+We built an Axios service that gives server calls a shared structure. Defining request and response types makes it easier to catch mistakes and work with the API.
+### Further Considerations
+- Could logging too much information create a security problem?
+
+### References
+- [Official Axios documentation](https://github.com/axios/axios)
+- [JSONPlaceholder guide](https://jsonplaceholder.typicode.com/guide/)

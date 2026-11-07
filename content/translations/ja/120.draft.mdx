@@ -1,0 +1,86 @@
+---
+post_id: '120'
+locale: ja
+title: macOSにNode.jsをインストールする（Homebrew、nvm、npm）
+description: macOSにHomebrewとnvmを使ってNode.jsをインストールし、npmやNode.jsのバージョンを確認する手順です。
+source_hash: 9e74ad3c0e11951d0ff7304f731bc0277647bb149bb5f6a43ce659a0232993f1
+---
+<Bbox>この記事はmacOS環境を前提にしています。</Bbox>
+
+## はじめに
+### Node.jsとは？
+>Node.js is an open-source and cross-platform JavaScript runtime environment. It is a popular tool for almost any kind of project!
+>Node.jsは、オープンソースでクロスプラットフォームのJavaScript実行環境です。ほぼあらゆる種類のプロジェクトで使われる、人気のツールです。
+
+[Node.js](https://nodejs.org/en/learn/getting-started/introduction-to-nodejs)
+通常はブラウザで動くJavaScriptを、サーバー側でも実行できるようにするランタイムです。
+React、Angular、Vue.jsなどのフレームワークを使う際にも欠かせないツールです。
+npmというパッケージマネージャーを使うと、さまざまなライブラリをインストールして管理できます。
+### npmとは？
+>npm is the world's largest Software Registry. Open source developers from every continent use npm to share and borrow packages, and many organizations use npm to manage private development as well.
+>npmは世界最大のソフトウェアレジストリです。世界中のオープンソース開発者がパッケージの共有や利用に使っており、多くの組織が非公開の開発にも利用しています。
+
+[npm](https://docs.npmjs.com/about-npm)
+Node.jsと一緒にインストールされるパッケージマネージャーです。npmを使ってライブラリのインストールと管理ができます。
+
+### nvmとは？
+>Node Version Manager - Simple bash script to manage multiple active node.js versions
+>Node Version Managerは、複数のNode.jsのバージョンを管理するシンプルなBashスクリプトです。
+
+[nvm](https://github.com/nvm-sh/nvm)
+Node.jsのバージョンを管理するツールです。
+複数のプロジェクトを進めていると、プロジェクトごとに異なるNode.jsのバージョンが必要になることがあります。
+そのようなときは、nvmでバージョンを手軽に管理できます。
+
+<Ads1 />
+### macOSにNode.jsをインストールする
+[Node.js](https://nodejs.org/ko/)
+macOSでも、Node.jsの公式サイトからインストーラーをダウンロードしてインストールできます。
+ここではバージョン管理のため、先にnvmを入れ、nvmでNode.jsをインストールする手順を紹介します。
+#### Homebrewのインストール
+nvmを簡単に入れられるように、最初にHomebrewをインストールします。
+下のリンクを参照してHomebrewを入れてから進めてください。
+[macOSにHomebrewをインストールする](/blog/post/119-homebrew)
+## nvmのインストール
+ターミナルを開き、次のコマンドでnvmをインストールします。
+```bash
+brew install nvm
+```
+<Img src="/posts/240831-161255.png" width={500} alt=""/>
+
+### 環境変数の設定
+ターミナルで次のコマンドを入力し、nvmを使えるように環境変数を設定します。
+```bash
+echo '[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && . "/opt/homebrew/opt/nvm/nvm.sh"' >> ~/.zshrc
+echo '[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && . "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"' >> ~/.zshrc
+source ~/.zshrc
+```
+設定後、次のコマンドでnvmを使えるか確認します。
+```bash
+nvm --version
+```
+## Node.jsのインストール
+次のコマンドを入力し、Node.jsのLTS（最新の安定版）をインストールします。
+```bash
+nvm install --lts
+```
+インストール後、次のコマンドでNode.jsとnpmのバージョンを確認します。
+```bash
+node -v
+npm -v
+```
+<Ads2 />
+## nvmのコマンド
+- nvm install [version] で特定のバージョンのNode.jsをインストールします。
+- nvm use [version] で特定のバージョンのNode.jsに切り替えます。
+- nvm ls でインストール済みのNode.jsのバージョンを一覧表示します。
+- nvm ls-remote で利用できるNode.jsのバージョンを一覧表示します。
+- nvm uninstall [version] で特定のバージョンのNode.jsを削除します。
+- nvm alias default [version] で既定のNode.jsのバージョンを設定します。
+- nvm alias [name] [version] で特定のバージョンに別名を付けます。
+
+## 参考
+[Node.js](https://nodejs.org/en/learn/getting-started/introduction-to-nodejs)
+[npm](https://docs.npmjs.com/about-npm)
+[nvm](https://github.com/nvm-sh/nvm)
+[Homebrew、Node.js、npm、nvmのインストール](https://renee.tistory.com/46)

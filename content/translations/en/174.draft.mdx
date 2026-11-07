@@ -1,0 +1,80 @@
+---
+title_ko: Expo 인앱 브라우저 열기 (expo-web-browser)
+title_en: Expo In-app Browser (expo-web-browser)
+desc: Expo에서 외부 링크를 앱 내에서 열 수 있는 WebBrowser API 사용법과 WebView와의 차이를 알아봅니다.
+thumbnail_url: /posts/250402-094328.webp
+metatag: 'expo, in-app browser, webbrowser, react-native, webview'
+post_id: '174'
+locale: en
+title: Opening an In-App Browser in Expo with expo-web-browser
+description: >-
+  Open external links inside Expo apps with WebBrowser and understand how it
+  differs from WebView.
+source_hash: 7f14c5f8720ee78072fced0ba91feb89247ab01fda295741b544aa54e1acae8d
+---
+
+## Before getting started
+Mobile apps often need to open external links.
+Doing so without fully leaving the app can improve the user experience.
+Expo provides the `expo-web-browser` module for this purpose.
+This article explains how to use WebBrowser and how it differs from WebView, which offers related functionality.
+
+## What is WebBrowser?
+`expo-web-browser` is an Expo library that opens external web pages in an **in-app browser**.
+In simple terms, it lets users view a web page without closing the app.
+It uses *Safari View Controller on iOS* or *Chrome Custom Tabs on Android*, retaining a fast, secure system-browser UI while feeling like part of the app.
+
+## Using WebBrowser
+
+First, install the `expo-web-browser` package.
+```bash
+npx expo install expo-web-browser
+```
+After installation, use it as follows.
+```tsx
+import * as WebBrowser from 'expo-web-browser';
+import { Button } from 'react-native';
+export default function App() {
+  const openLink = async () => {
+    await WebBrowser.openBrowserAsync('https://example.com');
+  };
+  return <Button title="링크 열기" onPress={openLink} />;
+}
+```
+In this example, pressing the button opens `https://example.com` in an **in-app browser**.
+Users can read the page without leaving the app and return when they finish.
+<Ads1 />
+## How does it differ from WebView?
+**WebBrowser** and **WebView** are easy to confuse, but their functionality and intended uses differ.
+| Aspect | WebBrowser | WebView |
+|------|------------|---------|
+| UI | System browser UI: Safari or Chrome | A browser component inside the app |
+| Security | Relatively high, using system-browser features | Rendered by the app; security configuration is needed |
+| Purpose | Open external links | Integrate a web app into a native app |
+| User experience | Feels like a browser, with an address bar | Fully integrated into the app, without an address bar |
+| Complexity | Very simple | Requires configuration and management |
+
+For example, WebBrowser is a better fit for opening a login link or displaying terms and conditions.
+If a web-built interface needs to remain integrated into your app, WebView is preferable.
+## Troubleshooting
+Keep the following points in mind when using WebBrowser.
+1. **Safari View Controller may not work in the iOS simulator.** Testing on a physical device is recommended.
+2. Since `openBrowserAsync` returns a Promise, you can handle the result when it closes.
+For example, perform an action after the browser closes.
+```tsx
+const result = await WebBrowser.openBrowserAsync('https://example.com');
+if (result.type === 'dismiss') {
+  console.log('브라우저가 닫혔습니다.');
+}
+```
+
+<Ads2 />
+## Conclusion
+Expo's `WebBrowser` is useful for displaying external links inside an app with little setup.
+It is much simpler to configure than `WebView` and offers strong security, making it a good choice for simply opening links.
+### Further ideas
+- Open a login page through WebBrowser and return to the app after authentication.
+- Use `openAuthSessionAsync` for a flow specifically designed for OAuth login.
+### References
+- [Official documentation: expo-web-browser](https://docs.expo.dev/versions/latest/sdk/webbrowser/)
+- [React Native WebView](https://github.com/react-native-webview/react-native-webview)

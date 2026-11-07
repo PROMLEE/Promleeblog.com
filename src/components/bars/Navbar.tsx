@@ -1,4 +1,7 @@
 "use client";
+import { useLocale } from "@/components/i18n/LocaleProvider";
+import { messages, categoryLabel } from "@/lib/i18n/messages";
+import { englishLabel } from "@/lib/i18n/routing";
 import {
   Menubar,
   MenubarContent,
@@ -6,7 +9,7 @@ import {
   MenubarMenu,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import { DarkmodeButton } from "@/components/buttons/Darkmodebutton";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useRef } from "react";
@@ -20,8 +23,10 @@ import {
 } from "@/components/ui/accordion";
 import { motion } from "framer-motion";
 import { Menu } from "lucide-react";
+import PortRhythmLink from "@/components/PortRhythmLink";
 
 export const Navbar = () => {
+  const locale = useLocale();
   const [value, setValue] = useState("");
   const [menu, setMenu] = useState(false);
   const [list, setList] = useState<PostResponse.GetLinks["data"]>([]);
@@ -95,7 +100,7 @@ export const Navbar = () => {
         >
           <Link
             href={"/"}
-            className="group relative ml-2 flex items-center overflow-hidden rounded-lg px-3 py-1.5 text-2xl font-bold hover:cursor-pointer"
+            className="group relative ml-0 flex shrink-0 items-center overflow-hidden rounded-lg px-2 py-1.5 text-2xl font-bold hover:cursor-pointer md:ml-2 md:px-3"
           >
             <span className="from-button relative z-10 bg-gradient-to-r to-blue-200 bg-clip-text text-transparent">
               PromleeBlog
@@ -103,11 +108,13 @@ export const Navbar = () => {
             <span className="bg-button/10 absolute inset-0 z-0 scale-0 transform rounded-lg transition-transform duration-200 ease-in-out group-hover:scale-100"></span>
           </Link>
         </motion.div>
-        <div className="flex items-center gap-4">
-          {list.map((category, index) => {
+        <div className="hidden items-center gap-4 md:flex">
+          {list.map((category) => {
             return (
               <motion.div
-                key={index}
+                key={category.url}
+                initial={false}
+                animate="visible"
                 variants={itemVariants}
                 whileHover={{ scale: 1.02 }}
                 transition={hoverSpring}
@@ -117,7 +124,12 @@ export const Navbar = () => {
                 >
                   <MenubarMenu>
                     <MenubarTrigger className="group relative rounded-md px-3 py-2 font-bold hover:cursor-pointer">
-                      <span className="relative z-10">{category.nameko}</span>
+                      <span className="relative z-10">
+                        {locale !== "ko"
+                          ? categoryLabel(category.url, locale) ||
+                            englishLabel(category.url)
+                          : category.nameko}
+                      </span>
                       <span className="bg-button absolute bottom-0 left-0 h-0.5 w-0 rounded-full transition-all duration-300 group-hover:w-full"></span>
                     </MenubarTrigger>
                     <MenubarContent className="border-border/20 bg-background/80 animate-in fade-in-50 zoom-in-95 rounded-lg border p-1 shadow-lg backdrop-blur-md">
@@ -128,7 +140,9 @@ export const Navbar = () => {
                             key={index}
                           >
                             <MenubarItem className="hover:bg-button/90 hover:text-background/90 cursor-pointer rounded-md px-4 py-2 text-sm transition-colors duration-200">
-                              {subject.nameko}
+                              {locale !== "ko"
+                                ? englishLabel(subject.url)
+                                : subject.nameko}
                             </MenubarItem>
                           </Link>
                         );
@@ -140,7 +154,8 @@ export const Navbar = () => {
             );
           })}
         </div>
-        <div className="flex content-center items-center gap-2">
+        <div className="flex shrink-0 content-center items-center gap-1 md:gap-2">
+          {locale === "ko" && <PortRhythmLink />}
           {process.env.NODE_ENV === "development" && (
             <>
               <motion.div
@@ -150,7 +165,7 @@ export const Navbar = () => {
               >
                 <Link
                   href={"/blog/edit"}
-                  className="group relative inline-flex items-center overflow-hidden rounded-lg px-3 py-1.5"
+                  className="group relative hidden items-center overflow-hidden rounded-lg px-3 py-1.5 md:inline-flex"
                 >
                   <span className="group-hover:text-background relative z-10 transition-colors duration-200">
                     edit
@@ -165,7 +180,7 @@ export const Navbar = () => {
               >
                 <Link
                   href={"/test"}
-                  className="group relative inline-flex items-center overflow-hidden rounded-lg px-3 py-1.5"
+                  className="group relative hidden items-center overflow-hidden rounded-lg px-3 py-1.5 md:inline-flex"
                 >
                   <span className="group-hover:text-background relative z-10 transition-colors duration-200">
                     test
@@ -182,10 +197,10 @@ export const Navbar = () => {
           >
             <Link
               href={"/sitemap-tree"}
-              className="group relative inline-flex items-center overflow-hidden rounded-lg px-3 py-1.5"
+              className="group relative hidden items-center overflow-hidden rounded-lg px-3 py-1.5 md:inline-flex"
             >
               <span className="group-hover:text-background relative z-10 transition-colors duration-200">
-                sitemap
+                {locale === "ko" ? "sitemap" : messages[locale].sitemap}
               </span>
               <span className="bg-button/0 group-hover:bg-button/90 absolute inset-0 z-0 rounded-md transition-colors duration-300"></span>
             </Link>
@@ -197,10 +212,10 @@ export const Navbar = () => {
           >
             <Link
               href={"/aboutme"}
-              className="group relative inline-flex items-center overflow-hidden rounded-lg px-3 py-1.5"
+              className="group relative hidden items-center overflow-hidden rounded-lg px-3 py-1.5 md:inline-flex"
             >
               <span className="group-hover:text-background relative z-10 transition-colors duration-200">
-                aboutMe
+                {locale === "ko" ? "aboutMe" : messages[locale].about}
               </span>
               <span className="bg-button/0 group-hover:bg-button/90 absolute inset-0 z-0 rounded-md transition-colors duration-300"></span>
             </Link>
@@ -218,7 +233,7 @@ export const Navbar = () => {
               className="bg-button text-button-foreground hover:bg-button-foreground hover:text-button ml-2 flex cursor-pointer items-center gap-1 rounded-lg px-3 shadow-sm md:hidden"
             >
               <Menu size={16} />
-              <span>Menu</span>
+              <span>{locale === "ko" ? "Menu" : messages[locale].menu}</span>
             </Button>
           </motion.div>
           <motion.div
@@ -239,8 +254,26 @@ export const Navbar = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
-          className="bg-background/20 fixed inset-x-0 top-[32px] z-50 max-h-[calc(100vh-64px)] overflow-y-auto backdrop-blur md:hidden"
+          className="bg-background/20 fixed inset-x-0 top-12 z-50 max-h-[calc(100vh-64px)] overflow-y-auto backdrop-blur md:hidden"
         >
+          <div className="flex flex-wrap gap-4 px-5 py-4 text-[14px]">
+            {process.env.NODE_ENV === "development" && (
+              <>
+                <Link href="/blog/edit" onClick={menuclose}>
+                  edit
+                </Link>
+                <Link href="/test" onClick={menuclose}>
+                  test
+                </Link>
+              </>
+            )}
+            <Link href="/sitemap-tree" onClick={menuclose}>
+              {locale === "ko" ? "sitemap" : messages[locale].sitemap}
+            </Link>
+            <Link href="/aboutme" onClick={menuclose}>
+              {locale === "ko" ? "aboutMe" : messages[locale].about}
+            </Link>
+          </div>
           <Accordion
             type="single"
             collapsible
@@ -250,7 +283,12 @@ export const Navbar = () => {
             {list.map((category, index) => (
               <AccordionItem
                 key={index}
-                value={category.nameko}
+                value={
+                  locale !== "ko"
+                    ? categoryLabel(category.url, locale) ||
+                      englishLabel(category.url)
+                    : category.nameko
+                }
                 className="border-none"
               >
                 <AccordionTrigger
@@ -259,7 +297,10 @@ export const Navbar = () => {
                   }}
                   className="hover:bg-button/15 data-[state=open]:bg-button/10 px-5 py-4 text-base font-medium transition-colors hover:no-underline data-[state=open]:font-semibold"
                 >
-                  {category.nameko}
+                  {locale !== "ko"
+                    ? categoryLabel(category.url, locale) ||
+                      englishLabel(category.url)
+                    : category.nameko}
                 </AccordionTrigger>
                 <AccordionContent className="px-2 py-3">
                   {category.Subject.map((subject, index) => (
@@ -278,7 +319,9 @@ export const Navbar = () => {
                         }}
                         className="bg-background/50 hover:bg-button hover:text-background mx-4 my-2 block rounded-md px-5 py-3 text-base font-medium shadow-sm transition-all duration-200"
                       >
-                        {subject.nameko}
+                        {locale !== "ko"
+                          ? englishLabel(subject.url)
+                          : subject.nameko}
                       </Link>
                     </motion.div>
                   ))}

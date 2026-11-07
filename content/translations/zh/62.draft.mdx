@@ -1,0 +1,194 @@
+---
+post_id: '62'
+locale: zh
+title: 以单元测试为中心的测试驱动开发
+description: 介绍单元测试、测试套件、回归测试、驱动与桩，以及JUnit断言、Fixture和测试方法结构。
+source_hash: 915ca57a17ecfe953a66cd079880f3a81cb9c18074782a7f2505136319146256
+---
+## 为什么使用单元测试（Why Unit Testing）
+**实用性**
+- 大部分程序员都依赖测试。
+	例如，微软曾为每位开发人员安排一位测试人员。
+- 也可以从事测试工作。
+
+**分治思路（Divide and Conquer Approach）**
+- 把系统划分为多个单元进行测试。
+- 分别调试每个单元。
+- 确定可能存在错误的部分。
+- 不必到其他单元中追踪错误。
+<Ads1 />
+## 测试套件（Test Suite）
+> 多个测试用例组成的集合，用于检查软件是否正常工作。
+
+**临时测试（Ad-hoc Testing）**
+- 开发者想到什么就测试什么。
+
+**测试套件**
+- 预先定义测试用例，再统一执行。
+
+**测试框架**
+- 用于运行测试套件的程序。
+- 例如JUnit、TestNG。
+
+## 回归测试
+> 软件变更后，确认原有功能仍然正常工作的过程。
+
+变更可能包括功能改进、补丁和配置调整等。
+为了维护稳定、可持续维护的代码库，回归测试非常重要。
+
+## 测试中的驱动与桩（Driver and Stub in Testing）
+<Img src="/posts/240618-010225.png" width={300}/>
+**驱动（Driver）**
+- 负责执行测试并收集结果。
+- 将测试用例传给被测单元，执行后获取并分析结果。
+
+**桩（Stub）**
+- 被测单元与其他单元交互时使用的替代对象。
+- 代替真实模块，为被测单元提供简单响应。
+<Ads2 />
+## JUnit
+> Java语言的单元测试框架。
+- 一个测试用例，通常是针对单个方法的一项测试。
+- 测试套件是多个测试用例的集合。
+
+采用敏捷开发方式时，单元测试很重要。
+- 代码经常需要重构，以反映需求变化。
+- 单元测试用于确保重构后代码仍然能够工作。
+
+### JUnit方法（JUnit Methods）
+| 方法 | 说明 |
+| --- | --- |
+| assertEquals(expected, actual) | 检查两个值是否相等 |
+| assertTrue(condition) | 检查条件是否为真 |
+| assertFalse(condition) | 检查条件是否为假 |
+| assertNull(object) | 检查对象是否为null |
+| assertNotNull(object) | 检查对象是否不为null |
+| assertSame(expected, actual) | 检查是否为同一个对象 |
+| assertNotSame(expected, actual) | 检查是否为不同对象 |
+
+**注意**
+Java提供`x.equals(y)`方法比较对象。
+- 这个方法对`String`和其他一些Java类能够正常工作。
+- 对于自定义类，需要自行定义`equals`方法。
+	```java
+	public boolean equals(Object obj) { ... }
+	```
+	参数必须是Object类型。因为它不是我们需要的具体类型，所以要将其转换为正确类型，例如Person。
+	```java
+	public boolean equals(Object something) {
+			Person p = (Person)something;
+			return this.name == p.name; // 원하는 대로 비교할 수 있다.
+	}
+	```
+
+
+### 示例（JUnit Test Case）
+#### 传统测试用例
+```java
+/** IMath 클래스를 테스트하는 클래스이다. */
+public class IMathTestNoJUnit {
+    /** 테스트를 실행한다. */
+    public static void main(String[] args) {
+        printTestResult(0);
+        printTestResult(1);
+        printTestResult(2);
+        printTestResult(3);
+        printTestResult(4);
+        printTestResult(7);
+        printTestResult(9);
+        printTestResult(100);
+    }
+
+    private static void printTestResult(int arg) {
+        System.out.print("isqrt(" + arg + ") ==> ");
+        System.out.println(IMath.isqrt(arg));
+    }
+}
+
+// 실행 결과
+// isqrt(0) ==> 0
+// isqrt(1) ==> 1
+// isqrt(2) ==> 2
+// isqrt(3) ==> 2
+// isqrt(4) ==> 2
+// isqrt(7) ==> 3
+// isqrt(9) ==> 3
+// isqrt(100) ==> 10
+```
+
+#### JUnit测试用例
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class IMathTest extends TestCase{
+		@Test
+		public void testIsqrt() {
+				assertEquals(0, IMath.isqrt(0));
+				assertEquals(1, IMath.isqrt(1));
+				assertEquals(2, IMath.isqrt(2));
+				assertEquals(2, IMath.isqrt(3));
+				assertEquals(2, IMath.isqrt(4));
+				assertEquals(3, IMath.isqrt(7));
+				assertEquals(3, IMath.isqrt(9));
+				assertEquals(10, IMath.isqrt(100));
+		}
+}
+
+// 실행 결과
+// 테스트 케이스가 성공하면 아무것도 출력되지 않음
+
+// 테스트 케이스가 실패하면 다음과 같이 출력됨
+// java.lang.AssertionError: expected:<0> but was:<1>
+```
+
+### 练习（JUnit Test Case）
+使用JUnit测试下面的代码。
+```java
+public class ForYou {
+	public static int min(int x, int y){
+		if(x < y) return x;
+		else return y;
+	}
+}
+```
+
+#### 答案
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class ForYouTest extends TestCase{
+		@Test
+		public void testMin() {
+				assertEquals(1, ForYou.min(1, 2));
+				assertEquals(1, ForYou.min(2, 1));
+				assertEquals(0, ForYou.min(0, 0));
+				assertEquals(-1, ForYou.min(-1, 0));
+				assertEquals(-1, ForYou.min(0, -1));
+		}
+}
+```
+<Ads3 />
+## Fixture
+> 在测试用例执行之前或之后运行的代码。
+
+通过重写方法，可以定义Fixture。
+```java
+protected void setUp() { ... }
+protected void tearDown() { ... }
+```
+测试执行规则如下。
+```java
+protected void runTest() {
+    setUp();
+    // <run the test>;
+    tearDown();
+}
+```
+
+## 测试方法结构（Structure of Test Methods）
+- 测试方法不返回结果。
+- 测试正确执行时，方法不会执行额外动作。
+- 测试失败时，抛出`AssertionFailedError`。
+- JUnit会捕获并处理这个错误，无需另外处理。

@@ -1,0 +1,56 @@
+---
+post_id: '19'
+locale: ja
+title: 暗号学の概要
+description: 暗号学の基本的な概念を説明します。
+source_hash: 3d8691c1e6529a4e9d3e442b38d816d109962185952d0205d3df79b64e3d7417
+---
+## 暗号化 (Encryption)
+> データの機密性を提供する技術です。
+平文を暗号文へ変換するプロセスを指します。
+
+- 共通鍵暗号 (Symmetric-key cryptography)
+  - ブロック暗号
+  - ストリーム暗号
+- 公開鍵暗号 (Public-key cryptography)
+  - 素因数分解に基づく方式
+  - 離散対数に基づく方式
+  - 耐量子暗号：格子ベース、符号ベースなど
+
+次の三つのアルゴリズムで構成されます。
+- セットアップアルゴリズム：$Setup(\lambda ) → {K_{enc}, K_{dec}}$
+- 暗号化アルゴリズム：$Enc({K_{enc}, M}) → CT$
+- 復号アルゴリズム：$Dec({K_{dec}, CT}) → M$
+
+## 共通鍵暗号 (Symmetric Encryption)
+> 暗号化と復号に、同じ鍵を使う暗号方式です。
+秘密鍵暗号とも呼ばれます。
+従来から使われている方式には、ブロック暗号（DES、AES、ARIA、SEED）や、ストリーム暗号（RC4、ChaCha）があります。
+長所：非対称暗号より高速です。
+短所：鍵の共有が課題であり、多数の鍵が必要です。鍵の数は$N(N-1)/2$個です。
+<Ads1 />
+## 非対称暗号 (Asymmetric Encryption)
+> 暗号化と復号に、異なる鍵を使う暗号方式です。
+公開鍵暗号とも呼ばれます。
+RSA、ElGamal、NTRUなどがあります。
+長所：鍵共有の問題を解決し、鍵の数も少なくなります。必要な鍵は$2N$個です。
+短所：共通鍵暗号より低速です。
+
+## 暗号化に関する用語 (Terminology for Encryption)
+- 平文 (plain text)：アルゴリズムに入力する、元のメッセージやデータです。
+- 暗号文 (cipher text)：暗号化アルゴリズムの出力です。
+- 暗号化アルゴリズム (encryption algorithm)：平文を暗号文に変換するアルゴリズムです。
+- 復号アルゴリズム (decryption algorithm)：暗号文を平文に変換するアルゴリズムです。
+- 公開鍵と秘密鍵 (public key and private key)：それぞれ暗号化と復号のために選ばれた鍵の組です。
+<Ads2 />
+## ケルクホフスの原理 (Kerckhoffs's Principle)
+> 暗号アルゴリズムは公開されても安全でなければなりません。秘密鍵さえ守られていればよい、という原理です。
+システムの安全性を高め、異なる鍵を使って他者と通信しやすくします。
+
+## 暗号に対する攻撃の基本的な種類 (Basic Types of Attacking against Encryption)
+1. 総当たり攻撃 (Brute-force attack)：考えられるすべての鍵を試して、暗号文を解読する攻撃です。
+2. 暗号解読 (Cryptanalysis)：暗号アルゴリズムの構造を分析し、平文を推測する攻撃です。
+   - 暗号文単独攻撃 (ciphertext-only attack)
+   - 既知平文攻撃 (known-plaintext attack)
+   - 選択平文攻撃 (chosen-plaintext attack)
+   - 選択暗号文攻撃 (chosen-ciphertext attack)

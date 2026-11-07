@@ -1,0 +1,155 @@
+---
+title_ko: React Native에서 하위 컴포넌트까지 새로고침하기
+title_en: Refresh all data in sub-components in React Native
+desc: >-
+  React Native에서 하위 컴포넌트까지 모두 새로고침하는 방법을 알아보자. Let's learn how to refresh all
+  data in sub-components in React Native.
+thumbnail_url: 'https://reactnative.dev/img/header_logo.svg'
+post_id: '141'
+locale: zh
+title: 在React Native中刷新子组件的全部数据
+description: 利用React的key机制，刷新指定子组件或重新创建整个组件树的状态。
+source_hash: c066a1464803c54b3e47f02e137c7088d2f54b64e55ec58c8b9c571a0f9425f6
+---
+## 开始之前
+> 本文使用Expo环境编写，但内容适用于所有React Native环境。
+假设项目已经完成基础配置。
+
+在[React Native页面刷新1](https://www.promleeblog.com/blog/post/140-react-native-refreshcontrol)中，我们介绍了如何实现刷新功能。这次进一步介绍如何连同子组件的数据一起刷新。
+
+## 1. React与React Native中Key的作用
+开始之前，需要先理解一个重要概念：*Key*。Key是React中用于区分组件的唯一值，在重新渲染时用来识别组件。
+最常见的使用场景，是渲染数组元素。
+```tsx
+const items = [
+  { id: 1, name: 'Item 1' },
+  { id: 2, name: 'Item 2' },
+  { id: 3, name: 'Item 3' },
+];	
+
+return (
+  <div>
+    {items.map((item) => (
+      <div key={item.id}>{item.name}</div>
+    ))}
+  </div>
+);
+```
+如果不使用key，就会出现以下警告。
+```
+Warning: Each child in a list should have a unique "key" prop.
+```
+今后我会另外写一篇文章详细介绍Key。这里先记住，Key的作用之一，是在*重新渲染*时*识别*组件。
+
+<Ads1 />
+## 2. 只重新渲染指定组件
+利用Key，可以只重新渲染我们希望更新的组件。下面的例子用于刷新两个相同子组件的数据：两者都使用useState，在首次渲染时显示当前时间。
+```tsx showLineNumbers {36-37} title="/app/index.tsx"
+import React, { useState } from 'react';
+import { Text, ScrollView, RefreshControl, View } from 'react-native';
+
+const Card = () => {
+  const [now] = useState(new Date().toLocaleString());
+
+  return (
+    <View style={{ flex: 1 }}>
+      {Array.from({ length: 100 }).map((_, index) => (
+        <Text key={index} style={{ textAlign: 'center', justifyContent: 'center', fontSize: 16 }}>{`${now}`}</Text>
+      ))}
+    </View>
+  );
+};
+
+const List = () => {
+  const [key, setKey] = useState(new Date().getTime());
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setKey(new Date().getTime());
+      setRefreshing(false);
+    }, 1000);
+  };
+
+  return (
+    <ScrollView
+      style={{ flex: 1, backgroundColor: 'white', padding: 20 }}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['blue', 'red', 'green']} />
+      }
+    >
+      <View style={{ flex: 1, flexDirection: 'row' }}>
+        <Card key={key} /> {/* 키 값을 새로 설정 */}
+        <Card /> 
+      </View>
+    </ScrollView>
+  );
+};
+
+export default List;
+```
+运行结果中，可以看到只有左边组件的时间数据发生了刷新。
+<Img src="/posts/250302-215258.webp" width={200} alt="请仔细观察秒数"/>
+
+<Ads2 />
+## 3. 重新渲染整个组件
+接下来介绍让组件本身重新渲染的方法。只需要在原有代码的最顶层组件上设置新的key，一行代码即可触发重新创建。
+```tsx showLineNumbers {30} title="/app/index.tsx"
+import React, { useState } from 'react';
+import { Text, ScrollView, RefreshControl, View } from 'react-native';
+
+const Card = () => {
+  const [now] = useState(new Date().toLocaleString());
+
+  return (
+    <View style={{ flex: 1 }}>
+      {Array.from({ length: 100 }).map((_, index) => (
+        <Text key={index} style={{ textAlign: 'center', justifyContent: 'center', fontSize: 16 }}>{`${now}`}</Text>
+      ))}
+    </View>
+  );
+};
+
+const List = () => {
+  const [key, setKey] = useState(new Date().getTime());
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setKey(new Date().getTime());
+      setRefreshing(false);
+    }, 1000);
+  };
+
+  return (
+    <ScrollView
+      key={key} // 키 값을 새로 설정
+      style={{ flex: 1, backgroundColor: 'white', padding: 20 }}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['blue', 'red', 'green']} />
+      }
+    >
+      <View style={{ flex: 1, flexDirection: 'row' }}>
+        <Card key={key} />
+        <Card />
+      </View>
+    </ScrollView>
+  );
+};
+
+export default List;
+```
+从运行结果可以看到，无论子组件的key是什么，所有组件都会重新渲染。
+<Img src="/posts/250302-215259.webp" width={200} alt="请仔细观察秒数"/>
+
+
+<Ads3 />
+## 结论
+本文介绍了在React Native中刷新全部子组件的方法，也可以借此只重新渲染指定组件。结合不同方式，可以更灵活地刷新数据。
+### 进一步思考
+- 为什么不应该把index作为key？
+- 重新渲染整个组件有什么优缺点？
+### 参考资料
+- [React官方文档：Rendering Lists](https://react.dev/learn/rendering-lists)

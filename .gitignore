@@ -12,6 +12,7 @@
 
 # next.js
 /.next/
+/.next-dev/
 /out/
 
 # production
@@ -39,3 +40,7 @@ next-env.d.ts
 # mdx
 # posts
 public/posts/
+
+# Local translation source cache and progress
+.translation-work/
+content/translations/**/*.source.json

@@ -1,0 +1,53 @@
+---
+post_id: '27'
+locale: ja
+title: 公開鍵暗号の概要
+description: 公開鍵暗号について説明します。
+source_hash: 638e4df735a8c7ce9c8ccd33b148d753b5f5e26dc0aa11083447f86a4c53237e
+reviewed_at: '2026-11-06T14:47:19.260Z'
+---
+## 公開鍵暗号とは？ (What is Public Key Cryptography?)
+暗号化に使う鍵と、復号に使う鍵が異なる方式です。
+RSA、ElGamal、NTRUなどがあります。
+長所：鍵を共有しやすく、必要な鍵の数が少なくなります。
+短所：共通鍵暗号より低速です。
+
+## 公開鍵暗号の定義 (Definition of Public Key Cryptography)
+定義：公開鍵暗号PKEは、次のアルゴリズムで構成されます。
+- KeyGen(λ)：セキュリティパラメーターλを入力し、(pk, sk)を出力します。
+- Enc(pk, M)：公開鍵pkと平文Mを入力し、暗号文Cを出力します。
+- Dec(sk, C)：秘密鍵skと暗号文Cを入力し、平文Mを出力します。
+
+正当性
+セキュリティパラメーターλとすべての平文Mについて、次が成立するとき、公開鍵暗号PKEは正しいといいます。
+<Bbox>$$ Dec(sk, Enc(pk, M)) = M $$</Bbox>
+ここで、(pk, sk)はKeyGen(λ)の出力です。
+<Ads1 />
+## 公開鍵暗号の安全性モデル (Security Model for Public Key Cryptography)
+チャレンジャーCと攻撃者Aの間のゲームを考えます。
+Aの目標は公開鍵暗号を破ること、つまり暗号文から平文Mを見つけることです。
+
+1. Setup：チャレンジャーCは、セキュリティパラメーターλを入力し、(pk, sk)を出力します。
+
+   そのうち公開鍵pkをAへ渡します。
+2. Phase1：AはCへ復号クエリを送ります。
+
+   つまり、Aは任意の暗号文$C_i$をCへ送り、Cは$Dec(sk, C_i) = M_i$を返します。
+3. Challenge：Aは二つの平文$M_0, M_1$を選び、Cはその一方を選択して（$b \in \{1, 2\}$）、$Enc(pk, M_b) = C_b$を返します。
+
+   Aは、どちらの平文に対応する暗号文かを表す$b$を推測します。
+4. Phase2：AはCへ復号クエリを送ります。
+
+   つまり、Aは任意の暗号文$C_i$をCへ送り、Cは$Dec(sk, C_i) = M_i$を返します。
+- Aが$b$を推測し、その推測が正しいかを確認します。
+
+$Adv_{PKE}(\lambda) = Pr[b = b'] - \frac{1}{2}$
+
+<Ybox>
+
+攻撃者がセキュリティパラメーターに対して無視できない優位性を得られないとき、その公開鍵暗号方式はIND-XXX安全です。
+</Ybox>
+XXXは、攻撃者に許される復号オラクルによって決まります。
+- CPA (Ciphertext Only Attack)：暗号文のみを利用して平文を見つける攻撃です。
+- CCA (Chosen Ciphertext Attack)：任意の暗号文を復号する攻撃です。
+- CCA2：暗号文を復号する攻撃と、復号オラクルを利用する攻撃です。

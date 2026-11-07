@@ -1,0 +1,137 @@
+---
+title_ko: Next.js의 Incremental Static Regeneration(ISR) 완벽 가이드
+title_en: Comprehensive Guide to Incremental Static Regeneration (ISR) in Next.js
+desc: >-
+  Next.js의 Incremental Static Regeneration(ISR)에 대한 개념부터 구현 방법, 고급 기능까지 자세히
+  알아봅니다.
+thumbnail_url: /250407-152108.webp
+metatag: 'Next.js, ISR, 데이터 패칭, 정적 사이트 생성, 동적 콘텐츠'
+post_id: '190'
+locale: ja
+title: Next.jsのIncremental Static Regeneration（ISR）完全ガイド
+description: Next.jsのISRについて、概念、実装方法、高度な機能まで詳しく説明します。
+source_hash: 962188147d5b65dac40ba49125abcd6bbb6bf3824dc11e4d6138e3c5bd2ac6ba
+---
+
+## はじめに
+ウェブ開発を学んでいると、ページの描画方法に悩むことが増えます。
+Next.jsには大きくSSG、SSR、CSR、ISRの四つの方式があります。
+ISRはSSGとSSRの長所を活用できる機能として、注目されています。
+簡単に表へまとめます。
+| 方式 | 描画するタイミング | SEO | 速度 | 適した用途 |
+|------|--------------|-----|------|--------------|
+| CSR | クライアントで実行するとき | 不利 | 中程度 | ログイン後の個別UIなど |
+| SSR | 要求ごとにサーバーで描画 | 有利 | 遅い | 頻繁に変わるデータ |
+| SSG | ビルド時 | 有利 | 速い | ブログなどの静的コンテンツ |
+| ISR | ビルド後と一定間隔 | 有利 | 速い | 更新間隔のあるコンテンツ |
+
+この表は、それぞれの長所と短所を理解する助けになります。
+ISRは静的ページを一定間隔でバックグラウンド再生成でき、SSGとSSRの利点を組み合わせます。
+私のブログは、それまでSSRで実装していました。
+VercelのEdge Functionとキャッシュを活用していましたが、*Cold Start*により初回の読み込みが遅くなる問題がありました。
+そこで、静的生成と定期的なバックグラウンド再生成を行うISRを導入しました。
+今回はISRの概念から実装、高度な機能まで紹介します。
+<Bbox>SSGだけを使わない理由は、ブログが更新され、新しいコンテンツも比較的速いペースで追加されるからです。</Bbox>
+
+<Ads1 />
+## ISRとは
+仕組みをもう少し詳しく見てみましょう。
+ISRは生成済みの静的ページを、一定間隔でバックグラウンド再生成し、最新データを反映するNext.jsの機能です。
+サイト全体を再ビルドせずに、個別ページを更新できます。
+たとえばブログ記事が追加されたとき、全体を作り直さず、新しい記事を含むページを自動で更新できます。
+
+- *静的コンテンツの部分更新*：全体を再ビルドせず、特定ページを個別に再生成できます。
+- *サーバー負荷の軽減*：事前生成した静的ページを提供するため、負荷を減らせます。
+- *速いページ読み込み*：静的ページを素早く届けられます。
+- *大量のコンテンツへの対応*：多くのページを効率的に管理できます。
+
+## ISRを実装する
+Next.jsの`generateStaticParams`と`revalidate`を組み合わせて使います。
+まず`getStaticProps`で、静的ページを生成するパラメーターの一覧を定義します。
+たとえば記事IDの配列から、各記事のページを生成できます。
+続いて`revalidate`で、ページを再生成する間隔を秒単位で指定します。
+指定した時間に応じ、バックグラウンドで再生成されます。
+
+```tsx
+export const revalidate = 60; // 60초마다 페이지를 재생성
+export const dynamicParams = true; // 동적 파라미터를 사용
+
+export async function generateStaticParams() {
+  const posts = await fetch('https://jsonplaceholder.typicode.com/posts').then(res => res.json())
+
+  return posts.map((post) => ({
+    id: String(post.id), // id를 문자열로 변환
+  }))
+}
+
+const PostPage = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
+	// const additionalData = await fetchAdditionalData(id); // 추가 데이터 fetch
+
+	return (
+		<div>
+			{/* <h1>{additionalData.title}</h1> 추가 데이터의 제목 표시 
+			<p>{additionalData.body}</p> 추가 데이터의 본문 표시 */}
+			<p>게시물 ID: {id}</p> {/* 게시물 ID 표시 */}
+		</div>
+	)
+}
+export default PostPage;
+```
+
+それではビルドします。
+
+```bash
+npm run build
+```
+途中で`Generating static pages (0/20)`のようなメッセージが表示されます。
+これはISRを使ってページを生成していることを示します。
+ページ数は`generateStaticParams`の戻り値によって変わります。
+20件なら`Generating static pages (0/20)`と表示され、静的生成が進んでいることを確認できます。
+<Img src="/250407-222434.webp" width={400} alt="promleeblogの静的ページ"/>
+その後、prerendered as static HTML (uses generateStaticParams)と表示されれば、静的生成が完了しています。
+<Img src="/250407-222646.webp" width={400} alt=""/>
+
+start後に開くと、`posts/1`のようなURLへアクセスできます。
+URLは`generateStaticParams`が返す記事IDで決まります。
+`posts/1`へアクセスすると、最初の記事の内容を確認できます。
+
+### revalidateTagで特定のリソースだけ更新する
+Next.jsはタグによるキャッシュ無効化も提供します。
+
+```tsx
+import { revalidateTag } from 'next/cache'
+
+export async function POST() {
+  revalidateTag('posts') // 'posts' 태그를 가진 모든 캐시 무효화
+  return new Response('OK')
+}
+```
+
+### unstable_cacheで詳細を設定する
+
+```tsx
+import { unstable_cache } from 'next/cache'
+
+const getData = unstable_cache(async () => {
+  const res = await fetch('https://jsonplaceholder.typicode.com/posts')
+  return res.json()
+}, ['posts'], { revalidate: 30 })
+```
+
+<Ads2 />
+## まとめ
+ISRは、静的ページと動的コンテンツの利点を同時に得られる便利な機能です。
+多くのページがあるブログ、EC、ドキュメントサイトなどに適し、最新データを柔軟に反映できます。
+
+## さらに考える
+- `revalidate`を動的に設定できるでしょうか。
+- 特定のリクエストに応じ、ページを強制的に再ビルドできるでしょうか。
+- ISRとEdge Functionをどう組み合わせられるでしょうか。
+
+これらの応用はプロジェクトによって役立つため、今後の記事で取り上げる予定です。
+
+## 参考
+
+- [公式ドキュメント：ISR - Next.js Docs](https://nextjs.org/docs/app/building-your-application/data-fetching/incremental-static-regeneration)
+- [JSONPlaceholder](https://jsonplaceholder.typicode.com/)：サンプルAPI

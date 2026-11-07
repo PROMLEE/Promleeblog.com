@@ -1,0 +1,79 @@
+---
+title_ko: 마지막 - 하루 10분 운영체제 20일차
+title_en: Last One - 10 Minutes of OS Day 20
+desc: '운영체제 20일차 완결편! 지금까지 배운 핵심 개념을 하나의 이야기로 연결해 복습하고, 실생활 속 OS를 이해하는 관점을 제시합니다.'
+thumbnail_url: /250424-220136.webp
+metatag: '운영체제 정리, OS 복습, 시스템 이해, 커널, 프로세스, 메모리, 파일, 네트워크, 분산 시스템'
+post_id: '231'
+locale: en
+title: 'The Final Review — 10 Minutes of Operating Systems, Day 20'
+description: >-
+  Connect the operating-system concepts from days 1–19 into a complete picture
+  of processes, memory, files, protection, virtualization, and networks.
+source_hash: 0a627b47798dd63b6a7099501f952bf9bdaf0e81ee18a5d76d576004e992f997
+---
+## Before getting started
+Well done to everyone who has spent ten minutes a day studying operating systems.
+In this final post, we will connect what we learned from days 1 through 19 into one continuous story.
+## What did operating systems cover?
+We began by asking, “What is an operating system?”
+Launching an app on a phone or saving a document on a computer is possible *because of the operating system*.
+Like an unseen manager, it coordinates *processes, memory, files, I/O devices, and network resources*.
+For example, when you launch an app, the OS:
+- Creates a *process* and adds it to the CPU schedule.
+- Finds and allocates the *memory* it needs.
+- Provides access to storage through the *file system* when files are needed.
+- Connects it to input devices such as a mouse and keyboard and output devices such as a screen and speakers.
+- Lets it retrieve information from the Internet through the network.
+
+<Ads1 />
+## Reviewing the twenty-day journey as a whole
+An operating system does more than simply run programs.
+It enables multitasking by coordinating *several programs running at once*.
+It decides in real time *who uses the CPU, when, and how memory should be shared*.
+
+### Days 1–5: Operating-system fundamentals
+We covered what an operating system is, then processes, threads, and CPU scheduling.
+- A process is a running program; a thread is a smaller flow of execution within it.
+- Scheduling alternates between processes to keep the CPU busy.
+- Multiple threads allow a single program to work in parallel.
+### Days 6–10: Memory, synchronization, and deadlock
+- *Synchronization tools* prevent conflicts when threads use the same resources simultaneously.
+- We encountered *semaphores, mutexes, and monitors*.
+- Deadlock was the state in which everyone waits for someone else and no one can proceed.
+
+Memory was important too.
+Following contiguous allocation through paging, the TLB, swapping, and virtual memory helped us understand *the difference between an address space and physical memory*.
+<Ads2 />
+
+### Days 11–15: Storage and file systems
+A file system is more than a technique for reading and writing files.
+- Disk performance depends on the order of accesses.
+- File systems store data in blocks.
+- Structures such as directories, inodes, and FCBs manage files and their metadata.
+
+We also covered protection and security.
+- Separating permissions, access-control lists, encryption, and authentication form the foundation for a *trustworthy system*.
+### Days 16–19: Protection, virtualization, networks, and distributed systems
+We learned that an OS *protects programs from interfering with one another*.
+Through *virtual machines*, it can even run another operating system.
+Ultimately:
+- Exchanging data over a *network*.
+- Making multiple computers work together as one in a *distributed system*.
+
+These are part of the *real picture* of a modern operating system.
+## What it means to truly understand an operating system
+We can now see an operating system not merely as the computer's basic program, but as a *platform that lets all programs work together*.
+- How many tasks does the OS perform simultaneously when you launch one app?
+- What decisions does it make to avoid errors and maximize performance?
+
+We can now consider programs from the OS's perspective and develop *an eye for designing and optimizing the entire system*.
+<Ads3 />
+## Summary
+Operating systems are no longer a subject only computer-science majors need to understand.
+They are the structural foundation and intelligent manager that app developers, data analysts, and infrastructure engineers all rely on.
+I sincerely hope this series provides a dependable foundation for your future development and study.
+
+### References
+- Operating System Concepts (10th Edition)
+- https://en.wikipedia.org/wiki/Operating_system

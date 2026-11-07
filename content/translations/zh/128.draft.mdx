@@ -1,0 +1,151 @@
+---
+title_ko: 네비게이션 바 탭 이벤트를 위젯에서 사용하기
+title_en: Maintaining a per-tab stack of navigation bars
+desc: '하단 네비게이션 바를 설정하고, 각 탭을 눌렀을 때 해당 페이지로 이동하도록 설정해보겠습니다.'
+post_id: '128'
+locale: zh
+title: 在Widget中使用导航栏标签切换事件
+description: 为Flutter页面内部的Widget传递标签切换回调，从通知页跳转到搜索页。
+source_hash: 22e39184338b887f6ae95d14cd9a8e08f93717960de20ab9a6a1c48f56a699fc
+---
+## 开始之前
+> 1. 目标、条件与初始配置：[链接](/blog/post/124-goals-init-paging)
+> 2. 登录页面分流（FlutterSecureStorage）：[链接](/blog/post/125-login-branch-paging)
+> 3. 设置底部导航栏：[链接](/blog/post/126-bt-navigation-paging)
+> 4. 为导航栏每个标签保留独立栈：[链接](/blog/post/127-nav-tabevent-paging)
+>
+> 假设你已经按顺序参考以上文章，完成了项目配置。
+> 本文基于Flutter 3.24编写。
+
+到目前为止，我们已经让底部导航栏在额外打开的页面中也能正常工作。最后一步，是让页面内部的Widget同样能够切换标签。
+这次内容很简单：让Notification Screen中的操作可以跳转到Search Screen。
+## 1. 修改Notification Screen
+我们通过参数接收函数，再执行这个函数。点击放大镜图标按钮时，切换到索引为1的Search Screen标签。
+```dart
+import 'package:flutter/material.dart';
+
+class NotificationsScreen extends StatelessWidget {
+  const NotificationsScreen({super.key, required this.onTap});
+
+  final Function(int) onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: IconButton(
+          onPressed: () {
+            onTap(1);
+          },
+          icon: const Icon(Icons.search, size: 100),
+          iconSize: 100),
+    );
+  }
+}
+```
+
+<Ads1 />
+## 2. 修改MainPage
+在MainPage中重写initState，创建各个标签页面，并将切换函数传给对应页面。
+```dart
+import 'package:flutter/material.dart';
+import 'package:navigationbar_example/view/tabs/home_screen.dart';
+import 'package:navigationbar_example/view/tabs/notifications_screen.dart';
+import 'package:navigationbar_example/view/tabs/profile_screen.dart';
+import 'package:navigationbar_example/view/tabs/search_screen.dart';
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  MainPageState createState() => MainPageState();
+}
+
+class MainPageState extends State<MainPage> {
+  int _currentIndex = 0; // 현재 선택된 탭의 인덱스
+
+  final List<GlobalKey<NavigatorState>> _navigatorKeys = [
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+  ];
+
+  void _onTap(int index) {
+    if (index == _currentIndex) {
+      _navigatorKeys[index].currentState?.popUntil((route) => route.isFirst);
+    } else {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
+  }
+
+  // 각 탭에서 보여줄 화면 리스트(비워져 있음)
+  final List<Widget> _pages = [];
+
+  @override // 각 탭에 보여줄 화면을 생성(onTap 함수를 전달)
+  void initState() {
+    super.initState();
+    _pages.addAll([
+      const HomeScreen(),
+      const SearchScreen(),
+      NotificationsScreen(onTap: _onTap),
+      ProfileScreen(),
+    ]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentIndex,
+        children: List.generate(_pages.length, (index) {
+          return Navigator(
+            key: _navigatorKeys[index],
+            onGenerateRoute: (routeSettings) {
+              return MaterialPageRoute(
+                builder: (context) => _pages[index],
+              );
+            },
+          );
+        }),
+      ), // 선택된 탭의 화면을 보여줄 위젯
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex, // 선택된 탭 인덱스
+        onTap: _onTap, // 탭 선택 시 호출할 함수
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        selectedItemColor: Colors.blue, // 선택된 아이템 색상
+        unselectedItemColor: Colors.grey, // 선택되지 않은 아이템 색상
+      ),
+    );
+  }
+}
+```
+## 3. 确认运行结果
+运行应用，在Notification Screen点击放大镜图标按钮，可以看到页面切换到了Search Screen。
+<Img src="/posts/250113-185013.gif" width={200} alt=""/>
+
+## 结论
+这次介绍了如何保持底部导航栏各标签的独立栈，并使页面内部的操作能够切换标签。即使有底部导航栏，也可以从各个页面发起标签跳转。
+
+
+### 参考资料
+- [Flutter Navigator class](https://api.flutter.dev/flutter/widgets/Navigator-class.html)
+- [Flutter IndexedStack class](https://api.flutter.dev/flutter/widgets/IndexedStack-class.html)

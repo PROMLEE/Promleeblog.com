@@ -1,0 +1,19 @@
+---
+post_id: '60'
+locale: en
+title: Designing with Visibility in Mind
+description: Understanding visibility when designing interactions between objects.
+source_hash: 22dfe35c62bf1395b1cbe93000181aa46cb24d5c7bdf538200d6c98e5b73d657
+reviewed_at: '2026-11-06T14:37:30.830Z'
+---
+## Visibility
+An object's ability to *see* another object, or to hold a reference to it.
+More generally, this is a question of *scope*: Is one resource, such as an instance, within the scope of another?
+Visibility from object A to object B:
+- Parameter visibility: B is a parameter of a method on A. → UML dependency.
+- Local visibility: B is a local object, rather than a parameter, within a method on A. → UML dependency.
+- Attribute visibility: B is an attribute of A. → UML association.
+- Global visibility: B is globally visible in some way. → UML association.
+
+Why consider visibility?
+- For object A to send a message to object B, B must be visible to A.

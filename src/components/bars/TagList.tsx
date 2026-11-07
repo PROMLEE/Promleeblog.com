@@ -1,13 +1,14 @@
 "use client";
 
 import { TagsService } from "@/config/apis/service/tags";
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
+import { stripLocale } from "@/lib/i18n/routing";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const TagList = () => {
   const [tagList, setTagList] = useState<TagsResponse.GetTags["data"]>([]);
-  const pathname = usePathname();
+  const pathname = stripLocale(usePathname());
 
   useEffect(() => {
     TagsService()
