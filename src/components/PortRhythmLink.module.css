@@ -1,0 +1,30 @@
+.wrapper {
+  position: relative;
+}
+.tooltip {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 60;
+  width: 260px;
+  padding: 16px;
+  border: 1px solid rgba(var(--text), 0.2);
+  border-radius: 10px;
+  background: rgb(var(--foreground));
+  color: rgb(var(--text));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  font-size: 13px;
+  line-height: 1.8;
+  word-break: keep-all;
+}
+.tooltip strong {
+  display: block;
+  margin-bottom: 6px;
+  color: rgb(var(--text-foreground));
+  font-size: 14px;
+}
+@media (max-width: 767px) {
+  .tooltip {
+    width: 190px;
+  }
+}
