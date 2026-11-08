@@ -1,0 +1,207 @@
+---
+post_id: '433'
+locale: en
+title: The AI Code Verification Loop
+description: >-
+  Verify code changes made by Claude and Codex, from reproducing the failure
+  through type checks, tests, and browser behavior. Use a search filter example
+  to write a regression test, report failures, decide when to stop retrying, and
+  document what was checked and what remains unverified.
+source_hash: acf9e43d9d496cf6d4d33f1a4fa9003124f9e8d6ed29b0da69794e6af3bb1e5b
+---
+## Before We Begin
+
+You ask an AI to fix a search filter and it reports, “Type checks and tests all passed.” In the browser, you change the filter twice and press Back. The URL goes back to the earlier value, but the input retains the newer one. Successful compilation and passing tests can leave the behavior users expect unchecked.
+
+<br/>
+
+To reduce this kind of rework, **define the expected behavior and feed observed results into the next fix**. Using the search filter as an example, we'll connect reproduction, a small fix, re-verification, and the decision to stop. The request and completion report templates work with both Claude and Codex.
+
+## Verification Criteria
+
+> Check whether the verification command succeeded and whether the requested feature works.
+
+“Sync the search filter with the URL” has several possible interpretations. Should it read only the initial value? Should it handle refresh and Back? How should it represent an empty query? Giving the AI observable criteria before implementation aligns the fix and its verification.
+
+```text title="검색 필터 완료 조건"
+입력: 검색어 A로 검색한 뒤 B로 다시 검색
+기대: URL의 q와 검색 입력값이 B를 표시
+추가 동작: 브라우저 뒤로 가기
+기대: URL의 q와 검색 입력값이 모두 A로 복원
+새로고침: 복원된 A가 그대로 유지
+제외 범위: 검색 API와 정렬 규칙은 변경하지 않음
+```
+
+These criteria leave implementation open. Decide whether to add `useEffect` or change state ownership after reading the code. Expressing the criteria as behavior lets the same checks apply even if the implementation changes.
+
+Claude Code's documentation recommends giving the agent ways to check its work, such as tests, screenshots, or expected output. [Claude Code verification best practices](https://code.claude.com/docs/en/best-practices)
+
+<Bbox>
+For a bug fix, include the failing input and reproduction steps alongside the expected result. “A → B → Back leaves the URL at A and the input at B” narrows the problem more effectively than “Back puts the state out of sync.”
+</Bbox>
+
+## Reproducing the Failure
+
+First, reproduce the problem before changing the code. Without a reproduction, a working screen after the edit offers little evidence that the original bug was fixed. Briefly record the code version, command, input, expected result, and observed result.
+
+<br/>
+
+Automate the reproduction as a regression test if possible. A regression test checks whether a later change brings back the problem you fixed. The search filter involves browser history, so testing a function alone leaves part of the behavior unchecked.
+
+```ts title="tests/search-history.spec.ts" showLineNumbers
+import { test, expect } from "@playwright/test";
+
+test("뒤로 가기 뒤 검색어가 URL과 함께 복원된다", async ({ page }) => {
+  await page.goto("/search");
+  const input = page.getByRole("textbox", { name: "검색어" });
+  const submit = page.getByRole("button", { name: "검색", exact: true });
+
+  await input.fill("alpha");
+  await submit.click();
+  await expect(page).toHaveURL(/\?q=alpha$/);
+
+  await input.fill("beta");
+  await submit.click();
+  await expect(page).toHaveURL(/\?q=beta$/);
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\?q=alpha$/);
+  await expect(input).toHaveValue("alpha");
+
+  await page.reload();
+  await expect(input).toHaveValue("alpha");
+});
+```
+
+The example assumes `/search` generates a URL with only `q` and that the input and button have the accessible names shown. Adapt the route, query structure, and element names to your repository. If there are several query parameters, use `URL.searchParams` to check `q` instead of comparing the end of the URL string.
+
+Playwright web assertions such as `toHaveURL` and `toHaveValue` retry until the expectation is met. This lets you wait for the actual URL and input value instead of sleeping for a fixed time. [Playwright assertions documentation](https://playwright.dev/docs/test-assertions)
+
+<Ybox>
+Check why the test fails before the fix. A failure to locate the input does not reproduce the restoration bug. Make sure the assertion fails at the intended point, with a result such as “expected alpha but found beta.”
+</Ybox>
+
+<Ads1/>
+
+## Fixing and Rechecking
+
+Once the failure is reproducible, pick one hypothesis and change the code it concerns. If the interface reads the URL only on initial render, check whether the input state updates when Back changes the query. Changing the search API or sorting rules at the same time makes it harder to tell which edit fixed the issue.
+
+<Img src="/261012-070002.webp" width={650} height={433} alt="AI code verification loop that reproduces the failure, makes a small fix, checks the result, and returns to the fix if verification fails"/>
+
+After the edit, run the same input and assertions again. Once the test that catches the bug passes, check related existing behavior. Choose paths the change could affect, such as typing a query, clearing it, refreshing, and going back.
+
+<br/>
+
+OpenAI's Codex example also connects review, repair, and verification, using any remaining failures as input to the next fix. [OpenAI iterative repair loop example](https://developers.openai.com/cookbook/examples/codex/build_iterative_repair_loops_with_codex)
+
+### Verification Order
+
+Start with fast checks relevant to the change, then widen coverage as needed. Include the test that reproduces the bug early. A fast type check is no reason to postpone a browser reproduction until the end.
+
+| Check | What it verifies | What to check separately |
+| --- | --- | --- |
+| Type checking and linting | Type contracts and violations of static rules | User behavior and runtime data |
+| Unit tests | Function or component inputs and outputs | Actual API and database connections |
+| Integration tests | Connections between modules, APIs, and data layers | Real browser navigation and interface state |
+| Browser verification | User flows such as clicking, refreshing, and going back | Other permissions, edge cases, and the production environment |
+| Build | Creation of deployment artifacts | Service behavior after deployment |
+
+<Img src="/261012-070003.webp" width={650} height={433} alt="Comparison of what type checks, unit tests, integration tests, and browser checks cover and what remains to verify"/>
+
+If the example repository configures `typecheck`, `test`, and `build` scripts and Playwright, you can run checks like these. Inspect your project's `package.json` and test configuration and substitute the actual commands.
+
+```bash title="변경 범위별 검증 명령"
+npm run typecheck
+npm run test -- tests/search-state.test.ts
+npx playwright test tests/search-history.spec.ts
+npm run build
+```
+
+Choose checks based on impact. For a copy edit, a subset may suffice. Run a build for dependency or build configuration changes, and run consumer tests for changes to an API response. For permission changes, test both users who should have access and those who should be denied.
+
+<Ads2/>
+
+## Feeding Back a Failure
+
+Telling the AI only “The test failed. Fix it again” can lead it to repeat the same hypothesis. Before sending the full log, identify the failed command, test name, expected and observed values, and the relevant log path. Keep the original log available for further inspection.
+
+```text title="검증 실패 전달"
+명령: npx playwright test tests/search-history.spec.ts
+실패: 뒤로 가기 뒤 검색어가 URL과 함께 복원된다
+기대: 입력값 alpha
+관찰: URL은 q=alpha, 입력값은 beta
+통과: 첫 검색, 두 번째 검색, URL의 뒤로 가기
+변경: SearchForm의 초기값 처리
+다음 확인: URL 변경을 입력 상태가 다시 읽는지
+로그: test-results/search-history/error-context.md
+```
+
+Separate observations from the next hypothesis. “The URL changed” is an observation. “State synchronization is missing” still needs checking. This distinction helps prevent the AI from treating a guess as a confirmed cause.
+
+### When to Stop
+
+Retries are useful when they build on new evidence. You can put the conditions for continuing and stopping in the task request.
+
+- When the reproduction test and relevant regression checks pass, move to the completion report.
+- If the same failure recurs without a new observation, stop editing and return to diagnosis.
+- If the execution environment is unavailable, record what remains unverified and how to reproduce it.
+- If requirements or permission policy need a decision, tell the user what must be decided.
+
+OpenAI's iterative repair example also gives passing verification, an attempt limit, stalled progress, and the need for human review as stopping conditions. [OpenAI iterative repair loop stopping conditions](https://developers.openai.com/cookbook/examples/codex/build_iterative_repair_loops_with_codex)
+
+<Rbox>
+Keep the tests and their expected results intact. If the requirements still apply, fix the implementation so it meets the verification criteria.
+</Rbox>
+
+## Evidence of Completion
+
+A report with explicit verification coverage is more useful to the next person than “Everything works.” List the commands you ran, behavior you checked, and remaining limits separately so the reviewer can decide what to inspect.
+
+```text title="완료 보고 예시"
+변경: URL 변경 시 검색 입력값도 동기화
+통과: 타입 검사, 검색 상태 단위 테스트
+통과: alpha → beta → 뒤로 가기 → 새로고침 E2E
+확인: URL과 입력값이 alpha로 복원
+미검증: Safari 실행 환경이 없어 해당 브라우저 미확인
+제외: 검색 API와 정렬 규칙은 변경하지 않음
+```
+
+This report illustrates the format. It does not describe a run against a live service. In a real report, mark a command or browser check as passed only if you ran it.
+
+<Bbox>
+If you edit the code after verification, rerun checks affected by the edit. The earlier results apply to the earlier code.
+</Bbox>
+
+<Ads3/>
+
+### Task Request Template
+
+Adapt this request for Claude or Codex. Specific commands and completion criteria let the AI handle code changes and verification as one task.
+
+```text title="AI 코드 수정 요청"
+목표: 검색 필터의 뒤로 가기 복원 오류 수정
+재현: alpha로 검색 → beta로 검색 → 뒤로 가기
+기대: URL과 입력값이 모두 alpha, 새로고침 뒤에도 유지
+범위: 검색 폼 상태와 관련 테스트
+검증: 기존 package.json의 타입 검사와 관련 테스트 실행
+회귀: 위 재현을 잡는 테스트를 수정 전후로 확인
+재시도: 같은 실패에 새 근거가 없으면 원인과 상태를 보고
+완료 보고: 변경 요약, 실행 명령, 결과, 미검증 범위
+```
+
+For small changes, use the fields you need. Keep enough information to recognize an error and a way to check the result.
+
+## Conclusion
+
+A code verification loop defines the expected behavior, reproduces the failure, and connects a small fix to its observed result. Type checks, tests, and browser verification cover different ground, so choose them according to the impact of the change.
+
+<br/>
+
+**Use the failure as evidence for the next fix and record what you verified on the final code.** Including this process in the task request can reduce repeated explanations and speculative edits while giving reviewers a clear scope.
+
+### References
+
+- [Claude Code verification best practices](https://code.claude.com/docs/en/best-practices)
+- [OpenAI iterative repair loop example](https://developers.openai.com/cookbook/examples/codex/build_iterative_repair_loops_with_codex)
+- [Playwright assertions documentation](https://playwright.dev/docs/test-assertions)

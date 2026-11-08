@@ -1,0 +1,416 @@
+---
+post_id: '442'
+locale: en
+title: PortRhythm User Guide 7 — Rebalancing
+description: >-
+  Follow rebalancing on desktop and mobile. Compare selling before buying with
+  investing new funds, manage candidates and exclusions, and review temporary
+  prices, whole shares, and remaining funds. Learn what projected weights cover,
+  why proposals may be missing, and how to update balances after trading.
+source_hash: 95359610759c809928bc9dc0f099589c4ba527d479b9a8743864642b48618740
+reviewed_at: '2026-11-08T04:00:06.325Z'
+---
+## Before We Begin
+
+> “I know which portfolio is underweight. How many shares should I buy?”
+
+In [Part 6, Comparing Current and Target Weights](https://www.promleeblog.com/blog/post/441-portrhythm-current-target-allocation-guide), we identified overweight and underweight portfolios. Here we'll turn those differences into **numbers of shares to buy and sell**.
+
+Balancing weights is like bringing cups of water to the same level. You can move water from a fuller cup or pour new water into a less full one. PortRhythm calls these methods `매도 후 매수` (Sell Then Buy) and `신규 자금으로 매수` (Buy With New Funds).
+
+<br/>
+
+<Bbox>
+
+By the end, you should be able to explain which securities to adjust, by how many shares, and what differences may remain. The app provides proposals for review. Place actual orders through your brokerage or exchange.
+
+</Bbox>
+
+[Open PortRhythm](https://pf.promleeblog.com)
+
+The screenshots show illustrative holdings from a local test account. The portfolios, securities, and weights are examples. The calculations below are separate from the screenshots.
+
+<br/>
+
+## 1. The Rebalancing Screen
+
+Choose `리밸런싱` (Rebalancing) from the left menu on desktop or tap `리밸런싱` (Rebalancing) in the bottom menu on mobile. You can also use `리밸런싱 보기` (View Rebalancing) below Portfolio Weights.
+
+<Img src="/portrhythm-guide7-desktop-trade-20261009.webp" width={800} alt="Desktop rebalancing method selector and proposed buy and sell quantities by portfolio"/>
+
+Read the screen from top to bottom.
+
+- `조정 제안` (Adjustment Proposals). Choose a method and check quantities and projected weights by portfolio.
+- `이번 조정에서 제외할 보유 종목` (Holdings to Exclude From This Adjustment). Select positions to leave out of the calculation.
+- `조정 후 미리보기` (Post-Adjustment Preview). Review the number of buy and sell proposals and the funds left over.
+- `매수 후보 종목` (Buy Candidates). Add and manage the securities you might buy for underweight portfolios.
+
+<br/>
+
+### 1.1 Mobile Screen
+
+On mobile, the method selector is to the right of `조정 제안` (Adjustment Proposals). Proposals are stacked by portfolio. Scroll down for the results and candidate list.
+
+<Img src="/portrhythm-guide7-mobile-trade-20261009.webp" width={350} alt="Mobile Sell Then Buy selection and proposals by portfolio"/>
+
+Check `조정 후 미리보기` (Post-Adjustment Preview) as well as the quantities at the top. If the candidate list is collapsed, tap `매수 후보 종목` (Buy Candidates) to expand it.
+
+<br/>
+
+## 2. Checks Before Calculating
+
+The calculation uses registered assets, prices, and assignments. Check each input before relying on the resulting quantities.
+
+| What to check | Where to check | What to do first |
+| --- | --- | --- |
+| Actual quantities and cash | Holdings and Edit Assets | Reconcile balances and look for duplicates |
+| Current prices and exchange rates | Refresh Prices and Target Design | Check the prices and rates in use |
+| Portfolio assignments | Asset Assignment | Resolve unclassified assets and incorrect assignments |
+| Targets and tolerances | Target Design and Change Criteria | Confirm saved settings |
+
+Address any `가격 미확인` (Price Unavailable) or `미분류 자산` (Unclassified Assets) notices first. If no assets have prices, start by registering assets. The `자산 배정으로 이동` (Go to Asset Assignment) control opens the assignment screen.
+
+<br/>
+
+### 2.1 Tolerance
+
+Tolerance sets how far a weight can drift from its target before you consider adjusting it. For a target of 50% and a tolerance of ±5 percentage points, 45% to 55% is generally the monitoring range.
+
+Check separately for portfolios with a target weight and a current value of zero. Displayed percentages are rounded, so the notice near a boundary can depend on the unrounded value.
+
+To change the criteria, click `기준 변경` (Change Criteria). Make the edit in Target Design, click `변경 내용 저장` (Save Changes), and return. [Part 6](https://www.promleeblog.com/blog/post/441-portrhythm-current-target-allocation-guide) explains tolerances and `%p` in detail.
+
+<br/>
+
+## 3. Two Ways to Rebalance
+
+**Decide whether to raise cash by selling existing shares or add new funds.** The same weight difference can lead to different quantities and projected weights depending on the method.
+
+| Method | Buy budget | Selling existing shares |
+| --- | --- | --- |
+| Sell Then Buy | Estimated proceeds from proposed stock sales | Calculates sale quantities for overweight portfolios |
+| Buy With New Funds | The new funds entered for this calculation | Keeps existing holdings, with no sale proposals |
+
+Existing cash can be included in current valuations and portfolio weights. **Neither method automatically adds that cash balance to the buy budget.** Compare the budget shown on the screen with what you actually intend to spend.
+
+<br/>
+
+### 3.1 Two Portfolios, Same Target
+
+Suppose portfolio A holds KRW 6 million and B holds KRW 4 million, with a target of 50% each. Set aside trading units and costs for the moment.
+
+- `매도 후 매수` (Sell Then Buy). Move KRW 1 million from A to B. Each ends at KRW 5 million.
+- `신규 자금으로 매수` (Buy With New Funds). Keep A at KRW 6 million and add KRW 2 million to B. Each ends at KRW 6 million.
+
+Both reach 50:50. The new-funds method requires more money because total assets rise to KRW 12 million.
+
+<br/>
+
+## 4. Sell Then Buy
+
+Under `리밸런싱 방법` (Rebalancing Method), select `매도 후 매수` (Sell Then Buy). The app calculates how many shares can be sold from overweight portfolios and uses the estimated proceeds to calculate purchases for underweight portfolios.
+
+### 4.1 Reading a Proposal
+
+Review each portfolio row in this order.
+
+- `목표와 차이` (Difference From Target). Target weight minus current weight. A positive value indicates an increase, and a negative one indicates a reduction.
+- Ticker, quantity, and direction. Look for a proposed trade such as `AAPL 6주 매도` (Sell 6 AAPL Shares).
+- `약 ○○원` (Approximately KRW XX). The estimate based on the price and quantity used.
+- `조정 후 예상` (Projected After Adjustment). The portfolio weight if the share proposals are applied.
+
+Portfolio Weights subtracts target from current. This screen subtracts current from target, so the sign reverses while the assets stay in place.
+
+<br/>
+
+### 4.2 Whole Shares
+
+The app calculates in **whole shares**. If a portfolio is overweight by KRW 1 million and one share costs KRW 300,000, it may propose selling three shares for about KRW 900,000. Four shares would be worth KRW 1.2 million, above the calculated excess.
+
+Purchases also use the available whole-share quantity. The amount you want to move can differ from what you can trade exactly.
+
+<br/>
+
+### 4.3 How the Budget Is Used
+
+Within an overweight portfolio, the app starts with the highest-value eligible holding when calculating sales. Purchases use the budget starting with the portfolio that has the largest shortfall.
+
+Several portfolios can be underweight without receiving equal amounts. After the earlier portfolios use the funds, later ones may lack enough to buy even one share.
+
+<Toggle title="Why does it say Sell without showing a quantity?">
+
+A Sell label beside a portfolio can indicate the direction of adjustment. Check for the ticker, the number of shares to sell, and the sale count in the preview to see whether a trade was calculated.
+
+A quantity can be absent when the portfolio has no eligible shares, its excess is too small for one share, or all its holdings are excluded.
+
+</Toggle>
+
+<Ads1/>
+
+<br/>
+
+## 5. Buy With New Funds
+
+Select `신규 자금으로 매수` (Buy With New Funds) to open `이번에 투입할 금액 (원)` (Amount to Add, KRW). Enter the new contribution you want to use in the calculation.
+
+<Img src="/portrhythm-guide7-desktop-add-20261009.webp" width={800} alt="Desktop Buy With New Funds proposals for a KRW 1 million contribution"/>
+
+- Enter the amount in won. For KRW 1 million, enter `1000000`.
+- Check buy quantities by portfolio. The calculation leaves existing shares in place.
+- Check projected weights and remaining funds. The calculation uses the total after the contribution.
+
+Changing the amount recalculates the proposals. The input itself leaves deposits, orders, and holdings unchanged.
+
+<br/>
+
+### 5.1 Mobile Input
+
+Select the method, then enter a number in the amount field. Scroll down to see the results.
+
+<Img src="/portrhythm-guide7-mobile-add-20261009.webp" width={350} alt="Mobile Buy With New Funds screen with a won-denominated amount and proposals"/>
+
+The amount is in won even if you plan to invest dollars. Check the exchange rate used when calculating U.S. share quantities.
+
+<br/>
+
+### 5.2 Leaving the Amount Blank
+
+A blank field uses the **theoretical amount of new funding needed**. A zero budget is a separate case.
+
+Enter `0` to see the result with no new funds. Starting with an amount you can actually contribute makes the result easier to interpret.
+
+<Ybox>
+
+The theoretical amount comes from the relationship between portfolio values and target weights. It does not prescribe an investment or an exact order budget. Candidate prices, exclusions, whole-share quantities, and costs can still leave weights short of their targets.
+
+</Ybox>
+
+In the KRW 6 million and KRW 4 million example, you could review a contribution of KRW 1 million even if the theoretical amount is KRW 2 million. If all of it goes to B, A is about 54.5% and B about 45.5% of the new KRW 11 million total. You can still see how the gap narrows.
+
+<Toggle title="What if a portfolio has assets and a 0% target?">
+
+If a portfolio has assets, a target of 0%, and zero tolerance, adding a finite amount to other portfolios cannot bring its weight exactly to zero. You may see a notice that a portfolio with a 0% target cannot be adjusted by buying alone.
+
+Read the explanation for each portfolio alongside the theoretical funding amount.
+
+</Toggle>
+
+<br/>
+
+## 6. Excluding Holdings
+
+If there are shares you want to leave out of purchases or sales, expand `이번 조정에서 제외할 보유 종목` (Holdings to Exclude From This Adjustment). Check the brokerage, name, and ticker before selecting an entry.
+
+<Img src="/portrhythm-guide7-desktop-exclude-20261009.webp" width={800} alt="Desktop example where excluding an Apple holding reduces the proposed buy and sell counts to zero"/>
+
+Check how the quantities and proposal counts change. In the screenshot, excluding the only holding removed the expected sale proceeds, so there were zero buy proposals too.
+
+**Excluded holdings still count toward total valuation and current weights.** The app keeps them in your holdings.
+
+<br/>
+
+On mobile, expand the same heading and select a holding. Clear the checkbox to restore it to the calculation.
+
+The exclusion list covers registered stock holdings. Crypto and manually entered cash have no checkboxes in this list.
+
+<Toggle title="What if I hold the same ticker in several accounts?">
+
+The list shows the brokerage and security for each position. A sale exclusion applies to the selected position.
+
+A buy candidate can be omitted if any excluded position has the same market and ticker. Check the results because excluding one account can affect purchase proposals for the same ticker.
+
+</Toggle>
+
+<br/>
+
+## 7. Buy Candidates
+
+An underweight portfolio still needs a security to buy. Expand `매수 후보 종목` (Buy Candidates) at the bottom to register candidates.
+
+<Img src="/portrhythm-guide7-desktop-candidates-20261009.webp" width={800} alt="Desktop buy candidate search for AAPL in the U.S. market with the Blue Chip portfolio selected"/>
+
+### 7.1 Adding Candidates
+
+- Choose `배정할 포트` (Portfolio to Assign) for the prospective purchase.
+- Choose `시장` (Market). Use Korea for Korean listings and the U.S. for U.S. listings.
+- Enter `종목명 또는 종목코드` (Security Name or Ticker). Check the ticker when names are similar.
+- Click `KIS 검색` (KIS Search). Verify the result's name, ticker, and exchange.
+- Select the result and check that it appears under `등록된 후보` (Registered Candidates).
+- Click `변경 내용 저장` (Save Changes), then return to the proposals.
+
+Selecting a search result is required to add it. You can register candidates you do not own yet.
+
+<br/>
+
+### 7.2 Mobile Search
+
+On mobile, the search field, button, and results follow the portfolio and market selectors. Tap a result, then check the registered list and save button below.
+
+<Img src="/portrhythm-guide7-mobile-candidates-20261009.webp" width={350} alt="Mobile buy candidate search showing the portfolio and market, an AAPL query, and the Apple NAS result"/>
+
+The screenshot shows the search result before Apple was saved as a candidate.
+
+<br/>
+
+### 7.3 How Candidates Affect Automatic Assignment
+
+The candidate list also supplies automatic stock assignment rules. Changing a candidate's portfolio can change where automatically assigned holdings with the same market and ticker are counted.
+
+Manual assignments take precedence. If a candidate sits in one portfolio and an existing holding is manually assigned elsewhere, the preview can differ from the weights after you update the actual balance. If you plan to add to that same position, check that its actual assignment matches the candidate portfolio.
+
+<Bbox>
+
+After moving or deleting a candidate, check `자산 배정` (Asset Assignment) and `포트 비중` (Portfolio Weights). The setting can affect automatic classification of existing holdings as well as buy proposals.
+
+</Bbox>
+
+Use the selector on the candidate row to change its assignment, or the trash icon to delete it. Save after making changes. Removing a candidate leaves any actual holding in place.
+
+<br/>
+
+### 7.4 Multiple Candidates
+
+The calculation uses the first candidate in registration order that is eligible and has a price. It does not split purchases across all candidates in a portfolio.
+
+If the first candidate costs more per share than the budget, the app may leave the purchase unfilled even if a later candidate is cheaper. Check the proposed ticker and quantity. The current screen has no direct reordering control.
+
+<Toggle title="Why is there no buy proposal for a stock I already hold?">
+
+Existing holdings do not automatically become buy candidates. Check whether the security is a candidate for that portfolio, whether a price is available, and whether a holding with the same ticker is excluded.
+
+Sales use holdings assigned to the portfolio. Purchases use the candidate list. Even with a price and budget, a portfolio without a candidate may have no buy quantity.
+
+</Toggle>
+
+<br/>
+
+## 8. Candidate Prices
+
+The app divides the available amount by the price per share. A price is needed to calculate a quantity.
+
+Expand `임시 가격` (Temporary Price) on a candidate row to enter a price for review when no quote is available. Enter won for Korean listings and dollars for U.S. listings.
+
+<Img src="/portrhythm-guide7-desktop-price-20261009.webp" width={800} alt="Desktop temporary price field for the U.S. candidate SPY with its dollar unit"/>
+
+The calculation checks the fetched candidate price, the current price of a holding in the same security, the temporary price, and the holding's screenshot price, in that order. **An available quote can take precedence over a temporary price.**
+
+If changing the temporary price leaves the quantity unchanged, check whether a fetched or holding price is taking priority. Save the temporary price change. Before placing an actual order, check the quote and available buying power at your brokerage.
+
+<br/>
+
+## 9. Post-Adjustment Preview
+
+Review the proposals together at the bottom. Once you have checked the quantities, see whether the combined result fits your goal.
+
+<Img src="/portrhythm-guide7-mobile-preview-20261009.webp" width={350} alt="Mobile preview for KRW 1 million in new funds, showing two buy proposals, no sells, and remaining funds"/>
+
+### 9.1 Proposal Counts and Remaining Funds
+
+`제안 ○건 매수 · ○건 매도` (X Buy Proposals and Y Sell Proposals) counts proposed trades. Shares and executed trades are separate measures.
+
+`주식 제안 후 남는 자금` (Funds Remaining After Stock Proposals) is the portion of the selected calculation budget left after the proposals. Your account can have a different cash balance.
+
+- Sell Then Buy subtracts expected purchase costs from expected sale proceeds.
+- Buy With New Funds subtracts expected purchase costs from the entered contribution.
+
+<br/>
+
+If the budget is KRW 1 million and the only candidate costs KRW 300,000 per share, three shares use KRW 900,000 and leave KRW 100,000. The remainder cannot buy another whole share.
+
+Money can also remain when there is no candidate, prices are missing, the only securities are excluded, or no purchase is calculated because the weight is within tolerance.
+
+<br/>
+
+### 9.2 What Projected Weights Cover
+
+Sell Then Buy uses the current total. Buy With New Funds uses the current total plus the contribution. Funds left after the stock proposals are shown separately and are not assigned to a portfolio. As a result, projected portfolio weights can add up to less than 100%.
+
+**Projected weights apply the stock proposals in the calculation.** Registering a candidate or selecting a method leaves actual quantities and current weights unchanged.
+
+<Ybox>
+
+Review crypto overweights and shortfalls separately. Crypto trades are excluded from projected stock weights and remaining funds. For manually entered assets, review the amounts separately from the automatic share proposals.
+
+</Ybox>
+
+If you plan to sell crypto to fund stock purchases, add that funding to your plan separately. The screen's stock budget does not automatically include the proceeds.
+
+<Ads2/>
+
+<br/>
+
+## 10. Updating Assets After Trading
+
+After acting on a proposal, check the fills at your broker or exchange and update the actual holdings in the app.
+
+- Share quantity. If you sold three of ten shares, enter the remaining total of `7주` (seven shares). The trade quantity `3주` (three shares) is a separate figure.
+- Average purchase price. After buying more, use the average reported by the brokerage.
+- Cash. Update the won and dollar balances to reflect actual fills and costs.
+- Crypto. If you traded, check the exchange's current total quantity and average purchase price.
+- New security. If you bought a security that was only a candidate, register it as a holding too.
+
+For stocks, open the holding editor under `보유 자산` (Holdings) or go to `자산 수정` (Edit Assets). Update crypto and cash in Edit Assets and save. See [Part 3, Adding Assets](https://www.promleeblog.com/blog/post/438-portrhythm-asset-registration-guide) and [Part 5, Holdings](https://www.promleeblog.com/blog/post/440-portrhythm-dashboard-holdings-guide).
+
+<br/>
+
+### 10.1 Final Check
+
+After saving, use `가격 갱신` (Refresh Prices) and return to `포트 비중` (Portfolio Weights). Compare current and target weights after the actual fills.
+
+Proposal calculations exclude execution prices, fees, taxes, currency conversion costs, and buying power by account. If the proposal differs from what you could trade, record the actual balances.
+
+If you added new funds, record the cash flow too so you can see the contribution alongside asset growth. Part 8 covers that process.
+
+<br/>
+
+## 11. Frequently Asked Questions
+
+<Toggle title="Why does it say Add without a purchase quantity?">
+
+Add can indicate the direction for an underweight portfolio. Check candidates, prices, budget, and exclusions, and look for a specific share quantity to buy.
+
+Check the tolerance notice as well as portfolios with quantities. New money can increase the total and produce a buy proposal even if the original weights were within tolerance.
+
+</Toggle>
+
+<Toggle title="Why are some of the new funds unused?">
+
+Check remaining funds and portfolio notices. There may be no eligible candidate or price, the budget may be below one share, or the portfolio may be within tolerance.
+
+The theoretical funding requirement and what can be allocated to shares can differ. Check what limits the calculation before increasing the amount.
+
+</Toggle>
+
+<Toggle title="Why don't the projected weights exactly match the targets?">
+
+Whole shares and limited funds can leave gaps. The stock preview excludes adjustments to crypto and manually entered assets.
+
+Read projected weights alongside the remaining funds. Exact alignment depends on what can be traded under the calculation's assumptions.
+
+</Toggle>
+
+<Toggle title="Do I need to save the method and exclusions?">
+
+The method, contribution, and exclusion checkboxes are inputs for comparing proposals on this screen. You may need to set them again after refreshing.
+
+Adding, reassigning, or removing candidates and changing temporary prices are portfolio settings, so save them. The Saved indicator confirms the settings update. Orders are handled separately.
+
+</Toggle>
+
+<br/>
+
+## Conclusion
+
+Rebalancing translates weight differences into specific securities and share quantities. Switch between the two methods to see how the funds and quantities change for the same target.
+
+**Check inputs → choose a method → review candidates and exclusions → check quantities and remaining funds → update actual balances after trading.** If a gap remains, check what the calculation covers and what prevented a closer match.
+
+Part 8 covers asset trends and deposit and withdrawal records.
+
+### References
+
+- [PortRhythm](https://pf.promleeblog.com)
+- [PortRhythm User Guide](https://pf.promleeblog.com/guide)
+- [Part 4, Asset Assignment and Automatic Classification](https://www.promleeblog.com/blog/post/439-portrhythm-asset-assignment-guide)
+- [Part 5, Dashboard and Holdings](https://www.promleeblog.com/blog/post/440-portrhythm-dashboard-holdings-guide)
+- [Part 6, Comparing Current and Target Weights](https://www.promleeblog.com/blog/post/441-portrhythm-current-target-allocation-guide)

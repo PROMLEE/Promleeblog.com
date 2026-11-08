@@ -1,0 +1,151 @@
+---
+post_id: '466'
+locale: zh
+title: ETF 选择标准 1：读懂 ETF 的名称和代码
+description: 通过 TIGER、ACE 和 SOL 美国 S&P 500 ETF，学习如何用产品名称、代码和说明书确认投资标的、策略与汇率对冲。
+source_hash: 122c46dad693cf43ba44d3d03c8d1d709ed6e19f3a5e1fe6f20a1dcb85e3c8ce
+reviewed_at: '2026-11-07T17:52:32.813Z'
+---
+## 开始之前
+
+在搜索框输入“美国 S&P 500”，会看到一长串名称相似的产品。
+它们开头的英文不一样，有些名称末尾还带着 `(H)`。
+这就像看咖啡菜单时，以为都是同一种拿铁，才发现有些用了不同的牛奶和糖浆。
+**ETF 的名称就像订单的第一行。要弄清里面装了什么，还需要再往下读。**
+<br/>
+在“ETF 选择标准”系列中，我们会为三只在韩国上市、投资美国 S&P 500 的 ETF 逐步填写比较表。
+今天先确认**自己看到的到底是哪只产品**。
+第一张表记录名称、代码、投资标的和汇率对冲情况。
+
+<Rbox>
+产品信息依据 2026 年 10 月 20 日查阅的官方资料。
+示例计算用于说明原理，不构成投资建议。实际选择前应核对最新产品条件。
+</Rbox>
+
+## 名称的三个部分
+
+把 `TIGER 미국S&P500(H)` 分成三部分来看。
+
+| 部分 | 含义 | 接下来要核对什么 |
+| --- | --- | --- |
+| TIGER | 管理方的产品品牌 | 准确的管理方名称和产品代码 |
+| 美国 S&P 500 | 投资标的的线索 | 基准指数的全称和计算方法 |
+| (H) | 减少汇率影响的策略线索 | 对冲哪些币种、对冲多少 |
+
+品牌是查找产品的标签。
+ACE 和 SOL 等不同品牌可以投资同一个市场，同一品牌下也可能有完全不同的策略。
+**即使名称开头的英文相同，也要核对实际投资标的和策略。**
+
+<Img src="/etf-selection-01-reading-names-20261020.webp" width={750} height={500} alt="将 ETF 名称分为品牌、投资标的和汇率对冲，并标明需要通过代码与说明书核对的项目"/>
+
+S&P 500 是代表美国大盘股的指数。
+可以把它理解为一份按一定规则编制的名单，投资者可以从跟踪这份名单入手，无须逐家选股。
+指数提供方称，该指数纳入 500 家美国主要企业。
+实际成分的确定并非只按市值顺序取前 500 家。
+[S&P DJI 官方 S&P 500 介绍](https://www.spglobal.com/spdji/en/indices/equity/sp-500/)
+
+## 用代码定位产品
+
+名称越相似，六位产品代码就越有用。
+就像通讯录里有同名的人，可以通过电话号码区分。
+本系列比较以下三只产品。
+
+| 产品名称 | 代码 | 管理方 |
+| --- | --- | --- |
+| TIGER 美国 S&P 500 | 360750 | 未来资产运用 |
+| ACE 美国 S&P 500 | 360200 | 韩国投资信托运用 |
+| SOL 美国 S&P 500 | 433330 | 新韩资产运用 |
+
+在管理方的官方网站或文档中，先核对**产品名称和代码是否都匹配**。
+选择说明书时，不要只凭旧文章里的品牌名称或相似的搜索结果。
+上表资料来自 [TIGER 产品页面](https://www.tigeretf.com/ko/product/search/detail/index.do?ksdFund=KR7360750004)、[ACE 官方产品资料](https://papi.aceetf.co.kr/api/funds/K55101D78195)和 [SOL 产品页面](https://www.soletf.com/ko/fund/etf/210930)。
+<br/>
+如果已在 PortRhythm 录入持仓，先对照产品代码。
+研究产品时，无须把所有候选产品都登记成持仓。
+如何查看持仓列表，见 [PortRhythm 持仓指南](https://www.promleeblog.com/blog/post/440-portrhythm-dashboard-holdings-guide)。
+
+<Ads1/>
+
+## 名称带 H 时要多问什么
+
+汇率对冲旨在减小汇率变化的影响。
+即使以美元计价的资产价格不变，换算成韩元后的金额也会随汇率变化，因此要核对产品如何处理汇率风险。
+用韩元买入，并不表示汇率风险已被对冲。
+如果不熟悉这一区别，可以先看[美元资产与汇率说明](https://www.promleeblog.com/blog/post/460-portfolio-reading-currency-exposure)。
+<br/>
+TIGER 美国 S&P 500 的官方文档说明，该产品不进行汇率对冲。
+TIGER 美国 S&P 500(H) 的代码是 `448290`，官方页面说明它采用汇率对冲策略。
+[基础版运作方式](https://www.tigeretf.com/ko/product/search/detail/index.do?ksdFund=KR7360750004) · [H 版运作方式](https://www.tigeretf.com/ko/product/search/detail/index.do?ksdFund=KR7448290007)
+<br/>
+**H 只提供汇率策略的线索，股价仍可能下跌。**
+还应在说明书中核对对冲对象、比例及成本。
+此外，上述 H 版的产品页面还标明采用总回报指数 `Total Return`。
+所以，两只产品的业绩有差异时，不能仅用汇率解释。
+
+## “合成”和“主动”是什么意思
+
+产品名称有时更长，是因为它除了投资标的，也提示了投资方式。
+
+- **合成**
+  这是一个线索，提示要核查产品是否通过与交易对手签订场外互换合约来获取指数回报。
+  互换是按约定条件交换收益等款项的合同。
+  阅读说明书时，核对交易对手、抵押品和合同条件。
+- **主动**
+  要确认管理方可以在多大范围内自主决策，以及是否以超越基准等为目标。
+  具体允许作出哪些判断，应阅读该产品的投资目标与策略。
+
+[韩国交易所合成 ETF 介绍](https://m.krx.co.kr/contents/06/0609/060901/JHPETP060901M01.jsp) · [Investor.gov 指数型与主动型基金说明](https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-4)
+<br/>
+名称提供的是线索，详细条件要看说明书。
+同样标注“主动”的产品可能有不同的投资范围。指数型产品也可能使用部分 ETF 或衍生品。
+确认产品是否直接持有股票、是否也使用其他 ETF，才能判断实际投资方式。
+TIGER 和 SOL 的投资说明书也写明，产品以指数成分股为主，同时允许在一定范围内使用相关资产。
+[TIGER 投资说明书](https://investments.miraeasset.com/tigeretf/upload/etf/20261008090949000003.pdf) · [下载 SOL 投资说明书](https://www.soletf.com/ko/fund/etf/210930)
+
+<Ads2/>
+
+## 根据说明书填写第一张比较表
+
+今天先把成本和收益率栏留空，只记下用来识别产品的核查结果。
+
+| 核查项目 | TIGER | ACE | SOL |
+| --- | --- | --- | --- |
+| 产品代码 | 360750 | 360200 | 433330 |
+| 投资标的 | 美国 S&P 500 成分股 | 美国 S&P 500 成分股 | 美国 S&P 500 成分股 |
+| 汇率管理 | 不进行汇率对冲 | 计划不进行汇率对冲 | 计划不进行汇率对冲 |
+| 主要方式 | 以指数成分股为主 | 跟踪指数 | 以成分股为主，采用复制策略 |
+| 下一步核对 | 指数的股息口径和成本 | 指数的股息口径和成本 | 指数的股息口径和成本 |
+
+ACE 和 SOL 的汇率管理政策来自各自投资说明书中的汇率风险管理章节。
+ACE 文件的生效日为 `2026-02-13`，SOL 文件的编制基准日为 `2026-05-22`。
+[ACE 官方文档列表](https://papi.aceetf.co.kr/api/funds/K55101D78195/documents) · [SOL 官方文档](https://www.soletf.com/ko/fund/etf/210930)
+
+<Bbox>
+先选一只产品，只记录名称、代码、投资目标和汇率对冲情况。
+有一栏不清楚，就记下要在说明书里查找的关键词。
+</Bbox>
+
+## 结语
+
+我们从 ETF 名称中找到了品牌、投资标的和策略的线索。
+接着用代码确认产品，并用说明书核对汇率对冲和投资方式。
+今天的比较表是**一张产品身份卡，帮助判断它能在投资组合中承担什么角色**。
+<br/>
+下一篇会统一比较这三只产品的条件。
+我们会看看即使都叫 S&P 500，为什么仍要统一期间、币种和分配金口径。
+
+[第 2 篇 →](https://www.promleeblog.com/blog/post/467-etf-selection-comparing-same-index)
+
+### 参考资料
+
+- [S&P DJI S&P 500](https://www.spglobal.com/spdji/en/indices/equity/sp-500/)
+- [TIGER 美国 S&P 500](https://www.tigeretf.com/ko/product/search/detail/index.do?ksdFund=KR7360750004)
+- [TIGER 美国 S&P 500 投资说明书](https://investments.miraeasset.com/tigeretf/upload/etf/20261008090949000003.pdf)
+- [TIGER 美国 S&P 500(H)](https://www.tigeretf.com/ko/product/search/detail/index.do?ksdFund=KR7448290007)
+- [ACE 官方产品资料](https://papi.aceetf.co.kr/api/funds/K55101D78195)
+- [ACE 官方文档列表](https://papi.aceetf.co.kr/api/funds/K55101D78195/documents)
+- [SOL 美国 S&P 500 与官方文档](https://www.soletf.com/ko/fund/etf/210930)
+- [PortRhythm 持仓指南](https://www.promleeblog.com/blog/post/440-portrhythm-dashboard-holdings-guide)
+- [韩国交易所合成 ETF 介绍](https://m.krx.co.kr/contents/06/0609/060901/JHPETP060901M01.jsp)
+- [Investor.gov 指数型与主动型基金](https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-4)
+

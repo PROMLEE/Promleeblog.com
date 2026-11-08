@@ -1,0 +1,114 @@
+---
+post_id: '472'
+locale: en
+title: 'ETF Selection, Part 7: How Dividend and Covered-Call ETFs Work'
+description: >-
+  Compare how dividend and covered-call ETFs generate cash, what covered calls
+  give up, and why a distribution yield differs from total return.
+source_hash: e9f36fba875b716e693ef5540f81da2e2ba219bda852ae19ddd2136adc2835fb
+reviewed_at: '2026-11-07T17:45:09.483Z'
+---
+## Before We Begin
+
+Your phone tells you that an ETF distribution has arrived. Money comes in once a month, almost like a second paycheck. Then you open your brokerage app and see that your holdings are worth less. Looking only at the deposit misses part of the picture.
+<br/>
+**How much the fund paid out and how much you earned overall are two different questions.** We'll look at where dividend and covered-call ETFs get the money they distribute and what you give up in exchange.
+
+<Rbox>
+The fund descriptions are based on official materials checked on October 21, 2026. The calculations illustrate a single period. They don't represent actual distributions, future returns, or a recommendation to buy a fund.
+</Rbox>
+
+## How Dividend ETFs Choose Stocks
+
+A dividend stock ETF selects companies that pay dividends according to a set of rules. It may focus on dividend yield alone or also assess the sustainability of dividends and the companies' finances. Check those selection rules even when two ETFs both have “dividend” in the name.
+<br/>
+SCHD, for example, aims to track the total return of the `Dow Jones U.S. Dividend 100 Index`. Its manager emphasizes dividend quality and sustainability as well as company financial metrics. Other dividend funds can hold different companies.
+[Schwab's official SCHD page](https://www.schwabassetmanagement.com/products/schd)
+<br/>
+Companies can still cut dividends or see their share prices fall. A distribution schedule does not guarantee a return. Look separately at which companies generate cash, how the fund decides what to hold, and how much it distributes.
+
+## What a Covered Call Adds
+
+A covered call combines holding an asset with selling a call option linked to it. The buyer gains the right to buy the asset on specified terms. The seller receives a **premium** in exchange for granting that right. Here, we assume the option covers the full amount of the asset held.
+[OIC's covered call guide](https://www.optionseducation.org/strategies/all-strategies/covered-call-buy-write)
+<br/>
+Think of it as getting paid today in exchange for potentially giving up gains above an agreed price. If the asset rises sharply, you may miss some of the upside. The premium does not eliminate the risk of a falling price.
+
+## Buy at 100 and Sell a Call with a Strike of 105
+
+The asset costs 100, the call's strike price is 105, and the premium received is 2. The strike is the price specified in the option contract. We evaluate one period at expiration, with a call position covering one unit of the asset. The example excludes dividends, taxes, fees, interest on the premium, and trades before expiration.
+<br/>
+Profit or loss from holding only the asset is `만기 가격 − 100` (expiration price minus 100).
+Profit or loss from the covered call is `만기 가격 − 100 + 2 − max(만기 가격 − 105, 0)` (expiration price minus 100, plus 2, minus any amount above 105).
+The `max` function picks the larger of two values. Any gain above 105 at expiration is offset by the loss on the short call.
+
+| Price at expiration | Asset-only profit or loss | Covered-call profit or loss |
+| --- | ---: | ---: |
+| 80 | −20 | −18 |
+| 100 | 0 | +2 |
+| 105 | +5 | +7 |
+| 120 | +20 | +7 |
+
+At 120, the covered call's profit stops at 7. At 80, the premium reduces the loss by 2, but the position still loses 18. **Consider both the upside you give up and the downside that remains.** A profit of 7 is 7% of the initial asset price of 100. A return calculated on the net outlay of 98 uses a different denominator.
+
+<Img src="/etf-selection-07-covered-call-20261021.webp" width={750} height={500} alt="Profit and loss at expiration for an asset priced at 100 and a covered call with a strike of 105 and a premium of 2"/>
+
+<Ads1/>
+
+## What Varies Across Real Funds
+
+Covered-call funds don't all use the same terms as our example. They can differ in underlying holdings, the share of the portfolio covered by calls, strike prices, contract terms, and how options are rolled. Some sell calls on only part of the portfolio or vary the coverage. Check the fund documents.
+<br/>
+QYLD is described as holding Nasdaq-100 stocks and selling calls on the same index. Its official page identifies the benchmark as the `Cboe Nasdaq-100 BuyWrite V2 Index`, ticker `BXNT`. The methodology describes rolling one-month at-the-money calls. At the money means that the strike is close to the index level when the option is written.
+[Global X QYLD](https://www.globalxetfs.com/funds/qyld) · [Cboe Nasdaq BuyWrite methodology](https://cdn.cboe.com/api/global/us_indices/governance/Cboe_NASDAQ_BuyWrite_Indices_Methodology.pdf)
+<br/>
+Our one-expiration example with a strike of 105 therefore differs from this fund's actual return calculation. Check when the index rolls or closes its contracts. A single payoff line cannot represent several months of distributions and reinvested performance.
+
+## Distributions and Option Premiums Are Different
+
+Stock dividends, option premiums, and the distributions a fund pays are separate amounts. Receiving a premium creates an obligation under the option. The entire premium does not automatically become investment profit.
+<br/>
+QYLD's official page explains that distributions may include a return of capital and that the published distribution rate differs from total return. Return of capital is a U.S. disclosure category. Check the fund's payments and distribution breakdown, then verify the tax treatment for your own Korean account separately.
+[Global X on distribution rates and their components](https://www.globalxetfs.com/funds/qyld)
+<br/>
+Annualizing one distribution by multiplying by 12 can produce a different figure from adding the payments over the last 12 months. Check the footnotes to see whether the denominator is current NAV or market price. Match the time period and denominator before comparing the rates.
+
+<Ads2/>
+
+## Cash Received and Value Remaining
+
+Suppose you invest 100, receive 12 in cash during the period, and finish with assets worth 88. Use one currency and assume no reinvestment, outside deposits or withdrawals, taxes, or fees. The total return is `(88 − 100 + 12) ÷ 100 = 0%`. **Receiving 12 in cash doesn't mean you earned a 12% return.**
+<br/>
+If you spent the cash on living expenses, record that separately from investment performance. See [Part 7 of the previous series](https://www.promleeblog.com/blog/post/464-portfolio-reading-distributions-cash) for how to distinguish the purpose of dividends and cash.
+
+## Compare Income Funds
+
+| Question | What to check in a dividend ETF | What else to check in a covered-call ETF |
+| --- | --- | --- |
+| What does it hold? | Rules for selecting and replacing dividend stocks | Underlying assets and what the options reference |
+| Where does the cash come from? | Dividends, realized gains and losses, and distribution policy | Premiums, option gains and losses, and distribution components |
+| How much upside do I keep? | Stock price changes and portfolio weights | Call coverage, strike prices, and contract terms |
+| How is performance measured? | Total return including distributions | Total return on the same basis, plus cash paid |
+| Does it serve my goal? | Cash needs, time horizon, and equity risk | Upside surrendered and downside risk retained |
+
+SCHD and QYLD have different holdings and strategies. Compare funds that serve the same purpose within each strategy instead of ranking the two by distribution yield alone. In PortRhythm, record the cash you need and the equity allocation you are prepared to hold alongside the “income” label.
+
+<Bbox>
+Start by recording whether you need cash for living expenses now or plan to reinvest it. The same distribution can serve different purposes. Track changes in overall asset value alongside the payment schedule.
+</Bbox>
+
+## Conclusion
+
+For a dividend ETF, check which companies it selects. For a covered-call ETF, check which rights it sells and how much of the portfolio the calls cover. Distribution yield expresses cash paid as a percentage. Total return also accounts for the value still invested. **Read both the deposit notification and the account balance to understand what happened to your investment.**
+<br/>
+In the final part, we'll put the criteria we've covered into a comparison worksheet and record the reasons for a choice.
+
+[← Part 6](https://www.promleeblog.com/blog/post/471-etf-selection-bond-funds) · [Part 8 →](https://www.promleeblog.com/blog/post/473-etf-selection-comparison-checklist)
+
+### References
+
+- [Schwab SCHD](https://www.schwabassetmanagement.com/products/schd)
+- [OIC covered calls](https://www.optionseducation.org/strategies/all-strategies/covered-call-buy-write)
+- [Global X QYLD](https://www.globalxetfs.com/funds/qyld)
+- [Cboe Nasdaq BuyWrite methodology](https://cdn.cboe.com/api/global/us_indices/governance/Cboe_NASDAQ_BuyWrite_Indices_Methodology.pdf)
+- [The roles of dividends and cash](https://www.promleeblog.com/blog/post/464-portfolio-reading-distributions-cash)

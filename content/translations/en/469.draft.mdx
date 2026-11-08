@@ -1,0 +1,130 @@
+---
+post_id: '469'
+locale: en
+title: 'ETF Selection, Part 4: Reading Tracking Difference and Tracking Error'
+description: >-
+  Learn why ETFs following the same index can lag by different amounts or vary
+  from day to day. Work through four days of returns and build a checklist that
+  aligns dividends, currency, periods, and disclosure definitions.
+source_hash: b69bfb48511b4885f9fdb6923908aec11b3f93d48fd91cb5401536f3602004ca
+---
+## Before We Begin
+
+Imagine following someone in a running group. One runner always stays two steps behind. Another moves ahead, then falls back. They can finish the same distance behind, even though they ran differently. ETFs can track an index in much the same way.
+<br/>
+**Tracking difference tells you how far apart they finished. Tracking error tells you how much the gap fluctuated along the way.**
+We'll turn both measures into a checklist you can keep next to your fee comparison.
+
+<Rbox>
+The fund documents were checked on October 21, 2026.
+The returns for A and B are illustrative. They do not represent actual fund performance or investment recommendations.
+</Rbox>
+
+## Tracking Difference Measures the Gap at the Finish
+
+Suppose the index rose 10.0% and the ETF rose 9.7% over the same period. In this article, the calculation is `ETF 수익률 − 지수 수익률` (ETF return minus index return).
+The tracking difference is `9.7 − 10.0 = −0.3%p`.
+**The negative sign means the ETF gained less than the index during that period.**
+<br/>
+Here, `%p` means percentage points, the unit for subtracting percentages. The gap between 10% and 9.7% is 0.3 percentage points. Some sources subtract in the opposite order, so check the sign convention first.
+[Vanguard's explanation of tracking difference](https://www.vanguard.ca/en/tools-and-resources/etf-fundamentals/management/index-tracking)
+<br/>
+Make sure you're comparing like with like. For the fund, use NAV total return with distributions reinvested. For the index, check that its return uses the same currency and dividend treatment. Comparing a price return (PR) index with a return that reinvests dividends mixes the difference in dividend treatment into the result.
+[Part 2](https://www.promleeblog.com/blog/post/467-etf-selection-comparing-same-index) explains how to align the comparison.
+
+## Tracking Error Measures How Much the Gap Fluctuates
+
+Tracking error measures how much the gap between daily returns varies. Start by calculating each daily return, then subtract one return from the other. **Subtracting the ETF price from the index level won't give you that gap.**
+<br/>
+Consider these four observations. Differences are in `%p` and returns are in `%`.
+
+| Observation | Index return | A minus index | B minus index |
+| --- | ---: | ---: | ---: |
+| Day 1 | +1.00 | −0.01 | +0.20 |
+| Day 2 | −0.50 | −0.01 | −0.22 |
+| Day 3 | +0.80 | −0.01 | +0.20 |
+| Day 4 | +0.20 | −0.01 | −0.22 |
+| Average daily gap | — | −0.01 | −0.01 |
+
+A trails by 0.01 percentage points every day. B alternates between leading and trailing. Their average gaps are the same, but **B varies more around the average**. Standard deviation measures this variability.
+[MSCI's definition of tracking error](https://www.msci.com/research-and-insights/blog-post/how-easy-is-it-to-track-a-bond-market-index)
+
+<Img src="/etf-selection-04-tracking-20261021.webp" width={750} height={500} alt="Daily gaps for A and B with the same average, and separately calculated cumulative returns over four days"/>
+
+<Ads1/>
+
+## The Same Average Can Produce Different Cumulative Returns
+
+Daily returns compound. Each day's return applies to the balance at the end of the previous day. Starting at 100, calculate the index balance as `100 × 1.01 × 0.995 × 1.008 × 1.002`.
+For A and B, add the gap from the table to the index return for each day, then multiply the resulting daily growth factors the same way. These returns include reinvested distributions, with no separate deposits or withdrawals.
+
+| Four-day result | Index | A | B |
+| --- | ---: | ---: | ---: |
+| Cumulative return | About 1.5016% | About 1.4611% | About 1.4558% |
+| Cumulative gap versus index | — | About −0.0404 percentage points | About −0.0458 percentage points |
+
+The average daily gaps match, but the four-day tracking differences do not. That is why we calculate variability in the daily gaps separately from performance over the full period.
+<br/>
+To try it yourself, calculate the sample standard deviation of the four daily gaps. In a spreadsheet, use `STDEV.S`. If you enter percentage-point values such as `−0.01, −0.01, −0.01, −0.01`, read the result in the same unit.
+A is zero, and B is about 0.2425 percentage points. Assuming 252 trading days a year, multiply by `√252` to annualize B's result to about 3.8494%.
+**An annualized figure based on four days is too short to serve as a stable long-term estimate.** To compare real funds, use a sufficiently long common period and check the disclosed formula.
+
+## Why Gaps Arise
+
+Fees contribute to tracking gaps. Calling the entire gap a hidden fee overlooks other causes.
+
+- Taxes on the dividends the fund receives may differ from the tax assumptions in the index.
+- The fund may hold cash during trading, distributions, or inflows.
+- A fund that holds every index constituent can behave differently from one that samples representative holdings.
+- Market closing times, valuation methods, and securities lending income can also affect the result.
+
+Vanguard identifies costs, replication, cash holdings, taxes, and valuation timing as factors in index tracking. A single figure cannot tell you how much each factor contributed.
+[Vanguard's guide to factors affecting index tracking](https://www.vanguard.ca/en/tools-and-resources/etf-fundamentals/management/index-tracking)
+<br/>
+If fees are already reflected in NAV performance, avoid deducting them again. [Part 3](https://www.promleeblog.com/blog/post/468-etf-selection-total-costs) covers cost categories and double counting.
+
+<Ads2/>
+
+## A Checklist for Three Funds
+
+Before adding performance figures to a comparison of TIGER 360750, ACE 360200, and SOL 433330, check that the figures use the same period and definition.
+
+| Item | What to record |
+| --- | --- |
+| Comparison period | Same start and end dates and number of observations |
+| Fund performance | Treatment of distributions and total return based on NAV in Korean won |
+| Index performance | Exact index name, PR/TR/NTR, and currency |
+| Tracking difference | Fund minus index, and whether cumulative or annualized |
+| Tracking error | Observation frequency, standard deviation method, and annualization basis |
+| Missing information | Missing dates, unconfirmed definitions, and documents still to check |
+
+The ACE and SOL prospectuses specify PR. The TIGER document reviewed uses a shorter index label.
+To calculate tracking performance, obtain daily distribution-adjusted NAV and the corresponding index values for the same dates.
+Filling an unknown cell with zero implies there was no gap. Mark it *pending verification* instead.
+[TIGER prospectus](https://investments.miraeasset.com/tigeretf/upload/etf/20261008090949000003.pdf) · [ACE documents](https://papi.aceetf.co.kr/api/funds/K55101D78195/documents) · [SOL fund and documents](https://www.soletf.com/ko/fund/etf/210930)
+
+<Bbox>
+Read the footnotes to see whether a disclosure uses “tracking error” in the same sense as this article.
+The Korea Exchange education page uses the term broadly for the difference between index and NAV returns.
+Before naming a column, check whether the figure is a simple difference in period returns or an annualized standard deviation of daily differences.
+[Korea Exchange on benchmark indexes and tracking error](https://m.krx.co.kr/contents/04/0401/040102/JHPETP040102M01.jsp)
+</Bbox>
+
+## Conclusion
+
+Low tracking error means the fund followed the index with a relatively steady gap. The fund can follow closely even when the index drops sharply. **Record both the final gap and how much it fluctuated to understand how the ETF tracked its index.**
+<br/>
+Next, we'll look at why the price you trade at can differ even when the fund tracks its index well.
+
+[← Part 3](https://www.promleeblog.com/blog/post/468-etf-selection-total-costs) · [Part 5 →](https://www.promleeblog.com/blog/post/470-etf-selection-price-nav-spread)
+
+### References
+
+- [Vanguard on index tracking](https://www.vanguard.ca/en/tools-and-resources/etf-fundamentals/management/index-tracking)
+- [MSCI on bond indexes and tracking error](https://www.msci.com/research-and-insights/blog-post/how-easy-is-it-to-track-a-bond-market-index)
+- [TIGER prospectus](https://investments.miraeasset.com/tigeretf/upload/etf/20261008090949000003.pdf)
+- [ACE documents](https://papi.aceetf.co.kr/api/funds/K55101D78195/documents)
+- [SOL US S&P 500](https://www.soletf.com/ko/fund/etf/210930)
+- [Korea Exchange on benchmark indexes and tracking error](https://m.krx.co.kr/contents/04/0401/040102/JHPETP040102M01.jsp)
+- [Part 2](https://www.promleeblog.com/blog/post/467-etf-selection-comparing-same-index)
+- [Part 3](https://www.promleeblog.com/blog/post/468-etf-selection-total-costs)

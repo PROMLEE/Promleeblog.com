@@ -1,0 +1,298 @@
+---
+post_id: '441'
+locale: en
+title: PortRhythm User Guide 6 — Comparing Current and Target Weights
+description: >-
+  Compare current and target weights on desktop and mobile. Switch chart views,
+  select portfolios, and learn how weights, percentage-point differences, and
+  tolerance are calculated. Check cash and unclassified assets, reconcile
+  inputs, and move on to rebalancing.
+source_hash: 08625b9529804be68d9f6d9b2ae1e11d4ff8ef858b217d715c5e358b4f8079ac
+---
+## Before We Begin
+
+> “I split my assets in half, but somehow one side is bigger now.”
+
+In [Part 5, Dashboard and Holdings](https://www.promleeblog.com/blog/post/440-portrhythm-dashboard-holdings-guide), we reviewed valuations and gains and losses. Here we'll check **how much is in each investment portfolio**. Price increases and new contributions can both change the weights you started with. Even if total assets rise, check separately how closely the allocation matches your plan.
+
+<br/>
+
+<Bbox>
+The goal is to compare current and target weights and explain why a portfolio differs from its target. Select a portfolio and read its current valuation, current weight, and target weight in that order.
+</Bbox>
+
+[Open PortRhythm](https://pf.promleeblog.com)
+
+The screenshots show sample assets in a test account. Portfolio names and targets are illustrative. The numerical examples are separate from the figures in the screenshots.
+
+<br/>
+
+## 1. The Portfolio Weights Screen
+
+On desktop, select `포트 비중` (Portfolio Weights) in the left menu. On mobile, tap `비중` (Weights) in the bottom menu. The desktop dashboard shows weights in the same way on the right. This guide uses the dedicated screen.
+
+<Img src="/portrhythm-guide6-desktop-current-20261009.webp" width={800} alt="Desktop Portfolio Weights screen showing the current allocation chart and comparison list"/>
+
+Look for three areas.
+
+- `현재 / 목표` (Current / Target). Choose which allocation the circular chart displays.
+- Portfolio list. Read current weights, target weights, and differences side by side.
+- Selection details. Select a slice or a portfolio name to expand its valuation and weights.
+
+“5 portfolios” in the center counts the investment groups you created in Target Design. The numbers of securities and brokerage accounts are separate.
+
+<br/>
+
+### 1.1 Mobile Screen
+
+The mobile portfolio list appears below the chart. Scroll down for selection details and the button to open the next screen.
+
+<Img src="/portrhythm-guide6-mobile-current-20261009.webp" width={350} alt="Current allocation chart and portfolio list in the mobile Weights tab"/>
+
+Tap the portfolio name or chart slice. Use the name in the list if the slice is too small to tap easily.
+
+<br/>
+
+## 2. Current and Target Weights
+
+**Current shows the allocation of the assets you registered. Target shows the allocation you chose.** The two buttons show the same set of portfolios from different perspectives.
+
+### 2.1 Current Weights
+
+Choose `현재` (Current) to sort the chart and list by portfolio value in won, largest first.
+
+- Current weight = portfolio value in won ÷ total value in won × 100
+
+If total assets are KRW 10 million and an index portfolio is worth KRW 6 million, its current weight is 60%. The calculation uses today's valuation.
+
+<br/>
+
+A larger slice means a larger share of total value. The number of securities and their returns are separate measures. Stocks, crypto, and manually entered assets assigned to the same portfolio are added together. U.S. stocks and dollar cash are converted to won at the applicable exchange rate before aggregation.
+
+<br/>
+
+### 2.2 Target Weights
+
+Choose `목표` (Target) to sort by the target weights set in Target Design, largest first. A portfolio with a target appears even before you assign assets to it.
+
+<Img src="/portrhythm-guide6-desktop-target-20261009.webp" width={800} alt="Target weight chart and list with target before current"/>
+
+The target chart reflects planned weights. For example, a gold portfolio may have a 10% target and a current value of zero if you have yet to register and assign any gold assets.
+
+<br/>
+
+<Ybox>
+Switching to Target changes the column order to Target → Current → Difference. Both views calculate the difference as current minus target. Check the column labels before subtracting.
+</Ybox>
+
+<Img src="/portrhythm-guide6-mobile-target-20261009.webp" width={350} alt="Target and Current columns in that order on the mobile Target view"/>
+
+The switch changes the view only and requires no save.
+
+<br/>
+
+## 3. Selecting a Portfolio and Reading Its Details
+
+Hover over a chart slice or select the slice or portfolio name in the list. On mobile, tap to select.
+
+<Img src="/portrhythm-guide6-desktop-detail-20261009.webp" width={800} alt="Selected portfolio details showing valuation, current and target weights, and the difference from target"/>
+
+The detail panel shows three figures.
+
+- `현재 평가액` (Current Valuation). Total value in won of assets assigned to the portfolio.
+- `현재 / 목표` (Current / Target). Compare the actual and planned weights.
+- `목표와 차이` (Difference From Target). Current weight minus target weight.
+
+The number at the center of the chart follows the active view. `현재` (Current) shows the selected portfolio's current weight, while `목표` (Target) shows its target. The `현재 / 목표` (Current / Target) detail below always shows both.
+
+<br/>
+
+### 3.1 A Portfolio With a Current Weight of 0%
+
+A portfolio with a current weight of 0% may have no slice in the Current chart. Select its name from the list or switch to Target.
+
+<Img src="/portrhythm-guide6-mobile-detail-20261009.webp" width={350} alt="Mobile details for a selected portfolio with a current valuation of zero won"/>
+
+Check whether you hold any assets for the portfolio and whether you have registered and assigned them. Missing prices can also leave a portfolio without a valuation, so investigate before drawing a conclusion from 0%.
+
+<Ads1/>
+
+<br/>
+
+## 4. Overweight and Underweight
+
+The Weights screen calculates the difference as follows.
+
+- Difference = current weight − target weight
+
+**A positive difference means above target. A negative difference means below target.** Gains and losses are measured separately.
+
+### 4.1 Three-Portfolio Example
+
+Suppose you have KRW 10 million across index, individual stock, and cash portfolios.
+
+| Portfolio | Current valuation | Current | Target | Difference |
+| --- | --- | --- | --- | --- |
+| Index | KRW 6 million | 60% | 50% | +10 percentage points |
+| Individual stocks | KRW 3 million | 30% | 40% | −10 percentage points |
+| Cash | KRW 1 million | 10% | 10% | 0 percentage points |
+
+Index is 10 percentage points above target, individual stocks are 10 points below, and cash is on target.
+
+<br/>
+
+Holding the current total at KRW 10 million, the target amounts are KRW 5 million for index, KRW 4 million for individual stocks, and KRW 1 million for cash. Index is KRW 1 million above target and individual stocks are KRW 1 million below. This expresses the difference in money. Actual order sizes also depend on share prices, trading units, costs, and how you fund the adjustment. Part 7 covers those factors.
+
+<br/>
+
+### 4.2 Percentage Points
+
+The symbol `%p` means percentage points, the difference between two percentages. A current weight of 60% and target of 50% differ by 10 percentage points. A move from 50% to 60% is a different calculation from a 10% relative increase. For weights, focus on **the result of subtracting target from current**.
+
+<Toggle title="How are portfolio weights and returns different?">
+Current weight measures the share of total assets. A return measures gains or losses relative to a cost basis or previous-day value. An asset can have a high return and a small weight if the holding is small. An underweight portfolio can also have a high return. See [Part 5, Dashboard and Holdings](https://www.promleeblog.com/blog/post/440-portrhythm-dashboard-holdings-guide) for return calculations.
+</Toggle>
+
+<br/>
+
+## 5. Tolerance
+
+Reviewing every small deviation can lead to reacting to minor price changes. Tolerance sets how much drift you will monitor before considering an adjustment. Find `리밸런싱 허용 오차` (Rebalancing Tolerance) in `목표 설계` (Target Design). The chart still shows the full difference. Tolerance is used to identify what to review for adjustment.
+
+<Img src="/portrhythm-guide6-desktop-tolerance-20261009.webp" width={800} alt="Rebalancing tolerance field in the Target Design screen"/>
+
+### 5.1 Example Tolerance Range
+
+With a 50% target and a tolerance of ±5 percentage points, read the values as follows.
+
+| Current weight | Difference from target | Review status |
+| --- | --- | --- |
+| 54% | +4 percentage points | Within tolerance |
+| 55% | +5 percentage points | At the boundary, within tolerance |
+| 56% | +6 percentage points | Outside tolerance |
+| 44% | −6 percentage points | Outside tolerance |
+
+Generally, review for adjustment when the absolute difference exceeds the tolerance. The rule applies in both directions.
+
+<br/>
+
+**Review portfolios with a target and a current valuation of zero separately.** For instance, a portfolio with a 5% target, a 0% current weight, and a tolerance of 5 percentage points may be flagged because it has no assigned assets.
+
+<Toggle title="How does rounding affect the boundary?">
+Weights are shown to one decimal place. The adjustment decision uses the value before rounding. A displayed difference that looks equal to the tolerance may be slightly above it. Near the boundary, check valuations and the inputs alongside the displayed value.
+</Toggle>
+
+<br/>
+
+### 5.2 Changing the Criteria
+
+- Open `목표 설계` (Target Design). On mobile, go through `전체` (All) → `목표 설계` (Target Design).
+- Check or edit `리밸런싱 허용 오차` (Rebalancing Tolerance). The input unit is `%p` (percentage points).
+- Click `변경 내용 저장` (Save Changes) if you edited it. Review the result in Weights and Rebalancing.
+
+[Part 2, Target Design](https://www.promleeblog.com/blog/post/437-portrhythm-portfolio-setup-guide) explains how to change target weights. Before changing a target to fit today's numbers, check whether your investment criteria have changed.
+
+<Ads2/>
+
+<br/>
+
+## 6. Cash and Unclassified Assets
+
+What you group together affects the weight. An index portfolio's weight includes any cash you assign to it.
+
+### 6.1 Assigning Cash
+
+Suppose you registered KRW 4 million in index stocks, KRW 4 million in individual stocks, and KRW 2 million in cash. The total is KRW 10 million.
+
+| Where the cash is assigned | Index portfolio | Individual stocks portfolio | Cash portfolio |
+| --- | --- | --- | --- |
+| Separate cash portfolio | 40% | 40% | 20% |
+| Cash awaiting investment in the index portfolio | 60% | 40% | 0% |
+
+Assigning cash to the index portfolio combines KRW 4 million in index stocks and KRW 2 million in cash for a 60% weight. The stock position stays the same while the amount counted in that portfolio rises.
+
+<br/>
+
+<Bbox>
+If current weights include cash, interpret target weights on the same basis. Decide whether cash belongs in its own portfolio or is waiting to be invested within an existing portfolio.
+</Bbox>
+
+If an asset is in the wrong portfolio, choose `자산 배정 수정` (Edit Asset Assignment) at the bottom. [Part 4, Asset Assignment](https://www.promleeblog.com/blog/post/439-portrhythm-asset-assignment-guide) explains how to change and save assignments.
+
+<br/>
+
+### 6.2 Unclassified Assets
+
+Valued assets without a portfolio assignment still count in the total. They appear separately as `미분류` (Unclassified). If KRW 4 million is assigned to index, KRW 4 million to individual stocks, and KRW 2 million is unclassified, the weights are 40%, 40%, and 20% of KRW 10 million. The denominator includes the unclassified amount.
+
+<br/>
+
+Unclassified is a separate category from the investment portfolios in Target Design. Check what remains unclassified and assign it before evaluating which portfolios are overweight or underweight. An asset with a name and price can still be unclassified if it has no assignment.
+
+<br/>
+
+## 7. What to Check First
+
+If the chart differs from what you expected, inspect the inputs before changing targets.
+
+- Holding quantities and cash. Compare with actual balances and check for duplicates.
+- Prices and exchange rates. Use `가격 갱신` (Refresh Prices), then check prices, sources, and the exchange rate applied.
+- Portfolio assignments. Check misplaced holdings, cash assignments, and unclassified items.
+- Current versus target. Once the inputs are correct, read overweights, shortfalls, and tolerance.
+
+Average purchase price is used for gains and losses. Current weights can be calculated from current price and quantity even when purchase price is missing.
+
+<br/>
+
+### 7.1 Why Weights Change
+
+Even if one portfolio's value stays fixed, a change in another portfolio can move its weight because both are divided by the total. For example, two portfolios worth KRW 5 million each have 50% weights. If the first rises to KRW 6 million, the total becomes KRW 11 million and the weights become about 54.5% and 45.5%. The second portfolio's value is unchanged while its weight falls.
+
+<br/>
+
+Deposits, withdrawals, cash balance edits, and changes in the won value of dollar assets also affect the allocation. A decline in weight and a decline in value describe different changes.
+
+<br/>
+
+### 7.2 Opening Rebalancing
+
+Once holdings and assignments are correct and you have reviewed the gaps, choose `리밸런싱 보기` (View Rebalancing). This opens the next review screen. *An overweight portfolio is a starting point for review.* The calculation depends on whether you adjust existing holdings or add new money to underweight portfolios. Part 7 covers quantities and the scope of the calculation.
+
+<Toggle title="Why does the sign change on the next screen?">
+The Weights chart shows current minus target. Rebalancing shows the adjustment direction as target minus current. A portfolio above target is positive in Weights, but the direction needed to reach the target is a reduction. Check whether the number describes the gap or the adjustment direction.
+</Toggle>
+
+<br/>
+
+## 8. Frequently Asked Questions
+
+<Toggle title="Why do I see the target chart when I have no assets?">
+When total valuation is zero, the screen displays the target allocation. Look for the notice that current weights will appear once you register assets. The target chart shows the planned allocation.
+</Toggle>
+
+<Toggle title="Why does switching to Target reorder the portfolios?">
+Current sorts by current weight, and Target sorts by target weight. Both views show the same portfolio assignments. Use portfolio and column names to compare the same item.
+</Toggle>
+
+<Toggle title="Why don't the displayed weights add up to exactly 100%?">
+Current weights are rounded to one decimal place, so the displayed values may add up to 99.9% or 100.1%. The display total is separate from the save requirements in Target Design. If you edit target weights, make their total 100% before saving.
+</Toggle>
+
+<Toggle title="Why is my current weight higher than expected?">
+Check cash assignments and duplicate holdings in that portfolio. See whether missing prices in another portfolio reduce the overall valuation. Resolve any unclassified items first. Once the inputs are correct, check whether actual price movements explain the difference.
+</Toggle>
+
+<br/>
+
+## Conclusion
+
+Portfolio Weights shows how much of your total is in each portfolio. Switch between Current and Target, select a portfolio, and review its valuation and difference from target.
+
+**Check inputs → review cash and unclassified assets → read overweights and shortfalls → apply tolerance.** Part 7 uses those differences to review rebalancing quantities.
+
+### References
+
+- [PortRhythm](https://pf.promleeblog.com)
+- [Part 2, Setting Up Target Portfolios and Investment Weights](https://www.promleeblog.com/blog/post/437-portrhythm-portfolio-setup-guide)
+- [Part 4, Asset Assignment and Automatic Classification](https://www.promleeblog.com/blog/post/439-portrhythm-asset-assignment-guide)
+- [Part 5, Dashboard and Holdings](https://www.promleeblog.com/blog/post/440-portrhythm-dashboard-holdings-guide)

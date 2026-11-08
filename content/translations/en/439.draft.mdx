@@ -1,0 +1,421 @@
+---
+post_id: '439'
+locale: en
+title: PortRhythm User Guide 4 — Asset Assignment and Automatic Classification
+description: >-
+  Assign assets on desktop and mobile. Set manual and automatic rules for stocks
+  and ETFs, resolve unclassified holdings, assign crypto and cash, save changes,
+  and explore portfolio weights in 3D. Includes troubleshooting for common
+  assignment issues.
+source_hash: 8d5d5e9fc826152d1aa9ef84faeed67420bbb3638f63cd6c79241431c9e9082d
+---
+**“I've added all my assets. Why are my investment portfolios still empty?”**
+
+In [Part 3](https://www.promleeblog.com/blog/post/438-portrhythm-asset-registration-guide), we added stocks, ETFs, crypto, and cash. The app now knows what you own and how much. You still need to tell it **which portfolio should track each asset**.
+
+Think of putting away groceries after you bring them home. Adding assets brings them into the app. **Assigning assets gives them a place.** This guide covers manual assignments, automatic rules, unclassified assets, crypto and cash, saving, and the 3D view on desktop and mobile.
+
+<br/>
+
+<Bbox>
+The goal is to assign a portfolio to each asset so you can compare current and target weights. Portfolio assignments organize assets inside the app. Your brokerage accounts and orders are managed separately.
+</Bbox>
+
+[Open PortRhythm](https://pf.promleeblog.com)
+
+<br/>
+
+## Portfolios and Holdings
+
+Portfolios are **groups you define**. Stocks, ETFs, crypto, and cash are **the assets you put in those groups**.
+
+| Screen | What you specify | Example |
+| --- | --- | --- |
+| Target Design | Which portfolios to track and their target weights | Index 50%, individual stocks 30%, cash 20% |
+| Add Assets | The securities, quantities, and amounts you actually own | 10 ETF shares, 5 individual shares, KRW 500,000 cash |
+| Asset Assignment | Which portfolio counts each holding | ETF → Index, individual stock → Individual Stocks |
+| Portfolio Weights | How actual amounts compare with targets | Compare current and target weights for Index |
+
+Creating a Gold portfolio does not add a gold ETF. Once you register an ETF, set a rule or assign it manually to the portfolio you want.
+
+<br/>
+
+#### Three Checks Before Starting
+
+- **Have you saved your target portfolio?** If needed, start with [Part 2, Setting Up Target Portfolios](https://www.promleeblog.com/blog/post/437-portrhythm-portfolio-setup-guide).
+- **Have you entered your holdings?** Use [Part 3, Adding Assets](https://www.promleeblog.com/blog/post/438-portrhythm-asset-registration-guide) to enter quantities and amounts.
+- **Have you decided what goes where?** Write down a short rule for each group, such as index ETFs in Index and company shares in Individual Stocks.
+
+The screenshots use a local test account. U.S. Index, Korean Index, Blue Chip, Gold, and Bitcoin are example names. The holdings and weights are for illustration. The screenshot assignments were reverted without saving.
+
+<br/>
+
+## 1. Opening Asset Assignment
+
+#### 1.1. Desktop
+
+In the left menu, select **Portfolio → Asset Assignment**. Verify the screen title. Your registered holdings appear under **My Asset Assignments**. Click the heading if the section is collapsed.
+
+<Img src="/portrhythm-assignment-desktop-overview-20261008.webp" width={800} alt="Desktop Asset Assignment list with portfolio selectors for stocks, crypto, and cash"/>
+
+<br/>
+
+#### 1.2. Mobile
+
+Open **All → Asset Assignment** from the bottom menu. The portfolio selector sits beneath the asset name on mobile and beside it on desktop.
+
+<Img src="/portrhythm-assignment-mobile-direct-20261008.webp" width={350} alt="Mobile example assigning Apple manually to Blue Chip with the Save Changes button"/>
+
+Scroll down to find crypto and cash if the list is long. After editing, **Save Changes** appears at the top and at the bottom on mobile.
+
+<br/>
+
+#### 1.3. What to Check in the List
+
+Look for the asset name, ticker, source, and valuation. The same stock can appear as separate holdings from several accounts. **Verify the holding before choosing a portfolio.** Check tickers for ETFs with similar names.
+
+If quantity or average purchase price is wrong, open **Edit Assets**. For a stock or ETF you have yet to enter, use **Import Screenshot** first. Entering holdings and assigning them are separate steps.
+
+<br/>
+
+#### 1.4. Saving Changes
+
+Save the changes to complete the assignment. You can edit saved assignments later.
+
+<br/>
+
+## 2. Automatic and Manual Stock Assignments
+
+Stocks and ETFs have the following choices.
+
+| Selection | Meaning | Result |
+| --- | --- | --- |
+| Automatic · Portfolio name | Follow the ticker rule | Count in the rule's portfolio |
+| Automatic · Unclassified | Automatic mode has no matching rule | Currently counted in no portfolio |
+| Manual · Portfolio name | Set the portfolio for this holding | Manual choice takes priority |
+| Manual · Unclassified | Explicitly leave this holding unclassified | Remains unclassified even with a matching rule |
+
+**Automatic assignment follows a registered market and ticker rule.** It does not infer the asset's investment role from its name.
+
+<br/>
+
+#### 2.1. Which Selection Takes Priority?
+
+> Stocks follow a manual assignment when one exists. In automatic mode they follow the ticker rule.
+
+Suppose a rule sends AAPL to Individual Stocks. If you manually assign a holding elsewhere, it counts toward the portfolio you selected. Changing the rule leaves that manual assignment in place.
+
+<br/>
+
+## 3. Assigning Stocks and ETFs Manually
+
+Manual assignment is a straightforward starting point if you hold a few securities or need exceptions for particular positions.
+
+- **Find the holding.** Check the name and ticker. If the security appears several times, verify each entry.
+- **Open the portfolio selector.** Choose the desired Manual · Portfolio Name option.
+- **Assign other holdings individually.** Each selection applies to the chosen entry.
+- **Click Save Changes.** Confirm that saving finished before leaving.
+
+<Img src="/portrhythm-assignment-desktop-direct-20261008.webp" width={800} alt="Desktop Apple holding manually assigned to Blue Chip with Save Changes visible"/>
+
+<br/>
+
+#### 3.1. Assigning Apple
+
+The screenshot changes Apple to **Manual · Blue Chip** in a test account. Choose a portfolio that fits your plan, such as Individual Stocks, Long-Term Holdings, or Portfolio A.
+
+**The listing market alone does not determine the portfolio.** A U.S. index ETF listed in Korea can belong to your U.S. Index portfolio. The market identifies the security and determines quote lookup. The portfolio reflects your own criteria.
+
+<br/>
+
+#### 3.2. Holding the Same Stock in Two Accounts
+
+Manual assignment is **per holding**, so the same security in two accounts can go into different portfolios. To group the same ticker consistently, use an automatic rule. Rules use the market and ticker, regardless of account name.
+
+<Ybox>
+Each holding can be assigned to one portfolio. Registering the same balance twice to split it can double-count its valuation.
+</Ybox>
+
+<br/>
+
+<Ads1/>
+
+## 4. Creating Automatic Stock Assignment Rules
+
+Use a rule when the same security should consistently go to one portfolio. For example, route holdings with U.S. market and ticker AAPL to a specified portfolio.
+
+#### 4.1. Where to Manage Rules
+
+Find rule entry under **Rebalancing → Buy Candidates**. The search form is in Rebalancing. Open it from the left menu on desktop, or the bottom Rebalancing tab or All menu on mobile. Expand **Buy Candidates** near the bottom.
+
+<Img src="/portrhythm-assignment-desktop-rule-search-20261008.webp" width={800} alt="Desktop Buy Candidates search for AAPL in the U.S. market, with Blue Chip selected and an Apple NAS result"/>
+<Img src="/portrhythm-assignment-mobile-rule-search-20261008.webp" width={350} alt="Mobile Buy Candidates showing the portfolio, market, search term, KIS Search, and Apple result"/>
+
+<br/>
+
+#### 4.2. Select the Portfolio and Market First
+
+- **Portfolio to Assign.** Choose where the security should go automatically.
+- **Market.** Choose Korea for Korean listings and U.S. for U.S. listings.
+- **Security Name or Ticker.** Enter the exact name or ticker.
+- **KIS Search.** Check the ticker and exchange in the results.
+- **Choose the candidate.** Selecting a result adds it to the registered candidate list.
+
+**Select a candidate in the results** to create the rule. Entering a query and searching are preliminary steps.
+
+<br/>
+
+#### 4.3. Example: Automatically Assigning AAPL
+
+Choose Individual Stocks in Portfolio to Assign, select the U.S. market, and search for AAPL. Verify Apple's ticker and exchange in the KIS results, then select it. The screenshot uses Blue Chip. Once the security appears under Registered Candidates, click **Save Changes**.
+
+<Bbox>
+**Buy candidates also define automatic assignment rules.** The app uses registered candidates to classify holdings in automatic mode and to propose purchases during rebalancing. Check that the security and portfolio fit your plan when adding a classification rule.
+</Bbox>
+
+You can register a candidate you do not own. It creates neither a holding nor a purchase order. Manage quantities and valuations by adding holdings. A later installment explains proposed trade quantities.
+
+<br/>
+
+## 5. Switching a Holding Back to Automatic
+
+After saving the rule, return to **Asset Assignment**. Open the stock's selector, choose **Automatic · Portfolio Name**, and save. If the rule sends AAPL to Individual Stocks, that name appears in the automatic option. An existing manual assignment takes priority until you switch it.
+
+<br/>
+
+#### 5.1. Applying a Rule Across Accounts
+
+Holdings with the same market and ticker follow the same rule in automatic mode. Assign an individual holding manually to make an exception.
+
+| Holding | Selection | Result when the AAPL rule points to Individual Stocks |
+| --- | --- | --- |
+| AAPL in a regular account | Automatic | Individual Stocks |
+| AAPL in another account | Automatic | Individual Stocks |
+| AAPL managed as an exception | Manual · Long-Term Holdings | Long-Term Holdings |
+| AAPL left unclassified for now | Manual · Unclassified | Unclassified |
+
+*The account and portfolio names are examples.*
+
+<br/>
+
+#### 5.2. Editing an Existing Rule
+
+Go to **Rebalancing → Buy Candidates → Registered Candidates**. Change the security's portfolio and save. Each market and ticker pair can have one rule. If the app says it already exists, edit the existing candidate.
+
+Deleting a rule leaves holdings in automatic mode unclassified when no rule matches. Manual holdings follow the selected assignment. After changing rules, check the automatic and manual selections in Asset Assignment.
+
+<Toggle title="Do I need a temporary price for automatic assignment?">
+Automatic assignment uses the market, ticker, and associated portfolio. A candidate's temporary price is for purchase quantity calculations when no quote is available. You can leave it blank for classification. The rebalancing guide covers its use.
+</Toggle>
+
+<br/>
+
+## 6. Resolving Unclassified Assets
+
+Unclassified means **the app has no portfolio assignment for the asset**. The holding is still registered. If a stock selector shows Automatic · Unclassified, check for a matching rule. A missing or incorrect ticker may prevent a match. Assign the portfolio manually or register a rule for the correct ticker and use automatic mode.
+
+<br/>
+
+#### 6.1. Automatic and Manual Unclassified
+
+Both appear as unclassified now. They respond differently to a rule added later.
+
+| Selection | Current state | When a matching rule is added |
+| --- | --- | --- |
+| Automatic · Unclassified | Unclassified because no rule matches | Moves to the rule's portfolio |
+| Manual · Unclassified | Explicitly unclassified | Stays unclassified until switched to Automatic |
+
+<Img src="/portrhythm-assignment-mobile-unassigned-20261008.webp" width={350} alt="Mobile stock portfolio selector set to Manual · Unclassified"/>
+
+<Ybox>
+**Manual · Unclassified is an explicit assignment.** To use a rule for that holding, switch to Automatic and save.
+</Ybox>
+
+<br/>
+
+#### 6.2. Do Unclassified Assets Count in the Total?
+
+**Unclassified assets with available valuations count toward total assets.** They simply have no assigned portfolio. Suppose total assets are KRW 1 million, with KRW 600,000 in A, KRW 300,000 in B, and KRW 100,000 unclassified.
+
+| Location | Valuation | Share of total assets |
+| --- | ---: | ---: |
+| Portfolio A | KRW 600,000 | 60% |
+| Portfolio B | KRW 300,000 | 30% |
+| Unclassified | KRW 100,000 | 10% |
+| Total | KRW 1 million | 100% |
+
+A and B account for 90%. The other 10% stays in Unclassified and remains in the calculation. Finish assigning the assets you intend to track before comparing target weights.
+
+<Toggle title="Does zero unclassified value mean every asset is assigned?">
+Check the individual selections. Assets with unavailable quotes or manually entered zero amounts can still be unclassified without contributing to the total. Look for notices such as Price Unavailable. Verify assignment and valuation separately.
+</Toggle>
+
+<br/>
+
+<Ads2/>
+
+## 7. Assigning Crypto
+
+For crypto, **choose a portfolio or Unclassified**. The selector has no automatic and manual modes.
+
+- **Check the coin name and market code**, such as Bitcoin and KRW-BTC.
+- **Choose a portfolio.** Check that the selection made when you registered the holding still fits your plan.
+- **Save changes.** Confirm the new assignment appears in the portfolio breakdown.
+
+Crypto follows the portfolio chosen for that holding. Changing a stock ticker rule leaves it unaffected.
+
+<br/>
+
+#### 7.1. Do the Coin and Portfolio Need the Same Name?
+
+You can assign Bitcoin to a Crypto portfolio or group several coins under one name you choose. Bitcoin is simply the portfolio name in the test screenshots. Use names and inclusion rules that fit your plan. If a price is missing, check quote lookup separately. Assignment alone cannot supply a price.
+
+<br/>
+
+## 8. Assigning Won and Dollar Cash
+
+Manually entered assets also use **a portfolio name or Unclassified**. Find the cash entry, select a portfolio, and save. Won and dollar cash use the same assignment process. Dollar cash is valued in won at the configured exchange rate.
+
+<Img src="/portrhythm-assignment-mobile-cash-20261008.webp" width={350} alt="Mobile Asset Assignment showing the Bitcoin portfolio, unclassified manually entered QA cash, and Save Changes"/>
+
+*The screenshot shows where the selector is. Choose a portfolio that reflects what the cash is for.*
+
+<br/>
+
+#### 8.1. Cash Assignments Change How You Read Weights
+
+Suppose you have KRW 800,000 in stocks and KRW 200,000 in cash. The stocks are assigned to Stocks. Where you put the cash changes the result.
+
+| Cash assignment | Stocks | Cash | Unclassified |
+| --- | ---: | ---: | ---: |
+| Assign to Cash | 80% | 20% | 0% |
+| Assign to Stocks | 100% | 0% | 0% |
+| Leave unclassified | 80% | 0% | 20% |
+
+**A portfolio's weight reflects the sum of its assigned assets.** In the second row, the Stocks portfolio includes KRW 800,000 in shares and KRW 200,000 in cash.
+
+<br/>
+
+#### 8.2. A Cash Portfolio or Cash Awaiting Investment
+
+To compare cash separately, create a Cash portfolio in Target Design and assign the balance. If you add a portfolio, bring the combined target weights back to 100% before saving. You can also assign cash awaiting investment to the portfolio where you plan to use it. Decide whether the comparison should cover **invested assets alone or include cash awaiting investment**.
+
+Cash assignment is separate from adding candidates and placing orders. When reviewing rebalancing quantities, check actual buying power as well as assignment.
+
+<Toggle title="Can I split cash across portfolios?">
+Each manually entered asset belongs to one portfolio. To track KRW 500,000 as KRW 300,000 and KRW 200,000, create two distinguishable entries that sum to the actual balance. Keeping the original KRW 500,000 entry as well would double the total to KRW 1 million. Splitting entries organizes the app's records without moving money at a bank or broker.
+</Toggle>
+
+<br/>
+
+## 9. Saving Assignments and Checking Weights
+
+A new selection appears immediately. **Click Save Changes to save it to your account.** On desktop the button is at the top. On mobile, use either the top button or the fixed bottom button. Check for the **Saved** indicator.
+
+<br/>
+
+#### 9.1. Checks After Saving
+
+- **Check the selections in Asset Assignment.** Confirm the intended portfolio and automatic or manual mode.
+- **Review Unclassified.** Make sure entries remain there intentionally.
+- **Open Portfolio Weights.** Use the left menu on desktop or the bottom Weights tab on mobile.
+- **Review composition and current weights.** Confirm that assets count toward the intended portfolios.
+
+If prices, quantities, and exchange rates stay fixed, reassigning assets leaves total value unchanged. It changes **each portfolio's valuation and current weight**.
+
+<br/>
+
+Target weights come from Target Design and stay fixed when you move a holding. Changing current classification and changing investment targets are separate decisions.
+
+<Gbox>
+**Compare weights after checking assignments.** Look for unclassified holdings, duplicates, and unavailable prices first to help explain gaps from your targets.
+</Gbox>
+
+<br/>
+
+<Ads3/>
+
+## 10. Exploring Your Allocation in 3D
+
+Select **Open 3D Analysis** at the top of Asset Assignment. The 3D view is optional. You can complete assignments in the standard list.
+
+<Img src="/portrhythm-assignment-desktop-3d-20261008.webp" width={800} alt="Desktop 3D allocation grouped by security, portfolio, or brokerage with value and weight for the selected portfolio"/>
+<Img src="/portrhythm-assignment-mobile-3d-20261008.webp" width={350} alt="Mobile 3D allocation with bars and the selected portfolio's value and weight"/>
+
+<br/>
+
+#### 10.1. Three Ways to Group Assets
+
+| Group by | How it groups assets | Question it answers |
+| --- | --- | --- |
+| Security | Stocks by market and ticker, coins, and manually entered assets | Which assets have the highest value? |
+| Portfolio | Assigned portfolios | How much does each portfolio account for? |
+| Brokerage | Stock totals by brokerage, plus groups for crypto and manually entered assets | How is value divided by source? |
+
+In the brokerage view, crypto and manually entered assets each form a separate group. The view does not identify individual crypto exchange accounts or bank accounts holding the cash.
+
+<br/>
+
+#### 10.2. Reading the Bars and List
+
+Select a bar or list entry to see **its valuation and share of the total**. On desktop, drag the chart to rotate it. On mobile, selecting entries in the list is often easier.
+
+Bar height represents valuation. Check Portfolio Weights for deviations from target. Investment suitability is a separate judgment. When grouped by portfolio, valued unclassified assets may appear as their own group, which helps you check for missed assignments.
+
+<Toggle title="Why is the 3D chart unavailable or showing fewer holdings?">
+If your browser cannot display the 3D chart, use the list of values and weights. Assign assets in the standard list. The 3D view includes items valued above zero. When there are many items, it may show the largest separately and group the rest under Other. For individual entries, check My Asset Assignments and Holdings.
+</Toggle>
+
+<br/>
+
+## 11. Assignment Checklist
+
+| Check | Completion criterion |
+| --- | --- |
+| Stocks and ETFs | Assigned manually or through the intended rule |
+| Automatic rules | Market, ticker, and portfolio match your criteria |
+| Exceptions | Each manual assignment has a reason |
+| Crypto | Portfolio and price checked for each coin |
+| Cash | Assigned to fit its purpose, currency, and amount |
+| Unclassified | Each remaining item was reviewed and left there intentionally |
+| Duplicates | Each actual balance is counted once |
+| Saving | Saved indicator appears after Save Changes |
+| Weights | Portfolio totals reflect the intended assignment |
+
+<br/>
+
+## 12. Troubleshooting
+
+<Toggle title="Why is an automatic holding still unclassified?">
+Check that the registered rule includes the same market and ticker. A similar name is insufficient. If the ticker is missing or wrong, check it in Edit Assets. Confirm that you saved any new or edited rule.
+</Toggle>
+
+<Toggle title="Why did some holdings stay put after I changed the rule?">
+Check whether they are manually assigned. A manual assignment takes priority, including Manual · Unclassified. To follow a rule, switch the holding back to Automatic and save.
+</Toggle>
+
+<Toggle title="Why can't I add another rule for the same security?">
+Each market and ticker pair can have one rule. Edit the portfolio for the existing registered candidate. For different treatment across accounts, assign the individual holdings manually.
+</Toggle>
+
+<Toggle title="Why is a portfolio missing from the selector?">
+Check that you created and saved it in Target Design. If you added one, make the target weights total 100%. Return to Asset Assignment and select it. A portfolio created under a different login may be unavailable in the current account.
+</Toggle>
+
+<Toggle title="Why won't my assignment save, or why does it revert after refreshing?">
+Confirm that you pressed Save Changes and saw the Saved indicator or completion message. If a notice says target weights do not total 100%, check Target Design. If a connection error appears, verify your selections, retry saving, and confirm the result.
+</Toggle>
+
+<Toggle title="Does Unclassified exclude a holding from rebalancing?">
+Unclassified means there is no portfolio assignment. Its available valuation counts toward total assets and can affect weight and adjustment calculations. Rebalancing has a separate control for excluding holdings from the current adjustment. The rebalancing guide covers that control.
+</Toggle>
+
+<br/>
+
+## Next: Reading the Dashboard and Holdings
+
+Once assets are entered and assigned, you can read total valuation and gains or losses on the dashboard and check quote sources in Holdings. Part 5 covers **the dashboard and holdings screens**, including total and daily gains and losses, search and sorting, account details, and editing holdings. Part 6 compares current and target weights in more detail.
+
+[Check asset assignments in PortRhythm](https://pf.promleeblog.com)
+
+Previous article · [PortRhythm User Guide — Adding Stocks, ETFs, Crypto, and Cash](https://www.promleeblog.com/blog/post/438-portrhythm-asset-registration-guide)

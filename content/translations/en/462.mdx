@@ -1,0 +1,110 @@
+---
+post_id: '462'
+locale: en
+title: 'Reading Your Portfolio, Part 5: Measure Drawdown Risk in Your Own Money'
+description: >-
+  Learn what maximum drawdown measures, estimate a portfolio loss in won, and
+  record which assets can fall together and what money you need to keep
+  available.
+source_hash: f5aeb2dc78ccd8c3091ba93c2021a0ac0ac4026b8a89311c060e8e67d0a9e805
+reviewed_at: '2026-11-07T17:55:13.540Z'
+---
+## Before We Begin
+
+“I could handle a 20% drop.” Saying that feels different from seeing 2 million won disappear from your account. That number might bring to mind a vacation or several months of savings. **Investment risk is easier to understand when you convert percentages into amounts of money.**
+<br/>
+In [Part 4](https://www.promleeblog.com/blog/post/461-portfolio-reading-return-cash-flows), we separated new contributions from investment gains. This time we'll ask how far the portfolio can fall along the way before it disrupts your life or your plans. We'll build **a worksheet with the loss amount, the money you need, and what to do next**.
+
+<Rbox>
+The assets and returns are illustrative. They don't represent actual results or forecasts. The calculated loss isn't a limit on what you could lose in the future.
+</Rbox>
+
+## Same Destination, Different Ride
+
+Think of investing as a road trip. A smooth road and a steep downhill stretch can leave you feeling quite different even if you arrive at the same place. These two paths both start at 100 and end at 110.
+
+| Path | Start | In between | End | Return from the start |
+| --- | ---: | ---: | ---: | ---: |
+| A | 100 | 120 | 110 | +10% |
+| B | 100 | 80 | 110 | +10% |
+
+Both paths show asset values in Korean won over the same period, with cash flows removed and distributions included. Between the points shown, values move in one direction toward the next point.
+<br/>
+Path A fell about 8.3% from its high of 120 to 110. Path B fell 20% from 100 to 80, then recovered. Both gained 10% by the end, but the points at which you might have wanted to stop looking at the account were different.
+
+## The Deepest Decline
+
+A drawdown measures **how far the value has fallen from a previous peak**. The deepest decline during a given period is the maximum drawdown, or `MDD`. For Path B, `80 ÷ 100 − 1 = −20%`, so the maximum decline was 20%. The CFA Institute also explains how to compare a previous peak with a later value.
+[CFA Institute on drawdowns](https://rpc.cfainstitute.org/research/cfa-digest/2018/01/dig-v48-n1-3)
+<br/>
+Distinguish a withdrawal from a loss. If you withdraw 2 million won from a 10 million won portfolio for living expenses and have 8 million left, the balance alone doesn't show a 20% investment loss. Contributions can also hide losses. Measure drawdown using **a series of values adjusted for deposits and withdrawals**.
+<br/>
+The observation interval matters too. Month-end snapshots can miss a deeper mid-month decline. Compare the same period, recording frequency, currency, and dividend treatment. Keep past declines separate from the losses you can afford in the future.
+
+<Ads1/>
+
+## Try a Scenario with 10 Million Won
+
+Start with 6 million won in stocks, 2 million in bonds, 500,000 in gold, and 1.5 million in cash. Apply the following changes.
+
+| Asset | Current value | Assumed change | Gain or loss |
+| --- | ---: | ---: | ---: |
+| Stocks | 6 million won | −30% | −1.8 million won |
+| Bonds | 2 million won | −5% | −100,000 won |
+| Gold | 500,000 won | +10% | +50,000 won |
+| Cash | 1.5 million won | 0% | 0 won |
+| Total | **10 million won** | **−18.5%** | **−1.85 million won** |
+
+The changes are in won and include distributions. We assume no external cash flows, fees, or taxes. The calculation is `−180만 − 10만 + 5만 = −185만 원`, leaving **8.15 million won**. Add the changes across the whole portfolio before assuming bonds and gold will offset stock losses.
+
+<Img src="/portfolio-reading-05-drawdown-risk-20261017.webp" width={750} height={500} alt="A 1.8 million won stock loss, 100,000 won bond loss, and 50,000 won gold gain reduce 10 million won to 8.15 million won"/>
+
+Imagine losing 1.85 million won. Would you be short of money you need soon? Would you lose sleep? Could you keep making your planned contributions? Feeling able to wait and **actually having enough money to avoid a forced sale** are separate questions. Your allocation depends on your time horizon and your ability and willingness to bear losses.
+[Investor.gov on asset allocation](https://www.investor.gov/introduction-investing/getting-started/asset-allocation)
+
+Try scenarios where stocks fall further or bonds and gold fall too. Compare which changes matter most for your own money.
+
+## Check Which Assets Can Fall Together
+
+Three umbrellas won't help if they're all in the same place and you can't get there. Likewise, holding several names doesn't necessarily spread risk. The companies held by multiple ETFs in [Part 2](https://www.promleeblog.com/blog/post/459-portfolio-reading-etf-overlap) are one example.
+<br/>
+**Correlation** describes how similarly the returns of different assets move. Start by asking whether two assets could move together for the same reason. FINRA explains how assets in the same industry or region can be affected together as a form of concentration risk.
+[FINRA on concentration risk](https://www.finra.org/investors/insights/concentration-risk)
+<br/>
+For a numerical comparison, use returns from the same period, observation interval, and currency. Assets that moved independently in the past may behave differently later. In our example, bonds and stocks both fell. **Holding several kinds of assets still leaves room for losses.**
+
+<Ads2/>
+
+## From PortRhythm to a Risk Worksheet
+
+In PortRhythm, open **Portfolio Weights → Current** and see which buckets are largest. If a U.S. Index bucket includes cash, its whole value isn't stock exposure. Check asset assignments too. See the [current and target allocation guide](https://www.promleeblog.com/blog/post/441-portrhythm-current-target-allocation-guide).
+<br/>
+Multiply each holding amount by the assumed change, then record the loss and the money you need.
+
+| Question | What to record |
+| --- | --- |
+| What loss did I assume? | 1.85 million won here. Recalculate using your own holdings |
+| Will I need money soon? | Amount, date, and where it is set aside |
+| Are living expenses and emergency savings separate? | Check that they aren't included in the investment total |
+| What else should I check? | Company overlap, currency exposure, cash purpose, or other items |
+| What should I do first? | Reconcile balances, set aside money you need, or revisit targets |
+
+Set a rule that checks what money you need before deciding to buy in a downturn. **Even without a trade decision, recording the information to check and the next review date moves the review forward.**
+
+## Conclusion
+
+We asked whether a loss of 1.85 million won would disrupt our lives and plans. We separated the deepest past decline from a hypothetical future loss and added the effects across the whole portfolio. **The result is a downside risk worksheet expressed in your own money.**
+<br/>
+Open [PortRhythm's current weights](https://pf.promleeblog.com/?view=composition) and try the calculation for one large bucket. Next, we'll set target weights and look at how to bring a portfolio back toward them, including whether new contributions can do the job.
+
+[← Part 4](https://www.promleeblog.com/blog/post/461-portfolio-reading-return-cash-flows) · [Part 6 →](https://www.promleeblog.com/blog/post/463-portfolio-reading-rebalancing-rules)
+
+### References
+
+- [Reading Your Portfolio, Part 1: Consolidated holdings](https://www.promleeblog.com/blog/post/458-portfolio-reading-consolidated-holdings)
+- [Reading Your Portfolio, Part 2: ETF overlap](https://www.promleeblog.com/blog/post/459-portfolio-reading-etf-overlap)
+- [Reading Your Portfolio, Part 4: Cash flows and returns](https://www.promleeblog.com/blog/post/461-portfolio-reading-return-cash-flows)
+- [CFA Institute on drawdowns](https://rpc.cfainstitute.org/research/cfa-digest/2018/01/dig-v48-n1-3)
+- [Investor.gov on asset allocation](https://www.investor.gov/introduction-investing/getting-started/asset-allocation)
+- [FINRA on concentration risk](https://www.finra.org/investors/insights/concentration-risk)
+- [PortRhythm current and target allocation guide](https://www.promleeblog.com/blog/post/441-portrhythm-current-target-allocation-guide)

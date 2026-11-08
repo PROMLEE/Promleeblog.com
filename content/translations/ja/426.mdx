@@ -1,0 +1,261 @@
+---
+post_id: '426'
+locale: ja
+title: ETA・距離・意図の特徴量設計 - XGBoost推薦システム 第3回
+description: >-
+  meetinthemiddleの推薦に向け、ETAで表した移動負担を公平性の特徴量として設計します。ETAの分布、目的とカテゴリ、時間帯の特徴量を作り、相関と重要度を使った簡素化、NDCGによる比較、運用時の確認事項を扱います。
+source_hash: ad215acd01ddb53144739a1a548b0e01f7b8274c5cb06ec5b9f547f149f24a02
+reviewed_at: '2026-11-08T11:35:56.455Z'
+---
+## はじめに
+
+こんにちは。
+第1回では、推薦をランキング問題として定義し、ラベルを設計しました。
+第2回では、Station Place Edgeデータセットを作り、データを整えるパイプラインを組みました。
+第3回では、ETAで表した移動時間を公平性の特徴量に変える方法を扱います。
+
+<br/>
+
+[GitHubリポジトリ](https://github.com/PROMLEE/xgboost-ml-practice/tree/part3)で、実習コードとデータセットを確認できます。
+
+<Img src="/260405-185443.webp" width={500} alt="シリーズの流れ"/>
+
+### 今回の流れ
+
+- まず特徴量とラベルの違いを整理します。
+- ETAによる公平性の特徴量と、利用者の意図を表す特徴量の設計基準を説明します。
+- `scripts` と `ml` のコードが何をするか、段階ごとに解説します。
+- `NDCG` の結果の読み方と、特徴量を絞るための確認項目を整理します。
+
+<Ads1/>
+
+## 特徴量とは何か
+
+機械学習でいう特徴量は、モデルが判断に使う入力情報です。
+学習データの1行は、通常、一つのルームと候補地の組み合わせを表します。
+それぞれの特徴量は、その組み合わせの性質を数値やカテゴリで表現します。
+例えば、`eta_mean` は平均移動時間、`eta_range` は参加者間の移動時間の差です。
+`purpose_match` は、集まりの目的と場所のカテゴリが一致するかを示します。
+
+### ラベルと特徴量の違い
+
+- ラベルはモデルが予測する正解です。
+- 特徴量はラベルを予測するための手掛かりです。
+
+この実習では、行動ログから作った `target_score` をラベルとして使います。
+ETAの統計量と意図を表す情報を特徴量に使います。
+
+## ETAを公平性の特徴量に使う理由
+
+待ち合わせ場所の推薦で平均移動時間だけを見ると、負担の偏りが隠れる場合があります。
+例えば3人のETAが15分、15分、45分なら、平均は25分で、負担が小さそうに見えます。
+しかし、一人の移動負担は明らかに大きくなっています。
+参加者が感じる公平さをモデルが学べるよう、ETAの分布自体を特徴量に含めます。
+
+### 移動コストを表す特徴量
+
+- `eta_mean` は参加者の平均移動時間です。
+- `eta_std` は参加者の移動時間のばらつきです。
+- `eta_range` は最小ETAと最大ETAの差です。
+- `eta_min` は最短移動時間です。
+- `eta_max` は最長移動時間です。
+- `eta_p90` は、移動に時間のかかる側を考慮した保守的な指標です。
+
+### 利用者の意図を表す特徴量
+
+- `purpose_match` は、`purpose` と `category` が意味の上で一致するかを示します。
+- `hour_bucket` は、時間を朝、午後、夜などの時間帯にまとめた値です。
+- `group_size` は参加者数で、移動時間の差が広がる可能性を反映します。
+
+<Img src="/260405-191219.webp" width={500} alt="公平性を表す特徴量が必要な理由"/>
+
+<Ads2/>
+
+## 学習コードの主要なロジック
+
+まず、Pythonの学習コードで使う主要な式を確認します。
+
+### 候補のスコアを求める
+
+```python title="ml/synthetic_generator_part3.py" showLineNumbers
+eta_range = float(np.max(etas) - np.min(etas))
+eta_mean = float(np.mean(etas))
+bonus = _purpose_category_bonus(purpose, str(place.get("category", "")))
+
+score = 1.2 * eta_range + 0.3 * eta_mean - 8.0 * bonus
+```
+
+- `eta_range` と `eta_mean` で、移動負担と公平性を反映します。
+- 目的が一致する場合の加点を大きくし、利用者の意図に合う候補を優先します。
+
+### ラベルを合成する
+
+```python title="ml/label_builder.py" showLineNumbers
+click_score = weights.click if int(action.get("is_clicked", 0)) == 1 else 0.0
+vote_score = weights.vote if int(action.get("is_voted", 0)) == 1 else 0.0
+final_score = weights.final if int(action.get("is_final_selected", 0)) == 1 else 0.0
+
+rating = float(action.get("rating", 0) or 0)
+rating = max(0.0, min(5.0, rating))
+feedback_score = (rating / 5.0) * weights.rating_max_bonus
+
+return click_score + vote_score + final_score + feedback_score
+```
+
+- ファネル内での行動を一つの連続値のラベルに合成し、ランキング学習に使います。
+
+### ETAの特徴量を作る
+
+```python title="ml/feature_builder_part3.py" showLineNumbers
+etas_np = np.array(etas, dtype=float)
+
+eta_mean = float(np.mean(etas_np))
+eta_std = float(np.std(etas_np))
+eta_max = float(np.max(etas_np))
+eta_min = float(np.min(etas_np))
+eta_range = float(eta_max - eta_min)
+eta_p90 = float(np.percentile(etas_np, 90))
+```
+
+- 平均と併せて分布の統計量を使い、公平性に関わる情報を保ちます。
+
+### NDCGを計算する
+
+```python title="ml/evaluate_part3.py" showLineNumbers
+def ndcg_at_k(y_true, y_score, group_ids, k):
+    ndcgs = []
+    for gid in np.unique(group_ids):
+        m = group_ids == gid
+        t = y_true[m]
+        s = y_score[m]
+
+        order = np.argsort(-s)
+        ideal = np.argsort(-t)
+
+        dcg = _dcg(t[order], k=k)
+        idcg = _dcg(t[ideal], k=k)
+        ndcgs.append(0.0 if idcg == 0.0 else dcg / idcg)
+
+    return float(np.mean(ndcgs)) if ndcgs else 0.0
+```
+
+- 同じ `room_id` のグループ内で、上位の順位付けの品質を評価します。
+
+以下のスクリプトの節では、このコードを実行する順番を説明します。
+
+<Ads3/>
+
+## 実習の手順
+
+実習は、環境の準備、データの生成、特徴量の生成、評価の順に進めます。
+
+### OS別の実行ファイル
+
+MacとLinuxは `_mac_linux.sh` で終わるスクリプトを、Windowsは `_windows.ps1` で終わるスクリプトを使います。
+
+### 実行前の確認事項
+
+- 手順の順番を変えないでください。
+- MacでXGBoostのインポートエラーが出る場合は、先に `scripts/install_libomp_mac.sh` を実行します。
+- 結果は絶対値より、特徴量セット間の相対比較を中心に読みます。
+
+## 各スクリプトの処理
+
+### 1) 環境の準備
+
+```bash title="scripts/setup_mac_linux.sh" showLineNumbers
+#!/usr/bin/env bash
+set -euo pipefail
+
+python3 -m venv .venv-ml
+source .venv-ml/bin/activate
+
+python -m pip install --upgrade pip
+pip install -r requirements-ml.txt
+
+echo "Environment ready."
+```
+
+- `set -euo pipefail` はエラーを早い段階で表面化させ、失敗を見落としにくくします。
+- 仮想環境を分け、システムのPythonと依存関係が競合するのを防ぎます。
+
+### 2) データの生成とラベル付け
+
+```bash title="scripts/generate_part3.sh" showLineNumbers
+#!/usr/bin/env bash
+set -euo pipefail
+
+source .venv-ml/bin/activate
+
+python ml/synthetic_generator_part3.py   --stations ml/out/stations.csv   --places ml/out/places.csv   --n-rooms 80   --seed 42   --out-rooms ml/rooms_part3.jsonl   --out-actions ml/synthetic_actions_part3.jsonl
+
+python ml/label_builder.py   --input ml/synthetic_actions_part3.jsonl   --output ml/synthetic_actions_part3_labeled.jsonl
+```
+
+- 同じ `seed` を使い、結果の再現性を確保します。
+- 生成した行動ログを `target_score` のラベルに変換し、学習に使える形にします。
+
+### 3) 特徴量の生成
+
+```bash title="scripts/build_features_part3.sh" showLineNumbers
+#!/usr/bin/env bash
+set -euo pipefail
+
+source .venv-ml/bin/activate
+
+python ml/feature_builder_part3.py   --stations ml/out/stations.csv   --places ml/out/places.csv   --edges ml/out/edges.csv   --rooms ml/rooms_part3.jsonl   --labeled-actions ml/synthetic_actions_part3_labeled.jsonl   --out-dir ml/out_part3
+```
+
+- ETAの分布の統計量を計算し、`train_ltr.csv` を生成します。
+- 一緒に生成する `feature_report.json` には、データの分割情報とETAソースの使用状況が記録されます。
+
+### 4) 評価
+
+```bash title="scripts/evaluate_part3.sh" showLineNumbers
+#!/usr/bin/env bash
+set -euo pipefail
+
+source .venv-ml/bin/activate
+
+python ml/evaluate_part3.py   --data ml/out_part3/train_ltr.csv   --feature-report ml/out_part3/feature_report.json   --out ml/out_part3/eval_report.json   --k 4
+```
+
+- `no_eta`、`eta_mean_only`、`full_fairness` を同じ条件で比較します。
+- 結果ファイルの `eval_report.json` をもとに解釈します。
+
+## 出力例と解釈
+
+```json title="ml/out_part3/eval_report.json" showLineNumbers
+{
+  "models": {
+    "no_eta": {
+      "ndcg_at_k": 0.553259
+    },
+    "eta_mean_only": {
+      "ndcg_at_k": 0.541776
+    },
+    "full_fairness": {
+      "ndcg_at_k": 0.669059
+    }
+  }
+}
+```
+
+### 結果を読むときのポイント
+
+- `eta_mean_only` は平均だけを使うので、負担の偏りを十分に捉えられません。
+- この実習では、`full_fairness` が分布の特徴量も使うことで、ランキングの品質が改善します。
+
+<Ads4/>
+
+## まとめ
+
+第3回では、ETAを分布として扱い、公平性を特徴量に反映しました。
+目的、時間帯、グループの人数を表す特徴量も組み合わせ、推薦の品質を安定して高める方法を確認しました。
+
+> 次の第4回では、この特徴量テーブルをもとに、XGBoostの学習パイプラインと、失敗時のフォールバックの設計を扱います。
+
+### 参考
+
+- [xgboost-ml-practice part3](https://github.com/PROMLEE/xgboost-ml-practice/tree/part3)
+- [XGBoost Documentation](https://xgboost.readthedocs.io/en/stable/)

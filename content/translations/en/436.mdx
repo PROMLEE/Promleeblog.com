@@ -1,0 +1,234 @@
+---
+post_id: '436'
+locale: en
+title: PortRhythm User Guide 1 — Asset Allocation and Rebalancing
+description: >-
+  Manage a portfolio using target weights. See how asset allocation and
+  rebalancing work, compare selling before buying with adding new funds, and set
+  a tolerance in percentage points using numerical examples and PortRhythm
+  screens.
+source_hash: f6a1184718235d2a08d3f81aed9307216bf119dc2a379015037e8e9a34be7dab
+reviewed_at: '2026-11-08T04:12:29.068Z'
+---
+**You have KRW 1 million to invest this month. Where should it go?**
+
+Buying something that has already risen can feel poorly timed, while a holding that has fallen could fall further. Opening your account can leave you with more questions.
+
+<br/>
+
+Start with your *target weights*. Before asking what will rise, ask how you planned to divide your money. This article uses two portfolios to explain **asset allocation and rebalancing**.
+
+<Bbox>
+This guide covers three ideas: target weights, using new contributions to adjust weights, and tolerance.
+</Bbox>
+
+[New to PortRhythm? Start with the introduction](https://www.promleeblog.com/blog/post/435-portrhythm-portfolio-asset-management-app)
+
+<br/>
+
+## Asset Allocation
+
+You can put all your money in one group or divide it among several. **Deciding how much to put in each category**, such as stocks, bonds, and cash, is asset allocation.
+
+<br/>
+
+Before choosing categories, consider what the money is for.
+
+- **When will you need it?** Money needed soon has a different time horizon from long-term investments.
+- **How much volatility can you handle?** Consider whether a loss would affect money you need for living expenses.
+- **What role should the asset play?** Write down what you expect from each asset. The U.S. SEC's investor education site also describes investment horizon and risk tolerance as key factors in asset allocation.
+
+[Investor.gov guide to asset allocation](https://www.investor.gov/introduction-investing/getting-started/asset-allocation)
+
+<Ybox>
+Different funds can hold many of the same companies. Check for overlap across ETFs.
+</Ybox>
+
+The Investor.gov guide also discusses checking the underlying holdings rather than relying on how many ETFs you own.
+
+<br/>
+
+PortRhythm calls these groups **portfolios**. Give them names such as U.S. Index, Korean Stocks, or Cash. You also choose the target weights yourself.
+
+<br/>
+
+## Target Weights: Half in Each Portfolio
+
+Suppose you plan to put **50% each** in portfolios A and B. Your current allocation looks like this.
+
+| Portfolio | Current value | Current weight | Target weight |
+| --- | ---: | ---: | ---: |
+| A | KRW 6 million | 60% | 50% |
+| B | KRW 4 million | 40% | 50% |
+| Total | KRW 10 million | 100% | 100% |
+
+<br/>
+
+Half of KRW 10 million is **KRW 5 million**.
+
+- A is **KRW 1 million above** target.
+- B is **KRW 1 million below** target.
+
+<Gbox>
+The target weight is your benchmark. Comparing it with the current weight shows which groups are above or below target.
+</Gbox>
+
+<br/>
+
+<Toggle title="How is the current weight calculated?">
+Current weight = portfolio valuation ÷ total valuation × 100.
+
+For A, 600 ÷ 1,000 × 100 = 60%. For B, 400 ÷ 1,000 × 100 = 40%. The calculation uses **current valuation**.
+</Toggle>
+
+Weights drift when prices move at different rates or when you add or withdraw money. Review the portfolios periodically even after bringing them back to target.
+
+<Ads1/>
+
+## Rebalancing
+
+**Rebalancing** adjusts current weights toward their targets. How could you bring KRW 6 million in A and KRW 4 million in B back to 50:50? Here are two methods.
+
+### Sell Then Buy
+
+Move KRW 1 million from A to B. In practice, sell assets in A and use the proceeds to buy assets for B.
+
+| Portfolio | Before | Amount moved | After |
+| --- | ---: | ---: | ---: |
+| A | KRW 6 million | −KRW 1 million | KRW 5 million |
+| B | KRW 4 million | +KRW 1 million | KRW 5 million |
+
+Both hold **KRW 5 million**, restoring the 50:50 split. The total is unchanged. *This example excludes price movements and trading costs.*
+
+<br/>
+
+### Buy With New Funds
+
+If you want to keep your existing holdings, consider adding new money to the underweight portfolio. Start by adding KRW 1 million to B.
+
+| Portfolio | Before | Contribution | After |
+| --- | ---: | ---: | ---: |
+| A | KRW 6 million | KRW 0 | KRW 6 million |
+| B | KRW 4 million | +KRW 1 million | KRW 5 million |
+
+You now have **KRW 6 million versus KRW 5 million**. The split is still uneven.
+
+<br/>
+
+The total rose from KRW 10 million to **KRW 11 million**. A is about 54.55%, and B is about 45.45%. If A stays at KRW 6 million, B also needs KRW 6 million for an even split. That takes **KRW 2 million** in new funds for B.
+
+<Bbox>
+A contribution raises the total and therefore the target amount. Filling the original shortfall may leave the portfolio below its target weight.
+</Bbox>
+
+<br/>
+
+<Toggle title="How do I calculate target amounts after a contribution?">
+New target amount = (current total valuation + contribution) × target weight.
+
+Adding KRW 1 million gives a total of KRW 11 million and a 50% target of KRW 5.5 million per portfolio. Adding KRW 2 million gives a total of KRW 12 million. KRW 6 million in each portfolio gives a 50:50 split.
+</Toggle>
+
+Rebalancing helps manage the level of risk you planned to take. Returns and losses remain uncertain even at target weights. Consider trading costs and taxes too. [Vanguard guide to rebalancing](https://investor.vanguard.com/investor-resources-education/portfolio-management/rebalancing-your-portfolio)
+
+<br/>
+
+## Tolerance
+
+Suppose the target is 20% and the current weight is 20.1%. Trading every time such a small gap appears can become burdensome. Decide **how much drift to allow**. PortRhythm sets this tolerance **in percentage points**.
+
+<br/>
+
+A 20% target and a tolerance of five percentage points give a range of **15–25%**.
+
+| Current weight | Difference from target | Interpretation |
+| --- | ---: | --- |
+| 23% | +3 percentage points | Within range |
+| 25% | +5 percentage points | At the boundary, within range |
+| 28% | +8 percentage points | Outside the range, review for adjustment |
+| 14% | −6 percentage points | Outside the range, review for adjustment |
+
+The app flags portfolios for review when the absolute difference **exceeds** tolerance. When that happens, check the data and investment plan before deciding whether to trade.
+
+<Ybox>
+A percentage point measures the difference between percentages. Moving from 20% to 25% adds five percentage points. Five percent of 20% is one percentage point.
+</Ybox>
+
+<Ads2/>
+
+## Checking Your Weights
+
+“A is above target. Does that mean it gained a lot?” A's weight can rise even when its price falls, if B falls by more. **Return compares value with purchase cost. Weight measures a share of the total.**
+
+<br/>
+
+Check in this order.
+
+- **Are the inputs right?** Check for missing or duplicate holdings, and verify quantities, prices, and rates.
+- **Does the reason for holding it still apply?** Check why the asset is in your plan before buying it solely because it is below target.
+- **Does the target still fit?** Revisit it if the time you need the money or your circumstances change. Investment horizons and risk tolerance can change too.
+
+[Investor.gov guide to asset allocation](https://www.investor.gov/introduction-investing/getting-started/asset-allocation)
+
+<Toggle title="When should I review weights?">
+You can review on a schedule, when weights exceed a threshold, or both. [Vanguard rebalancing methods](https://investor.vanguard.com/investor-resources-education/portfolio-management/rebalancing-your-portfolio)
+
+Write down when you will review, what tolerance you will use, and how you plan to allocate contributions so you can refer to those rules next time.
+</Toggle>
+
+<br/>
+
+## Using PortRhythm
+
+### Target Design
+
+Enter portfolio names and target weights. Make the weights add up to 100% and set a tolerance.
+
+<Img src="/portrhythm-allocation-strategy-20261008.webp" width={800} alt="Screen for setting portfolio names, target weights, and tolerance"/>
+
+<br/>
+
+### Asset Assignment
+
+Enter your holdings and assign them to their portfolios. Include cash if it is within the assets you want to track. Missing assets can make the calculated total differ from your actual investments.
+
+<br/>
+
+### Comparing Weights
+
+<Img src="/portrhythm-introduction-composition-20261008.webp" width={800} alt="Screen comparing current and target weights side by side"/>
+
+Compare current and target weights. Resolve unclassified assets and holdings without a confirmed price first.
+
+<br/>
+
+### Reviewing Rebalancing
+
+Choose **Sell Then Buy** or **Buy With New Funds**. Review whole-share quantities based on registered stocks and buy candidates.
+
+<Img src="/portrhythm-introduction-rebalance-20261008.webp" width={800} alt="Screen showing proposed trade quantities and projected weights after adjustment"/>
+
+You can exclude holdings you want to leave alone. Share prices and the budget can leave gaps and unused funds. For crypto, review overweights and shortfalls as amounts. The app does not propose crypto trade quantities automatically.
+
+<br/>
+
+### Recording After Trading
+
+Place trades through your brokerage or exchange. Check costs and actual execution terms, then update quantities in the app. Record money added or withdrawn from outside the tracked assets in the cash flow history.
+
+<Gbox>
+Set targets → assign assets → compare weights → review adjustments → record the results. Use the same process when the next contribution arrives.
+</Gbox>
+
+<br/>
+
+Open your portfolios before deciding where to put this month's contribution. Check **what is below target, why you want to add to it, and what its weight would be afterward**. [Set your target weights in PortRhythm](https://pf.promleeblog.com)
+
+Part 2 walks through entering and saving a plan in Target Design.
+
+<br/>
+
+### References
+
+- [Investor.gov — Asset Allocation and Diversification](https://www.investor.gov/introduction-investing/getting-started/asset-allocation)
+- [Vanguard — Rebalancing Your Portfolio](https://investor.vanguard.com/investor-resources-education/portfolio-management/rebalancing-your-portfolio)

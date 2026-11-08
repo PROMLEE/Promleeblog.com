@@ -1,0 +1,168 @@
+---
+post_id: '467'
+locale: zh
+title: ETF 选择标准 2：如何比较跟踪同一指数的 ETF
+description: 比较 TIGER、ACE 和 SOL 的美国 S&P 500 ETF 前，统一期间、币种、分配金与价格口径。
+source_hash: 9206a8ab75e3419fa0c0727e088d19684220d1b6a709b78da6cf0b991b9d42b9
+reviewed_at: '2026-11-07T17:51:09.421Z'
+---
+## 开始之前
+
+想比较两位朋友的跑步成绩。
+如果一个跑了 100 米，另一个跑了 200 米，只看用时无法判断谁更快。
+ETF 也是如此。
+**即使跟踪的指数同名，只要收益率的衡量口径不同，就得先统一口径。**
+<br/>
+这次准备比较 TIGER、ACE 和 SOL 的美国 S&P 500 ETF。
+在看哪个数字更大之前，先确认**期间、币种和计算方法是否相同**。
+今天要填写的是比较表中的条件栏。
+
+<Rbox>
+产品信息以 2026 年 10 月 20 日查阅的官方资料为准。计算示例仅用于说明原理。
+本表不对特定产品作优劣排名，也不预测未来收益。
+</Rbox>
+
+## 指数名称背后的区别
+
+看到 S&P 500 这个名称后，还要看指数怎样处理股息。
+这就像比较房产时，只看房价与同时考虑房价和租金，得到的结果会不同。
+指数也有不同版本，有的只看价格，有的还计入股息再投资的结果。
+
+| 标记 | 简单理解 | 股息处理 |
+| --- | --- | --- |
+| PR | 价格的变化 | 不计普通股息再投资的价格指数 |
+| TR | 价格变化加再投资结果 | 按税前股息再投资计算的总回报指数 |
+| NTR | 计入预扣税假设后的结果 | 按设定税率调整股息的净总回报指数 |
+
+NTR 采用的税务假设可能与个人账户的实际税负不同。
+各指数的计算方式和适用税率，应以指数提供方的定义为准。
+[S&P DJI 指数计算方法](https://www.spglobal.com/spdji/en/documents/methodologies/methodology-index-math.pdf)
+<br/>
+ACE 说明书明确写明，跟踪不含股息的价格指数。
+SOL 标注为 `S&P500 Index(PR: Price Return)(원화환산)`，即换算为韩元的价格指数。
+TIGER 将基准指数标为 `S&P 500 Index(원화환산)`，即换算为韩元的 S&P 500 指数。
+除了照录名称中的简写，还应记下官方指数定义和股息处理方式。
+[ACE 官方说明书列表](https://papi.aceetf.co.kr/api/funds/K55101D78195/documents) · [SOL 官方文件](https://www.soletf.com/ko/fund/etf/210930) · [TIGER 投资说明书](https://investments.miraeasset.com/tigeretf/upload/etf/20261008090949000003.pdf)
+
+## 四项比较口径
+
+可以把条件分成以下四栏。
+
+<Img src="/etf-selection-02-comparison-rules-20261020.webp" width={750} height={500} alt="比较前要统一的四项条件：期间、币种、分配金与价格口径"/>
+
+### 期间
+
+为所有产品采用相同的起止日期。
+各产品上市日期不同，很难直接对上市以来的收益率排名。
+TIGER 和 ACE 于 2020 年 8 月 7 日上市，SOL 于 2022 年 6 月 21 日上市。
+共同期间可以从最晚上市的产品上市后开始。
+[核对官方上市日：TIGER](https://www.tigeretf.com/ko/product/search/detail/index.do?ksdFund=KR7360750004) · [ACE](https://papi.aceetf.co.kr/api/funds/K55101D78195/product) · [SOL](https://www.soletf.com/ko/fund/etf/210930)
+<br/>
+例如，如果将 `2025-10-01 → 2026-09-30` 定为比较区间，就为三只产品查找相应日期的数据。
+如果没有起始日或结束日的数据，也要统一用哪个交易日替代。
+ETF 上市前的指数历史计算结果，应与 ETF 的实际运作记录分开。
+
+### 币种
+
+本次比较以韩元计价。
+如果把美元指数的涨幅直接与韩元 ETF 的涨幅并列，就会混入汇率影响。
+确认官方基准指数是否标明换算为韩元，并将汇率对冲型产品放在另一张条件表里。
+汇率如何影响价格，可以参阅[上一系列对汇率的说明](https://www.promleeblog.com/blog/post/460-portfolio-reading-currency-exposure)。
+
+### 分配金
+
+统一分配金收到后是保留为现金，还是假设用于增持相同资产。
+如果官方收益率已计入再投资，再加一遍分配金就会重复计算。
+因此，即使指标名称相似，也要在脚注里找是否注明分配金再投资。
+
+### 价格
+
+将 ETF 的资产减去负债，再按份额计算，得到每份净资产价值 `NAV`。
+这个数值可能与交易所的实际买卖价格不同。
+**比较基金运作结果时统一用 NAV，比较交易价格表现时统一用市场价格。**
+混用这两个数值，就会把跟踪指数的程度和交易时点的价格差异混在一起。
+[Investor.gov 的 ETF 价格说明](https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-24)
+
+<Ads1/>
+
+## 价格上涨 5% 与总回报 8% 的区别
+
+假设以 100 韩元买入一份，期末价格为 105 韩元，期间收到 3 韩元分配金。
+没有额外资金转入转出、再投资、税费或手续费。
+只看价格，收益率是 `105 ÷ 100 − 1 = 5%`。
+计入收到的分配金，结果是 `(105 − 100 + 3) ÷ 100 = 8%`。
+**同一笔投资，因纳入计算的项目不同，可以得到 5% 和 8% 两个结果。**
+<br/>
+比较两只产品时，如果一只只算价格变化，另一只还算收到的分配金，就无法公平比较。
+这个例子只是未再投资的一份 ETF 的简单计算。
+如果每次收到分配金都再买入，就要计入各时点的价格和增加的份额。
+<br/>
+价格指数 PR 与计入分配金再投资的基金收益率，也采用不同定义。
+如果披露页面使用这样的组合，应注明差异可能包含股息处理方式的影响。
+应保留管理方披露的基准指数。如果补充同口径比较，也应注明来源和理由。
+之后解读跟踪表现时，这个区别也很重要。
+
+## 三只产品的条件表
+
+比较成本前，先汇总已经查到的项目。
+
+| 项目 | TIGER 360750 | ACE 360200 | SOL 433330 |
+| --- | --- | --- | --- |
+| 主要投资角色 | 美国大盘股市场 | 美国大盘股市场 | 美国大盘股市场 |
+| 官方基准指数标注 | S&P 500 Index，换算为韩元 | S&P 500、PR、换算为韩元 | S&P 500 PR，换算为韩元 |
+| 汇率管理 | 不进行汇率对冲 | 计划不进行汇率对冲 | 计划不进行汇率对冲 |
+| 上市日 | 2020-08-07 | 2020-08-07 | 2022-06-21 |
+| 分配安排 | 按季度 | 每季度支付 | 每月一次 |
+
+分配频率并不能说明收益多少。
+无论每月还是每季度分配，都要把收到的现金和剩余资产放在一起看。
+各项政策和指数标注均来自三家管理方的产品页面和投资说明书。
+[TIGER](https://www.tigeretf.com/ko/product/search/detail/index.do?ksdFund=KR7360750004) · [ACE](https://papi.aceetf.co.kr/api/funds/K55101D78195) · [SOL](https://www.soletf.com/ko/fund/etf/210930)
+<br/>
+即使都直接持有成分股，使用其他 ETF 或衍生品的程度，以及抽样复制的范围也可能不同。
+判断复制方式时，应阅读说明书中的投资策略，不能只看“现货”两个字。
+净资产规模也应注明基准日，作为单独的观察项目。
+
+<Ads2/>
+
+## 在自己的比较表中写明条件
+
+粘贴数据前，先在表格上方写下这些信息。
+
+- 比较起止日期
+- 是否以韩元计价、是否进行汇率对冲
+- 使用 NAV 还是市场价格
+- 是否计入分配金再投资
+- 基准指数为 PR、TR 还是 NTR，以及换算口径
+- 资料来源和核查日期
+
+<Bbox>
+如果三只产品中有任何一项找不到定义，就把对应栏标成“待核实”。
+清楚知道还缺什么，有助于决定下一步查什么，也能避免把口径不同的收益率放进同一个排名。
+</Bbox>
+
+在 PortRhythm 中，可以先将三个候选产品的角色定义为“美国大盘股”等。
+更换产品与决定为这一角色配置多少钱，是两件不同的事。
+关于如何理解各资产篮子，可以参阅[投资组合构成说明](https://www.promleeblog.com/blog/post/458-portfolio-reading-consolidated-holdings)。
+
+## 结语
+
+比较收益率前，我们统一了四项口径。
+期间、币种、分配金和价格基准一致，才能判断数字说明了什么。
+今天得到的是一张**日后复查时能够复现同一计算的比较条件表**。
+<br/>
+下一篇将看看标示管理费之外还有哪些成本。
+每年 0.0047% 是否就是实际承担的全部成本？我们将一起查看说明书里的其他项目。
+
+[← 第 1 篇](https://www.promleeblog.com/blog/post/466-etf-selection-reading-names) · [第 3 篇 →](https://www.promleeblog.com/blog/post/468-etf-selection-total-costs)
+
+### 参考资料
+
+- [S&P DJI 指数计算方法](https://www.spglobal.com/spdji/en/documents/methodologies/methodology-index-math.pdf)
+- [TIGER 美国 S&P 500](https://www.tigeretf.com/ko/product/search/detail/index.do?ksdFund=KR7360750004)
+- [TIGER 投资说明书](https://investments.miraeasset.com/tigeretf/upload/etf/20261008090949000003.pdf)
+- [ACE 产品结构](https://papi.aceetf.co.kr/api/funds/K55101D78195/product)
+- [ACE 官方说明书列表](https://papi.aceetf.co.kr/api/funds/K55101D78195/documents)
+- [SOL 美国 S&P 500 与官方文件](https://www.soletf.com/ko/fund/etf/210930)
+- [Investor.gov ETF 说明](https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-24)
+

@@ -1,0 +1,127 @@
+---
+post_id: '459'
+locale: en
+title: 'Reading Your Portfolio, Part 2: ETF Overlap and Your Actual Exposure'
+description: >-
+  Calculate how much of your portfolio is exposed to one company by combining
+  individual stock holdings with the shares held inside your ETFs.
+source_hash: 16a535753247b774dd042d0c57f4f45d4d44bbe02adc0ad9e93815f0d5a14784
+---
+## Before We Begin
+
+You buy two boxes of assorted fruit and some apples separately. When you open the boxes, you find apples in both. The same thing can happen when you own ETFs alongside individual stocks. **Look beyond how many products you bought and check what each contains and in what proportion.**
+<br/>
+In [Part 1](https://www.promleeblog.com/blog/post/458-portfolio-reading-consolidated-holdings), we found that 6 million won of a 10 million won portfolio was invested in stocks. This time we'll look inside the ETFs and ask how much money is exposed to company X. **We'll make a worksheet that combines the stock you bought directly with the shares held through ETFs.**
+
+<Rbox>
+The calculations are illustrative and are not investment recommendations. The PortRhythm screen uses test account data, so the amounts may differ.
+</Rbox>
+
+## Two ETFs Can Hold the Same Company
+
+Think of an ETF as a bundle of assets. Two ETFs with different names can hold shares in the same company. If you also hold stock X directly, you're invested in X in three ways.
+<br/>
+FINRA recommends checking whether fund holdings overlap with other funds or with stocks you own directly. Different fund managers can hold the same companies.
+[FINRA on concentration risk](https://www.finra.org/investors/insights/concentration-risk)
+<br/>
+Overlap may be deliberate if you want to own more of a company you like. First check **whether your exposure is larger than you thought**, then record whether you have a reason to keep that weight.
+
+## Your Portfolio Weight and the ETF's Holding Weight
+
+Take three lines from Part 1. The denominator is the full portfolio, including all other assets, for a total of 10 million won.
+
+| Asset | Amount held | Portfolio weight |
+| --- | ---: | ---: |
+| U.S. equity ETF A | 3 million won | 30% |
+| U.S. growth ETF B | 1.5 million won | 15% |
+| Individual stock X | 500,000 won | 5% |
+
+Stock X makes up 6% of ETF A and 10% of ETF B. Assume none of the other holdings contains X.
+<br/>
+The two percentages answer different questions. The 30% is ETF A's share of your portfolio. The 6% is X's share of ETF A. It's like separating how much of your grocery bill went to a fruit box from how much of that box consists of apples.
+
+## Find 6% of 3 Million Won
+
+Start with the amounts. For ETF A, 6% of 3 million won is `300만 × 0.06 = 18만 원`, or 180,000 won. For ETF B, 10% of 1.5 million won is `150만 × 0.10 = 15만 원`, or 150,000 won. Add the 500,000 won of X you bought directly.
+<br/>
+The total is `18만 + 15만 + 50만 = 83만 원`, or 830,000 won. Divide by 10 million won to get `83만 ÷ 1,000만 × 100 = 8.3%`. **The direct holding is 5% of the portfolio. Including the ETFs brings the exposure to 8.3%.**
+
+<Img src="/portfolio-reading-02-etf-overlap-20261017.webp" width={750} height={500} alt="Stock X accounts for 180,000 won through ETF A, 150,000 won through ETF B, and 500,000 won directly, totaling 830,000 won or 8.3%"/>
+
+| Where you hold X | Calculation | Amount in X | Portfolio weight |
+| --- | --- | ---: | ---: |
+| Through ETF A | 6% of 3 million won | 180,000 won | 1.8% |
+| Through ETF B | 10% of 1.5 million won | 150,000 won | 1.5% |
+| Direct holding | All in X | 500,000 won | 5.0% |
+| Total | | **830,000 won** | **8.3%** |
+
+The share of your portfolio tied to a company's stock is your exposure to that company. Think of it as **the part of your money that moves with X**. The gap between 8.3% and 5% is 3.3 percentage points, written `3.3%p`.
+<br/>
+You can also multiply the percentages: `30% × 6% = 1.8%`. On a calculator, enter `0.30 × 0.06 = 0.018`, then multiply by 100. If that's confusing, calculate the won amount first and divide by the total.
+
+<Ads1/>
+
+## Keep the Total at 10 Million Won
+
+Looking inside the ETFs doesn't create new money. Of the 830,000 won, 330,000 is already included in the value of ETFs A and B. If you add X again after counting the full ETF balances, you count it twice. **You've changed how you read the portfolio. Its total is still 10 million won.**
+<br/>
+Here's another way to describe the portfolio by company exposure. So far we've calculated only X.
+
+| Category | Amount | Portfolio weight | Review status |
+| --- | ---: | ---: | --- |
+| Combined stock X exposure | 830,000 won | 8.3% | Calculated |
+| Other stocks | 5.17 million won | 51.7% | Individual companies still to review |
+| Bonds, gold, and cash | 4 million won | 40% | Outside the X calculation |
+| Total | **10 million won** | **100%** | |
+
+“Other stocks” covers 5.17 million won of holdings we haven't examined in detail. Leave their diversification and risk unconfirmed. Even different companies can fall together if they're concentrated in one industry. An ETF focused on a narrow industry may also offer limited diversification.
+[Investor.gov on diversification](https://www.investor.gov/introduction-investing/getting-started/asset-allocation)
+
+## Start with the Fund's Actual Holdings
+
+For your own ETFs, find **the actual holdings and their weights** on the manager's official site. Verify whether the list describes the benchmark or the assets the ETF actually holds. Record the fund code and the holdings date. If the holdings and your balance are from different dates, mark the calculation as an estimate based on different dates.
+<br/>
+A top-ten list leaves it unclear whether X appears elsewhere. If a company has several share classes or names in the list, decide how to group them. Start with one company that interests you.
+
+<Ybox>
+This calculation applies to ETFs that hold ordinary stocks directly. Leveraged or inverse ETFs, and funds that use other funds or derivatives, can work differently. Read the prospectus to understand the investment approach before applying the same formula.
+</Ybox>
+
+<Ads2/>
+
+## From PortRhythm to a Worksheet
+
+In PortRhythm Holdings, first verify **which ETFs you own and how much you hold**. Reconcile the code, account, quantity, and valuation with your original balance. If you own the same ETF in two accounts, combine the amounts. See the [dashboard and holdings guide](https://www.promleeblog.com/blog/post/440-portrhythm-dashboard-holdings-guide).
+
+<Img src="/portrhythm-guide5-desktop-holdings-20261008.webp" width={750} height={422} alt="Holdings screen showing the security, account, quantity, price, and valuation"/>
+
+Check the name, code, and valuation. Use the manager's holdings list alongside your own holdings to **calculate exposure by company**.
+<br/>
+Record these five lines in your worksheet.
+
+| Field | Example |
+| --- | --- |
+| Company | X |
+| Direct holding | 500,000 won |
+| Holdings through ETFs | 180,000 won through A and 150,000 won through B |
+| Total and portfolio weight | 830,000 won, or 8.3% |
+| Data date and open questions | T0. Other companies have yet to be analyzed |
+
+<Bbox>
+Trying to calculate every company at once can make it hard to get started. Pick one stock you hold directly and check whether it also appears in your ETFs.
+</Bbox>
+
+## Conclusion
+
+Several products held the same company. Adding 330,000 won through ETFs to the 500,000 won direct holding gave **830,000 won in X, or 8.3% of the portfolio**. You can now describe your exposure to X as well as the number of ETFs you own.
+<br/>
+Choose one company in [PortRhythm Holdings](https://pf.promleeblog.com/?view=holdings) and fill in the worksheet. Next we'll look at why the currency you trade in can differ from the currency exposure you take on, and why a purchase in won can still be affected by the dollar.
+
+[← Part 1](https://www.promleeblog.com/blog/post/458-portfolio-reading-consolidated-holdings) · [Part 3 →](https://www.promleeblog.com/blog/post/460-portfolio-reading-currency-exposure)
+
+### References
+
+- [Reading Your Portfolio, Part 1: Consolidated holdings](https://www.promleeblog.com/blog/post/458-portfolio-reading-consolidated-holdings)
+- [FINRA on concentration risk](https://www.finra.org/investors/insights/concentration-risk)
+- [Investor.gov on asset allocation and diversification](https://www.investor.gov/introduction-investing/getting-started/asset-allocation)
+- [PortRhythm dashboard and holdings guide](https://www.promleeblog.com/blog/post/440-portrhythm-dashboard-holdings-guide)

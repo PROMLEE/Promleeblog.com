@@ -1,0 +1,250 @@
+---
+post_id: '433'
+locale: zh
+title: AI 代码验证循环
+description: >-
+  介绍验证 Claude 和 Codex
+  代码改动的实用流程，涵盖失败复现、类型检查、测试与浏览器行为。用搜索筛选器说明回归测试、失败日志反馈和停止重试的条件，以及如何报告执行依据与未验证范围。
+source_hash: acf9e43d9d496cf6d4d33f1a4fa9003124f9e8d6ed29b0da69794e6af3bb1e5b
+reviewed_at: '2026-11-08T03:57:46.030Z'
+---
+## 开始之前
+
+我让 AI 修复搜索筛选器，得到的答复是“类型检查和测试都通过了”。
+可是在浏览器里切换两次筛选条件再点后退，URL 回到了旧值，输入框却仍显示新值。
+代码能编译、部分测试能通过，仍需核实用户期望的行为。
+
+<br/>
+
+要减少这类返工，需要建立一个**明确预期行为、把执行结果反馈给下一轮修改的验证循环**。
+本文以搜索筛选器为例，串联失败复现、小范围修改、重新验证和完成判断。
+也会整理适用于 Claude 和 Codex 的任务请求与完成报告模板。
+
+## 验证标准
+
+> 分别核对验证命令是否成功，以及所要求的功能是否真正生效。
+
+“让搜索筛选器与 URL 同步”有多种解读。
+只读取初始值是否足够？要不要处理刷新和后退？如何表示空搜索词？这些都不明确。
+如果在实现前提供如下可观察的标准，AI 修改和验证的方向就会一致。
+
+```text title="검색 필터 완료 조건"
+입력: 검색어 A로 검색한 뒤 B로 다시 검색
+기대: URL의 q와 검색 입력값이 B를 표시
+추가 동작: 브라우저 뒤로 가기
+기대: URL의 q와 검색 입력값이 모두 A로 복원
+새로고침: 복원된 A가 그대로 유지
+제외 범위: 검색 API와 정렬 규칙은 변경하지 않음
+```
+
+这些条件没有规定实现方式。
+是否添加 `useEffect` 或更改状态的归属，需要查看实际代码后决定。
+用可观察的行为描述标准，即使实现发生变化，也能沿用同一套验证。
+
+Claude Code 官方文档建议提供测试、截图或预期输出等手段，方便工具自行核对结果。
+[Claude Code 验证最佳实践](https://code.claude.com/docs/en/best-practices)
+
+<Bbox>
+修复缺陷时，除了正常结果，也请提供当前会失败的输入和复现步骤。
+与“后退时状态不一致”相比，“A → B → 后退时，URL 是 A，输入框却是 B”更容易缩小排查范围。
+</Bbox>
+
+## 复现失败
+
+第一步是在修改前确认问题确实能复现。
+如果没复现就直接修改，即使修改后画面正常，也难以判断原来的问题是否解决。
+简要记录出现缺陷的代码版本、运行命令、输入、预期结果和实际结果。
+
+<br/>
+
+如果可以自动化，就用回归测试固定复现条件。
+回归测试用于检查本次修复的问题是否会在后续变更中再次出现。
+搜索筛选器的示例涉及浏览器历史，仅测试函数还不够。
+
+```ts title="tests/search-history.spec.ts" showLineNumbers
+import { test, expect } from "@playwright/test";
+
+test("뒤로 가기 뒤 검색어가 URL과 함께 복원된다", async ({ page }) => {
+  await page.goto("/search");
+  const input = page.getByRole("textbox", { name: "검색어" });
+  const submit = page.getByRole("button", { name: "검색", exact: true });
+
+  await input.fill("alpha");
+  await submit.click();
+  await expect(page).toHaveURL(/\?q=alpha$/);
+
+  await input.fill("beta");
+  await submit.click();
+  await expect(page).toHaveURL(/\?q=beta$/);
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\?q=alpha$/);
+  await expect(input).toHaveValue("alpha");
+
+  await page.reload();
+  await expect(input).toHaveValue("alpha");
+});
+```
+
+示例假设 `/search` 生成的 URL 仅使用 `q`，输入框和按钮拥有上述无障碍名称。
+在实际仓库中，要按真实路径、查询结构和元素名称调整。
+如果有多个查询参数，可通过 `URL.searchParams` 检查 `q`，避免只比较字符串结尾。
+
+Playwright 的 `toHaveURL`、`toHaveValue` 等 Web 断言会重试，直到满足预期条件。
+可以把真实 URL 和输入值作为等待条件，避免固定等待一段时间。
+[Playwright 断言文档](https://playwright.dev/docs/test-assertions)
+
+<Ybox>
+即使修改前测试失败，也要核对失败原因。
+找不到输入框，说明测试尚未走到筛选器恢复异常的复现步骤。
+确认失败发生在预期位置，并报告“期望 alpha，但仍然是 beta”。
+</Ybox>
+
+<Ads1/>
+
+## 修改和重新验证
+
+固定失败复现后，选一个原因假设，只修改相关代码。
+例如，如果结构只在首次渲染时读取 URL 值，就检查后退导致查询参数变化时，输入状态是否更新。
+如果同时修改搜索 API 和排序规则，就很难判断究竟是哪项变更解决了问题。
+
+<Img src="/261012-070002.webp" width={650} height={433} alt="AI 代码验证循环，涵盖复现失败、小范围修改、重新验证、判断完成，并在失败时返回修改阶段"/>
+
+修改后用同样的输入和断言重新运行。
+捕获本次问题的测试通过后，也要核对相关的既有行为。
+按变更影响选择路径，例如直接输入搜索词、处理空值、刷新和后退。
+
+<br/>
+
+OpenAI 的 Codex 示例也介绍了如何衔接审查、修改和验证，并把尚未解决的失败传给下一轮修改。
+[OpenAI 迭代修复循环示例](https://developers.openai.com/cookbook/examples/codex/build_iterative_repair_loops_with_codex)
+
+### 验证顺序
+
+先做与改动对应的快速检查，再按需要扩大范围，避免一开始就反复运行全部端到端测试和构建。
+能直接复现缺陷的测试应尽早纳入。
+即使类型检查更快，也无需把浏览器缺陷的复现推迟到最后。
+
+| 验证 | 核查内容 | 需要另行核查的内容 |
+| --- | --- | --- |
+| 类型检查与静态检查 | 类型契约、静态规则违规 | 用户操作、运行时数据 |
+| 单元测试 | 函数和组件的输入与输出 | 真实的 API、数据库连接 |
+| 集成测试 | 模块与 API、数据层的连接 | 实际浏览器导航和界面状态 |
+| 浏览器验证 | 点击、刷新、后退等用户流程 | 其他权限、异常条件及生产环境 |
+| 构建 | 生成部署产物的过程 | 部署后服务的实际行为 |
+
+<Img src="/261012-070003.webp" width={650} height={433} alt="对照类型检查、单元测试、集成测试和浏览器验证各自覆盖的内容及仍需核查的范围"/>
+
+如果示例仓库配置了 `typecheck`、`test`、`build` 脚本和 Playwright，可按下列方式检查。
+查看当前项目的 `package.json` 和测试配置后，替换为实际命令。
+
+```bash title="변경 범위별 검증 명령"
+npm run typecheck
+npm run test -- tests/search-state.test.ts
+npx playwright test tests/search-history.spec.ts
+npm run build
+```
+
+简单的文案变更无需每次运行全部命令。
+按影响选用检查，例如依赖或构建配置变化时运行构建，API 响应变化时增加相关消费方的测试。
+涉及权限时，既要检查有权访问的用户，也要核对无权访问的用户得到的结果。
+
+<Ads2/>
+
+## 反馈失败
+
+如果只告诉 AI“测试失败了，再修一下”，它可能重复同一个假设。
+粘贴完整日志前，先整理失败命令、测试名称、预期值、观察值和日志位置。
+保留原始日志，方便需要时回看。
+
+```text title="검증 실패 전달"
+명령: npx playwright test tests/search-history.spec.ts
+실패: 뒤로 가기 뒤 검색어가 URL과 함께 복원된다
+기대: 입력값 alpha
+관찰: URL은 q=alpha, 입력값은 beta
+통과: 첫 검색, 두 번째 검색, URL의 뒤로 가기
+변경: SearchForm의 초기값 처리
+다음 확인: URL 변경을 입력 상태가 다시 읽는지
+로그: test-results/search-history/error-context.md
+```
+
+总结失败时，区分实际观察与待验证假设。
+“URL 发生了变化”是观察，“缺少状态同步”是有待验证的假设。
+这能避免 AI 把推测当成已证实的原因。
+
+### 停止条件
+
+出现新证据时，重试才有意义。
+可在任务请求中写明何时继续、何时停止。
+
+- 复现测试和相关回归检查通过后，进入完成报告。
+- 同样的失败反复出现，且没有新观察时，暂停改动，回到原因分析。
+- 缺少运行环境而无法核查时，记录未验证项和复现方法。
+- 需要确定需求或权限策略时，向用户说明待决定的问题。
+
+OpenAI 的迭代修复示例也把验证通过、达到尝试次数上限、改进停滞和需要人工审查列为结束条件。
+[OpenAI 迭代修复循环的结束条件](https://developers.openai.com/cookbook/examples/codex/build_iterative_repair_loops_with_codex)
+
+<Rbox>
+不要为了让测试通过而删除测试，或把预期值改成当前的错误结果。
+需求没有明确变更时，应保留验证标准并修正实现。
+</Rbox>
+
+## 完成依据
+
+相比“全部正常”，说明验证范围的报告更有利于后续工作。
+把执行的命令、核对的行为和仍有的限制分开写，审阅者就能立即判断还需要看什么。
+
+```text title="완료 보고 예시"
+변경: URL 변경 시 검색 입력값도 동기화
+통과: 타입 검사, 검색 상태 단위 테스트
+통과: alpha → beta → 뒤로 가기 → 새로고침 E2E
+확인: URL과 입력값이 alpha로 복원
+미검증: Safari 실행 환경이 없어 해당 브라우저 미확인
+제외: 검색 API와 정렬 규칙은 변경하지 않음
+```
+
+上述报告是格式示例，本文未对实际服务运行这些检查。
+实际工作中，只把确实执行并通过的命令和浏览器检查列为通过。
+
+<Bbox>
+验证后如果再次修改代码，重新运行受该修改影响的检查。
+最终代码应有与其对应的通过结果。
+</Bbox>
+
+<Ads3/>
+
+### 任务请求模板
+
+可以按实际任务调整以下请求，再交给 Claude 和 Codex。
+具体列出命令和完成条件，AI 就能把编码和验证当作同一项任务处理。
+
+```text title="AI 코드 수정 요청"
+목표: 검색 필터의 뒤로 가기 복원 오류 수정
+재현: alpha로 검색 → beta로 검색 → 뒤로 가기
+기대: URL과 입력값이 모두 alpha, 새로고침 뒤에도 유지
+범위: 검색 폼 상태와 관련 테스트
+검증: 기존 package.json의 타입 검사와 관련 테스트 실행
+회귀: 위 재현을 잡는 테스트를 수정 전후로 확인
+재시도: 같은 실패에 새 근거가 없으면 원인과 상태를 보고
+완료 보고: 변경 요약, 실행 명령, 결과, 미검증 범위
+```
+
+小改动只需选用相关条目。
+模板可以保持简短，关键是保留判断错误的标准和核查手段。
+
+## 结论
+
+AI 代码验证循环先明确预期行为，再复现失败，最后把小范围修改与执行结果联系起来。
+类型检查、测试和浏览器验证各有覆盖范围，应按变更影响选择。
+
+<br/>
+
+循环的核心是**用失败结果指导下一次修改，并保留在最终代码上确认的结果**。
+把流程写入任务请求，可以减少重复解释和猜测性修改，也能明确人工审查的范围。
+
+### 参考资料
+
+- [Claude Code 验证最佳实践](https://code.claude.com/docs/en/best-practices)
+- [OpenAI 迭代修复循环示例](https://developers.openai.com/cookbook/examples/codex/build_iterative_repair_loops_with_codex)
+- [Playwright 断言文档](https://playwright.dev/docs/test-assertions)

@@ -1,0 +1,166 @@
+---
+title_en: How to Design Task Requests for AI Coding Agents Without Rework
+title_ko: AI 코딩 에이전트에게 재작업 없이 일을 맡기는 작업 요청 설계법
+url: coding-agent-task-contract
+series_no: 4
+desc: >-
+  AI 코딩 에이전트에게 재작업 없이 일을 맡기는 작업 요청 설계법을 정리합니다. 목표, 범위, 제약, 완료 조건, 검증 방법, 판단 경계를
+  계약처럼 명확히 적어 구현 품질과 협업 속도를 높이는 실전 템플릿을 소개합니다.
+thumbnail_url: /260927-040001.webp
+metatag: >-
+  AI 코딩 에이전트, 작업 요청, Codex, Claude Code, 에이전트 프롬프트, 컨텍스트 엔지니어링, 개발 생산성, 작업 계약,
+  코드 리뷰, 테스트, 소프트웨어 엔지니어링, 토큰 절약
+tags: 'AI, Software Engineering, Typescript, DevOps'
+post_id: '430'
+locale: en
+title: How to Write Task Requests for AI Coding Agents That Reduce Rework
+description: >-
+  Give AI coding agents a clear goal, scope, constraints, completion criteria,
+  verification steps, and boundaries for decisions. Use a practical request
+  template to improve implementation and reduce review rounds.
+source_hash: c5a5aa98dcaacb48913114167927f91ed5c8d7cbc81418a59897f233e6f98c24
+reviewed_at: '2026-11-08T04:14:29.600Z'
+---
+## Before We Begin
+
+“Fix the login error” is ambiguous even to a person. For an AI coding agent, it opens a broad search across the login screen, API, sessions, environment variables, and tests. The agent has to guess which causes to pursue, and the results can disappoint.
+
+<br/>
+
+**A good request gives the agent a small, actionable agreement about the work.** This article shows how to convey the goal, scope, constraints, and completion criteria.
+
+<Bbox>Size an agent task around one verifiable result. A small task contract narrows exploration and makes failures easier to diagnose.</Bbox>
+<Img src="/260927-040002.webp" width={500} alt="Six parts of an AI agent request: goal, scope, constraints, completion criteria, verification, and when to ask"/>
+
+## The Task Contract
+
+> An agent can produce incorrect code because the definition of done is missing.
+
+Include the following six items. Keep them brief, and make explicit anything that would be risky for the agent to guess.
+
+| Item | Question | Example |
+| --- | --- | --- |
+| Goal | What should change? | Explain expired links on the password reset screen. |
+| Scope | What can change? | Edit only `apps/web` and the relevant API handler. |
+| Constraints | What must be preserved? | Preserve the existing reset token format and public API. |
+| Completion criteria | How do we know it is done? | An expired link shows guidance and a valid link still works as before. |
+| Verification | How will we check it? | Run the relevant unit tests and `pnpm lint`. |
+| When to ask | What requires a decision? | Ask before changing the database schema or email templates. |
+
+OpenAI's Codex guidance recommends keeping instructions such as `AGENTS.md`, skills, and task prompts current and pointing agents to documentation relevant to the work. [OpenAI Developers guidance on designing instructions](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra)
+
+<Ads1/>
+
+## Comparing Two Requests
+
+For the same feature, how you phrase the request changes what the agent reads and what it delivers.
+
+```text title="vague-request.txt"
+로그인 오류를 고쳐 주세요.
+```
+
+This request leaves out the symptom, permitted changes, tests, and behavior to preserve. The agent may search broadly or edit the closest code and produce a fix that misses the intent.
+
+```md title="agent-task.md"
+## 목표
+만료된 비밀번호 재설정 링크를 열면 안내 화면을 표시합니다.
+
+## 범위
+- apps/web의 재설정 페이지와 apps/api의 토큰 검증 핸들러만 수정합니다.
+- 기존 정상 토큰 흐름은 바꾸지 않습니다.
+
+## 완료 조건
+- 만료 토큰은 안내 화면을 표시합니다.
+- 유효 토큰은 현재 비밀번호 변경 화면을 표시합니다.
+- 관련 테스트와 pnpm lint가 통과합니다.
+
+## 판단 경계
+- DB 스키마, 토큰 형식, 메일 문구 변경이 필요하면 구현 전에 질문합니다.
+```
+
+The second request leaves implementation choices open while clarifying **which decisions the agent can make and what it needs to preserve**.
+
+<Ybox>Overly prescriptive instructions can rule out a simpler, safer fix. Start with the observable behavior and constraints, such as “show users a distinct expired state,” before specifying implementation details such as adding three React state variables.</Ybox>
+
+<Img src="/260927-040003.webp" width={500} alt="Comparison of the information in a vague request and a request with explicit task criteria"/>
+
+<Ads2/>
+
+## Scope and Boundaries
+
+What the agent must preserve is often the most important part of a request. An agent may otherwise extend edits into neighboring areas while trying to solve the problem.
+
+### Change Boundaries
+
+Describe three things separately.
+
+- **Permitted changes.** Specify the directories, files, and APIs the agent can edit.
+- **Existing contracts.** List public APIs, data formats, and user flows that need to stay compatible.
+- **When to ask.** Identify decisions the team must make about matters such as schema, billing, permissions, and deployment.
+
+<Rbox>Define what refactoring the task allows. Separate major unrelated refactors, dependency replacements, and schema changes into their own tasks.</Rbox>
+
+For large changes, start with a task to investigate. For example, ask the agent to explain the cause, list candidate changes, and propose a plan before editing. Hand off implementation separately so you can revise the plan before changes accumulate.
+
+## Completion Criteria
+
+Replace “implemented” with observable conditions the agent and reviewer can check together.
+
+| Area | Vague wording | Observable criterion |
+| --- | --- | --- |
+| Interface | Show errors clearly | An expired link displays a heading, a button to request a new link, and a help link. |
+| API | Handle it safely | An invalid token receives HTTP 400 without exposing user information. |
+| Tests | Test it | Add and run cases for expired, valid, and missing tokens. |
+| Performance | Keep it fast | Use the existing token verification flow without another network request. |
+
+<Img src="/260927-040004.webp" width={500} alt="Agent workflow that connects the request, review, implementation, verification, and questions"/>
+
+<Ads3/>
+
+## Request Template
+
+Use this template to start an issue, PR description, or agent conversation.
+
+```md title="docs/agent-tasks/password-reset-expiry.md"
+ # 목표
+<사용자에게 달라져야 하는 결과>
+
+ # 범위
+- <수정 가능한 경로>
+- <보존해야 하는 기존 흐름>
+
+ # 완료 조건
+- <관찰 가능한 결과 1>
+- <관찰 가능한 결과 2>
+- <실행할 검증 명령>
+
+ # 판단 경계
+- <질문이 필요한 변경>
+- <명시적으로 제외한 작업>
+
+ # 전달 결과
+- 변경한 파일과 이유를 요약합니다.
+- 실행한 검증 명령과 결과를 기록합니다.
+- 남은 위험 또는 결정이 있으면 적습니다.
+```
+
+Writing the request can take a little longer, but less repeated exploration and fewer review rounds can save time overall. For recurring work, an issue template gives the team a shared set of quality criteria.
+
+## Team Checklist
+
+✓ Describe an observable change for the user or system.
+✓ Separate editable paths from contracts to preserve.
+✓ Include a test or verification command in the completion criteria.
+✓ Identify decisions that require a question.
+✓ Give refactors larger than the task their own request.
+
+## Conclusion
+
+A **clear task contract** covers the goal, scope, constraints, completion criteria, verification, and when to ask. 
+<br/>
+
+Reducing what the agent has to guess and spelling out what reviewers can check helps improve the implementation and shorten review.
+
+### References
+
+- [OpenAI Developers guidance on designing instructions](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra)

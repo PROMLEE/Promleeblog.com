@@ -1,0 +1,159 @@
+---
+title_en: AGENTS.md and CLAUDE.md Design
+title_ko: AGENTS.md CLAUDE.md 설계 원칙
+url: minimal-agent-instructions
+series_no: 2
+desc: >-
+  AGENTS.md와 CLAUDE.md를 중복 없이 설계하는 방법을 정리합니다. 공통 규칙과 도구별 규칙을 분리하고, Codex와 Claude
+  Code의 로딩 방식에 맞춰 컨텍스트 비용과 재작업을 줄이는 실전 템플릿을 제공합니다.
+thumbnail_url: /260927-020001.webp
+metatag: >-
+  AGENTS.md, CLAUDE.md, Claude Code, Codex, 컨텍스트 엔지니어링, AI 코딩 에이전트, 저장소 지침, 프롬프트
+  설계, 개발 생산성, 토큰 절약, MCP, 코드 리뷰
+tags: 'AI, Software Engineering, Typescript, DevOps'
+post_id: '428'
+locale: en
+title: Designing AGENTS.md and CLAUDE.md
+description: >-
+  Design AGENTS.md and CLAUDE.md without duplicating rules. Separate shared and
+  tool-specific guidance and use templates that fit how Codex and Claude Code
+  load instructions to reduce context costs and rework.
+source_hash: f6d9dbf1de27c40a8caeaab01ed27da6d09cc901c9b1012e310aa12cce78c0f2
+---
+## Before We Begin
+
+When a team adopts Codex and Claude Code together, things may go smoothly at first. Then the same rules get copied into `AGENTS.md`, `CLAUDE.md`, and `README.md`, and it becomes unclear which files each agent reads.
+
+<Bbox>Have you ever caught yourself thinking, “Claude, please read the file I meant you to read”?</Bbox>
+
+Agents can encounter conflicting instructions even on a small edit, while carrying more context than the work requires.
+
+<br/>
+
+Good instruction files *point agents to the rules they need quickly*. This article separates the roles of the two files and builds a minimal structure a team can maintain.
+
+<Img src="/260927-020002.webp" width={500} alt="Separate roles for shared AGENTS.md instructions and Claude-specific CLAUDE.md instructions"/>
+
+## File Roles
+
+> Instruction files help most when you know exactly when they are read.
+
+### AGENTS.md
+
+Put *shared repository rules* that Codex, Claude Code, Cursor, and other agents should follow in `AGENTS.md`. Build and test commands, areas agents should leave alone, and API compatibility requirements are good fits because they apply regardless of the tool.
+
+<br/>
+
+Codex collects `AGENTS.md` instructions from the project root through the current working directory and includes them in context subject to the default size limit. [OpenAI Codex agent loop](https://openai.com/index/unrolling-the-codex-agent-loop/)
+
+### CLAUDE.md
+
+Use `CLAUDE.md` for workflows and settings specific to Claude Code. Examples include Claude hooks, how to check `/context`, and when to use Claude's plan mode for a particular path.
+
+<br/>
+
+By default, Claude Code may load `CLAUDE.md` where that file is present instead of reading `AGENTS.md`. Creating both independently can therefore leave shared rules out of the loaded instructions. [Claude Code memory and project instructions](https://code.claude.com/docs/en/memory)
+
+<Ybox>If you use the default Claude Code instruction loading settings, shared rules in AGENTS.md may be absent in directories with a CLAUDE.md. When you use both files, verify which instructions actually load.</Ybox>
+
+## Shared Rules
+
+First make `AGENTS.md` a *shared contract across tools*. Keep facts the agent should never have to guess.
+
+```md title="AGENTS.md"
+ # 공통 명령
+
+- 패키지 설치와 실행은 npm을 사용합니다.
+- 변경 후 npm run lint와 npm test를 실행합니다.
+
+ # 변경 경계
+
+- 공개 API 응답 형식은 요청에 명시된 경우에만 바꿉니다.
+- 데이터베이스 스키마 변경은 migration과 함께 검토합니다.
+
+ # 작업별 문서
+
+- 인증 변경은 docs/auth.md를 읽습니다.
+- 배포 변경은 docs/deploy.md를 읽습니다.
+```
+
+Leave the full directory structure, exhaustive dependency lists, and old incident reports where they already live. Let agents search the code for information they can find there.
+
+<Bbox>When deciding whether to include a rule, ask whether an agent without it could make an unsafe change or repeat the same mistake. Otherwise, the code or a task-specific document is often a better home.</Bbox>
+
+<Ads1/>
+
+## Claude-Specific Rules
+
+If you also use Claude Code, import the shared file first in `CLAUDE.md`, then add Claude-specific rules. The shared rules have a single place to edit.
+
+```md title="CLAUDE.md"
+@AGENTS.md
+
+ # Claude Code 규칙
+
+- src/database/ 변경은 먼저 계획 모드에서 영향 범위를 설명합니다.
+- 작업 시작 시 /context로 로드된 프로젝트 지침을 확인합니다.
+- 장기 작업은 docs/agent-state/에 결정과 검증 명령을 남깁니다.
+```
+
+Putting `@AGENTS.md` first lets you maintain shared rules once and append Claude-specific instructions. Claude Code's documentation describes this import pattern. [Sharing AGENTS.md with Claude Code](https://code.claude.com/docs/en/memory)
+
+<Img src="/260927-020003.webp" width={500} alt="Instruction loading flow that reads shared rules first and adds Claude-specific instructions"/>
+
+## Where Each Rule Belongs
+
+Separate rules by *scope*. The following examples show where they fit.
+
+| Rule | Location | Reason |
+| --- | --- | --- |
+| Build and test commands | `AGENTS.md` | Every agent needs them |
+| API compatibility and security boundaries | `AGENTS.md` | They are shared requirements |
+| Claude hooks and configuration | `CLAUDE.md` | They apply to Claude Code |
+| Personal tokens and local paths | Local configuration | Keep them out of repository commits |
+| Detailed authentication and deployment procedures | `docs/` | Read them when the task requires them |
+
+<Rbox>Keep secrets such as API keys, personal tokens, and internal connection addresses out of AGENTS.md and CLAUDE.md. Treat repository instructions as a contract visible to the whole team and its automation.</Rbox>
+
+### Subdirectory Instructions
+
+For a monorepo or large service, add scoped instructions close to the relevant code, such as `apps/admin/AGENTS.md`. Put rules specific to that area there.
+
+*The root file holds shared rules. The nested file holds local rules.* Keeping each rule in one place reduces conflicts and avoids using context on duplicate text.
+
+<Ads2/>
+
+## Checking What Loads
+
+After writing the files, check whether the tools actually load them.
+
+```text title="instruction-checklist.txt"
+1. 새 세션에서 현재 작업 경로를 확인합니다.
+2. 에이전트에게 적용 중인 프로젝트 지침을 요약하게 합니다.
+3. 빌드 명령과 변경 금지 규칙을 질문합니다.
+4. 하위 디렉터리 작업에서 추가 지침이 필요한지 확인합니다.
+5. 실제 변경 후 lint와 test 결과를 기록합니다.
+```
+
+In Codex, use `/status` to check the current session's environment and context. In Claude Code, use `/context` or `/memory` to inspect loaded project instructions. Verify loading in each tool before relying on the setup.
+
+<Img src="/260927-020004.webp" width={500} alt="Reviewing instruction files and verifying them with tests and context checks"/>
+
+<Ads3/>
+
+## Team Checklist
+
+✓ Maintain shared rules in `AGENTS.md`.
+✓ Keep Claude-specific rules in `CLAUDE.md`.
+✓ Move long explanations to `docs/` and link them with conditions for when to read them.
+✓ Keep personal secrets and local paths out of repository instructions.
+✓ Open a new session and check the instructions it loaded and the verification commands.
+
+## Conclusion
+
+Use `CLAUDE.md` alongside the shared instruction file. Maintain shared rules once in `AGENTS.md` and add tool-specific behavior in `CLAUDE.md` where needed. That structure reduces duplicated and conflicting guidance as tools change and the team grows.
+
+### References
+
+- [OpenAI Codex agent loop](https://openai.com/index/unrolling-the-codex-agent-loop/)
+- [Claude Code memory and project instructions](https://code.claude.com/docs/en/memory)

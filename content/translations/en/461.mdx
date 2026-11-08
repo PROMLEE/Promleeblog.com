@@ -1,0 +1,176 @@
+---
+post_id: '461'
+locale: en
+title: 'Reading Your Portfolio, Part 4: Investment Returns with Cash Flows'
+description: >-
+  Separate investment gains from contributions and withdrawals, then calculate
+  time-weighted and money-weighted returns with a worked example and Excel XIRR.
+source_hash: 804a3cf4edd7078de88b00a4c473469f6faaf75c29ae26825259e3aef77f70fd
+reviewed_at: '2026-11-08T02:21:37.686Z'
+---
+## Before We Begin
+
+If you step on a scale holding a bag, you wouldn't count the whole increase as body weight. Investment accounts work the same way. If you added 2 million won, separate that contribution from the increase in the balance. **A growing balance and an investment gain are different things.**
+<br/>
+We'll look at the investments across three accounts together. First, we'll ask how much the investments earned. Then we'll look at when the money went in. We'll build **a worksheet with starting and ending values, cash flows, and investment results**. The names of the return measures come later. Start with how much you added and how much is left.
+
+<Rbox>
+The calculations are examples and are not investment recommendations. The PortRhythm screen uses test account data, so the amounts may differ.
+</Rbox>
+
+## The Balance Rose 3.2 Million Won, but Investments Earned 1.2 Million
+
+You started with 10 million won. You added 2 million along the way and ended with 13.2 million. Subtract the 2 million you added from the 3.2 million increase to get a 1.2 million won investment gain.
+
+> 13.2 million − 10 million − 2 million = 1.2 million won
+
+Net contributions equal deposits minus withdrawals. If you put in 2 million won and take out 500,000, your net contribution is 1.5 million won. Reconcile investment profit or loss as **ending balance minus starting balance minus net contributions**. Include all assets, transactions, and expenses and compare balances over the same scope.
+<br/>
+The 1.2 million won answers how much you earned. Dividing it by the starting 10 million gives 12%. Dividing it by 12 million, including the contribution, gives 10%. Before labeling either “my return,” ask **whether the extra 2 million won was invested from the beginning**. Money invested for a day didn't have the same experience as money invested for a year.
+
+## Does Moving Money Between Accounts Count as a Deposit?
+
+Suppose you move 500,000 won from A to B. If both accounts are in the portfolio, the money only moved from one room to another. No new money entered the portfolio. Call that an internal transfer. Money crossing the portfolio boundary is an external deposit or withdrawal.
+
+| Event | Treatment across all three accounts |
+| --- | --- |
+| Put 2 million won from a salary account into an investment account | External contribution of +2 million won |
+| Move money from investment account A to B | Internal transfer, no new contribution |
+| Keep a distribution in the account | Cash generated inside the portfolio, no new principal |
+| Withdraw 100,000 won for living expenses | External withdrawal of −100,000 won |
+| Pay brokerage commissions | Investment expense, separate from a withdrawal of principal |
+
+If you measure only account A, money sent to B is a withdrawal from A. **Decide which accounts belong to the portfolio first.** Align the valuation times if a transfer has been deducted from one account but hasn't appeared in the other.
+
+## The Same 2 Million Won, Invested on Different Dates
+
+Compare two investors who each start with 10 million won and make one additional contribution of 2 million. One contributes at the start and the other midway through.
+<br/>
+The period runs 365 days from `2025-01-01` through `2026-01-01`. Suppose the investment follows **100 → 120 → 110**. It gains 10% overall, but someone who enters at 120 experiences only the decline to 110. Both invest the added money immediately in the same asset along the same price path. Assume no distributions, commissions, taxes, or currency changes.
+<br/>
+The original 10 million becomes 11 million for both. **The difference comes from the part of the price path each additional 2 million experienced.**
+
+- **2 million won added at the start**  
+  It rises from 100 to 110 and becomes 2.2 million won. The ending total is `1,100만 + 220만 = 1,320만 원`, or 13.2 million won.
+- **2 million won added midway**  
+  It enters at 120 and ends at 110, so `200만 × 110 ÷ 120` gives about 1,833,333 won. The ending total is about 12,833,333 won.
+
+Here are the records side by side. Values are in won and times are Korea time. On the starting and midpoint dates, we measure the balance at 09:00 and record the contribution at 09:01, assuming no price change in between.
+
+| Time or event | Added at the start | Added midway |
+| --- | ---: | ---: |
+| Starting balance, 2025-01-01 | 10 million won | 10 million won |
+| After the same day's 2 million won contribution | 12 million won | 10 million won |
+| Before the additional contribution, 2025-07-02 | 14.4 million won | 12 million won |
+| After the midpoint contribution | 14.4 million won | 14 million won |
+| Ending balance, 2026-01-01 | 13.2 million won | About 12,833,333 won |
+
+The calculations use unrounded values, while displayed won amounts are rounded. In this example the earlier contribution performed better because it participated in the rising segment. Different price paths can produce different results.
+
+<Img src="/portfolio-reading-04-returns-cash-flows-20261017.webp" width={750} height={500} alt="Investment results, TWR, and XIRR for 2 million won added at the start or midway through the period"/>
+
+<Ads1/>
+
+## Two Questions for a Return Measure
+
+Each return measure answers a different question.
+
+| What do I want to know? | Measure | Result |
+| --- | --- | --- |
+| How much did the investment move apart from the timing of contributions? | Time-weighted return (TWR) | 10% for both |
+| What was my result given how much I contributed and when? | Money-weighted return, calculated here with XIRR | 10% annualized at the start, about 7.59% midway |
+
+TWR divides the period at deposits and withdrawals and links the returns for those segments. With the same investment path, it gives 10% here regardless of the contribution date. Money-weighted return reflects **the experience of your money, including how much you invested and when**. CFA Institute distinguishes the two perspectives in its performance evaluation material.
+[CFA Institute on performance evaluation](https://rpc.cfainstitute.org/sites/default/files/-/media/documents/book/rf-publication/2017/rf-v2017-n3-1.pdf)
+<br/>
+Excel's `XIRR` calculates a money-weighted return for cash flows on irregular dates. The result is annualized. This example spans 365 days. For a one-month record, the annualized result differs from the actual percentage earned that month.
+[Microsoft's XIRR documentation](https://support.microsoft.com/ko-kr/excel/functions/xirr-function)
+
+## Four Lines for a Performance Worksheet
+
+Reconcile the gains and losses before naming the return measure.
+
+| Field | Added at the start | Added midway |
+| --- | ---: | ---: |
+| Starting value | 10 million won | 10 million won |
+| Ending value | 13.2 million won | About 12,833,333 won |
+| Net external contribution | 2 million won | 2 million won |
+| Investment gain | **1.2 million won** | **About 833,333 won** |
+
+Beside those amounts, record what the calculation measures and its name. Both records have 10% TWR. Their XIRRs are 10% and about 7.59% annualized. Dividing 1.2 million by the starting 10 million gives a simple 12% comparison that doesn't account for contribution dates.
+<br/>
+Your brokerage's return relative to average purchase price may answer another question. Check whether it covers only shares still held or includes realized gains and distributions withdrawn. **Compare numbers after confirming the same amounts, periods, and cash flows.**
+
+<Bbox>
+Start by reconciling four lines: starting value, ending value, net external contributions, and profit or loss. If intermediate balances are missing, mark that you need more data before calculating a percentage. Read on if you want to reproduce the calculations with your own figures.
+</Bbox>
+
+<Ads2/>
+
+## Calculate It Yourself
+
+### Link Period Returns for TWR
+
+For the investor who contributed midway, the original 10 million won grew to 12 million before the contribution. That is +20% for the first segment. From 14 million immediately after the deposit to about 12,833,333 at the end is about −8.33%. Link the returns: `1.20 × (110 ÷ 120) − 1 = 10%`. For the investor who contributed at the start, use the 12 million won immediately after the deposit as the starting balance to get the same two segment returns.
+<br/>
+You need **balances before and after each cash flow**. Two endpoint balances alone make it hard to separate contributions from price changes. The GIPS handbook explains valuation around cash flows and linking returns.
+[GIPS return calculation methods](https://www.gipsstandards.org/standards/gips-standards-for-firms/gips-standards-handbook-for-firms/)
+In practice, contributions can change the cash held and trading costs, so check the assumption that both investors followed the same path.
+
+### Enter Dates and Amounts for XIRR
+
+Think about XIRR from **your pocket's perspective**. Money you send to the investment is negative. Money you receive or the value still held at the end is positive. This is the opposite of the earlier balance table, which recorded a contribution as positive.
+
+| Date | Added at the start | Added midway |
+| --- | ---: | ---: |
+| 2025-01-01 | −12,000,000 | −10,000,000 |
+| 2025-07-02 | 0 | −2,000,000 |
+| 2026-01-01 | +13,200,000 | +12,833,333.333333 |
+
+The amounts are in won. Record the starting balance as the value invested on the first date even if it wasn't deposited that day. Include the ending balance once as remaining value even if you haven't sold. If you've already included sale proceeds, don't add the same value again.
+<br/>
+In Excel, put dates in A2:A4, amounts for the initial contribution example in B2:B4, and amounts for the midpoint contribution example in C2:C4. Enter recognized Excel dates and format the result cells as percentages.
+
+```excel title="날짜와 금액으로 수익률 계산"
+=XIRR(B2:B4,A2:A4)
+=XIRR(C2:C4,A2:A4)
+```
+
+The results are **10.00% annualized for the first example and about 7.59% for the second**. Before rounding, the second result is about 7.586475%. XIRR uses a 365-day year and doesn't use hours or minutes.
+[Microsoft's XIRR input requirements](https://support.microsoft.com/ko-kr/excel/functions/xirr-function)
+
+<Ybox>
+XIRR needs at least one negative outflow and one positive inflow or ending value. More complicated cash flows can give no result or more than one possible result. If you see an error, check dates, signs, and missing entries before changing the numbers.
+</Ybox>
+
+## Count Distributions and Costs Once
+
+Dividends and distributions kept in the account are cash generated by investments. Include them in the balance and record an external withdrawal if you take them out. See [Part 7](https://www.promleeblog.com/blog/post/464-portfolio-reading-distributions-cash) for an example. If an investment worth 1 million won before a distribution becomes a 900,000 won asset plus 100,000 won in cash, the total is still 1 million won.
+<br/>
+Don't add cash distributions to a return that already includes reinvestment or deduct fees that already reduced the balance. For performance in won, use won for both balances and cash flows, and record the rates used for foreign-currency flows. Note how your worksheet treats costs, distributions, and currencies.
+
+## Reconcile Records in PortRhythm
+
+In PortRhythm Asset History, check **change in valuation → net contributions for the same period → change excluding net contributions**. If adding a holding or correcting its quantity increased the balance, check that you haven't counted the change as investment profit. See the [asset history guide](https://www.promleeblog.com/blog/post/443-portrhythm-asset-history-guide) for data entry.
+
+<Img src="/portrhythm-guide8-desktop-overview-20261009.webp" width={750} height={422} alt="Asset history screen comparing valuation change, net contributions, and change excluding net contributions"/>
+
+The app explains that **change excluding net contributions is a monetary change, not a rate of return**. TWR and XIRR use dated cash flows and the relevant valuations.
+<br/>
+Check the time for contributions on boundary dates. As of October 17, 2026, the app counts flows after the starting valuation through the ending valuation. A flow at the exact start time is excluded, while one at the exact end time is included. If the cash flow time is unknown, the app may ask you to confirm it or defer the calculation.
+
+## Conclusion
+
+The balance increased by 3.2 million won, and after subtracting the 2 million contribution, investment profit was 1.2 million won. The same contribution can produce different outcomes depending on its timing. **Reconcile the gain in won first, then choose the return measure that answers your question.**
+<br/>
+In [PortRhythm Asset History](https://pf.promleeblog.com/?view=history), put your starting balance, ending balance, and external cash flows side by side. Next, we'll look at why the same final return can hide different declines along the way and ask how much of a fall your plan could withstand.
+
+[← Part 3](https://www.promleeblog.com/blog/post/460-portfolio-reading-currency-exposure) · [Part 5 →](https://www.promleeblog.com/blog/post/462-portfolio-reading-drawdown-risk)
+
+### References
+
+- [Reading Your Portfolio, Part 1: Common asset scope](https://www.promleeblog.com/blog/post/458-portfolio-reading-consolidated-holdings)
+- [GIPS return calculation methods](https://www.gipsstandards.org/standards/gips-standards-for-firms/gips-standards-handbook-for-firms/)
+- [CFA Institute on performance evaluation](https://rpc.cfainstitute.org/sites/default/files/-/media/documents/book/rf-publication/2017/rf-v2017-n3-1.pdf)
+- [Microsoft's XIRR documentation](https://support.microsoft.com/ko-kr/excel/functions/xirr-function)
+- [PortRhythm asset history guide](https://www.promleeblog.com/blog/post/443-portrhythm-asset-history-guide)

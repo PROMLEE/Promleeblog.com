@@ -1,0 +1,144 @@
+---
+post_id: '458'
+locale: en
+title: 'Reading Your Portfolio, Part 1: See Your Asset Mix Across Accounts'
+description: >-
+  Combine holdings across brokerage accounts, value them in won, and calculate
+  the share of stocks, bonds, gold, and cash with one consolidated worksheet.
+source_hash: 8d7aa78a046aefbf781b5bdfd1cfbcb443724aabc07d83e9431c54ab04e6826f
+---
+## Before We Begin
+
+You open and close three brokerage apps. You've checked every balance, but when someone asks how much of your money is in stocks, you still reach for a calculator. It's like knowing what's in each drawer without knowing how many pairs of socks you own. **Today we'll open those drawers and group the money by what it's invested in.**
+<br/>
+Reading Your Portfolio is a series on **asset allocation and investment reviews with PortRhythm**. The first goal is simple: put 10 million won from three accounts into one table and see that 6 million is in stocks and 1.5 million is in cash. You can follow along with your holdings and a calculator even if you don't use PortRhythm.
+
+<Rbox>
+The calculations are illustrative and are not investment recommendations. PortRhythm screenshots show test account data and may use different amounts.
+</Rbox>
+
+## Decide What to Include
+
+If you start organizing the refrigerator and open the desk drawers too, the job gets bigger. Money is easier to organize once you decide **what belongs in the total**. Here we combine investment stocks, ETFs, and cash, leaving out living expenses and emergency savings. General A, General B, and Long-Term C are account nicknames.
+<br/>
+Record the **value at today's price**, also called the valuation. If shares you bought for 1 million won are now worth 1.2 million, put 1.2 million in the table. That shows where your money is today and how much is there.
+<br/>
+Convert foreign-currency assets to won before adding them. For dollar assets, use `수량 × 달러 가격 × 1달러당 원화 금액` (quantity times dollar price times won per dollar). If the broker already shows the value in won, don't multiply by the exchange rate again. You're putting amounts in the same units without actually exchanging the money.
+<br/>
+Use prices and exchange rates from the same reference time, which we'll call `T0`. In your own table, note the date and the time you checked prices and exchange rates. If markets were checked at different times, record that too.
+
+## Accounts Are Drawers, Ports Are Buckets
+
+An account tells you where the money is held. A PortRhythm port is a bucket for viewing related holdings together. You can group stocks from accounts A and B in one bucket, or place stocks and cash from the same account in different buckets.
+
+| Term | Plain-language question | Example |
+| --- | --- | --- |
+| Account | Where is it held? | General A, General B, Long-Term C |
+| Asset class | What kind of asset is it? | Stocks, bonds, gold, cash |
+| Port | How do I want to group it? | U.S. Indexes, Long-Term Holdings, Investment Cash |
+
+An asset class groups investments with similar characteristics. Assigning an asset to a port is like labeling a bucket. It doesn't transfer money or shares between brokers.
+[PortRhythm asset assignment guide](https://www.promleeblog.com/blog/post/439-portrhythm-asset-assignment-guide)
+<br/>
+An ETF can hold different kinds of assets, so check what's inside before labeling it. Here, bond ETF D belongs under bonds and gold ETF E under gold. Leave a fund with mixed holdings unconfirmed until you've read its prospectus if necessary.
+
+## Put Three Accounts in One Table
+
+Here are the holdings from all three accounts. The original worksheet uses units of 10,000 won to keep the large figures readable.
+
+| Account | Asset | Current value | Class | Portfolio weight |
+| --- | --- | ---: | --- | ---: |
+| General A | U.S. equity ETF A | 3 million won | Stocks | 30% |
+| General A | Individual stock X | 500,000 won | Stocks | 5% |
+| General A | Won cash | 500,000 won | Cash | 5% |
+| General B | U.S. growth ETF B | 1.5 million won | Stocks | 15% |
+| General B | Korean equity ETF C | 1 million won | Stocks | 10% |
+| Long-Term C | Won bond ETF D | 2 million won | Bonds | 20% |
+| Long-Term C | Gold ETF E | 500,000 won | Gold | 5% |
+| Long-Term C | Won cash | 1 million won | Cash | 10% |
+| Total | | **10 million won** | | **100%** |
+
+Add the accounts first: 4 million won in A, 2.5 million in B, and 3.5 million in C. Once those numbers match your brokerage balances, regroup the same rows into stocks, bonds, gold, and cash. **Regrouping leaves the total unchanged.** It should still be 10 million won.
+
+<Img src="/portfolio-reading-01-account-to-assets-20261017.webp" width={750} height={375} alt="Ten million won across three accounts regrouped into stocks, bonds, gold, and cash"/>
+
+<Ads1/>
+
+## How Much of the 10 Million Won Is in Stocks?
+
+Add the four stock rows: `300만 + 50만 + 150만 + 100만 = 600만 원`, or 6 million won. That's six out of ten equal slices of the portfolio. This share of the whole is the **weight**. The calculation is `600만 ÷ 1,000만 × 100 = 60%`.
+
+| Class | Total current value | Portfolio weight |
+| --- | ---: | ---: |
+| Stocks | 6 million won | 60% |
+| Bonds | 2 million won | 20% |
+| Gold | 500,000 won | 5% |
+| Cash | 1.5 million won | 15% |
+| Total | **10 million won** | **100%** |
+
+Now you can say that 60% of your investments are in stocks, beyond knowing that you have three accounts.
+<br/>
+What if you leave out the 1.5 million won in cash? The total drops to 8.5 million, so `600만 ÷ 850만 × 100 ≈ 70.6%`. The number changes without buying another share. **The 60% includes cash in the total, while 70.6% excludes it.** The number you divide by, 10 million or 8.5 million won, is the denominator.
+
+> When you see a weight, ask both what percentage it is and what counts toward the total.
+
+Asset allocation means dividing your money among stocks, bonds, cash, and other investments. The right allocation depends on how long you can invest and how much loss you can bear.
+[Investor.gov on asset allocation](https://www.investor.gov/introduction-investing/getting-started/asset-allocation)
+
+## Reconcile Your Table in PortRhythm
+
+In the app, go through **Account Management → Holdings → Asset Assignment → Portfolio Weights**. First check that every account and holding is present and that quantities and current values match. Include cash when reconciling against the broker. If you need to enter data, see the [asset registration guide](https://www.promleeblog.com/blog/post/438-portrhythm-asset-registration-guide) and [account management guide](https://www.promleeblog.com/blog/post/445-portrhythm-brokerage-account-guide).
+<br/>
+Second, check the bucket assigned to each holding. Include both balances if you actually bought the same stock in two accounts. *Copying one balance into two ports counts the same money twice.* Assign each holding to one port for aggregation.
+
+<Img src="/portrhythm-assignment-desktop-overview-20261008.webp" width={750} height={422} alt="Asset assignment screen showing each holding's valuation and port selector"/>
+
+Look at the port selector to the right of each asset. If a U.S. Indexes bucket contains cash, some of its value is cash. Check both the label and what's inside.
+<br/>
+Third, reconcile **Current Weights** with your table.
+
+| App field | How to read it |
+| --- | --- |
+| Total value | Combined won valuations for assigned and unclassified assets |
+| Value by port | Combined valuations for assets in that bucket |
+| Cash entered manually | Included in the total, so check for omissions and duplicates |
+| Unclassified | Included in the total and shown separately when it has a value |
+
+Current shows what you hold today. Target shows what you plan to hold. Use Current to check this table.
+[PortRhythm current and target allocation guide](https://www.promleeblog.com/blog/post/441-portrhythm-current-target-allocation-guide)
+<br/>
+If the totals differ, check for missing assets and prices. A holding without a quote may use a saved price. If no price is available, its value may be excluded from the total. *A registered holding can still be missing from the valuation.* If your ports have names that differ from asset classes, keep the buckets in the app and use a separate table to group by class.
+
+<Ads2/>
+
+## Three Things That Are Easy to Miss
+
+Finish by checking the original balances again.
+
+- **Count cash once.**  
+  Check whether cash is already in the account total. Reconcile products such as RPs and CMAs against cash entries to avoid overlap.
+- **Keep assets you haven't classified.**  
+  If you don't know the class of a 500,000 won holding, record 500,000 won as unconfirmed. Omitting it changes every weight.
+- **Distinguish duplicate securities from duplicate records.**  
+  Add both positions if you bought the same stock in separate accounts. Correct the duplicate if you entered the same balance from a screenshot and again by hand.
+
+<Bbox>
+Start with one account and reconcile it against the original balance. Add accounts one at a time to make any discrepancy easier to find. If the weights add to 99.9% or 100.1%, check whether the difference comes from rounding.
+</Bbox>
+
+## Conclusion
+
+After combining three accounts, you can identify 6 million won in stocks, 2 million in bonds, 500,000 in gold, and 1.5 million in cash. **The consolidated table shows what you hold, where it is, and how much it is worth.**
+<br/>
+Open [PortRhythm Asset Assignment](https://pf.promleeblog.com/?view=allocation), choose a holding, and check its bucket. Next, we'll look inside those buckets and see why different ETFs can hold the same companies.
+
+[Part 2: Find the same company inside your ETFs →](https://www.promleeblog.com/blog/post/459-portfolio-reading-etf-overlap)
+
+### References
+
+- [Investor.gov on asset allocation and diversification](https://www.investor.gov/introduction-investing/getting-started/asset-allocation)
+- [PortRhythm asset registration guide](https://www.promleeblog.com/blog/post/438-portrhythm-asset-registration-guide)
+- [PortRhythm asset assignment guide](https://www.promleeblog.com/blog/post/439-portrhythm-asset-assignment-guide)
+- [PortRhythm current and target allocation guide](https://www.promleeblog.com/blog/post/441-portrhythm-current-target-allocation-guide)
+- [PortRhythm account management guide](https://www.promleeblog.com/blog/post/445-portrhythm-brokerage-account-guide)
+- [PortRhythm](https://pf.promleeblog.com/)

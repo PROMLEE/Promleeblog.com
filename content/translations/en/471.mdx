@@ -1,0 +1,137 @@
+---
+post_id: '471'
+locale: en
+title: 'ETF Selection, Part 6: How to Compare Bond ETFs'
+description: >-
+  Compare bond ETFs by maturity, duration, credit, currency, yield, and
+  termination terms. See how a rate change can affect prices and build a
+  checklist around the purpose of your money.
+source_hash: 65d361afd3ef5213beefc8db52477c9338fcda13a5e085468f16ea53b888a2e9
+reviewed_at: '2026-11-07T17:46:25.010Z'
+---
+## Before We Begin
+
+You buy a bond ETF after hearing that bonds are relatively stable, then notice that its price moves quite a bit even when stock market news is quiet. A local bus and a long-distance express are both buses, but they take different routes. Bond funds likewise behave differently depending on the bonds they hold and how long those bonds have left to run.
+<br/>
+**Before looking at fund names, write down when you'll need the money and in which currency.** Then compare maturity, interest rate sensitivity, and credit risk.
+
+<Rbox>
+Fund information is based on official materials accessed on October 21, 2026. The calculations illustrate interest rate sensitivity. They do not predict returns or recommend a fund.
+</Rbox>
+
+## Bonds Make Different Promises
+
+A bond is a security that sets out a borrower's promise to pay interest and principal. Start with who owes the money, which currency they'll pay in, and when payment is due.
+
+| Question | What to check |
+| --- | --- |
+| Who pays? | Issuer and credit quality, whether a government, public corporation, or private company |
+| What currency will I receive? | Currency, such as KRW or USD, and hedging policy |
+| When is payment due? | Maturity of individual bonds and the ETF's maturity structure |
+| What happens when rates move? | Duration type, value, and date |
+
+Putting government and corporate bonds, or KRW and USD bonds, in one ranking changes several factors at once. Start with comparable currencies and credit profiles. A credit rating helps you assess repayment risk and offers no guarantee of principal.
+[FINRA's bond due diligence checklist](https://syndication.finra.org/content/bond-investing-and-due-diligence)
+
+## Maturity Dates and Price Sensitivity
+
+Maturity tells you when principal is due. Duration helps you estimate how sensitive a bond's price is to interest rate changes. Both can be expressed in years, but they answer different questions. Interest payments, yields, and early redemption terms can all affect duration.
+[FINRA on duration](https://syndication.finra.org/content/duration-what-interest-rate-hike-could-do-your-bond-portfolio)
+<br/>
+Check **which kind of duration** a figure represents. The example below uses modified duration. If a fund page reports `Effective Duration`, record it as such. Effective duration can account for expected cash flows changing when rates change.
+[WisdomTree's definition of effective duration](https://www.wisdomtree.com/us/insights/glossary)
+
+## What a 0.5 Percentage Point Move Can Do
+
+Assume yields rise by 0.5 percentage points across all maturities and everything else stays equal. For a small yield move, approximate the percentage price change with `−수정듀레이션 × 수익률 변화` (negative modified duration times the change in yield). Expressed as a decimal, 0.5 percentage points is `0.005`.
+
+| Modified duration | Approximate price change if yields rise 0.5 percentage points | Change on 10 million won |
+| --- | ---: | ---: |
+| 2 | −2 × 0.005 = −1% | About −100,000 won |
+| 8 | −8 × 0.005 = −4% | About −400,000 won |
+
+Longer duration means a larger price response to the same yield move. If yields fall by 0.5 percentage points, the estimated changes go in the other direction, to +1% and +4%. **Longer duration tells you that prices react more strongly to rate changes. Whether that's useful depends on your goal.**
+<br/>
+The calculation excludes interest income, expenses, currency moves, changes in credit risk, and convexity, which describes the curvature of the price–yield relationship. It isn't a formula for large rate moves or actual one-year returns.
+[FINRA on the relationship between rates and duration](https://syndication.finra.org/content/duration-what-interest-rate-hike-could-do-your-bond-portfolio)
+
+<Img src="/etf-selection-06-duration-20261021.webp" width={750} height={500} alt="Approximate price changes for modified durations of 2 and 8 when yields rise or fall by 0.5 percentage points"/>
+
+<Ads1/>
+
+## Read Two Fund Pages
+
+Compare two U.S. Treasury ETFs with different maturity ranges. These form a separate comparison from the three S&P 500 funds discussed earlier.
+
+| Item | SGOV | IEF |
+| --- | --- | --- |
+| Official fund name | iShares 0-3 Month Treasury Bond ETF | iShares 7-10 Year Treasury Bond ETF |
+| Target range | U.S. Treasuries, 0–3 months | U.S. Treasuries, 7–10 years |
+| Official metric | Effective Duration | Effective Duration |
+| Value on 2026-10-19 | 0.11 years | 6.83 years |
+| Average maturity on the same date | 0.11 years | 8.42 years |
+
+The issuer reports effective duration and weighted average maturity separately. The two measures have different jobs, as the table shows. The figures are as of `2026-10-19`, the date attached to each figure, rather than the date the pages were accessed.
+[iShares SGOV](https://www.ishares.com/us/products/314116/ishares-0-3-month-treasury-bond-etf) · [iShares IEF](https://www.ishares.com/us/products/239456/ishares-710-year-treasury-bond-etf)
+<br/>
+Both funds have exposure to dollar assets. If your expenses are in won, short duration alone does not make the fund equivalent to won cash. Even when the dollar price moves little, the value converted to won can change with the exchange rate. See [Part 3 of the previous series](https://www.promleeblog.com/blog/post/460-portfolio-reading-currency-exposure) for a closer look at currency exposure.
+
+## Read the Name of Each Yield Metric
+
+Fund pages display several similar-looking yields. Before copying a number, record what it measures.
+
+| Metric | What it measures | What to keep separate |
+| --- | --- | --- |
+| Yield to maturity (YTM) | Yield implied by the current price and scheduled cash flows | It doesn't guarantee an ETF investor's return |
+| 30 Day SEC Yield | Recent 30-day income annualized using a prescribed method | It differs from multiplying the latest distribution by 12 |
+| Trailing distribution yield | Payments over a defined period divided by a reference price | It differs from total return, which includes price changes |
+
+The two iShares pages list `Average Yield to Maturity`, `30 Day SEC Yield`, and `12m Trailing Yield` separately. Funds incur expenses and can change their holdings. Investors are also affected by execution prices, exchange rates, and taxes.
+**A published yield does not tell you how much interest you'll definitely receive in a year.**
+[iShares SGOV metric definitions](https://www.ishares.com/us/products/314116/ishares-0-3-month-treasury-bond-etf) · [FINRA on bond yields](https://syndication.finra.org/content/just-factsbond-facts)
+
+<Ads2/>
+
+## The Fund Can Continue After Its Bonds Mature
+
+Does a 7–10 year Treasury ETF end after you've held it for ten years? A typical maturity-range ETF replaces bonds according to index rules, so holding it for ten years does not turn the entire portfolio into cash. Some target-maturity ETFs, on the other hand, terminate in a specified year.
+<br/>
+iShares describes iBonds as grouping bonds with similar maturity years and distributing remaining net assets in the stated termination year. The final payment is the remaining net assets after accounting for liabilities. It does not guarantee that you get back your purchase price. Check each fund's documents for the termination date and the final management and distribution process.
+[iShares on how iBonds work](https://www.ishares.com/us/strategies/bond-etfs/build-better-bond-ladders)
+
+<Bbox>
+Money for an expense in won in two years and an allocation that adjusts a long-term portfolio's rate sensitivity serve different purposes. Record the role, currency, and date you need the money before deciding which maturity and duration to examine.
+</Bbox>
+
+## My Bond Comparison Worksheet
+
+| Field | What to record |
+| --- | --- |
+| Purpose and spending date | When will I need the money, and in which currency? |
+| Credit and holdings | Issuers, ratings, and concentration |
+| Rate sensitivity | Duration type, value, and date |
+| Yield | Metric name, treatment of expenses, and calculation period |
+| Termination structure | Ongoing or target maturity, and final payment terms |
+| Other checks | Hedging, trading costs, and possible losses on sale |
+
+When assigning a fund in PortRhythm, record what you want it to do alongside the broad bond label. This helps separate money earmarked for spending from long-term money for which you can accept price changes.
+
+## Conclusion
+
+We separated bond maturity dates from price sensitivity to interest rates. We added credit, currency, yield definitions, and termination terms to the comparison.
+**Start by checking whether the fund's structure fits when and how you will use the money.**
+<br/>
+Next, we'll look at two types of funds that distribute cash regularly: dividend ETFs and covered-call ETFs.
+
+[← Part 5](https://www.promleeblog.com/blog/post/470-etf-selection-price-nav-spread) · [Part 7 →](https://www.promleeblog.com/blog/post/472-etf-selection-dividend-covered-call)
+
+### References
+
+- [FINRA bond due diligence](https://syndication.finra.org/content/bond-investing-and-due-diligence)
+- [FINRA duration](https://syndication.finra.org/content/duration-what-interest-rate-hike-could-do-your-bond-portfolio)
+- [FINRA bond yields](https://syndication.finra.org/content/just-factsbond-facts)
+- [iShares SGOV](https://www.ishares.com/us/products/314116/ishares-0-3-month-treasury-bond-etf)
+- [iShares IEF](https://www.ishares.com/us/products/239456/ishares-710-year-treasury-bond-etf)
+- [iShares iBonds](https://www.ishares.com/us/strategies/bond-etfs/build-better-bond-ladders)
+- [Currency exposure in a portfolio](https://www.promleeblog.com/blog/post/460-portfolio-reading-currency-exposure)
+- [WisdomTree financial glossary](https://www.wisdomtree.com/us/insights/glossary)

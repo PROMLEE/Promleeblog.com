@@ -1,0 +1,168 @@
+---
+post_id: '471'
+locale: zh
+title: ETF 选择标准 6：如何阅读债券 ETF
+description: 比较债券 ETF 的期限、久期、信用、币种、收益率定义和终止结构，结合示例理解价格的利率敏感度。
+source_hash: 65d361afd3ef5213beefc8db52477c9338fcda13a5e085468f16ea53b888a2e9
+---
+## 开始之前
+
+听说债券相对稳定，于是买了债券 ETF。
+但即使股市新闻不多，它的价格也有不小的波动。
+就像在附近慢慢绕行的公交车和开往远处的快车，都叫公交车。
+债券的表现也取决于持有哪类债券，以及持有期限的安排。
+<br/>
+**选择债券 ETF 时，先写下何时用钱、用什么币种，再看产品名称。**
+接下来核对到期结构、利率敏感度与信用。
+
+<Rbox>
+产品信息依据 2026 年 10 月 21 日查阅的官方资料。
+计算示例用于解释利率敏感度，不代表实际收益预测或产品推荐。
+</Rbox>
+
+## 同为债券，约定各不相同
+
+债券是借款方承诺按约定条件支付利息和本金的证券。
+先看谁借了钱、以什么币种偿还，以及何时偿还。
+
+| 问题 | 核对项目 |
+| --- | --- |
+| 谁来偿还？ | 政府、国有企业或一般企业等发行人及其信用 |
+| 用什么币种支付？ | 韩元、美元等币种及汇率对冲政策 |
+| 何时偿还？ | 单只债券到期日及 ETF 的到期结构 |
+| 利率变化时会怎样？ | 久期类型、数值及基准日 |
+
+把国债与公司债、韩元与美元混在同一张排名表里，会同时改变多个比较条件。
+先在币种和信用特征相近的产品之间比较。
+信用评级可用于判断偿付风险，不能保证本金。
+[FINRA 债券核对项目](https://syndication.finra.org/content/bond-investing-and-due-diligence)
+
+## 日历上的到期日与价格敏感度
+
+到期日是按约定偿还款项的日期。
+久期用于衡量债券价格对利率变化有多敏感。
+虽然两者都可以用年来表示，但衡量的是不同的事情。
+利息支付、收益率和提前赎回条件等也会影响久期。
+[FINRA 久期说明](https://syndication.finra.org/content/duration-what-interest-rate-hike-could-do-your-bond-portfolio)
+<br/>
+查看价格敏感度时，也要确认**久期的类型**。
+下面的计算使用修正久期。
+如果产品页面披露的是有效久期 `Effective Duration`，应按原名称记录，不要改记成修正久期。
+有效久期的计算可以考虑利率变化时预期现金流也会变化的可能性。
+[WisdomTree 有效久期术语说明](https://www.wisdomtree.com/us/insights/glossary)
+
+## 变动 0.5 个百分点时的影响
+
+假设所有期限的收益率均上升 0.5 个百分点，其他条件不变。
+收益率变化较小时，可以用 `−수정듀레이션 × 수익률 변화`，即负的修正久期乘收益率变动，近似计算价格变化率。
+0.5 个百分点写成小数就是 `0.005`。
+
+| 修正久期 | 收益率上升 0.5 个百分点时的近似价格变化 | 1,000 万韩元的价格变化 |
+| --- | ---: | ---: |
+| 2 | −2 × 0.005 = −1% | 约 −10 万韩元 |
+| 8 | −8 × 0.005 = −4% | 约 −40 万韩元 |
+
+在同样的利率变化下，久期越长，对价格的影响越大。
+若收益率下降 0.5 个百分点，按此近似计算，价格变化分别约为 +1% 和 +4%。
+**久期长短没有绝对的好坏。久期越长，价格对利率变化越敏感。**
+<br/>
+这里排除了利息收入、费用、汇率和信用风险的变化，以及衡量价格曲线弯曲程度的凸性。
+这个近似公式不适合直接估算大幅利率变化或实际一年收益率。
+[FINRA 利率与久期的关系](https://syndication.finra.org/content/duration-what-interest-rate-hike-could-do-your-bond-portfolio)
+
+<Img src="/etf-selection-06-duration-20261021.webp" width={750} height={500} alt="收益率上升或下降 0.5 个百分点时，修正久期为 2 和 8 的价格近似变化"/>
+
+<Ads1/>
+
+## 阅读官网上的两只产品
+
+用两只结构不同的美国国债 ETF 来看各项指标。
+它们与前面三只 S&P 500 产品属于不同的比较组。
+
+| 项目 | SGOV | IEF |
+| --- | --- | --- |
+| 管理方产品名称 | iShares 0-3 Month Treasury Bond ETF | iShares 7-10 Year Treasury Bond ETF |
+| 目标期限 | 美国国债 0 至 3 个月 | 美国国债 7 至 10 年 |
+| 官方指标 | Effective Duration | Effective Duration |
+| 2026-10-19 数值 | 0.11 年 | 6.83 年 |
+| 同日平均到期年限 | 0.11 年 | 8.42 年 |
+
+管理方页面分别列出了两只产品的有效久期与加权平均到期年限。
+这些实际数据也说明，利率敏感度与到期年限是两个不同指标。
+上表采用各项数据标注的基准日 `2026-10-19`。
+[iShares SGOV](https://www.ishares.com/us/products/314116/ishares-0-3-month-treasury-bond-etf) · [iShares IEF](https://www.ishares.com/us/products/239456/ishares-710-year-treasury-bond-etf)
+<br/>
+两只产品都与美元资产相关。
+如果生活支出使用韩元，短久期也不能让它们等同于韩元现金。
+即使美元计价的价格变化不大，换算成韩元后的金额仍会随汇率变化。
+如何检查汇率影响，见[上一系列第 3 篇](https://www.promleeblog.com/blog/post/460-portfolio-reading-currency-exposure)。
+
+## 先看收益率指标的名称
+
+产品页面可能显示多个看起来相似的收益率。
+抄下数字前，先注明它衡量的是什么。
+
+| 指标 | 含义 | 注意区别 |
+| --- | --- | --- |
+| 到期收益率／YTM | 联系当前价格与预期现金流的收益率指标 | 不保证 ETF 投资者能获得该收益 |
+| 30 Day SEC Yield | 按规定方法将最近 30 天的收入年化 | 与最近一次分配金乘以 12 的结果不同 |
+| 历史分配率 | 规定期间的支付金额除以基准价格 | 不包含价格变动所带来的回报 |
+
+两只 iShares 产品的页面都分别列出 `Average Yield to Maturity`、`30 Day SEC Yield` 和 `12m Trailing Yield`。
+基金会支付费用，也可能更换持有的债券。投资者还会受到成交价格、汇率与税费的影响。
+**标示收益率无法保证一年后的利息收入。**
+[iShares SGOV 指标定义](https://www.ishares.com/us/products/314116/ishares-0-3-month-treasury-bond-etf) · [FINRA 债券收益率](https://syndication.finra.org/content/just-factsbond-facts)
+
+<Ads2/>
+
+## 债券到期后，ETF 仍可继续运作
+
+“持有 7 至 10 年期国债 ETF 十年，它会结束吗？”这是另一个问题。
+一般的期限区间型 ETF 会依照指数规则更换债券。即使投资者长期持有，资产也不会在某一天全部变成现金。
+也有在指定年份终止的目标到期型 ETF。
+<br/>
+iShares 的 iBonds 将到期年份相近的债券组合起来，并在指定终止年份分配剩余净资产。
+最后收到的是扣除负债等后的剩余净资产，金额并不保证等于买入价格。
+每只产品的终止时间、最后阶段的运作和分配方式，应查看产品文件。
+[iShares iBonds 结构](https://www.ishares.com/us/strategies/bond-etfs/build-better-bond-ladders)
+
+<Bbox>
+“两年后用于韩元支出的钱”和“用来调整长期组合利率敏感度的资金”，承担不同角色。
+先记下用途、币种与用钱时间，就更容易判断应进一步了解哪些期限和久期。
+</Bbox>
+
+## 我的债券比较表
+
+| 要填写的项目 | 记录内容 |
+| --- | --- |
+| 资金用途与用钱时间 | 何时使用、以什么币种使用 |
+| 信用与底层资产 | 发行人、评级、集中度 |
+| 利率敏感度 | 久期类型、数值、基准日 |
+| 收益率 | 指标名称、费用处理、计算期间 |
+| 终止结构 | 持续运作还是目标到期型、最终付款条件 |
+| 其他核对事项 | 汇率对冲、交易成本、卖出时发生亏损的可能性 |
+
+在 PortRhythm 中分配资产时，除了标注“债券”，也记录它承担的具体角色。
+这样可以区分用于现金支出的资金，以及能够承受价格波动的长期投资资金。
+
+## 结语
+
+阅读债券 ETF 时，应分别核对日历上的到期日和价格的利率敏感度。
+信用、币种、收益率定义和终止结构也应列入比较表。
+**选择的起点，是确认产品结构是否符合这笔资金的用途与条件。**
+<br/>
+下一篇将介绍定期分配现金的股息 ETF 和备兑看涨期权 ETF。
+
+[← 第 5 篇](https://www.promleeblog.com/blog/post/470-etf-selection-price-nav-spread) · [第 7 篇 →](https://www.promleeblog.com/blog/post/472-etf-selection-dividend-covered-call)
+
+### 参考资料
+
+- [FINRA 债券尽职调查项目](https://syndication.finra.org/content/bond-investing-and-due-diligence)
+- [FINRA 久期](https://syndication.finra.org/content/duration-what-interest-rate-hike-could-do-your-bond-portfolio)
+- [FINRA 债券收益率](https://syndication.finra.org/content/just-factsbond-facts)
+- [iShares SGOV](https://www.ishares.com/us/products/314116/ishares-0-3-month-treasury-bond-etf)
+- [iShares IEF](https://www.ishares.com/us/products/239456/ishares-710-year-treasury-bond-etf)
+- [iShares iBonds](https://www.ishares.com/us/strategies/bond-etfs/build-better-bond-ladders)
+- [投资组合的汇率敞口](https://www.promleeblog.com/blog/post/460-portfolio-reading-currency-exposure)
+- [WisdomTree 金融术语](https://www.wisdomtree.com/us/insights/glossary)
+

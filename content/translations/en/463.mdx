@@ -1,0 +1,124 @@
+---
+post_id: '463'
+locale: en
+title: 'Reading Your Portfolio, Part 6: Set Rebalancing Rules'
+description: >-
+  Compare current and target allocations, distinguish percentage-point gaps from
+  relative differences, and see how new contributions can bring a portfolio back
+  toward target.
+source_hash: b8ed061790158341419f58f3a88a05c894264240f337674e29392bdbe45245a7
+reviewed_at: '2026-11-07T17:54:06.987Z'
+---
+## Before We Begin
+
+You planned to put 60% of your investments in stocks, then checked one day and found they accounted for 66%. Stocks may have risen, or you may have sold other assets or bought more stocks. Before reacting to the number and hitting Sell, check your original plan and when you'll need the money. **A change in weight is a reason to review your portfolio.**
+<br/>
+**Rebalancing** means bringing portfolio weights back toward the planned allocation. Think of it as adjusting how much is in each investment bucket. We'll put three things in one worksheet: when to check, what size gap warrants a review, and which money to use for adjustments.
+
+<Rbox>
+The calculations are examples for learning and are not investment recommendations. The PortRhythm screen uses test account data and may show different amounts.
+</Rbox>
+
+## Start with When You Need the Money
+
+Before setting target weights, write down when you'll use the money. Using the same plan for near-term spending and long-term investments can force you to sell in a downturn. Set your allocation based on your time horizon and ability to bear losses.
+[Investor.gov on asset allocation](https://www.investor.gov/introduction-investing/getting-started/asset-allocation)
+<br/>
+The targets here are 60% stocks, 20% bonds, 5% gold, and 15% cash. Compare them with the current holdings.
+
+| Bucket | Current value | Current weight | Target |
+| --- | ---: | ---: | ---: |
+| Stocks | 6.6 million won | 66% | 60% |
+| Bonds | 1.6 million won | 16% | 20% |
+| Gold | 500,000 won | 5% | 5% |
+| Cash | 1.3 million won | 13% | 15% |
+| Total | **10 million won** | **100%** | **100%** |
+
+The buckets are stocks, bonds, gold, and cash. Stocks are above target, while bonds and cash are below. Selling is one possibility. **If you have new money to invest, can you close the gaps by putting it into the underweight buckets?**
+
+## The Distance Between 60% and 66%
+
+Subtract the two percentages: `66 − 60 = 6`. The difference is **six percentage points**, written `6%p`. It's like calling the difference between 20 and 26 degrees six degrees.
+<br/>
+You can also measure the gap relative to the target. The weight is six points above a target of 60, so `6 ÷ 60 = 10%`. This corresponds to the app's measure based on each port's target amount. With the overall balance fixed, stocks are 600,000 won, or 10%, above their 6 million won target.
+
+| Measure | What the number means |
+| --- | --- |
+| Difference in portfolio weights | 60% to 66%, or +6 percentage points |
+| Difference relative to the target | 600,000 won above the 6 million won target, or +10% |
+
+Both describe the same holdings. **The unit changes what a threshold means.** When you write “review above five,” specify whether you mean `5%p` or `목표 대비 5%` (5% of the target). See the [current and target allocation guide](https://www.promleeblog.com/blog/post/441-portrhythm-current-target-allocation-guide) for the screen details.
+
+<Ads1/>
+
+## Rebalance with 1 Million Won in New Money
+
+Suppose you keep the 6.6 million won in stocks and add 1 million won you can afford to invest. The total becomes 11 million won, and `660 ÷ 1,100 = 60%`. **The stock weight falls from 66% to 60% without selling a share.** The stock position stays the same while the portfolio grows.
+
+| Bucket | Before | New money allocated | After |
+| --- | ---: | ---: | ---: |
+| Stocks | 6.6 million won | 0 won | 6.6 million won · 60% |
+| Bonds | 1.6 million won | +600,000 won | 2.2 million won · 20% |
+| Gold | 500,000 won | +50,000 won | 550,000 won · 5% |
+| Cash | 1.3 million won | +350,000 won | 1.65 million won · 15% |
+| Total | **10 million won** | **+1 million won** | **11 million won · 100%** |
+
+The example excludes costs, taxes, price changes, and trade size constraints. Of the new 1 million won, 650,000 buys assets and 350,000 stays in cash. The existing 1.3 million won is already part of the balance.
+
+<Img src="/portfolio-reading-06-rebalancing-20261017.webp" width={750} height={500} alt="Allocating 1 million won in new money to reduce the stock weight from 66% to 60% without selling stocks"/>
+
+If you have only 500,000 won to add, the total becomes 10.5 million won and stocks make up about 62.9%. That contribution alone can't reach 60%. Rather than stretch to raise the full 1 million won, decide whether to accept the current gap or make another adjustment after considering the costs.
+
+## Set a Review Rule
+
+Portfolio weights move whenever prices do. Trading on every small change can leave you watching the order screen more than your plan. Decide in advance when to review and how much drift to accept. Investor.gov describes both scheduled reviews and rebalancing triggered by a set deviation.
+[Investor.gov on rebalancing](https://www.investor.gov/introduction-investing/getting-started/asset-allocation)
+<br/>
+For example, write “Check monthly and investigate if stocks move more than five percentage points from target.” The current weight of 66% is six points above 60%, so it warrants a review. Before acting, check whether your plans changed, the balance is accurate, and the trade has costs.
+
+<Bbox>
+Start by putting a review date on the calendar. You can follow the rule and still decide against trading.
+</Bbox>
+
+<Ads2/>
+
+## Three Places to Check in PortRhythm
+
+In PortRhythm, go from **Target Design → Portfolio Weights → Rebalancing**. Check the buckets and tolerance units in Target Design, then compare current and target weights. See the [target setup guide](https://www.promleeblog.com/blog/post/437-portrhythm-portfolio-setup-guide) and [rebalancing guide](https://www.promleeblog.com/blog/post/442-portrhythm-rebalancing-guide) for the scope of the calculations.
+
+<Img src="/portrhythm-guide6-desktop-current-20261009.webp" width={750} height={422} alt="Portfolio weights screen comparing current weights, targets, and differences"/>
+
+Look at the **current, target, and difference columns**. If port names differ from asset classes or cash is mixed into another port, align the scope first. The tolerance settings distinguish `%p` of the overall portfolio from `%` relative to each port's target amount. Check the unit.
+<br/>
+Treat rebalancing calculations separately from actual orders. Verify whole-share requirements, fees, taxes, the money available in each account, and when trades can be placed. Cash combined on screen may not all be immediately available in any one account.
+
+## My Rebalancing Rules
+
+Start by filling in these six lines.
+
+| Field | Example |
+| --- | --- |
+| Target | 60% stocks, 20% bonds, 5% gold, and 15% cash |
+| Review schedule | Once a month, with another review if plans change |
+| Review trigger | Investigate if stocks differ from target by more than five percentage points |
+| First option | Use affordable new contributions to fill underweight buckets |
+| Before acting | Check costs, trade size, funds in each account, and upcoming spending |
+| Decision record | What you'll do, why, and the next review date |
+
+Set rules that fit your time horizon and finances. **Before changing a target to fit today's holdings, write down whether your reasons for setting it have changed.**
+
+## Conclusion
+
+Selling is one of several choices when stocks drift above target. Here, we kept 6.6 million won in stocks and reached the target by raising the overall balance to 11 million won. **The worksheet records when to review, how much drift to accept, how to adjust, and what might prevent a trade.**
+<br/>
+Open [PortRhythm portfolio weights](https://pf.promleeblog.com/?view=composition), choose the bucket furthest from target, and write down why it moved. Next we'll distinguish cash and distributions you can use for adjustments. Giving cash a purpose makes it easier to tell what is available from what you already need.
+
+[← Part 5](https://www.promleeblog.com/blog/post/462-portfolio-reading-drawdown-risk) · [Part 7 →](https://www.promleeblog.com/blog/post/464-portfolio-reading-distributions-cash)
+
+### References
+
+- [Reading Your Portfolio, Part 1: Consolidated holdings](https://www.promleeblog.com/blog/post/458-portfolio-reading-consolidated-holdings)
+- [Investor.gov on asset allocation and rebalancing](https://www.investor.gov/introduction-investing/getting-started/asset-allocation)
+- [PortRhythm target setup guide](https://www.promleeblog.com/blog/post/437-portrhythm-portfolio-setup-guide)
+- [PortRhythm current and target allocation guide](https://www.promleeblog.com/blog/post/441-portrhythm-current-target-allocation-guide)
+- [PortRhythm rebalancing guide](https://www.promleeblog.com/blog/post/442-portrhythm-rebalancing-guide)

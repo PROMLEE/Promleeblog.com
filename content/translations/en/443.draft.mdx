@@ -1,0 +1,325 @@
+---
+post_id: '443'
+locale: en
+title: PortRhythm User Guide 8 — Asset History
+description: >-
+  Follow Asset History on desktop and mobile. Record today's valuation, view
+  portfolio trends, log deposits and withdrawals, and distinguish internal
+  transfers. Work through valuation changes, net deposits, date rules, same-day
+  updates, and reconciliation with actual balances.
+source_hash: 9724afab46398ef6d41fa3e7957f7cadd020962141a4675c8dcb157ce350370e
+---
+## Before We Begin
+
+> “My assets increased by KRW 1.5 million. But I put in another KRW 1 million this month.”
+
+A higher balance is welcome, but treating the entire increase as investment performance makes your new contribution look like a gain. Likewise, a withdrawal for living expenses can reduce the balance regardless of how your investments performed.
+
+<br/>
+
+In [Part 7, Rebalancing](https://www.promleeblog.com/blog/post/442-portrhythm-rebalancing-guide), we reviewed quantities against targets. Now we'll record what happened to the value of your assets after trades and cash movements.
+
+<br/>
+
+The `자산 기록` (Asset History) screen keeps two records. One is **the day's asset valuation**. The other is **money moving into or out of the assets you track**. Think of the valuation as a snapshot and the cash flow entries as notes on what you added or took out between snapshots.
+
+<Bbox>
+Start by checking today's total asset value and recording external cash flows on the dates they occurred. The amounts in this article illustrate the calculations. Screenshots were taken in a QA account, so valuations can vary with the timing of quote updates.
+</Bbox>
+
+## 1. The Asset History Screen
+
+On desktop, click `자산 기록` (Asset History) in the left menu. `포트별 자산 추이` (Asset Trends by Portfolio) is at the top, and the collapsible `입출금 기록` (Deposit and Withdrawal History) is below it.
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide8-desktop-overview-20261009.webp" width={800} alt="Desktop Asset History showing the Record Today button, overall asset trend, and three change metrics"/>
+
+Start with three controls.
+
+- `오늘 기록` (Record Today) saves today's valuation using the currently saved asset data.
+- `추이를 볼 포트` (Portfolio to View) lets you choose all assets, unclassified assets, or an individual portfolio.
+- `입출금 기록` (Deposit and Withdrawal History) records money entering or leaving the assets you track.
+
+<br/>
+
+Below the chart are the first record date, the latest recorded valuation, and the latest record date. Select `전체 자산` (All Assets) to see the valuation change and net deposit metrics beneath them. The three metrics do not appear for individual portfolios.
+
+### 1.1. Mobile Menu
+
+On mobile, tap `전체` (All) at the bottom. Scroll to `기록과 계정` (History and Account) and open `자산 기록` (Asset History).
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide8-mobile-menu-20261009.webp" width={350} alt="Asset History under History and Account in the mobile All menu"/>
+
+The sequence is the same on a small screen. Find `오늘 기록` (Record Today) and the portfolio selector, read the metrics below the chart, then expand the deposit and withdrawal section.
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide8-mobile-overview-20261009.webp" width={350} alt="Mobile total asset trend with valuation change, net deposits over the same period, and change excluding net deposits"/>
+
+## 2. Recording Today's Valuation
+
+Before tapping `오늘 기록` (Record Today), check that the app's holdings match your actual balances. If you sold shares without updating their quantity or withdrew cash without updating the balance, that discrepancy will carry into the record.
+
+<br/>
+
+Prepare in this order.
+
+- Reconcile the quantities you traded and your cash balances against the actual accounts.
+- Save any changes first.
+- To use the latest prices, run `가격 갱신` (Refresh Prices) and wait for it to finish.
+- In `자산 기록` (Asset History), tap `오늘 기록` (Record Today).
+
+<br/>
+
+**Record Today uses the holdings and prices already saved in the app.** Refresh quotes separately if needed. Save pending changes and check for assets with missing or outdated prices.
+
+### 2.1. One Record per Day
+
+The screen says `하루 한 기록 · 같은 날에는 최신 값으로 갱신` (One Record per Day, Updated to the Latest Value on the Same Day). Recording again on the same Korean calendar date replaces that day's valuation. A morning and afternoon record for the same date produce one point.
+
+<br/>
+
+If you record KRW 10 million on the morning of October 9 and KRW 10.1 million in the afternoon, October 9 retains a single record for KRW 10.1 million. A new record on October 10 adds a second point. With one day of history, the chart shows one point and explains that a line will appear once you record again.
+
+<Toggle title="Do I have to press Record Today to save a valuation?">
+Saving portfolios or holdings and refreshing prices can also update today's valuation. Later saves and refreshes can therefore change a record already made on the same day.
+
+<br/>
+
+The app does not collect market close prices every day or fill in dates with no record. For regular comparisons, record at a similar time and follow the same checks.
+</Toggle>
+
+### 2.2. The Two Record Buttons
+
+The cash flow section also has a `기록` (Record) button. The buttons save different information.
+
+| Button | What it records | When to use it |
+| --- | --- | --- |
+| Record Today | Today's asset valuation | After checking holdings and prices |
+| Record in the cash flow section | Date, deposit or withdrawal amount, and memo | When you add or withdraw external funds |
+
+A cash flow entry leaves the cash balance and today's valuation as they were. The examples below show how the two records work together.
+
+## 3. Asset Trends by Portfolio
+
+Under `추이를 볼 포트` (Portfolio to View), choose what you want to see.
+
+- `전체 자산` (All Assets) shows the combined valuation of all registered assets, including unclassified ones.
+- `미분류` (Unclassified) shows assets that have yet to be assigned.
+- An individual portfolio shows the trend for a portfolio you created, such as U.S. Index or Cash.
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide8-desktop-port-20261009.webp" width={800} alt="Desktop asset trend with the U.S. Index portfolio selected"/>
+
+Mobile uses the same selector. After checking the overall amount, select a portfolio to see how its valuation moved.
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide8-mobile-port-20261009.webp" width={350} alt="Mobile valuation trend for the selected U.S. Index portfolio"/>
+
+### 3.1. Changes in Portfolio Value
+
+A portfolio's valuation can rise for several reasons. Prices may have risen, you may have bought more shares, or you may have reassigned an asset from another portfolio. Cash assignments and exchange rates also affect valuations.
+
+<br/>
+
+For example, assigning KRW 1 million in unclassified assets to the U.S. Index portfolio changes both portfolio totals while overall assets stay the same. **Read changes in portfolio value separately from investment gains.** Historical records capture assignments and valuations at the time. A reassignment today leaves earlier records intact.
+
+<Toggle title="Can I compare the slopes on the chart directly?">
+The chart places recorded points in order. The spacing from October 6 to 7 and from October 7 to 9 does not scale with the actual gaps. A line can span dates without records. Only the recorded dates have measured valuations.
+
+<br/>
+
+The vertical scale also adjusts to the amounts displayed, so a small change can look large. Check the start and end dates and latest valuation alongside the line.
+</Toggle>
+
+<Ads1/>
+
+## 4. Recording a Deposit
+
+Suppose you put KRW 1 million from this month's paycheck into an investment account you track. Record it as an external deposit so you can distinguish it from changes in the price of existing assets.
+
+<br/>
+
+Expand `입출금 기록` (Deposit and Withdrawal History) and fill in the form.
+
+- Select the date the money arrived. If that differs from today, enter the actual deposit date.
+- Choose `입금` (Deposit).
+- Enter `1000000` as the amount in won.
+- Add a memo if needed, such as `월 투자금` (Monthly Contribution).
+- Review the entry and tap `기록` (Record) to save it immediately.
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide8-desktop-deposit-20261009.webp" width={800} alt="Desktop deposit example with KRW 1 million and a monthly contribution memo"/>
+
+On mobile the fields are stacked. Check the date and direction, fill in the amount and memo, and tap `기록` (Record) below.
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide8-mobile-deposit-20261009.webp" width={350} alt="Mobile deposit form with a date, KRW 1 million amount, memo, and Record button"/>
+
+The screenshots show the form before saving. The record count is zero because no cash flow was added for the screenshots. Once you save your own entry, check that its date, memo, and amount appear in the list.
+
+### 4.1. Amounts in Korean Won
+
+Enter **amounts in Korean won**. If you deposit dollars and enter the dollar figure directly, the app interprets it as won. For a foreign-currency cash flow, determine the amount to record in won. You can include the original amount and conversion basis in the memo. The field does not convert foreign currency automatically.
+
+<br/>
+
+The memo is optional and limited to 120 characters. Use a short description you can recognize later, such as `10월 투자금` (October Contribution) or `생활비 인출` (Living Expenses Withdrawal).
+
+## 5. Recording a Withdrawal
+
+Suppose you withdraw KRW 200,000 for living expenses. Choose `출금` (Withdrawal) and enter `200000` as a positive amount.
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide8-desktop-withdrawal-20261009.webp" width={800} alt="Desktop example with a KRW 200,000 withdrawal and a living expenses memo"/>
+
+**Select Deposit or Withdrawal for direction and enter a positive amount.** The saved list shows deposits as positive and withdrawals as negative.
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide8-mobile-withdrawal-20261009.webp" width={350} alt="Mobile withdrawal example with KRW 200,000 and a living expenses memo"/>
+
+### 5.1. Correcting an Entry
+
+If the date, direction, or amount is wrong, delete the entry and record it again with the correct details. The list currently has no edit button. Identify the entry by date, memo, and amount before deleting.
+
+<Ybox>
+Deleting a cash flow can change net deposits and the change excluding net deposits for the same period. The screen has no undo, so confirm the date and amount first. Deleting the entry leaves actual cash balances and previously recorded valuations intact.
+</Ybox>
+
+## 6. What Counts as an External Cash Flow
+
+“If I move money from brokerage A to B, should I record both a withdrawal and a deposit?” The deciding factor is **which assets you track in PortRhythm**.
+
+<br/>
+
+If you track both accounts, the money simply moved within the tracked assets. Skip external cash flow entries for that transfer. If you transfer money from an untracked spending account into a tracked investment account, record an external deposit.
+
+| Movement | Cash flow entry |
+| --- | --- |
+| Untracked payroll account → tracked investment account | Deposit |
+| Tracked investment account → untracked spending account | Withdrawal |
+| Tracked investment account A → tracked investment account B | Internal movement |
+| Buy shares using tracked cash | Internal movement |
+| Sell shares and retain cash in the tracked account | Internal movement |
+
+Stock trades exchange cash and holdings within the tracked assets. Recording the trade itself as a cash flow can distort the adjustment. For dividends and fees, look beyond the transaction label and check whether any new funds came from outside what you track.
+
+### 6.1. Cash Balances and Cash Flow Records
+
+After depositing KRW 1 million, check two things separately.
+
+- The cash balance in Holdings. Reconcile it to the amount you actually hold.
+- The KRW 1 million entry in Deposit and Withdrawal History. This shows how much of the valuation change came from new money.
+
+<Bbox>
+If cash started at KRW 500,000 and you added KRW 1 million, the actual balance is KRW 1.5 million. Set cash in the app to KRW 1.5 million and record the KRW 1 million deposit separately. If you already updated the balance to KRW 1.5 million, leave it there. The cash flow record documents the movement without updating the balance.
+</Bbox>
+
+When transferring between tracked accounts, reconcile each account's cash to its actual balance. Internal movements still require updated holdings information.
+
+## 7. Three Change Metrics
+
+Three metrics appear under the `전체 자산` (All Assets) chart. The calculation needs records from at least two different dates. Multiple updates on one day still count as one date.
+
+<br/>
+
+Suppose the opening valuation is KRW 10 million and the closing valuation is KRW 11.5 million. During that period, you added KRW 1 million from outside and made no withdrawals.
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide8-cash-flow-example-20261009.webp" width={800} alt="A KRW 1.5 million valuation increase minus KRW 1 million in net deposits leaves a KRW 500,000 change excluding net deposits"/>
+
+### 7.1. Valuation Change Over the Recorded Period
+
+Subtract the opening valuation from the closing valuation. KRW 11.5 million minus KRW 10 million gives `+150만 원` (plus KRW 1.5 million). This is the total difference, including new contributions.
+
+### 7.2. Net Deposits Over the Same Period
+
+Subtract withdrawals in the period from deposits. A KRW 1 million deposit with no withdrawals gives `+100만 원` (plus KRW 1 million). If you also withdrew KRW 200,000, net deposits would be `+80만 원` (plus KRW 800,000). If withdrawals exceed deposits, net deposits are negative.
+
+### 7.3. Change Excluding Net Deposits
+
+Subtract net deposits from the valuation change. In the first example, KRW 1.5 million minus KRW 1 million gives `+50만 원` (plus KRW 500,000). It shows how much of the difference remains after excluding the new contribution.
+
+<br/>
+
+**Change excluding net deposits is a reference amount.** Read it as *a figure that helps explain the balance difference*. It neither calculates a percentage return nor isolates investment gains from corrections to holdings. Adding a previously omitted asset or correcting a quantity can change valuation without any new money. This figure also does not separate currency movements, dividends, or fees.
+
+<Toggle title="Can change excluding net deposits be positive after a withdrawal?">
+Suppose the opening valuation is KRW 10 million and the closing valuation is KRW 9.5 million. You withdrew KRW 1 million from the tracked assets and made no deposits.
+
+<br/>
+
+The valuation change is minus KRW 500,000 and net deposits are minus KRW 1 million. Subtracting the latter leaves plus KRW 500,000. The balance fell, but the difference after accounting for the withdrawal is positive. Use that figure as a reference and check what else changed.
+</Toggle>
+
+<Ads2/>
+
+## 8. How the Period Is Calculated
+
+“I recorded a deposit. Why are net deposits zero?” The first and last records for All Assets define the period. Some cash flows in the list may fall outside it. The current screen has no manual month selector.
+
+<br/>
+
+The calculation includes cash flows **from the day after the first record through the date of the last record**. It excludes the opening date and includes the closing date. If your first record is October 6 and your last is October 9, here's what counts.
+
+| Cash flow date | Example | Included in the period? |
+| --- | --- | --- |
+| October 6 | Deposit on the first record date | No |
+| October 7 | KRW 1 million deposit | Yes |
+| October 9 | KRW 200,000 withdrawal | Yes |
+| October 10 | Deposit after the last record | No |
+
+Net deposits are KRW 1 million minus KRW 200,000, or KRW 800,000. If the valuation rose by KRW 1.5 million, the change excluding net deposits is KRW 700,000. The list count includes entries outside the period, so check the amounts used in the calculation separately.
+
+<Ybox>
+The calculation uses calendar dates. A deposit made after recording the opening valuation on the same day is still excluded. Cash deposited or withdrawn after recording the closing valuation is included if it falls on the same date. The calculation does not account for the order of events within a day.
+</Ybox>
+
+<Toggle title="What should I check if a first-day deposit appears to be missing?">
+Check the actual deposit date and the point in time represented by the first balance instead of changing dates to make the figures match. If the first valuation already included the deposit, read later changes separately. If you deposited after recording the first valuation on the same day, the date-based calculation cannot reflect that sequence.
+
+<br/>
+
+Record valuations and cash flows as they occurred. If the date range does not fit the events, use other evidence to assess performance. The current screen does not let you select a past date and enter a replacement valuation.
+</Toggle>
+
+## 9. What to Record After Trading
+
+Start by aligning actual balances with the basis of your records. The following order helps keep valuations and cash movements separate.
+
+- Check what happened. Distinguish a trade from an internal transfer or an external deposit or withdrawal.
+- Reconcile quantities and cash to actual balances and save. See [Part 5, Dashboard and Holdings](https://www.promleeblog.com/blog/post/440-portrhythm-dashboard-holdings-guide) for how to check holdings.
+- If external money moved, record the actual date and amount. Leave trades and transfers between tracked accounts out of new contributions.
+- Check prices and exchange rates, then record today's valuation. Another record on the same day replaces it.
+- Read the overall date range and all three metrics together. For a specific portfolio, also check for reassignments or additional purchases.
+
+<br/>
+
+On a day with no cash flows, you can leave the list alone. If you skip several days, pick up from the next actual valuation you record. The chart can connect the recorded points across the gap.
+
+### 9.1. Frequently Asked Questions
+
+<Toggle title="Why didn't the chart add a point after I recorded several times today?">
+There is one valuation per day. Recording again replaces today's value. The next date's record adds a new point.
+</Toggle>
+
+<Toggle title="Why didn't total assets change after I recorded a deposit?">
+The deposit entry leaves the cash balance unchanged. Check whether you updated and saved the actual cash balance in Holdings. If you already did, leave it as is.
+</Toggle>
+
+<Toggle title="Why is change excluding net deposits missing?">
+Check that All Assets is selected. Individual portfolios and unclassified assets do not show the three period metrics. All Assets also needs records from at least two different dates.
+</Toggle>
+
+<Toggle title="Why did my valuation jump after I added an asset?">
+Adding an existing asset changes what the app tracks. Valuation can rise even if you added no new money. Keep that jump separate from investment performance and avoid entering an imaginary deposit to offset it. Make a note of the date the tracked assets changed for future comparisons.
+</Toggle>
+
+## Conclusion
+
+Asset History lets you record valuations and distinguish money added or withdrawn between them. That gives you more information about why the balance changed.
+
+<br/>
+
+Reconcile holdings and prices before recording today's valuation. Record only cash flows that cross the boundary of what you track. Then check the dates and use the change excluding net deposits as a reference amount.
+
+<br/>
+
+One accurate record is enough to start. As you add records, a single balance becomes a history you can follow. Check your current balances in [PortRhythm](https://pf.promleeblog.com) and make your first record.
+
+### References
+
+- [PortRhythm](https://pf.promleeblog.com)
+- [PortRhythm User Guide](https://pf.promleeblog.com/guide)
+- [PortRhythm User Guide 5 — Dashboard and Holdings](https://www.promleeblog.com/blog/post/440-portrhythm-dashboard-holdings-guide)
+- [PortRhythm User Guide 7 — Rebalancing](https://www.promleeblog.com/blog/post/442-portrhythm-rebalancing-guide)

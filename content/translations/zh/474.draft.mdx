@@ -1,0 +1,231 @@
+---
+title_en: Promecapt A Free Open Source Screenshot App for macOS
+title_ko: 무료 오픈소스 macOS 캡처 앱 Promecapt
+url: promecapt-open-source-macos-capture
+series_no: 1
+desc: >-
+  무료 오픈소스 macOS 캡처 앱 Promecapt를 소개합니다. Snipaste·Shottr·CleanShot X 등 캡처 프로그램의
+  대안으로 캡처·주석·OCR·GIF 녹화·화면 고정과 도구 커스텀을 정리했습니다. 개인·회사 무료 사용과 실제 사용 화면, 설치 방법도
+  안내합니다.
+thumbnail_url: /promecapt-toolbar-1110-20261103.webp
+metatag: >-
+  Snipaste 대안, Promecapt, macOS 캡처, 맥 스크린샷, 오픈소스, 무료 캡처 프로그램, 화면 고정, 주석, OCR,
+  GIF 녹화, Apple Silicon, Intel Mac, Shottr 대안, CleanShot X 대안
+tags: 'Mac, Git Github'
+post_id: '474'
+locale: zh
+title: Promecapt：免费的开源 macOS 截图应用
+description: 介绍 Promecapt 的截图、标注、OCR、GIF 录制、图片置顶和工具栏设置，以及个人和企业免费使用的条件、界面示例与安装方法。
+source_hash: 36ff1273428ab2afddc21a60c30a837b5db19f6e0611a8cbe34b5c280378f39d
+---
+<style>.pm-features&#123;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:36px;row-gap:28px;margin:28px 0 32px&#125;.pm-label&#123;font-size:12px;letter-spacing:.04em;opacity:.65;margin-bottom:7px&#125;.pm-feature-title&#123;font-size:19px;font-weight:700;line-height:1.5;margin-bottom:8px&#125;.pm-copy&#123;font-size:14px;line-height:1.9&#125;.pm-shortcuts&#123;display:flex;flex-wrap:wrap;column-gap:24px;row-gap:10px;margin:22px 0;font-size:13px&#125;.pm-shortcuts kbd&#123;font-family:inherit;font-weight:700&#125;.pm-shortcuts span&#123;margin-left:8px;opacity:.75&#125;.pm-specs&#123;display:grid;grid-template-columns:9em minmax(0,1fr);column-gap:20px;row-gap:12px;margin:26px 0;line-height:1.8&#125;.pm-specs dt&#123;font-weight:700&#125;.pm-specs dd&#123;margin:0&#125;.pm-downloads&#123;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:30px;margin:28px 0 20px&#125;.pm-figure&#123;margin:28px 0 36px;max-width:100%&#125;.pm-figure img&#123;max-width:100%;height:auto&#125;.pm-faq details&#123;padding:12px 0&#125;.pm-faq summary&#123;cursor:pointer;font-weight:700;line-height:1.8&#125;.pm-faq details>div&#123;padding:10px 0;line-height:1.9&#125;@media(max-width:540px)&#123;.pm-features&#123;grid-template-columns:minmax(0,1fr);row-gap:24px&#125;.pm-specs&#123;grid-template-columns:minmax(0,1fr);gap:4px&#125;.pm-specs dd&#123;margin-bottom:12px&#125;.pm-downloads&#123;column-gap:20px&#125;.pm-feature-title&#123;font-size:18px&#125;&#125;</style>
+
+## 开始之前
+
+如果你正在找一款免费的 Mac 截图工具，可以试试 **Promecapt**。
+它可以为截图添加箭头和说明，也可以将参考图片置顶。
+应用还支持 OCR 和 GIF 录制。
+<br/>
+**这是我开发的应用。我公开了源代码和安装包，个人与企业均可免费使用。**
+无须付费订阅或注册账号。
+如果你在比较 [Snipaste](https://www.snipaste.com/)、[Shottr](https://shottr.cc/) 和 [CleanShot X](https://cleanshot.com/) 等截图工具，也可以看看这个采用 [MIT 许可证](https://github.com/PROMLEE/promecapt/blob/v1.1.10/LICENSE)的开源选项。
+
+**[下载 Promecapt](https://github.com/PROMLEE/promecapt/releases/latest)** · [源代码](https://github.com/PROMLEE/promecapt)
+
+macOS 13 或更高版本 · Apple Silicon / Intel
+
+## 主要功能
+
+<div className="pm-features" aria-label="主要功能">
+  <section>
+    <div className="pm-label">截图与标注</div>
+    <div className="pm-feature-title">直接标出需要说明的部分</div>
+    <div className="pm-copy">截图后可以添加箭头、形状、文字和编号，再复制截图。适合分享报错画面或操作步骤。</div>
+  </section>
+  <section>
+    <div className="pm-label">图片置顶</div>
+    <div className="pm-feature-title">让参考图留在屏幕上</div>
+    <div className="pm-copy">将图片或 GIF 固定在其他窗口上方，方便对照设计稿实现功能，也方便比较两个画面。</div>
+  </section>
+  <section>
+    <div className="pm-label">OCR</div>
+    <div className="pm-feature-title">把图片中的文字转成文本</div>
+    <div className="pm-copy">识别整张截图或选定区域内的韩文和英文。识别结果可以编辑，按 ⌘C 复制后窗口会关闭。</div>
+  </section>
+  <section>
+    <div className="pm-label">GIF 录制</div>
+    <div className="pm-feature-title">录下简短操作并分享</div>
+    <div className="pm-copy">可以把问题复现过程或动画录成 GIF。录制后支持播放、复制、置顶和保存。</div>
+  </section>
+</div>
+
+支持的功能和适用范围见 [1.1.10 功能列表](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/FEATURES.md)。
+
+## 为截图添加说明并分享
+
+分享报错画面或操作步骤时，先拖选区域，或选择自动识别到的窗口、界面元素，再添加**画笔、荧光笔、形状、箭头、文字和编号**。
+已添加的标注可以重新选中并修改。即使开启自动选择，当前绘图工具也会保留，方便继续标注。
+在遮挡工具中选择马赛克、模糊或不透明黑框，用滚轮或输入数值调整粗细和强度。
+具体操作见[使用指南](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/USAGE.md)。
+
+<figure className="pm-figure">
+<Img src="/promecapt-toolbar-1110-20261103.webp" width="750" alt="选中区域调整工具后，工具栏第二行显示像素尺寸输入框"/>
+</figure>
+
+<div className="pm-shortcuts" aria-label="截图快捷键">
+  <div><kbd>Shift</kbd> + 拖动 <span>正方形</span></div>
+  <div><kbd>⌘</kbd> + 拖动 <span>保持原有比例</span></div>
+  <div><kbd>⌘C</kbd> <span>复制</span></div>
+  <div><kbd>⌘Enter</kbd> <span>置顶</span></div>
+</div>
+
+### 设置工具栏
+
+**可以自行选择显示哪些按钮，并调整它们的顺序。**
+在“设置 → 工具”中拖动条目，或用上移、下移按钮调整，改动会立即生效。
+第一行显示工具按钮，颜色、粗细和遮挡选项只在需要时显示在第二行。
+尺寸输入框只在使用区域调整工具时显示，隐藏的功能仍可在“全部工具” `…` 中找到。
+开启**记住上次截图工具**后，下次截图会使用上次手动选择的工具。
+该选项默认关闭。
+[工具排序和选项布局说明](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/USAGE.md#tool-order-and-adaptive-options--119)
+
+<figure className="pm-figure">
+<Img src="/promecapt-tool-order-1110-20261103.webp" width="500" alt="在工具设置中通过复选框控制显示，通过拖动或上移、下移按钮调整顺序"/>
+</figure>
+
+需要完全遮住敏感内容时，请选择**不透明黑框**。
+马赛克和模糊用于视觉遮挡。
+
+<Ads1/>
+
+## 历史记录、OCR 与图片置顶
+
+### 历史截图与周边画面
+
+截图时，用 `,` 和 `.` 查看上一条或下一条记录。
+调出历史记录后，**选取的图片会与截图时的周边画面一起显示**。
+历史记录也会保存整块显示器的画面。处理过敏感资料后，请检查保留设置和清除历史记录选项。
+[历史记录与本地存储说明](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/USAGE.md#privacy--storage)
+
+### 复制 OCR 结果
+
+点击 OCR 按钮或按 `O`，即可识别**整张当前截图**。
+无须重新拖选小区域。如果只想识别一部分，可以按 `Shift+O`，或按住 Option 点击 OCR 按钮。
+结果可以编辑。按 `⌘C` 会复制选中的文字，没有选中文字时会全部复制。
+**点击全部复制按钮后，窗口也会关闭。**
+韩文和英文识别在 Mac 本地完成。
+[1.1.10 OCR 更新](https://github.com/PROMLEE/promecapt/releases/tag/v1.1.10)
+
+### 对照设计稿或文档工作
+
+可以将图片或 GIF 固定在其他窗口上方。
+拖动置顶图片可移动位置，滚动鼠标滚轮可缩放，按住 `Ctrl` 滚动可调整透明度。
+对于静态图片，按 `Space` 可以继续编辑标注。
+[置顶图片操作指南](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/USAGE.md#quick-start)
+
+## GIF 录制
+
+录制区域以红色虚线和区域外的浅色阴影标出。
+停止后，可以在结果窗口中选择**播放、复制、置顶或保存**。
+在 1.1.10 中，停止录制的控制窗口会放在录制区域所在的显示器上。
+[最新版本说明](https://github.com/PROMLEE/promecapt/releases/tag/v1.1.10)
+
+<figure className="pm-figure">
+<Img src="/promecapt-gif-settings-20261102.webp" width="500" alt="GIF 设置可选帧率、分辨率、最长录制时间以及是否包含光标"/>
+</figure>
+
+<dl className="pm-specs">
+  <dt>帧率</dt><dd>5 · 10 · 15 · 20 · 25 · 30fps</dd>
+  <dt>分辨率</dt><dd>长边 640 · 1280 · 1920px 或原始像素</dd>
+  <dt>最长录制时间</dt><dd>15 · 30 · 60 秒</dd>
+  <dt>鼠标光标</dt><dd>可选择是否包含</dd>
+</dl>
+
+*录制期间不支持标注，也不支持编辑 GIF 帧或录制音频。*
+每次录制限于一块显示器，Promecapt 窗口不会被录入。
+画面变化较少时，帧数可能减少。临时帧占用达到 256MiB 时，录制会停止。
+复制的 GIF 能否播放动画，取决于粘贴到的应用。
+[GIF 功能支持范围](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/USAGE.md#gif-recording)
+
+<Ads2/>
+
+## 下载与首次运行
+
+<div className="pm-downloads">
+  <div><div className="pm-feature-title">Apple Silicon</div><div className="pm-copy">M 系列芯片 Mac</div><a href="https://github.com/PROMLEE/promecapt/releases/download/v1.1.10/Promecapt-1.1.10-macos-arm64.dmg">下载 DMG</a></div>
+  <div><div className="pm-feature-title">Intel</div><div className="pm-copy">Intel 处理器 Mac</div><a href="https://github.com/PROMLEE/promecapt/releases/download/v1.1.10/Promecapt-1.1.10-macos-x86_64.dmg">下载 DMG</a></div>
+</div>
+
+[所有安装包与版本说明](https://github.com/PROMLEE/promecapt/releases/latest)
+
+- **下载 DMG**，选择与 Mac 芯片匹配的文件。
+- **移到应用程序文件夹**，打开 DMG 后将 Promecapt 拖入 Applications。
+- **运行并授权**，推出磁盘映像后，从应用程序文件夹启动 Promecapt。
+
+<figure className="pm-figure">
+<Img src="/promecapt-dmg-install-20261102.webp" width="500" alt="将 Promecapt 拖到 Applications 文件夹的 DMG 安装界面"/>
+</figure>
+
+### 允许应用在 macOS 上运行
+
+*当前发布的安装包尚未经 Apple 公证。*
+如果打开官方安装包中的应用时被拦截，点击“完成”，再到**系统设置 → 隐私与安全性 → 仍要打开**，允许 Promecapt 运行。
+在确认窗口中核对应用名称，再打开应用。
+[Apple 关于打开下载的应用的说明](https://support.apple.com/en-us/102445)
+
+<figure className="pm-figure">
+<Img src="/promecapt-open-anyway-20261102.webp" width="500" alt="在隐私与安全性中为 Promecapt 选择仍要打开的位置"/>
+</figure>
+
+按应用提示授予屏幕录制和辅助功能权限。
+通过辅助功能识别应用内的界面元素，取决于目标应用提供的辅助功能信息。
+如果自动识别的范围过于细致，可以在“设置 → 截图”中调整**自动区域识别范围**。
+[韩文安装与权限指南](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/INSTALL.ko.md)
+
+### 常见问题
+
+<div className="pm-faq">
+  <details>
+    <summary>企业也能免费使用吗？</summary>
+    <div>可以。个人、企业和商业用途均可按 MIT 许可证免费使用。分发和修改条件见 <a href="https://github.com/PROMLEE/promecapt/blob/v1.1.10/LICENSE">LICENSE</a>。</div>
+  </details>
+  <details>
+    <summary>默认截图快捷键是什么？如何设置 F1？</summary>
+    <div>默认截图快捷键为 ⌥⌘1。在“设置 → 快捷键”中可以选用 F1、F3 或 F4 预设，也可以指定其他组合。功能键处于亮度控制模式时，请使用 Fn+F1。截图期间按 H 可折叠或展开快捷键提示。</div>
+  </details>
+  <details>
+    <summary>更新后权限会保留吗？</summary>
+    <div>发布版本沿用相同的固定证书和应用标识符。第一次从旧签名方式迁移，或 macOS 权限状态出现问题时，可能需要重新授予权限。请参阅<a href="https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/INSTALL.ko.md">权限故障排查指南</a>。</div>
+  </details>
+  <details>
+    <summary>如何手动或自动更新？</summary>
+    <div>可以在应用中手动检查更新，也可以选择自动更新。应用运行期间每 24 小时自动检查一次，支持自动下载、安装和重新启动。<a href="https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/AUTO-UPDATE.md">更新说明</a></div>
+  </details>
+  <details>
+    <summary>截图或 OCR 结果会发送到服务器吗？</summary>
+    <div>截图与 OCR 均在 Mac 本地处理，应用没有图片上传或分析数据收集功能。历史记录也会在本地保存整块显示器的画面，用于恢复截图周围的内容。<a href="https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/USAGE.md#privacy--storage">查看存储范围</a></div>
+  </details>
+</div>
+
+## 试用 Promecapt
+
+如果经常需要标注并分享截图，或者把参考画面留在屏幕上，可以试试 Promecapt。
+个人和企业都可以免费使用，源代码也已公开。
+如果遇到不便或有功能需求，欢迎在 [Issues](https://github.com/PROMLEE/promecapt/issues) 中反馈。
+
+**[下载最新版本](https://github.com/PROMLEE/promecapt/releases/latest)** · [GitHub](https://github.com/PROMLEE/promecapt)
+
+<small>本文以 1.1.10 为准。工具栏和设置图片是该版本的应用界面渲染图，GIF 设置和安装界面则截自较早的发布版本。</small>
+
+### 参考资料
+
+- [Promecapt 1.1.10 发行版](https://github.com/PROMLEE/promecapt/releases/tag/v1.1.10)
+- [功能列表](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/FEATURES.md)
+- [使用指南](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/USAGE.md)
+- [安装与权限说明](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/INSTALL.ko.md)
+- [自动更新说明](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/AUTO-UPDATE.md)
+- [MIT 许可证](https://github.com/PROMLEE/promecapt/blob/v1.1.10/LICENSE)
+- [Snipaste 官方介绍](https://www.snipaste.com/)
+- [Shottr 官方介绍](https://shottr.cc/)
+- [CleanShot X 官方介绍](https://cleanshot.com/)
+- [Apple 关于打开下载的应用的说明](https://support.apple.com/en-us/102445)

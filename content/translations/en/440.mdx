@@ -1,0 +1,410 @@
+---
+post_id: '440'
+locale: en
+title: PortRhythm User Guide 5 — Dashboard and Holdings
+description: >-
+  Walk through the dashboard and holdings on desktop and mobile. Learn how total
+  valuation, total and daily returns, cash, and exchange rates are calculated.
+  Sort and search positions, inspect accounts, edit quantities and cost basis,
+  and check price sources and refresh times.
+source_hash: c030bcc73770fa976137cf9d7f9a7ea7ccaccb56c55ed479c8fdddf15ab1bf74
+reviewed_at: '2026-11-08T04:04:05.586Z'
+---
+## Before We Begin
+
+> “I've added my assets. What is this return figure based on?”
+
+After [Part 4, Asset Assignment](https://www.promleeblog.com/blog/post/439-portrhythm-asset-assignment-guide), each asset has a portfolio. Now use the dashboard to review valuations and gains or losses.
+
+<br/>
+
+Start with the largest figure. Check how much you hold, then which baseline the app uses to measure the change. Open any holding you want to inspect.
+
+<br/>
+
+<Bbox>
+
+The goal is to read your valuations and gains or losses and edit holdings when necessary. Open the app and follow along with one security to connect the figures to the screen.
+
+</Bbox>
+
+[Open PortRhythm](https://pf.promleeblog.com)
+
+The screenshots show sample assets in a test account. Quotes vary with the time they were fetched, so the examples below use figures separate from the screenshots.
+
+<br/>
+
+## 1. Dashboard
+
+The dashboard combines assets held in different places. On desktop, choose `대시보드` (Dashboard) on the left. On mobile, tap `자산` (Assets) at the bottom.
+
+<Img src="/portrhythm-guide5-desktop-dashboard-20261008.webp" width={800} alt="Desktop dashboard showing total valuation, total gains and losses, and the securities list"/>
+
+Read the screen in three steps.
+
+- **Total valuation.** The value of registered assets at the prices and exchange rate currently used.
+- **Total return or daily return.** Choose whether to compare against purchase prices or previous closing prices.
+- **Holdings list.** Review values and gains or losses by security and select a name to open details.
+
+On desktop, portfolio weights also appear on the right. Part 6 covers how to compare current and target weights.
+
+<br/>
+
+### 1.1 Mobile Screen
+
+On mobile, the valuation and securities list come first. Tap `전체 수익 / 일간 수익` (Total Return / Daily Return) below the headline figure to switch the summary and investment rows together.
+
+<Img src="/portrhythm-guide5-mobile-dashboard-20261008.webp" width={350} alt="Mobile dashboard showing daily gains and losses and the asset list"/>
+
+Scroll down for `손익 집계 기준` (Gains and Losses Calculation Basis) and the latest quote check time. These show which data the calculation used.
+
+<br/>
+
+## 2. Total Valuation
+
+**Total valuation combines registered assets in Korean won.** It includes stocks, ETFs, crypto, and manually entered cash and other assets.
+
+| Asset | Valuation method |
+| --- | --- |
+| Korean stocks and ETFs | Current price × quantity |
+| U.S. stocks and ETFs | Current dollar price × quantity × applied exchange rate |
+| Crypto | Bithumb price in won × quantity |
+| Cash and other assets in won | Amount entered in won |
+| Cash and other assets in dollars | Amount entered in dollars × applied exchange rate |
+
+KRW 120,000 in stocks and KRW 80,000 in cash gives a total valuation of KRW 200,000. The amount invested and cumulative deposits are separate figures.
+
+<br/>
+
+### 2.1 Cash and Exchange Rates
+
+Cash counts toward total valuation. Manually entered cash and other assets do not have investment gains or losses calculated from a purchase price.
+
+<br/>
+
+U.S. stocks and dollar cash are converted to won using the automatic or manual rate selected in Target Design. Even if the dollar price is steady, a change in the applied rate can move the won valuation.
+
+<Ybox>
+
+The total return denominator is the purchase cost of eligible stocks and crypto. Cash can count toward the total valuation while remaining outside this denominator.
+
+</Ybox>
+
+<br/>
+
+## 3. Total Return and Daily Return
+
+**The two buttons change the comparison baseline.** Total return uses the average purchase price. Daily return uses each market's previous close.
+
+### 3.1 Total Return
+
+Total gains and losses show how far the value of currently held stocks and crypto has moved relative to the purchase price.
+
+- Total gain or loss = (current price − average purchase price) × quantity
+- Total return = total gain or loss ÷ purchase cost × 100
+
+The average purchase price is the average cost of a share or coin. A holding with no purchase price has no calculable gain or loss.
+
+<br/>
+
+To combine multiple assets, add the gains and losses that can be verified and divide by their combined purchase cost. This weights the result by cost.
+
+<br/>
+
+### 3.2 Daily Return
+
+Daily gains and losses apply the price movement from each market's previous close to the quantity you currently hold.
+
+- Daily gain or loss = (current price − previous close) × quantity
+- Daily return = daily gain or loss ÷ position value at the previous close × 100
+
+The calculation includes only assets with both prices available. An indicator such as `전일 종가 확인 2/2개` (Previous Close Available for 2 of 2 Assets) shows the coverage.
+
+<Img src="/portrhythm-guide5-desktop-daily-20261008.webp" width={800} alt="Summary and individual security gains and losses change together when Daily Return is selected"/>
+
+*Daily gains and losses can differ from what the account actually gained or lost since midnight in Korea.* Markets close at different times, and this calculation excludes intraday trades and cash flows.
+
+<br/>
+
+### 3.3 Comparing the Same Ten Shares
+
+Suppose you hold ten shares with an average purchase price of KRW 10,000, a previous close of KRW 11,500, and a current price of KRW 12,000.
+
+| Metric | Calculation | Result |
+| --- | --- | --- |
+| Valuation | KRW 12,000 × 10 shares | KRW 120,000 |
+| Total gain | (KRW 12,000 − KRW 10,000) × 10 shares | +KRW 20,000 |
+| Total return | KRW 20,000 ÷ KRW 100,000 | +20% |
+| Daily gain | (KRW 12,000 − KRW 11,500) × 10 shares | +KRW 5,000 |
+| Daily return | KRW 5,000 ÷ KRW 115,000 | About +4.35% |
+
+Total return shows the change from purchase price. Daily return shows the change from the previous close. Switching views keeps the valuation at KRW 120,000.
+
+<br/>
+
+Adding KRW 80,000 in cash raises total valuation to KRW 200,000. In this example the total gain stays at KRW 20,000 and the total return stays at 20%.
+
+<br/>
+
+<Toggle title="Why does my brokerage show a different return?">
+
+PortRhythm's total gain or loss is the unrealized gain or loss on current holdings. An account's cumulative return can also include realized gains and losses, dividends, fees, and taxes.
+
+For U.S. stocks, the difference between the current dollar price and the purchase price in dollars is converted at the current applied rate. Gains or losses caused by the exchange rate changing since the purchase are excluded. Daily gains and losses also use price movements and exclude cash and currency movements.
+
+If figures differ, align quantities, average purchase prices, quote times, and the scope of the calculation first.
+
+</Toggle>
+
+<Ads1/>
+
+<br/>
+
+## 4. Securities List and Sorting
+
+The dashboard list is divided into `투자` (Investments) and `현금·기타` (Cash and Other). Investments includes stocks, ETFs, and crypto. Cash and Other contains manually entered assets.
+
+<br/>
+
+Each row shows the name, ticker, quantity, and value. Investment gains and losses follow the total or daily setting above.
+
+<br/>
+
+### 4.1 Sort Options
+
+Choose an order above the list.
+
+- `평가액 높은순 / 낮은순` (Valuation High to Low / Low to High). Sort by position value.
+- `손익 높은순 / 낮은순` (Gain or Loss High to Low / Low to High). Sort by the amount gained or lost under the selected baseline.
+- `수익률 높은순 / 낮은순` (Return High to Low / Low to High). Sort by percentage return.
+- `이름순` (By Name). Sort by the security name.
+
+The amount gained or lost shows how much the holding contributes to the overall result. The return shows how far it moved relative to purchase cost or previous-close value. A high return on a small holding can have little effect on the total.
+
+<br/>
+
+Holdings with unavailable gains or losses appear last. When sorting by gains and losses or returns, Cash and Other entries are shown in descending valuation order.
+
+<br/>
+
+The browser remembers the total or daily selection and sort order for each login. If the numbers look unfamiliar after navigation or refresh, check the active selections first.
+
+<br/>
+
+### 4.2 Combining the Same Security
+
+The dashboard groups stocks that share a market, exchange, and ticker. If you have three Apple shares in account A and seven in account B, the dashboard shows ten.
+
+<br/>
+
+Open the details to see the account breakdown. Securities with the same name but different exchanges or tickers appear separately.
+
+<Toggle title="How is the average purchase price across accounts calculated?">
+
+The average is weighted by quantity. If account A holds three shares bought at USD 100 each and B holds seven bought at USD 200 each, the total purchase cost is USD 1,700. Dividing by ten gives an average of USD 170 per share.
+
+An unweighted average of the two prices gives USD 150. If an account has no purchase price, the combined gain or loss is incomplete. Check the price for that account.
+
+</Toggle>
+
+<br/>
+
+## 5. Searching Holdings
+
+To see stocks by account, open `보유 자산` (Holdings). Use the left menu on desktop or `전체` (All) → `보유 자산` (Holdings) from the bottom menu on mobile.
+
+<Img src="/portrhythm-guide5-desktop-holdings-20261008.webp" width={800} alt="Desktop Holdings screen with market filters, search, and stock positions by account"/>
+
+This screen shows stocks and ETFs by account. Check crypto and cash on the dashboard.
+
+### 5.1 Market Filters and Search
+
+- Select `전체 / 국내 / 미국` (All / Korea / U.S.) to filter by market.
+- Search by name, ticker, or brokerage. Try Apple, AAPL, or the name of a registered brokerage.
+- Choose the security name to open the position in that account.
+
+Mobile uses cards instead of a wide table. Each card shows quantity, price, valuation, and gain or loss from top to bottom.
+
+<Img src="/portrhythm-guide5-mobile-holdings-20261008.webp" width={350} alt="Search field and stock card in mobile Holdings"/>
+
+<br/>
+
+### 5.2 Display Currency
+
+The dashboard combines values in won. Holdings shows U.S. stocks in dollars. If the same security appears to have a different value, check the currency first.
+
+| Screen | Scope | Currency |
+| --- | --- | --- |
+| Dashboard | Stocks, crypto, cash, and other assets | Converted to won |
+| Holdings | Stocks and ETFs by account | Won for Korean listings and dollars for U.S. listings |
+| Asset Details | Selected asset or combined position | Valuation in won, current and purchase prices in the asset's currency |
+
+Gains and losses in Holdings use purchase prices. Choosing Daily Return on the dashboard leaves the Holdings basis unchanged.
+
+<br/>
+
+The dashboard and Holdings share the sort setting. When sorting all markets by amount, Holdings sorts within each market to avoid comparing won amounts directly with dollar amounts.
+
+<br/>
+
+## 6. Asset Details
+
+Select an asset on the dashboard or a name in Holdings to open the details. Use this screen to compare inputs and prices when a figure looks unexpected.
+
+<Img src="/portrhythm-guide5-desktop-detail-20261008.webp" width={800} alt="Stock details with valuation, quantity, current price, and positions by account"/>
+
+### 6.1 Detail Fields
+
+- `평가 금액` (Valuation). The value in won at the current price.
+- `보유 수량` (Quantity). The number of shares or coins.
+- `현재가` (Current Price). The price of one share or coin.
+- `평균 매입단가` (Average Purchase Price). The average cost of one share or coin.
+- `평가손익` (Unrealized Gain or Loss). The gain or loss on the current position against its average purchase price.
+
+**Asset Details uses the purchase price to calculate gains and losses.** It shows the total unrealized gain or loss even when opened from the dashboard's Daily Return view.
+
+<br/>
+
+Current and purchase prices for U.S. stocks are shown in dollars. A crypto purchase price is in won per coin. For cash and other assets, check the entered amount and valuation basis.
+
+<br/>
+
+### 6.2 Positions by Account
+
+Under `계좌별 보유` (Holdings by Account), check the brokerage, account name, quantity, and average purchase price. If you opened a combined dashboard position, this list breaks it down by account.
+
+<br/>
+
+Opening an account-specific entry from Holdings shows that account's details. The scope can vary for the same ticker depending on where you opened it.
+
+<Img src="/portrhythm-guide5-mobile-detail-20261008.webp" width={350} alt="Mobile stock details with purchase price and account-level edit controls"/>
+
+Tap `← 이전 화면` (Previous Screen) to return to the list. Check the account name as well as the security before changing the quantity.
+
+<Ads2/>
+
+<br/>
+
+## 7. Editing Holdings
+
+After a purchase or partial sale, update quantity and average purchase price to reflect the actual balance. Refreshing prices leaves quantities unchanged.
+
+### 7.1 Editing Stocks
+
+In the stock details, open `계좌별 보유` (Holdings by Account) and choose `수정` (Edit) for the relevant account. The form opens below on the same screen.
+
+<Img src="/portrhythm-guide5-desktop-edit-20261008.webp" width={800} alt="Quantity and average purchase price editor below stock details"/>
+
+- Enter your current total in `보유 수량` (Quantity). If you had ten shares and bought two, enter twelve.
+- In `평균 매입단가` (Average Purchase Price), enter the average per share from the brokerage, in dollars for U.S. shares and won for Korean shares.
+- Check the values and tap `저장` (Save). The position is saved and its valuation and gains or losses refresh on the same screen.
+
+Tap `취소` (Cancel) to abandon the edit. On mobile, tap the account's `수정` (Edit) and scroll down to the same form.
+
+<br/>
+
+### 7.2 Crypto and Cash
+
+For crypto, cash, and other assets, select `자산 수정` (Edit Asset) in the details. Available fields depend on the asset type.
+
+| Asset | Editable values | Input basis |
+| --- | --- | --- |
+| Crypto | Quantity and average purchase price | Number of coins and purchase price in won per coin |
+| Cash and other assets in won | Asset name and won amount | Current balance in won |
+| Cash and other assets in dollars | Asset name and dollar amount | Dollar balance before conversion |
+
+If 0.01 BTC cost KRW 1 million in total, the price per coin is KRW 100 million. Enter 0.01 for quantity and 100,000,000 for average purchase price.
+
+<br/>
+
+For cash, enter the current balance. If you hold USD 500, check the field currency and enter the dollar amount directly.
+
+<br/>
+
+<Bbox>
+
+If you do not know the purchase price, leave it blank until you can confirm it. The app can value the holding using available prices and quantities while keeping its gain or loss unknown.
+
+</Bbox>
+
+### 7.3 Editing Other Information
+
+Use these paths for information other than quantity and purchase price.
+
+- Ticker and exchange. Go to `자산 수정` (Edit Assets) → `이 종목 수정` (Edit This Security) → `종목코드 확인·변경` (Verify or Change Ticker).
+- Portfolio assignment. Change and save it under `자산 배정` (Asset Assignment). See [Part 4, Asset Assignment](https://www.promleeblog.com/blog/post/439-portrhythm-asset-assignment-guide).
+
+The `저장` (Save) button in the details form saves the individual position immediately. Target Design and Asset Assignment have separate save controls for their own settings.
+
+<br/>
+
+## 8. Price Sources and Refreshing
+
+If quantity and purchase price are correct but the value differs, check the price source and time. Under the current price, Holdings shows whether it comes from Korea Investment & Securities or the balance screenshot.
+
+<br/>
+
+Use `가격·환율 기준 보기` (View Price and Exchange Rate Basis) below the dashboard to check which prices and rates are used. On mobile, also check `손익 집계 기준` (Gains and Losses Calculation Basis) and the latest quote time below the list.
+
+<Img src="/portrhythm-guide5-desktop-price-20261008.webp" width={800} alt="Price and exchange rate basis and latest quote check time below the dashboard"/>
+
+### 8.1 Checking Prices
+
+- Select `가격 갱신` (Refresh Prices). On the mobile dashboard, tap the refresh icon next to total valuation.
+- Check the current price and latest check time. If a fetch is in progress, wait for the result.
+- If a screenshot price persists, check the ticker and exchange against the security you actually hold.
+- If daily gains and losses are blank, check whether the previous close is available. A valuation price alone may be insufficient for daily gains and losses.
+
+If a fresh API quote is unavailable, the app can use a previously checked or screenshot price. Use the source and time to determine whether a displayed quote was just fetched.
+
+<br/>
+
+### 8.2 Refresh Behavior
+
+While the screen is open and active, the app attempts to refresh stocks about every five minutes and Bithumb crypto about every minute. Fetch time can differ from the exchange's actual trade time.
+
+<br/>
+
+**Refresh Prices fetches quotes.** Enter or update quantities and cash yourself after buying or selling at the brokerage.
+
+<br/>
+
+## 9. Frequently Asked Questions
+
+<Toggle title="Why is my total gain positive but daily gain negative?">
+
+The current price can be above the purchase price and below the previous close. If you bought at KRW 10,000, yesterday's close was KRW 12,000, and the current price is KRW 11,800, the total gain is positive and the daily figure is negative. Each uses a different baseline.
+
+</Toggle>
+
+<Toggle title="Why can I see the asset but no gain or loss?">
+
+Total gains and losses need the average purchase price and a price. Daily gains and losses need the current API quote and the previous close. Check whether the data for the selected calculation is available.
+
+`조회 중` (Fetching) means the app is waiting for data. `정보 없음` (No Data) means it could not obtain the required information. A blank result means the amount is unknown. Manually entered cash and other assets do not have investment gains or losses calculated.
+
+</Toggle>
+
+<Toggle title="Why do the dashboard and Holdings show different quantities?">
+
+The dashboard combines matching stocks, while Holdings shows positions by account. Add the account quantities and compare the sum with the dashboard.
+
+If the total still differs, check for duplicate entries in the same account or different ticker and exchange registrations.
+
+</Toggle>
+
+<br/>
+
+## Conclusion
+
+Start with total valuation to see the size of your assets, choose a total or daily baseline, then open one security to check quantity and purchase price.
+
+When figures differ, check **currency → calculation scope → quantity and price inputs → quote time**.
+
+Once values and holdings match, you can see which portfolios are above or below target. Part 6 covers comparing current and target weights.
+
+### References
+
+- [PortRhythm](https://pf.promleeblog.com)
+- [Part 3, Adding Stocks, ETFs, Crypto, and Cash](https://www.promleeblog.com/blog/post/438-portrhythm-asset-registration-guide)
+- [Part 4, Asset Assignment and Automatic Classification](https://www.promleeblog.com/blog/post/439-portrhythm-asset-assignment-guide)

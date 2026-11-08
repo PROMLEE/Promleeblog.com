@@ -1,0 +1,219 @@
+---
+title_en: Promecapt A Free Open Source Screenshot App for macOS
+title_ko: 무료 오픈소스 macOS 캡처 앱 Promecapt
+url: promecapt-open-source-macos-capture
+series_no: 1
+desc: >-
+  무료 오픈소스 macOS 캡처 앱 Promecapt를 소개합니다. Snipaste·Shottr·CleanShot X 등 캡처 프로그램의
+  대안으로 캡처·주석·OCR·GIF 녹화·화면 고정과 도구 커스텀을 정리했습니다. 개인·회사 무료 사용과 실제 사용 화면, 설치 방법도
+  안내합니다.
+thumbnail_url: /promecapt-toolbar-1110-20261103.webp
+metatag: >-
+  Snipaste 대안, Promecapt, macOS 캡처, 맥 스크린샷, 오픈소스, 무료 캡처 프로그램, 화면 고정, 주석, OCR,
+  GIF 녹화, Apple Silicon, Intel Mac, Shottr 대안, CleanShot X 대안
+tags: 'Mac, Git Github'
+post_id: '474'
+locale: en
+title: 'Promecapt: A Free, Open-Source Screenshot App for macOS'
+description: >-
+  Meet Promecapt, a free macOS alternative to Snipaste, Shottr, and CleanShot X
+  with annotation, OCR, GIF recording, pinned images, and a customizable
+  toolbar. See installation steps and screenshots.
+source_hash: 36ff1273428ab2afddc21a60c30a837b5db19f6e0611a8cbe34b5c280378f39d
+reviewed_at: '2026-11-07T17:41:41.809Z'
+---
+<style>.pm-features&#123;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:36px;row-gap:28px;margin:28px 0 32px&#125;.pm-label&#123;font-size:12px;letter-spacing:.04em;opacity:.65;margin-bottom:7px&#125;.pm-feature-title&#123;font-size:19px;font-weight:700;line-height:1.5;margin-bottom:8px&#125;.pm-copy&#123;font-size:14px;line-height:1.9&#125;.pm-shortcuts&#123;display:flex;flex-wrap:wrap;column-gap:24px;row-gap:10px;margin:22px 0;font-size:13px&#125;.pm-shortcuts kbd&#123;font-family:inherit;font-weight:700&#125;.pm-shortcuts span&#123;margin-left:8px;opacity:.75&#125;.pm-specs&#123;display:grid;grid-template-columns:9em minmax(0,1fr);column-gap:20px;row-gap:12px;margin:26px 0;line-height:1.8&#125;.pm-specs dt&#123;font-weight:700&#125;.pm-specs dd&#123;margin:0&#125;.pm-downloads&#123;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:30px;margin:28px 0 20px&#125;.pm-figure&#123;margin:28px 0 36px;max-width:100%&#125;.pm-figure img&#123;max-width:100%;height:auto&#125;.pm-faq details&#123;padding:12px 0&#125;.pm-faq summary&#123;cursor:pointer;font-weight:700;line-height:1.8&#125;.pm-faq details>div&#123;padding:10px 0;line-height:1.9&#125;@media(max-width:540px)&#123;.pm-features&#123;grid-template-columns:minmax(0,1fr);row-gap:24px&#125;.pm-specs&#123;grid-template-columns:minmax(0,1fr);gap:4px&#125;.pm-specs dd&#123;margin-bottom:12px&#125;.pm-downloads&#123;column-gap:20px&#125;.pm-feature-title&#123;font-size:18px&#125;&#125;</style>
+
+## Before We Begin
+
+If you're looking for a free Mac screenshot app, try **Promecapt**. You can add arrows and explanations to screenshots, pin reference images above other windows, recognize text with OCR, and record GIFs.
+<br/>
+**I built the app and published the source and installers so individuals and companies can use it for free.** It requires neither a paid subscription nor an account. It's an alternative to consider alongside [Snipaste](https://www.snipaste.com/), [Shottr](https://shottr.cc/), and [CleanShot X](https://cleanshot.com/). It is [MIT-licensed and open-source](https://github.com/PROMLEE/promecapt/blob/v1.1.10/LICENSE).
+
+**[Download Promecapt](https://github.com/PROMLEE/promecapt/releases/latest)** · [Source code](https://github.com/PROMLEE/promecapt)
+
+macOS 13 or later · Apple Silicon / Intel
+
+## Main Features
+
+<div className="pm-features" aria-label="Main features">
+  <section>
+    <div className="pm-label">Capture and annotate</div>
+    <div className="pm-feature-title">Point out what matters</div>
+    <div className="pm-copy">Add arrows, shapes, text, and numbers directly to a capture, then copy it. Use annotations to report an error or walk someone through a task.</div>
+  </section>
+  <section>
+    <div className="pm-label">Pin images</div>
+    <div className="pm-feature-title">Keep a reference on screen as you work</div>
+    <div className="pm-copy">Pin an image or GIF above other windows. This helps when implementing a design or comparing two screens.</div>
+  </section>
+  <section>
+    <div className="pm-label">OCR</div>
+    <div className="pm-feature-title">Turn text in an image into editable text</div>
+    <div className="pm-copy">Read Korean and English text from all or part of a capture. Edit the result if needed. Pressing ⌘C copies the text and closes the window.</div>
+  </section>
+  <section>
+    <div className="pm-label">GIF recording</div>
+    <div className="pm-feature-title">Record and share a short action</div>
+    <div className="pm-copy">Record reproduction steps or an animation as a GIF. After recording, play, copy, save, or pin it.</div>
+  </section>
+</div>
+
+See the [1.1.10 feature list](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/FEATURES.md) for capabilities and limits.
+
+## Annotate a Capture Before Sharing It
+
+To show an error or explain a sequence of steps, drag to select a region or choose a detected window or element. Then add **pen marks, highlights, shapes, arrows, text, or numbers**.
+You can select and edit annotations again. Even with automatic selection enabled, the drawing tool stays active so you can continue adding marks.
+Choose mosaic, blur, or an opaque black box from the redaction tools. Use the scroll wheel or numeric input to adjust thickness or intensity.
+See the [usage guide](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/USAGE.md) for details.
+
+<figure className="pm-figure">
+<Img src="/promecapt-toolbar-1110-20261103.webp" width="750" alt="Toolbar showing pixel size inputs on the second row after selecting the region adjustment tool"/>
+</figure>
+
+<div className="pm-shortcuts" aria-label="Capture shortcuts">
+  <div><kbd>Shift</kbd> + drag <span>Square</span></div>
+  <div><kbd>⌘</kbd> + drag <span>Keep the current aspect ratio</span></div>
+  <div><kbd>⌘C</kbd> <span>Copy</span></div>
+  <div><kbd>⌘Enter</kbd> <span>Pin</span></div>
+</div>
+
+### Customize the Toolbar
+
+**Choose which buttons appear and in what order.** In Settings → Tools, drag rows or move them up and down to apply changes immediately.
+Tool buttons appear on the first row. Color, thickness, and redaction options appear on the second row only when needed.
+Size inputs appear only for the region adjustment tool, and hidden tools remain available under All Tools `…`.
+Turn on **Remember Last Capture Tool** to start the next capture with the last tool you selected manually. It is off by default.
+[Tool order and option placement](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/USAGE.md#tool-order-and-adaptive-options--119)
+
+<figure className="pm-figure">
+<Img src="/promecapt-tool-order-1110-20261103.webp" width="500" alt="Tool settings with visibility checkboxes and controls for dragging or moving tools up and down"/>
+</figure>
+
+Choose an **opaque black box** when sensitive information must be fully covered. Mosaic and blur provide visual obscuring effects.
+
+<Ads1/>
+
+## History, OCR, and Pinned Images
+
+### Previous Captures and Their Surroundings
+
+While capturing, use `,` and `.` to move backward and forward through history. Opening a history entry restores **both the selection and what was around it at the time**.
+History also stores an image of the entire display. After handling sensitive material, check your retention settings and clear history as needed.
+[History and local storage](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/USAGE.md#privacy--storage)
+
+### Copy OCR Results
+
+The OCR button or `O` reads the **entire current capture**. There's no need to drag a new region. To read only part of it, use `Shift+O` or Option-click the OCR button.
+Edit the result as needed. `⌘C` copies the selected text, or all text if there is no selection. **Copy All also closes the window after copying.**
+Korean and English recognition runs on your Mac.
+[OCR updates in 1.1.10](https://github.com/PROMLEE/promecapt/releases/tag/v1.1.10)
+
+### Work with a Design or Document in View
+
+Pin an image or GIF above other windows. Drag a pinned image to move it, use the scroll wheel to zoom, and hold `Ctrl` while scrolling to adjust opacity.
+For a still image, press `Space` to resume annotating it.
+[Pinned image controls](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/USAGE.md#quick-start)
+
+## GIF Recording
+
+A dotted red line outlines the recording region, with light shading outside it.
+After stopping, choose **Play, Copy, Pin, or Save** in the results window.
+Version 1.1.10 places the stop window on the monitor that contains the recording region.
+[Release notes](https://github.com/PROMLEE/promecapt/releases/tag/v1.1.10)
+
+<figure className="pm-figure">
+<Img src="/promecapt-gif-settings-20261102.webp" width="500" alt="GIF settings for frame rate, resolution, maximum recording duration, and cursor visibility"/>
+</figure>
+
+<dl className="pm-specs">
+  <dt>Frame rate</dt><dd>5 · 10 · 15 · 20 · 25 · 30 fps</dd>
+  <dt>Resolution</dt><dd>640 · 1280 · 1920 px on the long edge, or original pixels</dd>
+  <dt>Maximum duration</dt><dd>15 · 30 · 60 seconds</dd>
+  <dt>Mouse cursor</dt><dd>Choose whether to include it</dd>
+</dl>
+
+*Recording does not support live annotation, GIF frame editing, or audio.* Recording stays within one display and excludes Promecapt's own windows.
+The number of frames may decrease when little changes on screen. Recording stops when temporary frames reach 256 MiB. Whether a copied GIF animates depends on the app you paste it into.
+[GIF recording support](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/USAGE.md#gif-recording)
+
+<Ads2/>
+
+## Download and First Launch
+
+<div className="pm-downloads">
+  <div><div className="pm-feature-title">Apple Silicon</div><div className="pm-copy">Mac with an M-series chip</div><a href="https://github.com/PROMLEE/promecapt/releases/download/v1.1.10/Promecapt-1.1.10-macos-arm64.dmg">Download DMG</a></div>
+  <div><div className="pm-feature-title">Intel</div><div className="pm-copy">Mac with an Intel processor</div><a href="https://github.com/PROMLEE/promecapt/releases/download/v1.1.10/Promecapt-1.1.10-macos-x86_64.dmg">Download DMG</a></div>
+</div>
+
+[All installers and release notes](https://github.com/PROMLEE/promecapt/releases/latest)
+
+- **Download the DMG** for your Mac's chip.
+- **Move the app to Applications.** Open the DMG and drag Promecapt to Applications.
+- **Open the app and grant permissions.** Eject the disk image and launch Promecapt from Applications.
+
+<figure className="pm-figure">
+<Img src="/promecapt-dmg-install-20261102.webp" width="500" alt="DMG installation screen showing Promecapt being dragged to Applications"/>
+</figure>
+
+### Allow Promecapt to Open on macOS
+
+*This release is not notarized by Apple.*
+If macOS blocks the official download, click Done, then open **System Settings → Privacy & Security → Open Anyway** to allow Promecapt. Verify the app name in the confirmation dialog before opening it.
+[Apple's guide to opening downloaded apps](https://support.apple.com/en-us/102445)
+
+<figure className="pm-figure">
+<Img src="/promecapt-open-anyway-20261102.webp" width="500" alt="Open Anyway for Promecapt in Privacy & Security"/>
+</figure>
+
+Follow the in-app instructions to grant screen capture and Accessibility permissions.
+Detection of elements inside apps depends on the accessibility information the target app provides.
+If detection picks regions that are too specific, adjust **Automatic Region Detection Scope** under Settings → Capture.
+[Korean installation and permissions guide](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/INSTALL.ko.md)
+
+### Frequently Asked Questions
+
+<div className="pm-faq">
+  <details>
+    <summary>Is it free for companies too?</summary>
+    <div>Yes. The MIT license allows free personal, company, and commercial use. See the <a href="https://github.com/PROMLEE/promecapt/blob/v1.1.10/LICENSE">LICENSE</a> for redistribution and modification terms.</div>
+  </details>
+  <details>
+    <summary>What is the default shortcut, and how do I use F1?</summary>
+    <div>The default capture shortcut is ⌥⌘1. In Settings → Shortcuts, choose the F1, F3, or F4 preset or set your own shortcut. In brightness key mode, use Fn+F1. Press H while capturing to show or hide the shortcut guide.</div>
+  </details>
+  <details>
+    <summary>Do permissions carry over after an update?</summary>
+    <div>Releases keep the same signing certificate and app identifier. You may need to grant permissions again when first switching from the previous signing method or if macOS permission settings are inconsistent. See the <a href="https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/INSTALL.ko.md">permissions troubleshooting guide</a>.</div>
+  </details>
+  <details>
+    <summary>How do manual and automatic updates work?</summary>
+    <div>Check for updates from the app or enable automatic updates. The app checks every 24 hours while running and supports automatic download, installation, and relaunch. See the <a href="https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/AUTO-UPDATE.md">update guide</a>.</div>
+  </details>
+  <details>
+    <summary>Are screenshots or OCR results sent to a server?</summary>
+    <div>Captures and OCR are processed on your Mac. The app has no image upload service or analytics collection. History stores full display images locally so it can restore the area around a selection. See <a href="https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/USAGE.md#privacy--storage">what is stored</a>.</div>
+  </details>
+</div>
+
+## Try Promecapt
+
+If you often share annotated captures or keep references on screen, give Promecapt a try. It is free for personal and company use, and the source is public. Report problems or request features in [Issues](https://github.com/PROMLEE/promecapt/issues).
+
+**[Download the latest version](https://github.com/PROMLEE/promecapt/releases/latest)** · [GitHub](https://github.com/PROMLEE/promecapt)
+
+<small>This guide covers version 1.1.10. The toolbar and tool settings images are UI renders for that version. The GIF settings and installation screenshots are from an earlier release.</small>
+
+### References
+
+- [Promecapt 1.1.10 release](https://github.com/PROMLEE/promecapt/releases/tag/v1.1.10)
+- [Feature list](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/FEATURES.md)
+- [Usage guide](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/USAGE.md)
+- [Installation and permissions](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/INSTALL.ko.md)
+- [Automatic updates](https://github.com/PROMLEE/promecapt/blob/v1.1.10/docs/AUTO-UPDATE.md)
+- [MIT license](https://github.com/PROMLEE/promecapt/blob/v1.1.10/LICENSE)
+- [Snipaste](https://www.snipaste.com/)
+- [Shottr](https://shottr.cc/)
+- [CleanShot X](https://cleanshot.com/)
+- [Apple's guide to opening downloaded apps](https://support.apple.com/en-us/102445)

@@ -1,0 +1,629 @@
+---
+post_id: '425'
+locale: ja
+title: 推薦学習用データセットの構築とクローリングパイプラインの設計 - XGBoost推薦システム 第2回
+description: >-
+  meetinthemiddleの推薦システムを学習するため、Station、Place、Edgeのスキーマを定義します。シードデータの収集、重複・欠損・外れ値の処理、品質レポートの生成と検証、運用での拡張方法を実習コードに沿って説明します。
+source_hash: 0fc0cfcfe444a34ceef85cea2dace208f1ab36015cf55003074df6185e27c4a4
+---
+## はじめに
+
+こんにちは。
+出発地がそれぞれ異なるとき、全員が納得できる待ち合わせ場所を決めるのは、思ったより難しいものです。
+そこで、待ち合わせ場所を推薦する[meet-in-the-middle](https://meetinthemiddle.promleeblog.com)というサービスを作りました。
+
+<br/>
+
+第1回では、推薦をランキング問題として定義し、ユーザーの行動からラベルを作る方法を整理しました。
+第2回では、そのラベルを使って学習するためのデータセットを作ります。Station、Place、Edgeのスキーマを定め、シードデータの収集、クリーニングのルール、品質レポートまで実習で組み立てます。
+
+<br/>
+
+[GitHubリポジトリ](https://github.com/PROMLEE/xgboost-ml-practice/tree/part2)で、実習コードとデータセットを確認できます。
+
+<Ads1/>
+
+## 推薦データセットの主要なエンティティ
+
+推薦システムを運用するには、三つの情報が必要です。
+
+- どこから出発するか。
+- どこへ行くか。
+- その間の移動コストはいくらか。
+
+<br/>
+
+meetinthemiddleの推薦学習用データセットを作ったとき、最小単位にしたのはStation、Place、Edgeの三つです。
+
+### Station
+
+Stationは交通の基準点です。
+地下鉄の駅やバスの乗り換え拠点などが該当します。
+これを独立させると、座標の正規化、地域ごとのグループ化、移動コストの計算を一貫して処理できます。
+
+<br/>
+
+例えば、あるカフェが弘大入口駅の近くにあれば、カフェ自体の座標に多少のずれがあっても、Stationを基準に移動コストを求められます。
+こうすると、クローリングで集めた座標の精度に多少ばらつきがあっても、モデルへの入力が安定します。
+
+### Place
+
+Placeは推薦候補です。
+カフェ、飲食店、バー、自習用カフェなど、ユーザーが実際に選べる行き先です。
+少なくとも次の情報が必要です。
+
+- 場所の名前
+- カテゴリ
+- ひも付くStation
+- 評価点やレビュー件数など、信頼性の手掛かり
+
+### Edge
+
+EdgeはStation間の移動コストです。
+最も重要な値はETAです。
+ここでのETAは移動所要時間を指し、モデルでは公平性を定量化する主要な特徴量になります。
+
+<br/>
+
+Edgeを独立させると、次の処理がしやすくなります。
+
+- 同じStationの組み合わせで、複数の交通手段を比較する
+- 特定区間のETAが異常に大きいデータを取り除く
+- 学習用の特徴量として、平均、分散、最大偏差など、公平性に関わる指標を計算する
+
+<Ads2/>
+
+## シードデータとクロールデータの役割を分ける
+
+データ収集を始めるときによくある失敗は、最初から大規模なクローリングを実行することです。
+データ量は増えても、スキーマが安定していなければ、クリーニングの費用が急増します。
+そのため、シードの段階とクロールの段階を分けることを勧めます。
+
+### シードデータ
+
+シードデータは、少量で品質の高い基準データです。
+駅の一覧、代表的な商業エリア、代表的なカテゴリなどを、まず小規模に定めます。
+この段階には二つの目標があります。
+
+- スキーマを確定する。
+- クリーニングのルールを確定する。
+
+### クロールデータ
+
+クロールデータは、シードのスキーマに沿ってデータを大規模に増やす段階で扱います。
+ここからは欠損、重複、外れ値が継続して入ってきます。
+そのため、クロールの段階では収集量だけでなく、データ品質レポートが重要です。
+
+<Img src="/260404-203324.webp" width={600} alt="シードデータからクロールデータへ拡張するパイプラインの流れ"/>
+
+## 実習 - データクリーニングのパイプラインを作る
+
+実際にクローリングを組み込む前に、データセットの構築でよく起きるクリーニング上の問題を、小規模に再現します。
+実習用リポジトリのpart2ブランチを使います。
+
+https://github.com/PROMLEE/xgboost-ml-practice/tree/part2
+
+### 実習用のファイル構成
+
+```
+xgboost-ml-practice/
+├── ml/
+│   ├── raw_stations.csv
+│   ├── raw_places.csv
+│   ├── raw_edges.csv
+│   ├── dataset_builder.py
+│   └── out/
+│       ├── stations.csv
+│       ├── places.csv
+│       ├── edges.csv
+│       └── quality_report.json
+└── scripts/
+    ├── setup_mac_linux.sh
+    ├── setup_windows.ps1
+    ├── build_dataset.sh
+    └── build_dataset_windows.ps1
+```
+
+### 生データに意図的に含めた問題
+
+raw_places.csvには、実務でよく見る問題を含めています。
+
+- 同じ場所が重複する。Cafe Aが2行あります。
+- Stationへのひも付けがない。pl_007はstation_idが空欄です。
+- 評価点が許容範囲を外れている。pl_006のavg_ratingは6.2です。
+- レビュー件数が負などの不正な値になっている。pl_008のrating_countは-1です。
+
+```csv title="ml/raw_places.csv"
+place_id,place_name,category,station_id,rating_count,avg_rating,price_level
+pl_001,Cafe A,cafe,st_003,120,4.5,2
+pl_002,BBQ Place,restaurant,st_004,58,4.2,3
+pl_003,Study Cafe,study_cafe,st_009,35,4.8,2
+pl_004,Bar Z,bar,st_006,12,4.1,3
+pl_005,Cafe A,cafe,st_003,120,4.5,2
+pl_006,Invalid Rating,restaurant,st_007,10,6.2,2
+pl_007,Missing Station,cafe,,5,4.0,1
+pl_008,Negative Count,cafe,st_008,-1,4.0,1
+pl_009,Weird Category,CAFE,st_002,2,3.5,1
+pl_010,No Name,cafe,st_001,3,4.0,1
+```
+
+<br/>
+
+raw_edges.csvには、次の問題があります。
+
+- ETAが欠損している。st_001からst_010までのETAが空欄です。
+- ETAが異常に大きい。st_010からst_001までのETAが9999です。
+- ETAが負になっている。st_003からst_004までのETAが-5です。
+- 同じ区間が重複する。st_001からst_002までの区間が2行あります。
+
+```csv title="ml/raw_edges.csv"
+from_station_id,to_station_id,mode,eta_min
+st_001,st_002,subway,3
+st_002,st_003,subway,9
+st_003,st_008,subway,2
+st_003,st_009,walk,12
+st_004,st_007,subway,4
+st_007,st_005,subway,7
+st_006,st_001,subway,10
+st_001,st_002,subway,3
+st_001,st_010,subway,
+st_010,st_001,subway,9999
+st_003,st_004,subway,-5
+```
+
+### クリーニングのルール
+
+dataset_builder.pyは、以下のルールでデータを整えます。
+
+- Station
+  - station_idが空欄の行は削除します。
+  - station_idが重複する行は削除します。
+  - 座標の欠損はそのまま残し、品質レポートに件数を記録します。
+
+<br/>
+
+- Place
+  - place_idまたはplace_nameが空欄なら削除します。
+  - Stationとのひも付けがない場合、またはStation一覧に存在しない場合は削除します。
+  - place_name、station_id、categoryがすべて同じ行は重複とみなし、一つだけ残します。
+  - レビュー件数が負または空欄の場合は0に補正し、品質レポートに件数を記録します。
+  - 評価点が0から5の範囲を外れていれば欠損として扱い、品質レポートに件数を記録します。
+
+<br/>
+
+- Edge
+  - from、to、modeのいずれかが空欄なら削除します。
+  - Station一覧にない地点を含む区間は削除します。
+  - ETAが1未満または300超なら外れ値として削除します。
+  - from、to、modeの組み合わせが同じ行は重複とみなし、一つだけ残します。
+
+<Toggle title="dataset_builder.pyのコードを見る">
+
+```python title="ml/dataset_builder.py"
+"""Build a clean, normalized dataset from raw seed CSV files.
+
+This script is intentionally small and opinionated for students.
+It reads raw seed CSV files and outputs normalized, validated CSVs plus a quality report.
+
+Input files (default: ml/):
+- raw_stations.csv
+- raw_places.csv
+- raw_edges.csv
+
+Output files (default: ml/out/):
+- stations.csv
+- places.csv
+- edges.csv
+- quality_report.json
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Optional, Tuple
+
+
+def _read_csv(path: Path) -> List[Dict[str, str]]:
+    with path.open("r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        return [dict(row) for row in reader]
+
+
+def _write_csv(path: Path, rows: Iterable[Dict[str, Any]], fieldnames: List[str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({k: row.get(k, "") for k in fieldnames})
+
+
+def _to_float(v: Any) -> Optional[float]:
+    if v is None:
+        return None
+    s = str(v).strip()
+    if s == "":
+        return None
+    try:
+        return float(s)
+    except ValueError:
+        return None
+
+
+def _to_int(v: Any) -> Optional[int]:
+    if v is None:
+        return None
+    s = str(v).strip()
+    if s == "":
+        return None
+    try:
+        return int(float(s))
+    except ValueError:
+        return None
+
+
+def _norm_id(v: Any) -> str:
+    return str(v or "").strip()
+
+
+def _norm_text(v: Any) -> str:
+    return " ".join(str(v or "").strip().split())
+
+
+def _norm_category(v: Any) -> str:
+    s = _norm_text(v).lower()
+    s = s.replace(" ", "_")
+    return s
+
+
+@dataclass
+class QualityReport:
+    input_rows: Dict[str, int]
+    output_rows: Dict[str, int]
+    dropped_rows: Dict[str, int]
+    duplicate_keys: Dict[str, int]
+    invalid_values: Dict[str, int]
+    warnings: List[str]
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "input_rows": self.input_rows,
+            "output_rows": self.output_rows,
+            "dropped_rows": self.dropped_rows,
+            "duplicate_keys": self.duplicate_keys,
+            "invalid_values": self.invalid_values,
+            "warnings": self.warnings,
+        }
+
+
+def build_dataset(raw_dir: Path, out_dir: Path) -> QualityReport:
+    stations_raw = _read_csv(raw_dir / "raw_stations.csv")
+    places_raw = _read_csv(raw_dir / "raw_places.csv")
+    edges_raw = _read_csv(raw_dir / "raw_edges.csv")
+
+    input_rows = {
+        "stations": len(stations_raw),
+        "places": len(places_raw),
+        "edges": len(edges_raw),
+    }
+
+    warnings: List[str] = []
+    invalid_values = {
+        "stations_latlon_missing": 0,
+        "places_avg_rating_invalid": 0,
+        "places_rating_count_invalid": 0,
+        "edges_eta_invalid": 0,
+    }
+
+    stations: List[Dict[str, Any]] = []
+    station_seen: set[str] = set()
+    station_dupes = 0
+    station_dropped = 0
+
+    for r in stations_raw:
+        station_id = _norm_id(r.get("station_id"))
+        if not station_id:
+            station_dropped += 1
+            continue
+        if station_id in station_seen:
+            station_dupes += 1
+            continue
+        station_seen.add(station_id)
+
+        lat = _to_float(r.get("lat"))
+        lon = _to_float(r.get("lon"))
+        if lat is None or lon is None:
+            invalid_values["stations_latlon_missing"] += 1
+
+        stations.append(
+            {
+                "station_id": station_id,
+                "station_name": _norm_text(r.get("station_name")),
+                "line_name": _norm_text(r.get("line_name")),
+                "lat": "" if lat is None else round(lat, 6),
+                "lon": "" if lon is None else round(lon, 6),
+            }
+        )
+
+    station_index = {s["station_id"] for s in stations}
+
+    places: List[Dict[str, Any]] = []
+    place_seen: set[str] = set()
+    place_dupes = 0
+    place_dropped = 0
+
+    # Seed de-dup key: (name, station, category)
+    place_key_seen: set[Tuple[str, str, str]] = set()
+    place_key_dupes = 0
+
+    for r in places_raw:
+        place_id = _norm_id(r.get("place_id"))
+        place_name = _norm_text(r.get("place_name"))
+        station_id = _norm_id(r.get("station_id"))
+        category = _norm_category(r.get("category"))
+
+        if not place_id or not place_name:
+            place_dropped += 1
+            continue
+        if place_id in place_seen:
+            place_dupes += 1
+            continue
+        place_seen.add(place_id)
+
+        if not station_id or station_id not in station_index:
+            place_dropped += 1
+            continue
+
+        key = (place_name.lower(), station_id, category)
+        if key in place_key_seen:
+            place_key_dupes += 1
+            continue
+        place_key_seen.add(key)
+
+        rating_count = _to_int(r.get("rating_count"))
+        if rating_count is None or rating_count < 0:
+            invalid_values["places_rating_count_invalid"] += 1
+            rating_count = max(0, rating_count or 0)
+
+        avg_rating = _to_float(r.get("avg_rating"))
+        if avg_rating is None or not (0.0 <= avg_rating <= 5.0):
+            invalid_values["places_avg_rating_invalid"] += 1
+            avg_rating = None
+
+        price_level = _to_int(r.get("price_level"))
+        if price_level is None or not (1 <= price_level <= 4):
+            price_level = None
+
+        places.append(
+            {
+                "place_id": place_id,
+                "place_name": place_name,
+                "category": category,
+                "station_id": station_id,
+                "rating_count": rating_count,
+                "avg_rating": "" if avg_rating is None else round(avg_rating, 2),
+                "price_level": "" if price_level is None else price_level,
+            }
+        )
+
+    edges: List[Dict[str, Any]] = []
+    edge_dropped = 0
+    edge_dupes = 0
+    edge_seen: set[Tuple[str, str, str]] = set()
+
+    for r in edges_raw:
+        a = _norm_id(r.get("from_station_id"))
+        b = _norm_id(r.get("to_station_id"))
+        mode = _norm_category(r.get("mode"))
+        eta = _to_int(r.get("eta_min"))
+
+        if not a or not b or not mode:
+            edge_dropped += 1
+            continue
+        if a not in station_index or b not in station_index:
+            edge_dropped += 1
+            continue
+        if eta is None or eta <= 0 or eta > 300:
+            invalid_values["edges_eta_invalid"] += 1
+            edge_dropped += 1
+            continue
+
+        key = (a, b, mode)
+        if key in edge_seen:
+            edge_dupes += 1
+            continue
+        edge_seen.add(key)
+
+        edges.append({"from_station_id": a, "to_station_id": b, "mode": mode, "eta_min": eta})
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    _write_csv(out_dir / "stations.csv", stations, ["station_id", "station_name", "line_name", "lat", "lon"])
+    _write_csv(
+        out_dir / "places.csv",
+        places,
+        ["place_id", "place_name", "category", "station_id", "rating_count", "avg_rating", "price_level"],
+    )
+    _write_csv(out_dir / "edges.csv", edges, ["from_station_id", "to_station_id", "mode", "eta_min"])
+
+    report = QualityReport(
+        input_rows=input_rows,
+        output_rows={"stations": len(stations), "places": len(places), "edges": len(edges)},
+        dropped_rows={"stations": station_dropped, "places": place_dropped, "edges": edge_dropped},
+        duplicate_keys={
+            "stations_station_id": station_dupes,
+            "places_place_id": place_dupes,
+            "places_name_station_category": place_key_dupes,
+            "edges_from_to_mode": edge_dupes,
+        },
+        invalid_values=invalid_values,
+        warnings=warnings,
+    )
+
+    (out_dir / "quality_report.json").write_text(
+        json.dumps(report.to_dict(), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    return report
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Build a clean dataset from raw seed CSV files.")
+    parser.add_argument("--raw-dir", default="ml", help="Directory containing raw_*.csv")
+    parser.add_argument("--out-dir", default="ml/out", help="Output directory")
+    args = parser.parse_args()
+
+    report = build_dataset(Path(args.raw_dir), Path(args.out_dir))
+    print("Dataset build finished.")
+    print(json.dumps(report.to_dict(), ensure_ascii=False, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+```
+</Toggle>
+
+<Ads3/>
+
+## 実行方法
+
+実習では相対パスを使います。
+ターミナルでpracticeフォルダーへ移動してから実行してください。
+
+### macOS、Linux
+
+仮想環境を作り、ライブラリをインストールします。
+
+```bash title="scripts/setup_mac_linux.sh"
+#!/usr/bin/env bash
+set -euo pipefail
+
+python3 -m venv .venv-ml
+source .venv-ml/bin/activate
+
+python -m pip install --upgrade pip
+pip install -r requirements-ml.txt
+
+echo "Environment ready."
+```
+
+データセットのビルドを実行します。
+
+```bash title="scripts/build_dataset.sh"
+#!/usr/bin/env bash
+set -euo pipefail
+
+source .venv-ml/bin/activate
+
+python3 ml/dataset_builder.py \
+  --raw-dir ml \
+  --out-dir ml/out
+```
+<Img src="/260404-195601.webp" width={500} alt="データセットのビルド結果"/>
+
+実行が終わると、ml/outフォルダーにクリーニング済みのデータが作成されます。
+
+```text title="ml/out/"
+ml/out/
+├── stations.csv
+├── places.csv
+├── edges.csv
+└── quality_report.json
+```
+
+### Windows
+
+PowerShellで仮想環境を作成し、有効化します。
+
+```powershell title="scripts/setup_windows.ps1"
+$ErrorActionPreference = "Stop"
+
+python -m venv .venv-ml
+
+# PowerShell venv activation
+.\.venv-ml\Scripts\Activate.ps1
+
+python -m pip install --upgrade pip
+pip install -r requirements-ml.txt
+
+Write-Output "Environment ready."
+```
+
+データセットのビルドを実行します。
+
+```powershell title="scripts/build_dataset_windows.ps1"
+$ErrorActionPreference = "Stop"
+
+.\.venv-ml\Scripts\Activate.ps1
+
+python ml\dataset_builder.py `
+  --raw-dir ml `
+  --out-dir ml\out
+```
+
+### 出力例
+
+quality_report.jsonには、クリーニングで何を取り除いたか、どの問題が何件あったかがまとまっています。
+
+```json title="ml/out/quality_report.json" showLineNumbers
+{
+  "input_rows": {
+    "stations": 10,
+    "places": 10,
+    "edges": 11
+  },
+  "output_rows": {
+    "stations": 10,
+    "places": 8,
+    "edges": 7
+  },
+  "dropped_rows": {
+    "stations": 0,
+    "places": 1,
+    "edges": 3
+  },
+  "duplicate_keys": {
+    "stations_station_id": 0,
+    "places_place_id": 0,
+    "places_name_station_category": 1,
+    "edges_from_to_mode": 1
+  },
+  "invalid_values": {
+    "stations_latlon_missing": 1,
+    "places_avg_rating_invalid": 1,
+    "places_rating_count_invalid": 1,
+    "edges_eta_invalid": 3
+  },
+  "warnings": []
+}
+```
+
+### 結果を読む
+
+品質レポートでは、placesが10行から8行に減っています。
+Stationが空欄の1行と、place_name、station_id、categoryが重複した1行を削除した結果です。
+edgesは、欠損と外れ値を除く過程で11行から7行に減っています。
+これらの数値は、クローリングパイプラインでデータ品質を監視する最小限の指標として使えます。
+
+## まとめ
+
+推薦モデルの開発と同じくらい、推薦データセットの構築が重要です。
+Station、Place、Edgeのように最小単位のスキーマを先に固めると、クロールデータが増えてもクリーニングのルールを一貫して適用できます。
+品質レポートも残しておけば、学習データの品質がいつ悪化したかを追跡できます。
+
+<br/>
+
+> 次の第3回では、このStation、Place、Edgeのデータセットをもとに、ETAによる公平性の特徴量を設計し、XGBoostが学習できる入力に変える方法を扱います。
+
+### 参考
+
+- [github.com/PROMLEE/xgboost-ml-practice](https://github.com/PROMLEE/xgboost-ml-practice/tree/part2)
+  この記事の実習コード、シードデータ、クリーニング結果、品質レポートを含みます。
+- [XGBoost Documentation](https://xgboost.readthedocs.io/en/stable/)
+  以降の回で使うXGBoostの公式ドキュメントです。

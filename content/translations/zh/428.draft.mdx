@@ -1,0 +1,157 @@
+---
+title_en: AGENTS.md and CLAUDE.md Design
+title_ko: AGENTS.md CLAUDE.md 설계 원칙
+url: minimal-agent-instructions
+series_no: 2
+desc: >-
+  AGENTS.md와 CLAUDE.md를 중복 없이 설계하는 방법을 정리합니다. 공통 규칙과 도구별 규칙을 분리하고, Codex와 Claude
+  Code의 로딩 방식에 맞춰 컨텍스트 비용과 재작업을 줄이는 실전 템플릿을 제공합니다.
+thumbnail_url: /260927-020001.webp
+metatag: >-
+  AGENTS.md, CLAUDE.md, Claude Code, Codex, 컨텍스트 엔지니어링, AI 코딩 에이전트, 저장소 지침, 프롬프트
+  설계, 개발 생산성, 토큰 절약, MCP, 코드 리뷰
+tags: 'AI, Software Engineering, Typescript, DevOps'
+post_id: '428'
+locale: zh
+title: AGENTS.md 与 CLAUDE.md 的设计原则
+description: >-
+  介绍如何设计互不重复的 AGENTS.md 和 CLAUDE.md，区分通用规则与工具专用规则，并根据 Codex 和 Claude Code
+  的加载方式，用实用模板减少上下文开销和返工。
+source_hash: f6d9dbf1de27c40a8caeaab01ed27da6d09cc901c9b1012e310aa12cce78c0f2
+---
+## 开始之前
+团队同时引入 Codex 和 Claude Code 时，起初看起来一切顺利。
+过一段时间，同样的规则被复制到 `AGENTS.md`、`CLAUDE.md` 和 `README.md`，大家也说不准各个代理会读哪个文件，问题就出现了。
+<Bbox>想想自己是不是也在暗暗祈祷：“Claude 啊，拜托读一下我想让你读的文件吧！”</Bbox>
+即使只改一小处，代理也可能读到相互冲突的指引，带着过长的上下文工作。
+<br/>
+好的指引文件像一张*路线图，能让代理迅速找到适用的规则*，任务本身另行说明。
+本文将分清两个文件的职责，搭建一套团队能持续维护的最小结构。
+
+<Img src="/260927-020002.webp" width={500} alt="通用 AGENTS.md 与 Claude 专用 CLAUDE.md 各自承担不同职责的结构"/>
+
+## 文件的职责
+> 写指引文件时，先明确它会在什么情况下被读取。
+
+### AGENTS.md
+在 `AGENTS.md` 中存放 Codex、Claude Code、Cursor 等代理应共同遵循的*仓库通用规则*。
+构建与测试命令、禁止修改的区域、API 兼容性原则等内容适合放在这里，因为切换工具也不会改变这些规则。
+<br/>
+Codex 从项目根目录到当前工作目录收集 `AGENTS.md`，并在默认的指引大小限制内将其纳入上下文。
+[OpenAI Codex 代理循环](https://openai.com/index/unrolling-the-codex-agent-loop/)
+
+### CLAUDE.md
+在 `CLAUDE.md` 中放入只适用于 Claude Code 的工作流程和设置。
+例如 Claude 专用钩子、如何用 `/context` 核对上下文，以及在特定路径使用 Claude 规划模式的规则。
+<br/>
+
+在默认配置下，如果某路径有 `CLAUDE.md`，Claude Code 可能只读取 `CLAUDE.md`，跳过 `AGENTS.md`。
+因此，把两个文件简单并列可能让通用规则漏载。
+[Claude Code 记忆与项目指引](https://code.claude.com/docs/en/memory)
+
+<Ybox>如果没有修改 Claude Code 的项目指引加载设置，含有 CLAUDE.md 的路径可能漏掉 AGENTS.md 里的通用规则。两个文件并用时，请核对实际加载结果。</Ybox>
+
+## 通用规则
+先把 `AGENTS.md` 写成*各工具共同遵守的约定*。
+保留代理不能靠猜测来决定的事实即可。
+
+```md title="AGENTS.md"
+ # 공통 명령
+
+- 패키지 설치와 실행은 npm을 사용합니다.
+- 변경 후 npm run lint와 npm test를 실행합니다.
+
+ # 변경 경계
+
+- 공개 API 응답 형식은 요청에 명시된 경우에만 바꿉니다.
+- 데이터베이스 스키마 변경은 migration과 함께 검토합니다.
+
+ # 작업별 문서
+
+- 인증 변경은 docs/auth.md를 읽습니다.
+- 배포 변경은 docs/deploy.md를 읽습니다.
+```
+
+无需在这份文件里写下完整目录结构、全部依赖或以往的故障记录。
+能从代码中找到的信息，留给代理按需搜索即可。
+
+<Bbox>拿不准是否该写入指引时，可以问自己：如果代理不知道这条信息，是否会带来风险，或反复犯同一个错误？如果都不会，可以留在任务文档或代码中。</Bbox>
+
+<Ads1/>
+
+## Claude 专用规则
+如果也使用 Claude Code，先在 `CLAUDE.md` 中导入通用文件，再添加 Claude 专用规则。
+这样可避免复制规则，修改共同原则时只需改一处。
+
+```md title="CLAUDE.md"
+@AGENTS.md
+
+ # Claude Code 규칙
+
+- src/database/ 변경은 먼저 계획 모드에서 영향 범위를 설명합니다.
+- 작업 시작 시 /context로 로드된 프로젝트 지침을 확인합니다.
+- 장기 작업은 docs/agent-state/에 결정과 검증 명령을 남깁니다.
+```
+
+将 `@AGENTS.md` 放在前面，可以只维护一份通用规则，同时加入 Claude 专用规则。
+Claude Code 文档也介绍了先导入通用文件，再补充工具专用指引的配置。
+[Claude Code 中共享 AGENTS.md 的方式](https://code.claude.com/docs/en/memory)
+
+<Img src="/260927-020003.webp" width={500} alt="先读取通用指引，再加载 Claude 专用规则的流程"/>
+
+## 划分标准
+按规则的*适用范围*决定文件位置。
+可以按下表判断，减少重复。
+
+| 规则 | 位置 | 原因 |
+| --- | --- | --- |
+| 构建和测试命令 | `AGENTS.md` | 所有代理都需要。 |
+| API 兼容性与安全边界 | `AGENTS.md` | 这是团队的共同约定。 |
+| Claude 钩子和设置 | `CLAUDE.md` | 只适用于 Claude Code。 |
+| 个人令牌和本地路径 | 本地配置文件 | 不应提交到仓库。 |
+| 认证和部署的详细步骤 | `docs/` | 相关任务按需阅读。 |
+
+<Rbox>API 密钥、个人令牌、内部访问地址等秘密值应放在别处。把 AGENTS.md 和 CLAUDE.md 当作团队和自动化工具都能读取的公共约定。</Rbox>
+
+### 子目录指引
+在 monorepo 或大型服务中，仅靠一份根目录文件很难说明所有规则。
+可以在靠近工作范围的位置放置 `apps/admin/AGENTS.md` 等指引，只添加该区域特有的规则。
+
+*根目录文件保存通用约定，子目录文件保存局部规则。*
+避免两处重复，可以同时减少冲突和上下文开销。
+
+<Ads2/>
+
+## 核对方法
+写好指引文件后，要确认工具是否实际读取了它们。
+```text title="instruction-checklist.txt"
+1. 새 세션에서 현재 작업 경로를 확인합니다.
+2. 에이전트에게 적용 중인 프로젝트 지침을 요약하게 합니다.
+3. 빌드 명령과 변경 금지 규칙을 질문합니다.
+4. 하위 디렉터리 작업에서 추가 지침이 필요한지 확인합니다.
+5. 실제 변경 후 lint와 test 결과를 기록합니다.
+```
+
+在 Codex 中，可以用 `/status` 查看当前会话的环境与上下文状态。
+在 Claude Code 中，可以用 `/context` 或 `/memory` 核对已加载的项目指引。
+分别验证工具确实加载了文件，是设计指引的最后一步。
+
+<Img src="/260927-020004.webp" width={500} alt="审查指引文件并通过测试和上下文检查反复验证的流程"/>
+
+<Ads3/>
+
+## 团队检查清单
+✓ 在 `AGENTS.md` 中集中维护通用规则。
+✓ 在 `CLAUDE.md` 中保留 Claude 专用规则。
+✓ 将详细说明放入 `docs/`，并注明适用条件。
+✓ 个人秘密值与本地路径留在仓库指引之外。
+✓ 在新会话中核对实际加载的指引和验证命令。
+
+## 结论
+`AGENTS.md` 和 `CLAUDE.md` 可以用很少的内容明确代理需要遵守的规则。
+通用规则只维护一份，工具专用操作放在适用的位置。
+有了这套结构，即使切换工具或团队扩张，也能减少指引重复和冲突。
+
+### 参考资料
+- [OpenAI Codex 代理循环](https://openai.com/index/unrolling-the-codex-agent-loop/)
+- [Claude Code 记忆与项目指引](https://code.claude.com/docs/en/memory)

@@ -1,0 +1,273 @@
+---
+post_id: '445'
+locale: en
+title: PortRhythm User Guide 10 — Brokerage Account Management
+description: >-
+  Follow PortRhythm Account Management on desktop and mobile. Add brokerages and
+  account nicknames, edit account details, search Korean and U.S. stocks and
+  ETFs, and enter quantities and average purchase prices. Learn how to handle
+  duplicate holdings, move entries between accounts, and verify portfolio
+  assignments.
+source_hash: 6453a470e49082f58a25d438ed687dd32b416209268556fd25114f171e9fa0ca
+reviewed_at: '2026-11-08T02:43:35.412Z'
+---
+## Before We Begin
+
+> “I have an ISA and an overseas stock account at the same brokerage. I want to see which holdings are in each account.”
+
+Combining positions by ticker makes it easy to see how much you own overall. When reconciling actual balances, look at each account separately. Ten Apple shares in account A and three in account B are separate positions.
+
+<br/>
+
+The new `계좌 관리` (Account Management) screen lets you record a brokerage and account nickname, then add or edit stocks and ETFs directly in that account. You can start by searching for a ticker without uploading a balance screenshot. Open [Account Management](https://pf.promleeblog.com/?view=accounts) to organize your holdings by account.
+
+<br/>
+
+Part 9, [Login Account and Display Settings](https://www.promleeblog.com/blog/post/444-portrhythm-account-display-guide), covers `계정`, which has a similar name. **The login account identifies how you sign in. Brokerage accounts identify where you hold assets.** One login can contain several brokerage accounts.
+
+<Bbox>
+Start with the ticker, current quantity, and average purchase price per share from each brokerage statement. Securities and amounts in this guide illustrate the entry process. The original screenshots were taken with a local QA account on October 9, 2026, and those sample entries were left unsaved. The article also covers transfer confirmation, the purchase-cost check, and account valuation information added on October 10, 2026. The transfer confirmation screenshot was taken after a transfer and restoration to the original account were verified in QA.
+</Bbox>
+
+## 1. Account Management
+
+On desktop, click `계좌 관리` (Account Management) in the left menu. The `내 계좌` (My Accounts) list is on the left. The selected account details and `보유 종목` (Holdings) are on the right.
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide10-desktop-overview-20261009.webp" width={800} alt="Desktop Account Management showing My Accounts, the selected account and holdings, and edit and transfer controls"/>
+
+Check the account name and brokerage first. Adds and edits apply to **the account currently selected**. If you use similar nicknames, verify the brokerage too.
+
+### 1.1. Selecting an Account on Mobile
+
+On mobile, open `전체` (All) in the bottom menu and choose `계좌 관리` (Account Management) under `자산 관리` (Asset Management). A `계좌 선택` (Select Account) list replaces the desktop sidebar. Choose the brokerage and account nickname to view the holdings.
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide10-mobile-overview-20261009.webp" width={350} alt="Mobile account selector and holdings in the selected test account"/>
+
+The order is the same on a small screen. Select an account, check its information, then add or edit a holding. An empty account displays a message that it has no holdings. If you have no accounts yet, create one first.
+
+### 1.2. Checking Account Valuation
+
+The selected account's `주식·ETF 평가액` (Stock and ETF Valuation) totals are shown separately in won and dollars. **The amounts exclude cash and crypto and precede currency conversion**, so the total covers only part of the actual account balance. Holdings with unavailable prices are omitted, and the screen displays the number omitted. It also shows how many positions use screenshot prices and the oldest timestamp among fetched quotes. If no holdings have a price, the screen shows `—` instead of zero.
+
+## 2. Adding a Brokerage Account
+
+Click `계좌 추가` (Add Account) at the top. In the `새 계좌` (New Account) form, fill in `증권사` (Brokerage) and `계좌명 · 별칭` (Account Name or Nickname).
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide10-desktop-create-20261009.webp" width={800} alt="Desktop New Account example with Korea Investment & Securities, an ISA nickname, and the Create Account button"/>
+
+- `증권사` (Brokerage). Enter the brokerage that holds your assets or select it from the suggestions.
+- `계좌명 · 별칭` (Account Name or Nickname). Enter a recognizable name. For example, `ISA`, `연금저축` (Pension Savings), or `해외주식` (Overseas Stocks) can describe the purpose.
+- `계좌 만들기` (Create Account). Check the entries and save. The new account is selected after saving.
+
+<br/>
+
+**This button creates a tracking entry inside PortRhythm.** The app neither opens a real brokerage account nor signs in to your broker or connects to its balance. Use a nickname you recognize in place of an actual account number.
+
+### 2.1. Adding an Account on Mobile
+
+On mobile, tap `계좌 추가` (Add Account) at the top as well. Check both fields and tap `계좌 만들기` (Create Account) to save. To leave without creating it, tap `취소` (Cancel).
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide10-mobile-create-20261009.webp" width={350} alt="Mobile New Account form with example brokerage and ISA nickname"/>
+
+An account alone adds nothing to your holdings' valuation. Register the securities you actually hold in the account.
+
+<Toggle title="Can I add multiple accounts at the same brokerage?">
+Yes. Use a different nickname for each one. For example, register your ISA and overseas stock account separately even when they are at the same brokerage.
+
+<br/>
+
+Entering the same brokerage and nickname again does not create another account. Give separate real accounts recognizable nicknames. When editing an account, also check that its brokerage and nickname combination does not duplicate an existing one.
+</Toggle>
+
+## 3. Editing Account Information
+
+Select the account and expand `계좌 정보 수정` (Edit Account Information). Change the brokerage or nickname and click `계좌 정보 저장` (Save Account Information). To restore the original values, click `입력 취소` (Cancel Changes).
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide10-desktop-rename-20261009.webp" width={800} alt="Expanded desktop account editor with Save Account Information and Cancel Changes buttons"/>
+
+For example, change `테스트 계좌` (Test Account) to `해외주식` (Overseas Stocks) to rename the account in one step. The holdings pick up the name automatically.
+
+<Ybox>
+A change to the brokerage or account name applies to all positions in the selected account. To move a single holding, use its account transfer control.
+</Ybox>
+
+Save or cancel pending edits before switching accounts. The text `이 계좌의 N개 종목에 적용` (Applies to N holdings in this account) beside the save button shows the scope of the change. The unsaved-changes notice at the bottom distinguishes a new account, account edits, a holding entry, and a transfer awaiting confirmation. Check which change you made and use its corresponding save button.
+
+<Ads1/>
+
+## 4. Adding Stocks and ETFs Manually
+
+Select the account that should hold the position. Click `종목 직접 추가` (Add Holding Manually) beside `보유 종목` (Holdings) to open the form.
+
+### 4.1. Selecting a Market and Searching for a Security
+
+Under `시장` (Market), choose `국내 주식·ETF` (Korean Stocks and ETFs) or `미국 주식·ETF` (U.S. Stocks and ETFs). Enter a name or ticker in `종목명 또는 코드` (Security Name or Ticker) and click `검색` (Search). Enter also starts a search.
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide10-desktop-search-20261009.webp" width={800} alt="Samsung Electronics result after searching for 005930 in Korean Stocks and ETFs on desktop"/>
+
+Check the name, ticker, and exchange in the results and click the one you want. Typing alone leaves the selection empty. **Select the result first**, then enter quantity and price.
+
+<br/>
+
+For Samsung Electronics, search for `005930` in the Korean market. For Apple, search for `AAPL` in the U.S. market. Pay particular attention to the ticker and exchange when ETF names look alike.
+
+<Toggle title="What if there are no search results or the Add button is disabled?">
+Check the selected market and the security's name or ticker. Make sure a Korean holding was not searched for in the U.S. market. If results appeared, verify that you actually selected the desired security.
+
+<br/>
+
+The app fetches the current price after saving. Search results identify the security. The position remains unsaved and the latest price remains unconfirmed at this stage.
+</Toggle>
+
+### 4.2. Quantity and Purchase Price
+
+If you hold ten Samsung Electronics shares with an average purchase price of KRW 70,000 per share, enter the following.
+
+- Enter `10` in `현재 총보유 수량 · 주` (Current Total Shares).
+- Enter `70000` in `주당 평균 매입단가 · 원` (Average Purchase Price per Share, KRW).
+- Check the account and security, then click `이 계좌에 추가` (Add to This Account).
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide10-desktop-add-20261009.webp" width={800} alt="Desktop form before saving ten Samsung Electronics shares at an average purchase price of KRW 70,000 per share"/>
+
+The total purchase cost is ten shares times KRW 70,000, or KRW 700,000. The `총매입금액 검산` (Total Purchase Cost Check) under the form displays that calculation. Check it before saving to catch a total mistakenly entered as a unit price. Entering KRW 700,000 in the per-share field would treat that amount as the price of one share.
+
+<br/>
+
+For U.S. stocks, the form displays `USD`. If you own ten shares at an average of USD 180, enter `10` as quantity and `180` as price. Use the dollar amount per share directly, without converting it to won or entering the USD 1,800 total.
+
+<Bbox>
+If you do not know the purchase price, you can leave it blank as the field suggests. Purchase-price-based gains and losses will be incomplete until you verify and enter the actual average. Leave unknown prices blank.
+</Bbox>
+
+Quantity must be positive and can have up to six decimal places. If you hold half a share, enter `0.5`. After saving, check the security and quantity in the list. Check the fetched price on the dashboard or detail page.
+
+## 5. Editing an Existing Holding
+
+If you bought more or entered the wrong quantity or price, click `수정` (Edit) on the holding card in that account. Change the quantity and average price in `보유 종목 수정` (Edit Holding), then click `종목 수정 저장` (Save Holding Changes).
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide10-desktop-edit-20261009.webp" width={800} alt="Desktop editor for an existing Apple holding of ten shares at an average of USD 180 per share"/>
+
+This form edits the quantity and price of the existing security. To record a different security you now hold, add a separate position.
+
+### 5.1. Total Quantity After Buying More
+
+If you bought two shares on top of ten, set `현재 총보유 수량 · 주` (Current Total Shares) to `12`. Entering just the two new shares would replace your total with two. The field represents **your current total holdings**.
+
+<br/>
+
+For the average price, use the average shown by your broker for the current position when available. The price of the latest transaction alone can differ from that average.
+
+<Toggle title="How should I understand the average purchase price?">
+Suppose you hold ten shares at USD 180 per share and buy two more at USD 200 each. Ignoring fees, the total cost is USD 1,800 plus USD 400, or USD 2,200. Dividing by twelve shares gives an average of about USD 183.3333.
+
+<br/>
+
+Actual cost basis can reflect the brokerage's accounting rules. This screen takes an average as input, so check the average purchase price reported by the brokerage.
+</Toggle>
+
+### 5.2. Editing Holdings on Mobile
+
+Choose an account and tap `수정` (Edit) on the holding. Check the security, unit, and current total quantity in the form. Tap `종목 수정 저장` (Save Holding Changes) at the bottom to apply the change.
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide10-mobile-edit-20261009.webp" width={350} alt="Mobile Apple holding editor with share quantity, average price in USD, and Save Holding Changes"/>
+
+If you use `종목 직접 추가` (Add Holding Manually) for a security already in the account, the app prompts you to edit the existing quantity. Reconcile it to your actual total. If you own the same security in another account, select that account and register it separately.
+
+<Ads2/>
+
+## 6. Moving a Holding Between Accounts
+
+Use the `계좌 이동` (Move to Another Account) list on a holding card to select another account. First check the security name and its current account.
+
+<br/>
+
+**Selecting an account opens a confirmation panel before anything is saved.** It lists the security, total quantity, source account, and destination account. If the details are correct, click `확인 후 이동` (Confirm and Move). If you chose the wrong account, click `취소` (Cancel). Save or cancel pending edits first.
+
+<Ybox>
+A move changes the account recorded for the holding in the app. It does not transfer or trade shares at the brokerage. Use it to align the app's records with the actual location of your holdings.
+</Ybox>
+
+### 6.1. What Moves
+
+A move transfers the entire holding represented by the card. To reflect a partial real transfer, such as two of ten shares, update the holdings in both accounts using the actual balances.
+
+<br/>
+
+If the destination already contains the same security, the app prompts you to verify and edit each quantity separately. It does not combine the positions or average prices automatically. On October 10, 2026, ten Apple shares were moved to another registered account in QA and then restored. The quantity of ten shares and the average price of USD 180 were preserved.
+
+<Toggle title="Does moving a holding change its portfolio assignment?">
+Moving changes the recorded custody location. Check the investment portfolio in Asset Assignment. The current move operation changes the account and keeps the position's quantity, cost basis, and portfolio assignment.
+
+<br/>
+
+If the same security is held in several accounts, check any direct assignments by account too. After a move, verify the result in the security details and Asset Assignment.
+</Toggle>
+
+## 7. Brokerage Accounts and Investment Portfolios
+
+A brokerage account tells you where assets are held. A portfolio groups assets by investment role and target weight.
+
+<Img src="https://cdn.promleeblog.com/posts/portrhythm-guide10-account-port-20261009.webp" width={800} alt="Brokerage and account identify custody, while portfolios such as U.S. and Korean indexes identify investment roles"/>
+
+| Category | Question it answers | Settings screen |
+| --- | --- | --- |
+| Login account | Whose assets are these? | Account |
+| Brokerage account | Where are they held? | Account Management |
+| Investment portfolio | What role and weight should they have? | Target Design and Asset Assignment |
+
+For example, one ISA can hold a Korean index ETF and assets that serve other roles. Assets in different brokerage accounts can also belong to the same portfolio. Adding an account leaves target weights to be set separately.
+
+<br/>
+
+Once quantities match each brokerage account, go to [Part 4, Asset Assignment](https://www.promleeblog.com/blog/post/439-portrhythm-asset-assignment-guide) to check each asset's portfolio. Use [Part 6, Comparing Current and Target Weights](https://www.promleeblog.com/blog/post/441-portrhythm-current-target-allocation-guide) to review overall weights.
+
+## 8. Related Screens
+
+`계좌 관리` (Account Management) handles direct management of stocks and ETFs by account. Use the following screens for other assets and tasks.
+
+| Task | Screen |
+| --- | --- |
+| Add accounts, edit nicknames, and enter stocks or ETFs by account | Account Management |
+| Recognize securities from a balance screenshot | Import Screenshot |
+| Manage crypto, cash, and other assets | Edit Assets |
+| Check valuations, gains and losses, and account-level details | Dashboard, Holdings, and Security Details |
+| Assign an asset to an investment portfolio | Asset Assignment |
+| Check differences from target weights | Portfolio Weights |
+| Review external deposits and withdrawals and changes in valuation | Asset History |
+
+Click the security name to open its detail page. Account Management shows the account's combined stock and ETF valuation and each security's quantity and average price. For an individual security's valuation and gains or losses, open the details. You can still import screenshots as described in [Part 3, Adding Assets](https://www.promleeblog.com/blog/post/438-portrhythm-asset-registration-guide).
+
+### 8.1. Reconciling Brokerage Balances
+
+Check these items for each account.
+
+- Confirm that the brokerage and account nickname match how you organize the actual accounts.
+- Verify the market and ticker alongside the name.
+- Enter the current total quantity.
+- Check the currency of the average purchase price.
+- After saving, check the account list and security details.
+- Check cash and portfolio assignments on their respective screens.
+
+<br/>
+
+If you sell ten shares and receive cash, a quote refresh alone cannot update your quantity and cash balance. Compare the app with the brokerage balance and edit the holdings to match. A nickname such as ISA or Pension Savings does not calculate taxes, contribution limits, or which securities can be traded in the account.
+
+## Conclusion
+
+Account Management lets you start by organizing your accounts, then search and add holdings. It works for adding securities without a screenshot and for correcting quantities and prices by account.
+
+<br/>
+
+Select the account first. Search for new securities and edit existing positions using the current total quantity. Use account transfers to change where a holding is recorded in the app.
+
+<br/>
+
+The guide will continue as features are added. Part 10 adds account-level management to the existing workflow. Open [Account Management](https://pf.promleeblog.com/?view=accounts) and start by checking which accounts hold your stocks and ETFs.
+
+### References
+
+- [PortRhythm Account Management](https://pf.promleeblog.com/?view=accounts)
+- [PortRhythm User Guide](https://pf.promleeblog.com/guide)
+- [PortRhythm User Guide 3 — Adding Assets](https://www.promleeblog.com/blog/post/438-portrhythm-asset-registration-guide)
+- [PortRhythm User Guide 4 — Asset Assignment](https://www.promleeblog.com/blog/post/439-portrhythm-asset-assignment-guide)
+- [PortRhythm User Guide 9 — Login Account and Display Settings](https://www.promleeblog.com/blog/post/444-portrhythm-account-display-guide)

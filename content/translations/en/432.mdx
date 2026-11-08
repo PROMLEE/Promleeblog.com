@@ -1,0 +1,192 @@
+---
+post_id: '432'
+locale: en
+title: Model Routing for AI Coding
+description: >-
+  Choose models and reasoning effort based on the difficulty and risk of an AI
+  coding task. Define starting routes and escalation rules for quick edits,
+  routine implementation, and complex design or verification, then compare
+  Claude and Codex on cost, latency, and quality.
+source_hash: 9723bf223d26fea24bd64ab070bdbe22414f93a0b42bfd5bf5be7cd1252cd2c7
+reviewed_at: '2026-11-08T02:41:25.522Z'
+---
+## Before We Begin
+
+Do you use the same model and reasoning effort to change a button label and investigate intermittent logout? A copy edit is straightforward once you know where to make it. A session bug can involve cookies, server rendering, and redirects. Applying one setting to both can leave you waiting on simple edits or repeating incorrect fixes on difficult ones.
+
+<br/>
+
+**Model routing is a rule for choosing a model and reasoning effort for each task and changing that choice when needed.** If you work alone, a simple rule for choosing your starting settings and escalating when stuck may be enough. This article covers selection criteria, configuration, escalation, and cost comparisons for Claude Code and Codex.
+
+## Classifying Tasks
+
+> How clear the right answer is and what a wrong change would affect matter more than the number of files.
+
+One line of authorization code can affect an entire service, while updating imports across twenty files may follow a fixed rule. Ask three questions when a task arrives.
+
+- **What counts as correct?** Before-and-after examples and completion criteria make this easier to judge.
+- **How far does the change reach?** Check whether it affects one screen or crosses API, database, and authentication boundaries.
+- **How can you verify it?** Determine whether a type check suffices or whether you must reproduce multiple states and user permissions.
+
+Use those questions to define fast, default, and high-capability routes. These are roles the team assigns based on testing, so their model assignments can change.
+
+| Route | Task conditions | Development examples | Starting settings |
+| --- | --- | --- | --- |
+| Fast | The right answer and edit location are clear | Button copy, import cleanup, a reproduced simple type error | Lightweight model, low reasoning effort |
+| Default | Implementation requires reading existing patterns and choosing an approach | Search filters, form validation, API response handling | Primary model, default reasoning effort |
+| High capability | Several hypotheses or design choices require judgment and risk review | Session loss, concurrency bugs, data migration design | A model with strong reasoning and an effort level suited to the task |
+
+<Img src="/261003-060002.webp" width={650} height={433} alt="Model routing uses the fast route for clear edits, the default route for routine implementation, and the high-capability route for complex decisions"/>
+
+OpenAI's documentation recommends comparing models and reasoning settings on the same input and selecting the lightest configuration that meets your quality requirements. [OpenAI model selection guide](https://developers.openai.com/api/docs/guides/model-selection)
+
+<Bbox>
+Keep your usual model on the default route and start by moving recurring simple tasks to the fast route. Moving unfamiliar repository work to a lighter model at the same time makes it harder to distinguish model limitations from missing task information.
+</Bbox>
+
+<Ads1/>
+
+## Model and Reasoning Effort
+
+Changing the model and changing reasoning effort are separate decisions. The model determines underlying capabilities and pricing. Reasoning effort adjusts how much work a supported model can devote to reasoning. A lightweight model at high effort can still behave differently from a more capable model.
+
+<br/>
+
+For example, start with your primary model at its default effort when adding required-field validation to an existing React form. Once the validation function and error placement are clear, lower effort may suffice for copy edits. If you must decide which layer validates and how server and client errors fit together, allocate more reasoning budget.
+
+<Ybox>
+Changing model and reasoning effort together makes the outcome harder to explain. Keep the task request and verification criteria fixed and change one setting at a time. Supported effort levels vary by model and product, so check the selection interface or official configuration documentation.
+</Ybox>
+
+## Claude Code Settings
+
+Claude Code lets you specify `--model` at launch or choose a model with `/model` in a session. Check which models the aliases `sonnet` and `opus` resolve to in your environment and whether they are available. [Claude Code model configuration](https://code.claude.com/docs/en/model-config)
+
+```bash title="터미널에서 Claude Code 시작"
+claude --model sonnet
+```
+
+You can change models within the session if the task starts requiring more complex diagnosis.
+
+```text title="Claude Code 세션"
+/model opus
+```
+
+### Planning and Implementation
+
+Routing can also separate decisions about the design from implementation of that design. Claude Code's `opusplan` uses Opus in plan mode and switches to Sonnet in execution mode. [Claude Code opusplan setting](https://code.claude.com/docs/en/model-config#opusplan-model-setting)
+
+```bash title="계획과 구현 모델 분리"
+claude --model opusplan
+```
+
+For a search feature, use planning to decide the URL query structure, where to fetch data, and how to handle empty results. Then implement components and tests against those decisions. Alongside a conclusion such as “handle it on the server,” list the changed files, inputs and outputs, and verification criteria so the implementation model can build on the plan.
+
+<br/>
+
+Separating phases adds handoff costs. A separate design stage for a copy edit may add calls and waiting time. Use it for tasks with genuine design decisions.
+
+## Codex Settings
+
+Codex allows separate model and reasoning effort settings. The values available for the CLI's `model_reasoning_effort` depend on the model and client. [Codex configuration reference](https://learn.chatgpt.com/docs/config-file/config-reference)
+
+These CLI examples specify the model and effort explicitly. Use a model ID available to your account.
+
+```bash title="Codex CLI 기본 작업"
+codex --model gpt-6.1-sol --config model_reasoning_effort='medium'
+```
+
+```bash title="Codex CLI 복잡한 원인 분석"
+codex --model gpt-6.1-sol --config model_reasoning_effort='high'
+```
+
+The second example increases effort with the model held fixed. Compare which tasks benefit before considering a model change. In the app, apply the same criteria using its model and reasoning controls. The examples set one configuration at a time. You still decide how to route each task.
+
+<Ads2/>
+
+## Diagnosing Failures and Escalating
+
+A failed test is a reason to diagnose the problem first. A failed dependency install, missing environment variable, or incorrect reproduction may reflect the execution setup. Classify the failure before **escalating** to a more capable model or higher effort.
+
+| Failure signal | First action | When to escalate |
+| --- | --- | --- |
+| Cannot find a file | Supply the actual path and entry point | Consider it if the agent still repeatedly misunderstands dependencies |
+| Requirements are ambiguous | Define expected behavior and exclusions | Ask the user if a product decision is needed |
+| Tests cannot run | Check the environment, commands, and test data | Resolve environment issues first |
+| The same fix repeatedly fails | Record the failing input and actual result | Escalate if the hypothesis does not change |
+| An authentication or data boundary emerges | Reassess impact and verification | Allocate more reasoning effort and human review |
+
+Set a retry limit too. One possible rule is to summarize and escalate if two edits fail to narrow the cause on the same reproduction. Two is a starting point your team can adjust.
+
+<Rbox>
+Stop a fix that removes permission checks, deletes tests, or ignores exceptions to make a failure disappear. A stronger model still needs to meet the review and completion requirements for authentication, billing, and data changes.
+</Rbox>
+
+<Img src="/261003-060003.webp" width={650} height={433} alt="Model escalation workflow that checks for repeated failure and high risk, then hands over completed changes, failed verification, and open decisions"/>
+
+The signals in the figure are reasons to consider switching models. As the table shows, missing paths or unclear requirements may need to be addressed first.
+
+### Handoff Summary
+
+When moving to another session or tool, summarize the current state and verification evidence. Include paths the next session can use to inspect the code and logs.
+
+```text title="handoff.md"
+목표: 새로고침 뒤 검색 필터 유지
+완료 조건: q와 status가 URL에서 복원되고 뒤로 가기도 동작
+수정 파일: src/features/search/SearchForm.tsx
+현재 변경: 초기값을 searchParams에서 읽도록 수정
+통과: 타입 검사, 초기 필터 복원 테스트
+실패: 뒤로 가기 후 입력값이 이전 상태로 돌아오지 않음
+재현: 필터 A → 필터 B → 브라우저 뒤로 가기
+관찰: URL은 A지만 입력값은 B로 남음
+남은 판단: URL 변경과 로컬 입력 상태의 동기화 방식
+제외 범위: API와 검색 결과 정렬은 변경하지 않음
+```
+
+With this information, the stronger model can start by checking the relationship between the URL and local state. It can build on the API investigation and initial reproduction already completed.
+
+## Cost per Completed Task
+
+Evaluate routing by **the total cost of getting a task through verification**. If the lightweight model fails and a stronger model takes over, the first attempt and the handoff both add cost.
+
+The figures below illustrate the calculation and represent neither actual prices nor benchmarks. Assume that costs for input, output, and reasoning tokens use the same units.
+
+| Route | First attempt | Retry and handoff | Stronger model | Total to completion |
+| --- | --- | --- | --- | --- |
+| Start with a stronger model | 10 | 0 | 0 | 10 |
+| Finish with a lightweight model | 2 | 0 | 0 | 2 |
+| Escalate after the lightweight model fails | 2 | 1 | 10 | 13 |
+
+If the escalation rate is `p`, the average cost in this example is `2 + 11 × p`. In practice, the stronger model may finish faster by building on earlier changes or spend longer undoing them. Calculate savings from actual task records.
+
+<Ads3/>
+
+### What to Record
+
+Establish a baseline for the default route using representative recurring tasks. Compare alternative settings with the same starting code, request, and verification conditions. Start with these fields.
+
+- Task type, starting model, and reasoning effort
+- Whether the completion criteria were met and why escalation was needed
+- Total elapsed time, including retries and escalation
+- For API use, actual usage and cost based on the applicable billing rates
+- Time spent on manual edits and issues found during review
+
+For Claude and Codex subscriptions, compare completion rate, wait time, and how much of the usage limit each route consumes. For API use, calculate costs from actual usage and applicable prices.
+
+<Bbox>
+Compare typos, routine features, and complex bug investigations separately. An overall average can let savings on easy tasks conceal rework on hard ones.
+</Bbox>
+
+## Conclusion
+
+Choose starting settings based on how clear the answer is, which boundaries the change affects, and how you will verify it. Try lighter settings on recurring simple edits first and budget more reasoning for complex designs and higher-risk changes.
+
+<br/>
+
+When stuck, check the environment and task information before escalating a reasoning problem. Record **starting settings, escalation criteria, handoff summaries, and cost per completed task** to choose models based on the time and cost of finishing the work.
+
+### References
+
+- [OpenAI model selection guide](https://developers.openai.com/api/docs/guides/model-selection)
+- [Claude Code model configuration](https://code.claude.com/docs/en/model-config)
+- [Codex configuration reference](https://learn.chatgpt.com/docs/config-file/config-reference)

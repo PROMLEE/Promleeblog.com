@@ -1,0 +1,624 @@
+---
+title_en: >-
+  How to Build a Recommendation Dataset and Crawling Pipeline - XGBoost
+  Recommendation System Part 2
+title_ko: 추천 학습 데이터셋 구축과 크롤링 파이프라인 설계 방법 - XGBoost 추천시스템 2편
+url: xgboost-recommendation-dataset-crawl-pipeline-2
+series_no: 2
+desc: >-
+  meetinthemiddle 추천 시스템 학습을 위해 Station Place Edge 스키마를 정의하고, seed 데이터 수집과 정제
+  규칙, 중복 제거와 결측 및 이상치 처리, 품질 리포트 생성과 검증 흐름, 운영 확장 전략까지 실습 코드로 단계별로 따라가며 정리합니다.
+thumbnail_url: /260404-210006.webp
+metatag: 'XGBoost, 추천시스템, 머신러닝, 데이터셋, ETL, 크롤링, 스키마설계, 데이터품질, 정규화, 중복제거, 파이썬, CSV, 랭킹'
+tags: 'AI, Python'
+post_id: '425'
+locale: en
+title: >-
+  Building a Recommendation Dataset and Crawling Pipeline — XGBoost
+  Recommendations, Part 2
+description: >-
+  Build a meetinthemiddle recommendation dataset around a Station, Place, and
+  Edge schema. Follow the exercise code through seed collection, cleaning rules,
+  duplicate, missing-value and outlier handling, quality reporting, validation,
+  and scaling to larger crawls.
+source_hash: 0fc0cfcfe444a34ceef85cea2dace208f1ab36015cf55003074df6185e27c4a4
+reviewed_at: '2026-11-08T04:18:38.127Z'
+---
+## Before We Begin
+
+When people start from different locations, finding a meeting place everyone considers reasonable is surprisingly hard. That's why I built [meet-in-the-middle](https://meetinthemiddle.promleeblog.com), a service that recommends places to meet.
+
+<br/>
+
+Part 1 framed recommendation as a ranking problem and showed how to build labels from user behavior. In Part 2, we'll define the Station, Place, and Edge schema, collect seed data, establish cleaning rules, and generate a quality report for the training dataset.
+
+<br/>
+
+[Exercise code and dataset on GitHub](https://github.com/PROMLEE/xgboost-ml-practice/tree/part2)
+
+<Ads1/>
+
+## Core Entities in the Recommendation Dataset
+
+A recommendation system needs three pieces of information.
+
+- Where the trip starts.
+- Where it ends.
+- What it costs to travel between those points.
+
+<br/>
+
+The smallest units I used for the meetinthemiddle training dataset were Station, Place, and Edge.
+
+### Station
+
+A Station is a transportation reference point, such as a subway station or bus transfer hub. Keeping it separate lets us normalize coordinates, group areas, and calculate travel costs consistently.
+
+<br/>
+
+If a café is near Hongik University Station, for example, we can calculate travel costs against the station even if the café's coordinates vary slightly. The model inputs stay stable when crawled coordinates are imperfect.
+
+### Place
+
+A Place is a recommendation candidate, such as a café, restaurant, bar, or study café. Each needs at least the following.
+
+- Venue name
+- Category
+- Associated Station
+- Trust signals such as average rating and review count
+
+### Edge
+
+An Edge represents the travel cost between two stations. Its most important value is ETA, or estimated travel time. For the model, ETA is a key feature for quantifying fairness.
+
+<br/>
+
+Keeping edges separate makes it easier to do the following.
+
+- Compare travel modes for the same station pair.
+- Remove abnormal ETAs for particular routes.
+- Calculate fairness features such as the mean, variance, and maximum deviation.
+
+<Ads2/>
+
+## Seed Data and Crawled Data
+
+A common mistake is to begin with a large crawl. A crawl can yield plenty of data, but an unstable schema can make cleaning much more expensive. I separate seed collection from the crawl.
+
+### Seed Data
+
+Seed data is a small, high-quality reference dataset. Start with a small station list, representative commercial districts, and representative categories. Use that stage to settle two things.
+
+- The schema.
+- The cleaning rules.
+
+### Crawled Data
+
+The crawl expands collection using the seed schema. At scale, missing values, duplicates, and outliers keep appearing. The quality report becomes especially important at this stage.
+
+<Img src="/260404-203324.webp" width={600} alt="Pipeline from a small seed dataset to larger-scale crawl data"/>
+
+## Exercise: Building the Cleaning Pipeline
+
+Before connecting a crawler, reproduce common data-cleaning problems on a small dataset. Use the part2 branch of the exercise repository.
+
+https://github.com/PROMLEE/xgboost-ml-practice/tree/part2
+
+### Exercise File Structure
+
+```
+xgboost-ml-practice/
+├── ml/
+│   ├── raw_stations.csv
+│   ├── raw_places.csv
+│   ├── raw_edges.csv
+│   ├── dataset_builder.py
+│   └── out/
+│       ├── stations.csv
+│       ├── places.csv
+│       ├── edges.csv
+│       └── quality_report.json
+└── scripts/
+    ├── setup_mac_linux.sh
+    ├── setup_windows.ps1
+    ├── build_dataset.sh
+    └── build_dataset_windows.ps1
+```
+
+### Problems Deliberately Added to the Raw Data
+
+The raw_places.csv file contains problems commonly found in practice.
+
+- Duplicate venue. Cafe A appears twice.
+- Missing station link. The station_id for pl_007 is blank.
+- Out-of-range rating. The avg_rating for pl_006 is 6.2.
+- Invalid review count. The rating_count for pl_008 is −1.
+
+```csv title="ml/raw_places.csv"
+place_id,place_name,category,station_id,rating_count,avg_rating,price_level
+pl_001,Cafe A,cafe,st_003,120,4.5,2
+pl_002,BBQ Place,restaurant,st_004,58,4.2,3
+pl_003,Study Cafe,study_cafe,st_009,35,4.8,2
+pl_004,Bar Z,bar,st_006,12,4.1,3
+pl_005,Cafe A,cafe,st_003,120,4.5,2
+pl_006,Invalid Rating,restaurant,st_007,10,6.2,2
+pl_007,Missing Station,cafe,,5,4.0,1
+pl_008,Negative Count,cafe,st_008,-1,4.0,1
+pl_009,Weird Category,CAFE,st_002,2,3.5,1
+pl_010,No Name,cafe,st_001,3,4.0,1
+```
+
+<br/>
+
+The raw_edges.csv file contains these problems.
+
+- Missing ETA from st_001 to st_010.
+- Unusually high ETA of 9999 from st_010 to st_001.
+- Negative ETA of −5 from st_003 to st_004.
+- Duplicate rows for the route from st_001 to st_002.
+
+```csv title="ml/raw_edges.csv"
+from_station_id,to_station_id,mode,eta_min
+st_001,st_002,subway,3
+st_002,st_003,subway,9
+st_003,st_008,subway,2
+st_003,st_009,walk,12
+st_004,st_007,subway,4
+st_007,st_005,subway,7
+st_006,st_001,subway,10
+st_001,st_002,subway,3
+st_001,st_010,subway,
+st_010,st_001,subway,9999
+st_003,st_004,subway,-5
+```
+
+### Cleaning Rules
+
+The dataset_builder.py script applies these rules.
+
+- Station
+  - Drop rows with a missing station_id.
+  - Remove duplicate station_id values.
+  - Keep rows with missing coordinates and count them in the quality report.
+
+<br/>
+
+- Place
+  - Drop rows with a missing place_id or place_name.
+  - Drop rows with no station or a station outside the station list.
+  - Treat matching place_name, station_id, and category values as duplicates and keep one row.
+  - Replace negative or missing review counts with zero and count them in the quality report.
+  - Treat ratings outside 0–5 as missing and count them in the report.
+
+<br/>
+
+- Edge
+  - Drop rows missing from, to, or mode.
+  - Drop routes with endpoints outside the station list.
+  - Drop ETAs below 1 or above 300 as outliers.
+  - Keep one row per from, to, and mode combination.
+
+<Toggle title="View the dataset_builder.py code">
+
+```python title="ml/dataset_builder.py"
+"""Build a clean, normalized dataset from raw seed CSV files.
+
+This script is intentionally small and opinionated for students.
+It reads raw seed CSV files and outputs normalized, validated CSVs plus a quality report.
+
+Input files (default: ml/):
+- raw_stations.csv
+- raw_places.csv
+- raw_edges.csv
+
+Output files (default: ml/out/):
+- stations.csv
+- places.csv
+- edges.csv
+- quality_report.json
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Optional, Tuple
+
+
+def _read_csv(path: Path) -> List[Dict[str, str]]:
+    with path.open("r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        return [dict(row) for row in reader]
+
+
+def _write_csv(path: Path, rows: Iterable[Dict[str, Any]], fieldnames: List[str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({k: row.get(k, "") for k in fieldnames})
+
+
+def _to_float(v: Any) -> Optional[float]:
+    if v is None:
+        return None
+    s = str(v).strip()
+    if s == "":
+        return None
+    try:
+        return float(s)
+    except ValueError:
+        return None
+
+
+def _to_int(v: Any) -> Optional[int]:
+    if v is None:
+        return None
+    s = str(v).strip()
+    if s == "":
+        return None
+    try:
+        return int(float(s))
+    except ValueError:
+        return None
+
+
+def _norm_id(v: Any) -> str:
+    return str(v or "").strip()
+
+
+def _norm_text(v: Any) -> str:
+    return " ".join(str(v or "").strip().split())
+
+
+def _norm_category(v: Any) -> str:
+    s = _norm_text(v).lower()
+    s = s.replace(" ", "_")
+    return s
+
+
+@dataclass
+class QualityReport:
+    input_rows: Dict[str, int]
+    output_rows: Dict[str, int]
+    dropped_rows: Dict[str, int]
+    duplicate_keys: Dict[str, int]
+    invalid_values: Dict[str, int]
+    warnings: List[str]
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "input_rows": self.input_rows,
+            "output_rows": self.output_rows,
+            "dropped_rows": self.dropped_rows,
+            "duplicate_keys": self.duplicate_keys,
+            "invalid_values": self.invalid_values,
+            "warnings": self.warnings,
+        }
+
+
+def build_dataset(raw_dir: Path, out_dir: Path) -> QualityReport:
+    stations_raw = _read_csv(raw_dir / "raw_stations.csv")
+    places_raw = _read_csv(raw_dir / "raw_places.csv")
+    edges_raw = _read_csv(raw_dir / "raw_edges.csv")
+
+    input_rows = {
+        "stations": len(stations_raw),
+        "places": len(places_raw),
+        "edges": len(edges_raw),
+    }
+
+    warnings: List[str] = []
+    invalid_values = {
+        "stations_latlon_missing": 0,
+        "places_avg_rating_invalid": 0,
+        "places_rating_count_invalid": 0,
+        "edges_eta_invalid": 0,
+    }
+
+    stations: List[Dict[str, Any]] = []
+    station_seen: set[str] = set()
+    station_dupes = 0
+    station_dropped = 0
+
+    for r in stations_raw:
+        station_id = _norm_id(r.get("station_id"))
+        if not station_id:
+            station_dropped += 1
+            continue
+        if station_id in station_seen:
+            station_dupes += 1
+            continue
+        station_seen.add(station_id)
+
+        lat = _to_float(r.get("lat"))
+        lon = _to_float(r.get("lon"))
+        if lat is None or lon is None:
+            invalid_values["stations_latlon_missing"] += 1
+
+        stations.append(
+            {
+                "station_id": station_id,
+                "station_name": _norm_text(r.get("station_name")),
+                "line_name": _norm_text(r.get("line_name")),
+                "lat": "" if lat is None else round(lat, 6),
+                "lon": "" if lon is None else round(lon, 6),
+            }
+        )
+
+    station_index = {s["station_id"] for s in stations}
+
+    places: List[Dict[str, Any]] = []
+    place_seen: set[str] = set()
+    place_dupes = 0
+    place_dropped = 0
+
+    # Seed de-dup key: (name, station, category)
+    place_key_seen: set[Tuple[str, str, str]] = set()
+    place_key_dupes = 0
+
+    for r in places_raw:
+        place_id = _norm_id(r.get("place_id"))
+        place_name = _norm_text(r.get("place_name"))
+        station_id = _norm_id(r.get("station_id"))
+        category = _norm_category(r.get("category"))
+
+        if not place_id or not place_name:
+            place_dropped += 1
+            continue
+        if place_id in place_seen:
+            place_dupes += 1
+            continue
+        place_seen.add(place_id)
+
+        if not station_id or station_id not in station_index:
+            place_dropped += 1
+            continue
+
+        key = (place_name.lower(), station_id, category)
+        if key in place_key_seen:
+            place_key_dupes += 1
+            continue
+        place_key_seen.add(key)
+
+        rating_count = _to_int(r.get("rating_count"))
+        if rating_count is None or rating_count < 0:
+            invalid_values["places_rating_count_invalid"] += 1
+            rating_count = max(0, rating_count or 0)
+
+        avg_rating = _to_float(r.get("avg_rating"))
+        if avg_rating is None or not (0.0 <= avg_rating <= 5.0):
+            invalid_values["places_avg_rating_invalid"] += 1
+            avg_rating = None
+
+        price_level = _to_int(r.get("price_level"))
+        if price_level is None or not (1 <= price_level <= 4):
+            price_level = None
+
+        places.append(
+            {
+                "place_id": place_id,
+                "place_name": place_name,
+                "category": category,
+                "station_id": station_id,
+                "rating_count": rating_count,
+                "avg_rating": "" if avg_rating is None else round(avg_rating, 2),
+                "price_level": "" if price_level is None else price_level,
+            }
+        )
+
+    edges: List[Dict[str, Any]] = []
+    edge_dropped = 0
+    edge_dupes = 0
+    edge_seen: set[Tuple[str, str, str]] = set()
+
+    for r in edges_raw:
+        a = _norm_id(r.get("from_station_id"))
+        b = _norm_id(r.get("to_station_id"))
+        mode = _norm_category(r.get("mode"))
+        eta = _to_int(r.get("eta_min"))
+
+        if not a or not b or not mode:
+            edge_dropped += 1
+            continue
+        if a not in station_index or b not in station_index:
+            edge_dropped += 1
+            continue
+        if eta is None or eta <= 0 or eta > 300:
+            invalid_values["edges_eta_invalid"] += 1
+            edge_dropped += 1
+            continue
+
+        key = (a, b, mode)
+        if key in edge_seen:
+            edge_dupes += 1
+            continue
+        edge_seen.add(key)
+
+        edges.append({"from_station_id": a, "to_station_id": b, "mode": mode, "eta_min": eta})
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    _write_csv(out_dir / "stations.csv", stations, ["station_id", "station_name", "line_name", "lat", "lon"])
+    _write_csv(
+        out_dir / "places.csv",
+        places,
+        ["place_id", "place_name", "category", "station_id", "rating_count", "avg_rating", "price_level"],
+    )
+    _write_csv(out_dir / "edges.csv", edges, ["from_station_id", "to_station_id", "mode", "eta_min"])
+
+    report = QualityReport(
+        input_rows=input_rows,
+        output_rows={"stations": len(stations), "places": len(places), "edges": len(edges)},
+        dropped_rows={"stations": station_dropped, "places": place_dropped, "edges": edge_dropped},
+        duplicate_keys={
+            "stations_station_id": station_dupes,
+            "places_place_id": place_dupes,
+            "places_name_station_category": place_key_dupes,
+            "edges_from_to_mode": edge_dupes,
+        },
+        invalid_values=invalid_values,
+        warnings=warnings,
+    )
+
+    (out_dir / "quality_report.json").write_text(
+        json.dumps(report.to_dict(), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    return report
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Build a clean dataset from raw seed CSV files.")
+    parser.add_argument("--raw-dir", default="ml", help="Directory containing raw_*.csv")
+    parser.add_argument("--out-dir", default="ml/out", help="Output directory")
+    args = parser.parse_args()
+
+    report = build_dataset(Path(args.raw_dir), Path(args.out_dir))
+    print("Dataset build finished.")
+    print(json.dumps(report.to_dict(), ensure_ascii=False, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+```
+
+</Toggle>
+
+<Ads3/>
+
+## Running the Exercise
+
+The commands use relative paths. In your terminal, change to the practice directory before running them.
+
+### macOS and Linux
+
+Create a virtual environment and install the libraries.
+
+```bash title="scripts/setup_mac_linux.sh"
+#!/usr/bin/env bash
+set -euo pipefail
+
+python3 -m venv .venv-ml
+source .venv-ml/bin/activate
+
+python -m pip install --upgrade pip
+pip install -r requirements-ml.txt
+
+echo "Environment ready."
+```
+
+Run the dataset build.
+
+```bash title="scripts/build_dataset.sh"
+#!/usr/bin/env bash
+set -euo pipefail
+
+source .venv-ml/bin/activate
+
+python3 ml/dataset_builder.py \
+  --raw-dir ml \
+  --out-dir ml/out
+```
+
+<Img src="/260404-195601.webp" width={500} alt="Dataset build results"/>
+
+When it finishes, find the cleaned outputs in ml/out.
+
+```text title="ml/out/"
+ml/out/
+├── stations.csv
+├── places.csv
+├── edges.csv
+└── quality_report.json
+```
+
+### Windows
+
+Create and activate the virtual environment in PowerShell.
+
+```powershell title="scripts/setup_windows.ps1"
+$ErrorActionPreference = "Stop"
+
+python -m venv .venv-ml
+
+# PowerShell venv activation
+.\.venv-ml\Scripts\Activate.ps1
+
+python -m pip install --upgrade pip
+pip install -r requirements-ml.txt
+
+Write-Output "Environment ready."
+```
+
+Run the dataset build.
+
+```powershell title="scripts/build_dataset_windows.ps1"
+$ErrorActionPreference = "Stop"
+
+.\.venv-ml\Scripts\Activate.ps1
+
+python ml\dataset_builder.py `
+  --raw-dir ml `
+  --out-dir ml\out
+```
+
+### Example Output
+
+The quality_report.json file summarizes what the pipeline dropped and how many issues it found.
+
+```json title="ml/out/quality_report.json" showLineNumbers
+{
+  "input_rows": {
+    "stations": 10,
+    "places": 10,
+    "edges": 11
+  },
+  "output_rows": {
+    "stations": 10,
+    "places": 8,
+    "edges": 7
+  },
+  "dropped_rows": {
+    "stations": 0,
+    "places": 1,
+    "edges": 3
+  },
+  "duplicate_keys": {
+    "stations_station_id": 0,
+    "places_place_id": 0,
+    "places_name_station_category": 1,
+    "edges_from_to_mode": 1
+  },
+  "invalid_values": {
+    "stations_latlon_missing": 1,
+    "places_avg_rating_invalid": 1,
+    "places_rating_count_invalid": 1,
+    "edges_eta_invalid": 3
+  },
+  "warnings": []
+}
+```
+
+### Reading the Results
+
+The report shows that places went from ten rows to eight. The cleaner removed one row with no station and one duplicate based on place_name, station_id, and category. Edges went from eleven rows to seven as missing values and outliers were removed. These counts provide a starting point for monitoring data quality in a crawling pipeline.
+
+## Conclusion
+
+A recommendation dataset deserves as much care as the model. Defining a small schema around Station, Place, and Edge lets you apply consistent cleaning rules as crawled data grows. Keeping quality reports helps you trace when training data deteriorates.
+
+<br/>
+
+> Part 3 builds ETA-based fairness features from the Station, Place, and Edge dataset and turns them into inputs XGBoost can learn from.
+
+### References
+
+- [github.com/PROMLEE/xgboost-ml-practice](https://github.com/PROMLEE/xgboost-ml-practice/tree/part2). Includes exercise code, seed data, cleaned output, and the quality report.
+- [XGBoost Documentation](https://xgboost.readthedocs.io/en/stable/). The official reference used in later installments.

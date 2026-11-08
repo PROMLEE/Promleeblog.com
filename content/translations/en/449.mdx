@@ -1,0 +1,215 @@
+---
+post_id: '449'
+locale: en
+title: An AI Development Workflow for Teams
+description: >-
+  Use a search feature to connect task requests, contracts, context, model
+  choice, implementation, verification, handoff, and PR review with Claude and
+  Codex.
+source_hash: ef1bf3dc353a4465dc25a1209a0ac61ff65506b8e29b0401bfbd0608fc20eef5
+reviewed_at: '2026-11-08T02:27:54.328Z'
+---
+## Before We Begin
+
+When teammates use AI in different ways, they leave different kinds of information in pull requests. One PR clearly explains why the code changed and what tests ran. Another says only, “AI implemented it, and it works.” The code arrives quickly, but the reviewer has to track down the requirements and find out how the change was verified.
+
+<br/>
+
+This series has covered how to provide context, select a model, and verify results. In this final installment, we'll bring those techniques together into **a workflow that gives each person the evidence they need to make the next decision**. Our example adds a search query and a status filter to an existing service. The documents and results illustrate the process. They do not report a project's actual results or productivity measurements.
+
+## Start with the Task
+
+> Before handing off implementation, decide how you'll tell when it is complete.
+
+Describe the user's action and expected result. “Improve search” leaves too much open. In this task, the search query and status filter must appear in the URL, and the screen must restore both after a refresh or when the user navigates back. Include empty and error states. Leave sorting rules and the database schema unchanged.
+
+<br/>
+
+The task owner sets the acceptance criteria and scope. AI can identify constraints in the existing code and explain available options. Specify which product decisions it should leave to the owner. Let it make implementation choices that follow from the existing requirements.
+
+```yaml title="docs/tasks/search-filter.yaml"
+task_id: search-filter
+goal: 검색어와 상태 필터를 URL과 동기화
+acceptance:
+  - 검색 시 q와 status가 URL에 반영됨
+  - 새로고침 뒤 URL과 화면 필터가 일치함
+  - 뒤로 가기 뒤 이전 필터가 복원됨
+  - 빈 결과와 API 오류를 구분해 표시함
+scope:
+  include:
+    - 검색 폼과 상태 처리
+    - 기존 검색 API의 필터 처리
+    - 관련 테스트
+  exclude:
+    - 정렬 규칙 변경
+    - DB 구조 변경
+contract: docs/contracts/search-filter.md
+verification:
+  - 저장소에 정의된 타입 검사
+  - 필터 파싱과 API 계약 테스트
+  - 실제 브라우저의 새로고침과 뒤로 가기
+```
+
+This file is a task document. Refer to its path in the request and fill it out using the actual repository's commands and documentation. For small fixes, use only the fields you need.
+
+<Bbox>
+Start with a recurring task whose result is easy to verify. Choose a feature with an established pattern so the team can practice requesting, verifying, and reviewing a change before taking on a larger project with unclear acceptance criteria.
+</Bbox>
+
+## Evidence at Each Stage
+
+Connect the request, contract, implementation, verification, and review. Each stage should leave something the next one can use. Measure the whole process and use what you learn to improve the next task.
+
+<Img src="/261015-120002.webp" width={650} height={433} alt="Team AI development cycle from request and contract to implementation, verification, and review, improved through completion, rework, time, and cost metrics"/>
+
+| Stage | Decision to make | What to leave for the next stage |
+| --- | --- | --- |
+| Request | Are the goal and acceptance criteria clear? | Task specification and exclusions |
+| Contract | Do the UI and API expect the same behavior? | Parameters, responses, and error handling rules |
+| Implementation | What information and code paths are needed? | Code, reasons for changes, and open decisions |
+| Verification | Does the final code meet the acceptance criteria? | Commands, results, and what remains unverified |
+| Review | Have we checked intent and regression risk? | Review results and follow-up actions |
+
+The Claude Code documentation also recommends separating exploration, planning, and implementation, and providing criteria that can be checked, such as a test or an expected result.
+[Claude Code best practices](https://code.claude.com/docs/en/best-practices)
+
+For a small change, exploration and implementation can follow quickly. Keep the decisions and evidence without turning every stage into a long report or separate meeting.
+
+<Ads1/>
+
+## Context and the Contract
+
+Start with shared instructions, relevant entry points, and the current task specification. Point the AI to the search screen's entry file, the existing API route, and the test commands so it doesn't have to explore the whole repository again. Have it read additional dependencies as they become relevant.
+
+<br/>
+
+Use the `AGENTS.md` and `CLAUDE.md` files from Part 2 for rules that apply repeatedly across the repository. Use the task request from Part 4 for this feature's goal and scope, and the handoff document from Part 10 for work in progress. Keep these kinds of information in files that match their useful lifetime.
+
+### Search Contract
+
+Define what the UI and API agree on. Record the allowed status values, the behavior for an empty query, response fields, and error states. Check the actual code to confirm which parameters the frontend sends and which the server reads.
+
+```text title="docs/contracts/search-filter.md"
+입력: q는 검색어, status는 all 또는 active 또는 archived
+빈 q: 검색어 제한 없이 상태 필터만 적용
+status 누락: all로 처리
+성공: HTTP 200, items 배열과 nextCursor 반환
+잘못된 status: HTTP 400, INVALID_QUERY 오류 반환
+빈 결과: HTTP 200, items는 빈 배열
+URL 복원: 누락된 status도 화면에서는 all로 표시
+```
+
+This is an example contract. Follow existing service rules or document the agreed change first. Verify that real requests and responses follow the contract as well as the type declarations.
+
+## Model and Implementation
+
+A filter that follows an existing pattern can start with the default route from Part 6. If a state bug is hard to reproduce or the cause may span several layers, check for missing information and environment problems before changing the model or reasoning effort. Test failures can have causes other than model capability.
+
+<br/>
+
+Use the Skill from Part 5 for recurring procedures and standards, and MCP to look up external state when needed. Measure caching from Part 9 when inputs actually recur. Keep tools and documents limited to what the feature needs.
+
+### Decide Whether to Work in Parallel
+
+Once the search contract and file ownership are stable, UI and API implementation can proceed in parallel. If the contract is still changing, settle it before splitting the work. As in Part 11, give parallel workers separate workspaces and clear ownership, then verify the whole flow after integration. For a small feature, one session can reduce handoff and integration costs.
+
+## Verification and Rework
+
+Tie the verification loop from Part 7 to this task's acceptance criteria. Use unit tests for filter parsing, contract tests for API inputs and responses, and a browser check for Back and refresh behavior. What matters is which criterion each check verifies.
+
+| Acceptance criterion | Example check |
+| --- | --- |
+| Apply q and status | Inspect request parameters and the URL |
+| Default for missing status | Run parsing unit tests and API tests |
+| Distinguish empty results from errors | Test UI states and inspect actual responses |
+| Restore state after Back or refresh | Run a browser end-to-end test or record manual reproduction |
+
+OpenAI's iterative repair example connects review, editing, and verification, then uses outstanding failures as input to the next edit.
+[OpenAI iterative repair loops](https://developers.openai.com/cookbook/examples/codex/build_iterative_repair_loops_with_codex)
+
+<br/>
+
+When a check fails, distinguish what you observed from what you suspect. If the URL updates but the input retains its old value, preserve that reproduction and inspect how state updates. If the test server doesn't start, check the environment first. If requirements conflict, document the decision the task owner needs to make.
+
+<Rbox>
+Keep the acceptance criteria and edge-case checks intact during verification. If the requirements change, document the reason and revised criteria before running the checks again.
+</Rbox>
+
+<Ads2/>
+
+### Stop and Hand Off
+
+If you keep editing in response to the same failure without new evidence, return to diagnosis. Record the current path and commit, uncommitted changes, passed, failed, and unrun checks, and the next action. The next session should compare the notes with the code before continuing. Keep the same task ID when switching models or starting a new session so retry costs stay associated with one task.
+
+## Review and Completion
+
+Reviewers inspect the actual change and verification evidence alongside the AI's explanation. The task owner checks the goal and scope, the implementer reports the changes and execution results, and the reviewer checks whether the change fits the intent and covers what it should. Keep responsibility for completion clear when an implementer uses AI.
+
+<Img src="/261015-120003.webp" width={650} height={433} alt="Decisions and evidence assigned to the task owner, implementer, and reviewer"/>
+
+One person may hold several roles on a small team. Even then, review the changed files against the acceptance criteria. Record the model in the operational log, and focus the PR on why the code changed and the evidence a reviewer needs.
+
+```text title="PR 설명 예시"
+문제: 검색 필터가 URL에 남지 않아 공유·새로고침 시 조건이 사라짐
+변경: q·status 직렬화와 URL 변경에 따른 화면 상태 복원
+범위: 검색 폼, API 필터 처리, 관련 테스트
+검증: 타입 검사, 파싱·계약 테스트, 브라우저 복원 시나리오
+미검증: 실행 환경이 없는 브라우저는 별도로 표시
+제외: 정렬 규칙과 DB 구조는 변경하지 않음
+작업 기록: docs/tasks/search-filter.yaml
+```
+
+This is an example report. In the PR, include the commands you ran, their results, and links or logs that identify the code state you verified. Rerun affected checks after review changes.
+
+<br/>
+
+Define development completion, merging, and deployment separately. In this example, completion means passing verification and review. Report deployment separately. If deployment is in scope, follow the team's release procedure and record the checks performed afterward.
+
+## Record and Improve
+
+For recurring tasks, record where the time went as well as the result. Link completion rate, human rework, elapsed time, and total usage from Part 8 to the task ID. For an API, record the actual billing rates. For a subscription tool, record the usage and limits you can verify.
+
+<br/>
+
+OpenAI's examples of automating recurring tasks also describe gathering context, recording execution results, and bringing lessons from earlier runs into the next task.
+[OpenAI examples of recurring workflows](https://developers.openai.com/blog/automating-repetitive-work-at-openai-with-codex)
+
+If reviewers repeatedly misunderstand an API field, improve the contract. If agents keep looking for the same files, clarify the entry points. If verification takes too long, find the bottleneck and run the relevant checks first. Change one variable at a time when comparing models, instructions, or verification methods.
+
+<Ads3/>
+
+<Bbox>
+Pick one problem that recurs each week and adjust a shared rule or task template. Keep shared instructions focused on short rules and pointers to evidence that will help on future tasks. Store individual failure logs with their tasks.
+</Bbox>
+
+## Where to Start with the Series
+
+Start with the techniques that address your team's recurring problems, then expand based on the results.
+
+| Recurring problem | What to try first | Parts |
+| --- | --- | --- |
+| AI takes too long to find relevant files | Minimal instructions and repository entry points | 1–3 |
+| Results differ from the request | Scope, acceptance criteria, and a contract | 4 |
+| Too many documents and tools are loaded | Load Skills and MCP when needed | 5 |
+| Cost and wait time vary widely by task | Choose model and reasoning effort by task | 6 |
+| Passing tests still lead to rework | Reproduction, verification, and completion evidence | 7 |
+| Improvements are difficult to judge | Task-level metrics and comparisons | 8 |
+| The same input is processed repeatedly | Check cache reads, writes, and total cost | 9 |
+| Context is lost between sessions | Record code state and handoff notes | 10 |
+| Parallel work is hard to integrate | Define ownership, isolate work, and verify integration | 11 |
+
+Start with one task specification, the repository's real verification commands, and a completion report format. Once those are in use, compare model routing or parallel execution against the same acceptance criteria.
+
+## Conclusion
+
+A team AI workflow sets a goal and boundaries, supplies the necessary information, and reviews the code and execution evidence. Linking task records to metrics helps you see whether quickly generated code became a completed feature.
+
+<br/>
+
+Across the 12 parts, the shared practice is **leaving the information needed for the next decision and checking the actual result**. Try it on a small recurring task and adapt it as you see how completion rates and human rework change.
+
+### References
+
+- [Claude Code best practices](https://code.claude.com/docs/en/best-practices)
+- [OpenAI iterative repair loops](https://developers.openai.com/cookbook/examples/codex/build_iterative_repair_loops_with_codex)
+- [OpenAI examples of recurring workflows](https://developers.openai.com/blog/automating-repetitive-work-at-openai-with-codex)

@@ -1,0 +1,84 @@
+---
+post_id: '455'
+locale: en
+title: The Infrastructure and Costs Behind an AI Request
+description: >-
+  Trace a document request through retrieval and inference to see how compute,
+  memory, networking, power, cooling, throughput, and utilization affect costs.
+source_hash: 2866023b4e965a728321004dedf6e6725da65e971a693ff21f35f89ce65e2372
+---
+## Before We Begin
+
+As more people use the document service, answers take longer. The team has been watching model API costs and now wonders whether to scale the server or switch to a faster model. First, find out whether retrieval is slow, requests wait longer for the model, or the answers have grown longer. **Locate the bottleneck before deciding which resources are worth paying for.**
+<br/>
+We'll map the infrastructure along the path of a request in a hypothetical document service. The service doesn't necessarily need to run its own GPUs. The technical and energy sources were checked on October 16, 2026. Operating costs and throughput figures are illustrative assumptions.
+
+## Training and Inference
+
+Training adjusts a model's weights using data. Inference uses those weights to compute a result from an input. Uploading a document doesn't retrain the whole model. The example searches for relevant passages, adds them to the input, and uses an existing model to answer.
+<br/>
+Preprocessing, such as splitting documents and computing embeddings, is separate from training. Embeddings are representations used for retrieval, and storing and updating them can cost money. If you choose to train a model further, include data preparation, evaluation, and deployment as well as the training run. A public API price list doesn't show how a provider allocates all of its internal costs.
+
+<Img src="/261016-aibiz-06-infrastructure.webp" width={650} height={433} alt="The path from document retrieval to inference, verification, and response, with the roles of GPUs, HBM, networks, power, and cooling"/>
+
+## Compute and Memory
+
+GPUs perform large matrix operations in parallel. High-bandwidth memory (HBM) supplies data quickly and holds model weights and working state. With multiple devices, moving data between them matters too. NVIDIA's Blackwell overview discusses NVLink communication and rack cooling alongside GPU compute. [NVIDIA Blackwell architecture](https://www.nvidia.com/en-us/data-center/technologies/blackwell-architecture/)
+<br/>
+**Peak compute performance alone cannot predict requests per second.** Check whether the model and the state of concurrent tasks fit in memory, and how long it takes to move data. Long documents can increase input processing and working state. Serving multiple customers at once changes how much memory remains available. Adding model GPUs may leave bottlenecks in the search database or file store untouched.
+
+## Input Processing and Generation
+
+Inference has two phases with different demands. During `prefill`, the model processes the prompt. During `decode`, it generates subsequent tokens. NVIDIA explains that with certain attention configurations, compute tends to constrain prefill and HBM bandwidth tends to constrain decoding. Caching and inference design can shift the bottleneck. [NVIDIA's analysis of inference design](https://developer.nvidia.com/blog/co-designing-ai-model-attention-for-fast-interactive-long-context-inference)
+<br/>
+Record time to first token separately from total response time. If the first token is late, inspect queueing, retrieval, and input processing. If generation takes a long time, check output length and generation throughput. Look at slow requests as well as averages to understand the user experience. *The price difference between input and output tokens cannot be explained by the price of one GPU component.*
+
+<Ads1/>
+
+## Power and Cooling
+
+Compute equipment needs a reliable power supply and a way to remove heat. Grid connections, transformers, and cooling equipment can take time to provision and limit data center expansion. The IEA's October 14, 2026 report discusses the policies, regulations, and business strategies involved in connecting data centers to power systems. [IEA Powering Artificial Intelligence](https://www.iea.org/reports/powering-artificial-intelligence)
+<br/>
+These industry-level constraints don't tell you how much electricity one API request uses. Device types, batching, idle conditions, and facility operations aren't public. If you use an API, start with your bill, output quality, and response times. If you run the infrastructure, also document how you allocate power and facility costs. Keep the provider's data center investment out of your own asset costs.
+
+## Throughput and Utilization
+
+To think about self-hosting costs, assume a hypothetical setup with 6 million won in allocated monthly costs. This includes equipment costs allocated over time, power, facilities, networking, and operating labor. It doesn't represent a GPU rental quote or a particular data center's costs.
+
+| Assumed monthly cost | Successful tasks completed | Allocated cost per task |
+| --- | --- | --- |
+| 6,000,000 won | 60,000 | 100 won |
+| 6,000,000 won | 120,000 | 50 won |
+
+**Completing more tasks on the same resources while maintaining quality can lower the cost per task.** High device utilization doesn't necessarily mean more customers finished their work. Retries and unnecessarily long generations can keep GPUs busy without increasing successful tasks. Variable costs such as power can also rise with usage. The table isolates throughput by holding total cost constant.
+<br/>
+Larger batches can improve throughput, but waiting to fill them can add latency. Keeping spare capacity to reduce delays can raise unit costs. Set quality requirements and latency targets first, then compare throughput and cost within those constraints.
+
+<Bbox>
+Record completed tasks, retry rate, time to first response, total completion time, and peak concurrency alongside your monthly bill. These figures help you decide whether you need more expensive resources or can make better use of what you already have.
+</Bbox>
+
+<Ads2/>
+
+## Efficiency and Industry Demand
+
+Using fewer resources for one request and reducing demand across the whole industry are separate outcomes. The IEA considers efficiency changes, supply chain bottlenecks, investment, and financing as factors in its outlook for data center demand. [IEA key questions on energy and AI](https://www.iea.org/reports/key-questions-on-energy-and-ai/executive-summary)
+Even if models become more efficient, more users, longer tasks, or new features can change total resource demand. If usage doesn't grow enough to offset the gains, efficiency improvements can reduce total demand.
+<br/>
+Supply constraints affect companies differently. A supplier of a scarce component and a service provider that has to buy it at a higher price may see different effects on profit. Assess long-term contracts, delivery schedules, selling prices, and costs before drawing conclusions from industry news.
+
+<Ybox>
+Each step in “more AI requests → more GPU demand → higher profits for related companies” depends on conditions. Check price competition after bottlenecks ease, utilization, and whether companies recover their investments.
+</Ybox>
+
+## Conclusion
+
+AI infrastructure is **a system of compute, memory, communication, facilities, and operations**. Map the slowest stages of your requests and the units that drive costs. Better input preparation or verification can matter before you add hardware. Next, we'll look at how growth in infrastructure and services appears in company earnings and cash flow.
+
+### References
+
+- [NVIDIA Blackwell architecture](https://www.nvidia.com/en-us/data-center/technologies/blackwell-architecture/)
+- [NVIDIA's analysis of inference design](https://developer.nvidia.com/blog/co-designing-ai-model-attention-for-fast-interactive-long-context-inference)
+- [IEA Powering Artificial Intelligence](https://www.iea.org/reports/powering-artificial-intelligence)
+- [IEA key questions on energy and AI](https://www.iea.org/reports/key-questions-on-energy-and-ai/executive-summary)
+- [Part 2: The cost of an AI request](/blog/post/451-ai-request-total-cost)

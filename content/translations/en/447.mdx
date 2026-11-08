@@ -1,0 +1,217 @@
+---
+post_id: '447'
+locale: en
+title: Handing Off Work Between AI Coding Sessions
+description: >-
+  Learn how to resume long-running work with Claude and Codex. Record the goal,
+  code state, verification evidence, and next action, then check them against
+  the repository. Understand how conversation compaction differs from resuming a
+  session and how to check uncommitted changes and stale records.
+source_hash: 97a3840faaafcbec383924ca4fe009dda94793d6ac6638cd8a147601935d9c59
+reviewed_at: '2026-11-08T02:36:34.753Z'
+---
+## Before We Begin
+
+You spend an hour investigating a bug with an AI agent and get halfway through the fix. The next day, you start a fresh session and say, “Pick up where we left off yesterday.” The agent rereads files you already inspected and suggests hypotheses you already ruled out. Paste the entire conversation instead, and old logs and failed fixes fill the new context.
+
+<br/>
+
+To resume the work, give the next session **the current state and the evidence it needs to make decisions**. Record the goal, how far the code has changed, what you verified, and what to do next. This article distinguishes conversation compaction from task handoff and shows how to resume work from a short record in the repository.
+
+## Resuming a Session and Handing Off Work
+
+> Restoring a conversation and checking the current code are separate steps.
+
+If the same tool can reopen a prior session, continuing that conversation is convenient. The files may have changed or someone may have switched branches since the conversation was saved. Check the current working directory and changes when resuming an existing session as well as when handing work to a new one.
+
+| Method | What carries over | What to check separately |
+| --- | --- | --- |
+| Resume a previous session | Saved conversation and state restored by the tool | Current working directory, files, and runtime environment |
+| Compact the conversation | Conversation state needed for the next step | Whether important constraints and evidence survived |
+| Start fresh with a handoff record | Explicitly recorded goal, state, and next action | Whether the record matches the current code |
+
+OpenAI documents compaction for continuing long conversations. The API returns an opaque compaction item rather than a human-readable summary. [OpenAI conversation compaction documentation](https://developers.openai.com/api/docs/guides/compaction)
+
+An API compaction item and a human-readable `handoff.md` serve different purposes and use different formats. The handoff is a team document that lets someone check the reasoning and evidence in another tool or a fresh session.
+
+## What to Record
+
+Capture four things the next decision depends on. For a fix to a search filter that misbehaves when the user goes back, the record might look like this.
+
+| Item | What to record | Example |
+| --- | --- | --- |
+| Goal and scope | Completion criteria and what the change covers or excludes | Restore the URL and input value, with API changes out of scope |
+| Current code | Working directory, base commit, and changed files | Search form changes in progress, test file untracked |
+| Verification evidence | Commands, results, and the code state they apply to | Type check passed, back navigation test failed |
+| Next action | Unfinished work and decisions still open | Check how local state updates when the URL changes |
+
+<Img src="/261015-100002.webp" width={650} height={433} alt="Infographic showing the four parts of a handoff record: goal and scope, current code, verification evidence, and next action"/>
+
+### Observations and Hypotheses
+
+“The URL returns to alpha when I go back, but the input still shows beta” is an observation. “The form reads only the initial value and misses subsequent updates” is a hypothesis. Separating the two makes it less likely that the next session will mistake a guess for an established fact.
+
+<br/>
+
+Include rejected approaches when the reason is relevant. For example, “Set aside the search API cache hypothesis because the reproduction shows a mismatch only in the input state.” Link to the original logs or relevant files so they can be consulted without copying every failed attempt into the record.
+
+<Bbox>
+Write the next session's first action as one concrete step. “Check how SearchForm subscribes to URL changes and updates local input state” gives the next session a clearer starting point than “finish search.”
+</Bbox>
+
+<Ads1/>
+
+## The Handoff Document
+
+Here is an example of a status document for a single task. The team chooses its file name and location. Specify the path in the new session's request so the agent knows which file to read.
+
+```yaml title="docs/tasks/search-history-handoff.yaml"
+task: search-history
+updated_at: "2026-10-15T15:00:00+09:00"
+goal: 뒤로 가기와 새로고침 뒤 URL과 입력값을 함께 복원
+scope:
+  include: 검색 폼 상태와 관련 테스트
+  exclude: 검색 API와 정렬 규칙
+workspace:
+  path: /Users/dev/work/shop
+  head: "git rev-parse HEAD로 확인한 커밋 해시"
+  uncommitted: true
+  changed_files:
+    - src/features/search/SearchForm.tsx
+  untracked_files:
+    - tests/search-history.spec.ts
+observed:
+  - alpha → beta → 뒤로 가기에서 URL은 alpha, 입력창은 beta
+hypothesis:
+  - URL 변경을 로컬 입력 상태가 다시 반영하지 않을 수 있음
+checks:
+  - command: npm run typecheck
+    result: passed
+  - command: npx playwright test tests/search-history.spec.ts
+    result: failed
+    detail: 입력값 alpha를 기대했으나 beta가 남음
+  - command: npm run build
+    result: not_run
+evidence_scope: 위 변경 파일 상태에서 실행한 예시 결과
+next_action: URL 변경과 로컬 상태 동기화 경로 확인
+```
+
+This is a fictional example of the format. In a real handoff, include the current working directory, commit hash, commands you ran, and their results. If you saved logs, include their paths and check that the next session can access them.
+
+<br/>
+
+**A commit hash alone cannot carry uncommitted changes.** If you are continuing in the same checkout, verify that the files are still there. If you are moving to another environment, transfer the necessary changes separately using a commit, a patch, or your team's chosen method. A recorded path alone cannot recreate the files elsewhere.
+
+### When to Update the Record
+
+Rewriting a long status record after every exchange can take considerable time. Update it when the task changes phase.
+
+- When you finish diagnosing the cause and start implementing the fix
+- When a failed check establishes what to fix next
+- When you pause or hand off to another session or tool
+- When you finish and record remaining limitations and final verification
+
+Replace outdated entries with the facts needed for the current decision. Use Git history and the original evidence when you need a detailed history.
+
+## Checking the Code Against the Record
+
+After reading the handoff, compare it with the actual repository state. In a macOS terminal, the commands below show the current path and commit, changes to tracked files, and new files. The Git commands are the same on Windows and Linux. Adjust path notation to suit the environment.
+
+```bash title="재개 전 저장소 확인"
+git rev-parse --show-toplevel
+git branch --show-current
+git rev-parse HEAD
+git status --short
+git diff --stat
+git diff --cached --stat
+git ls-files --others --exclude-standard
+```
+
+Looking only at `git diff` can miss staged changes and untracked files. Inspect the relevant diffs and the contents of new files as needed. These commands do not show ignored environment files or the state of an external database, so check any runtime dependencies separately.
+
+<Img src="/261015-100003.webp" width={650} height={433} alt="Steps for resuming work in a new session: read the handoff, compare it with the actual code, check verification results, and take the next action"/>
+
+<Ybox>
+Even when HEAD is unchanged, edits to uncommitted files can affect which prior test results still apply. A different commit alone does not require running every check again. Compare the changes with the existing evidence and rerun the affected checks.
+</Ybox>
+
+<Ads2/>
+
+## Resuming a Session
+
+Claude Code can continue the most recent session in the current directory with `claude --continue`. To select from previous conversations, use `claude --resume`. [Resuming conversations in Claude Code](https://code.claude.com/docs/en/common-workflows)
+
+```bash title="Claude Code 이전 세션 재개"
+claude --continue
+```
+
+In the Codex CLI, `codex resume` lets you select a saved conversation and continue it. In the app, open the existing chat for the project. [Codex projects and chats](https://learn.chatgpt.com/docs/projects)
+
+```bash title="Codex CLI 이전 세션 재개"
+codex resume
+```
+
+Whichever method you use, check that you selected the right directory and chat. Ask the agent to compare the current record with the actual code before doing the remaining work.
+
+### Conversation Compaction
+
+If you are continuing the same task and the conversation has grown long, consider compaction. Claude Code supports automatic compaction and `/compact`, and you can tell it what to preserve. [Claude Code context management](https://code.claude.com/docs/en/best-practices)
+
+```text title="Claude Code 세션의 압축 요청 예시"
+/compact 목표와 제외 범위, 변경 파일, 검증 결과, 남은 판단을 보존
+```
+
+Compaction helps continue a task within a conversation. A handoff document preserves evidence for human review or transfer to another session. Compaction behavior varies by tool, so check important state against the actual files. When moving to unrelated work, a separate session after recording any necessary handoff keeps the contexts easier to manage.
+
+## Prompting a New Session
+
+Give the new session the record's path and a startup procedure. Adapt the handoff path and task name in the following request to your environment.
+
+```text title="작업 재개 요청"
+docs/tasks/search-history-handoff.yaml을 읽고 작업을 이어가세요.
+먼저 현재 경로, HEAD, 미커밋·미추적 변경을 기록과 대조하세요.
+차이가 있으면 관련 파일을 확인해 현재 상태를 갱신하세요.
+통과·실패·미실행 검사를 구분하고 결과의 적용 범위를 확인하세요.
+다음 행동에 필요한 파일부터 읽고, 기존 목표와 제외 범위를 지키세요.
+수정 뒤 관련 검증을 실행하고 인계 기록을 최신 상태로 바꾸세요.
+```
+
+You can limit which files the session reads first while allowing it to inspect dependencies as needed. The goal is to avoid repeating unrelated exploration while preserving the checks the task requires.
+
+<Rbox>
+A prior record that says “done” or “tests passed” reflects an earlier code state. If the record and repository disagree, determine what changed before editing the code.
+</Rbox>
+
+<Ads3/>
+
+## How Long to Keep a Record
+
+Part 2 uses `AGENTS.md` and `CLAUDE.md` for rules that apply repeatedly across the repository. Adding every task's failure logs and next steps to shared instructions makes subsequent tasks read outdated context. Choose a location based on how long the information will remain useful.
+
+| Information | Where it belongs | When to update it |
+| --- | --- | --- |
+| Shared rules and verification commands | Repository instructions | When rules or environments change |
+| Current state of this task | Task-specific handoff | At phase changes, pauses, and resumptions |
+| Detailed failure output | Logs and test artifacts | Save by run |
+| Final design and usage | Maintained documentation or PR description | When implementation and decisions are reflected |
+
+Remove completed handoffs from the active task list or mark them as complete so future sessions do not mistake old instructions for current work. Move reusable findings into maintained documentation or shared instructions.
+
+<Bbox>
+Judge a handoff by what the next session had to check again. Look for repeated exploration, missed unfinished work, or rework caused by a record that no longer matched the code.
+</Bbox>
+
+## Conclusion
+
+A short conversation summary helps a new session resume when it comes with the code state and supporting evidence. Record the goal, scope, uncommitted files, verification results, and next action, then compare them with the actual state when resuming.
+
+<br/>
+
+**Read the record → compare it with the code → check the evidence → take the next action.** Part 11 builds on the handoff and ownership boundaries to show how to run tasks in parallel and integrate their results.
+
+### References
+
+- [OpenAI conversation compaction documentation](https://developers.openai.com/api/docs/guides/compaction)
+- [Resuming conversations in Claude Code](https://code.claude.com/docs/en/common-workflows)
+- [Claude Code context management](https://code.claude.com/docs/en/best-practices)
+- [Codex projects and chats](https://learn.chatgpt.com/docs/projects)

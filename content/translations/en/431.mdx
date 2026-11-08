@@ -1,0 +1,146 @@
+---
+title_en: Skill and MCP Context Loading
+title_ko: Skill MCP 컨텍스트 로딩
+url: progressive-disclosure-skills-mcp
+series_no: 5
+desc: >-
+  AI 코딩 에이전트의 Skill과 MCP가 컨텍스트에 들어오는 시점을 구분하고, 작업에 필요한 지침과 도구만 불러오는 방법을 정리합니다.
+  설명 메타데이터, 도구 정의, 호출 결과를 점검해 토큰 낭비를 줄이는 기준을 소개합니다. Claude Code와 Codex의 로딩 방식도
+  비교합니다.
+thumbnail_url: /261003-050001.webp
+metatag: >-
+  Skill, MCP, 컨텍스트 로딩, 점진적 공개, Codex, Claude Code, 도구 검색, 토큰 절약, AI 코딩 에이전트,
+  프롬프트 설계, 개발 생산성, Tool Search
+tags: 'AI, Software Engineering, Typescript, DevOps'
+post_id: '431'
+locale: en
+title: How Skills and MCP Tools Load Into Context
+description: >-
+  See when skill descriptions, instructions, MCP tool definitions, and tool
+  responses enter an agent's context. Compare Claude Code and Codex loading
+  patterns and reduce token usage by loading only what the task needs.
+source_hash: 770985befcdc160a6adc4af4e6538363be27cdafbaf00ec969ecd43e6921c45b
+reviewed_at: '2026-11-08T04:16:20.879Z'
+---
+## Before We Begin
+
+When you connect several skills and MCP servers to a coding agent, it is easy to assume that even unused features consume context on every request. The cost depends on **what loads and when**. A short skill description, an MCP tool definition, and a tool response are separate pieces of information. Treating them as one can lead you to optimize the wrong thing.
+
+<br/>
+
+This article traces how skills and MCP tools load and what to check first in a real task.
+
+<Img src="/261003-050002.webp" width={650} height={433} alt="Loading stages from skill metadata to full instructions and from MCP server descriptions to tool definitions and call results"/>
+
+## Loading Stages
+
+> Save context by making information available when it is needed.
+
+A skill provides a **method for repeatable work**. MCP exposes **tools for retrieving data and taking actions** in external systems. According to OpenAI's documentation, the model sees a skill's name and description first, then reads the full instructions if the request matches. The MCP server provides access to tools and data. The skill explains when and how to use them. [OpenAI Developers on skills and MCP](https://developers.openai.com/plugins/concepts/skills)
+
+| Stage | Skill | MCP |
+| --- | --- | --- |
+| Discovery | Judge relevance from the name and description | Find capabilities through server and tool descriptions |
+| Selection | Load `SKILL.md` and relevant references | Load the definitions for the necessary tools |
+| Execution | Follow the instructions | Add tool call results to context |
+
+**Deferring definitions and reducing response size are separate optimizations.** A single oversized search result can expand context even if you loaded very few definitions.
+
+<Ads1/>
+
+## Designing Skills
+
+A skill description is a short guide to *which requests call for the skill*. A vague description can make a model read an irrelevant skill or miss one it needs. OpenAI recommends concise descriptions and keeping detailed procedures and examples in reference files that can be read when relevant. [OpenAI Developers on designing skill context](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra)
+
+```text title="skills/review-pr/"
+review-pr/
+├── SKILL.md
+├── references/
+│   ├── security.md
+│   └── performance.md
+└── scripts/
+    └── summarize-diff.sh
+```
+
+For a PR review, `SKILL.md` can define the review order and report format. Read `references/security.md` for security changes and `references/performance.md` for performance changes. Loading both on every review adds the same cost even to a copy edit.
+
+```yaml title="skills/review-pr/SKILL.md"
+---
+name: review-pr
+description: PR의 코드 변경을 리뷰하고, 동작 오류와 검증 누락을 찾을 때 사용합니다.
+---
+
+변경된 코드와 관련 테스트를 확인합니다.
+인증·권한 변경이면 references/security.md를 읽습니다.
+성능 경로 변경이면 references/performance.md를 읽습니다.
+```
+
+<Ybox>Splitting references into files saves little if SKILL.md tells the agent to read them all up front. Specify when to open each one.</Ybox>
+
+<Img src="/261003-050003.webp" width={650} height={433} alt="A short skill description leads to references loaded only for the relevant task"/>
+
+<Ads2/>
+
+## MCP Tools
+
+MCP exposes capabilities of external systems as tools. With many tools, their names, descriptions, and input schemas can take up context. OpenAI's Tool Search documentation explains that large catalogs can use on-demand definitions to reduce token usage. This adds a discovery step, and the available settings vary by environment. [OpenAI Tool Search guide](https://developers.openai.com/api/docs/guides/tools-tool-search)
+
+<br/>
+
+Claude Code also documents using MCP tool search to defer definitions, starting with tool names and server instructions to find the tools it needs. [Claude Code MCP tool search documentation](https://code.claude.com/docs/en/mcp)
+
+<br/>
+
+In practice, start here.
+
+- Distinguish tools you use often from tools you rarely need.
+- Use server and tool names and descriptions that reflect when to use them.
+- Check what tool search or allowlist settings the environment offers.
+- Reduce unnecessary fields and text in tool responses.
+
+For “check only failed CI jobs for this PR,” start with failed job names, errors, and relevant log links. Fetch detailed logs after narrowing the cause.
+
+<Rbox>Deferred definitions do not shrink external server responses. Measure both the tool catalog and call results when evaluating token savings.</Rbox>
+
+## Choosing Between Skills and MCP
+
+Choose based on the kind of information or capability you need.
+
+| Need | Where it fits | Example |
+| --- | --- | --- |
+| Repeatable procedure | Skill | PR review steps and report format |
+| Task-specific details | Skill reference file | Security review checklist |
+| Current data or an action | MCP tool | Retrieve CI results or create an issue |
+| Shared repository rules | `AGENTS.md` | Test commands and edit boundaries |
+
+A CI failure investigation can use both a skill and an MCP server. The skill specifies the analysis steps and MCP fetches the latest CI results. Keeping the roles separate avoids fetching lengthy static procedures on each call or copying current data into a skill file.
+
+<Img src="/261003-050004.webp" width={650} height={433} alt="Choosing skill instructions or MCP tools and limiting the size of tool responses"/>
+
+<Ads3/>
+
+## Checking the Effect
+
+After a change, measure cost and quality together. Compare a simple task, one requiring external data, and a combined task under the same conditions.
+
+- In a new session, check the skill descriptions and MCP tool definitions exposed by default.
+- Record which skill instructions and references actually loaded during each task.
+- Compare tools called, response sizes, input tokens, and total time.
+- Check whether correctness declined or verification steps were missed.
+
+**Lower token usage is a poor result if agents can no longer find the tools they need.** Compare completion rates and response time as well. OpenAI also recommends using representative tasks to compare completion, input tokens, and latency when choosing a loading strategy. [OpenAI guidance on tool loading strategies](https://developers.openai.com/api/docs/guides/tools-tool-search)
+
+## Conclusion
+
+Count what actually enters context at each stage: **description metadata → full instructions or tool definitions → call results**. The number of skills and servers installed only tells part of the story.
+
+<br/>
+
+Use short descriptions and conditional references for skills. Give MCP tools discoverable descriptions and keep responses to the information the task needs.
+
+### References
+
+- [OpenAI Developers on skills and MCP](https://developers.openai.com/plugins/concepts/skills)
+- [OpenAI Developers on designing skill context](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra)
+- [OpenAI Tool Search guide](https://developers.openai.com/api/docs/guides/tools-tool-search)
+- [Claude Code MCP tool search documentation](https://code.claude.com/docs/en/mcp)

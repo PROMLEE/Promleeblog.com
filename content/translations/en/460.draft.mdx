@@ -1,0 +1,133 @@
+---
+post_id: '460'
+locale: en
+title: 'Reading Your Portfolio, Part 3: Dollar Assets and Currency Exposure'
+description: >-
+  See how exchange rates change returns in won, distinguish trading currency
+  from underlying exposure, and check whether your ETFs hedge currency risk.
+source_hash: f094b6a49ac40d5eabeef6039c78819e974f86d72b182a45173a567fe53f9699
+---
+## Before We Begin
+
+You hear U.S. stocks gained 10%, but open your account and find that your money rose only 4.5% in won. Did the app get it wrong? A change in the exchange rate can explain the difference.
+<br/>
+**Two things move the won value of an overseas asset: its price and the exchange rate.** We'll look at each and build a checklist that records the trading currency, the investment exposure, and whether the product hedges currency risk.
+
+<Rbox>
+The calculations illustrate the concepts and are not investment recommendations. The PortRhythm screen uses test account data, so the amounts may differ.
+</Rbox>
+
+## Does Buying in Won Make It a Domestic Investment?
+
+You can pay in won at a Korean online store and still receive something shipped from overseas. ETFs work similarly. **The currency you pay in and the market you invest in are separate questions.** An ETF listed in Korea and traded in won can hold U.S. stocks.
+<br/>
+Look for three terms in the prospectus.
+
+| Prospectus term | Plain-language question | Example |
+| --- | --- | --- |
+| Trading currency | What currency do I buy and sell in? | Won or dollars |
+| Underlying assets | Which assets drive the price? | U.S. stocks, won bonds, or gold |
+| Currency hedging | Does the fund try to reduce currency effects? | Trades that offset movements in the won–dollar exchange rate |
+
+Currency hedging aims to reduce the effect of exchange-rate movements. It can dampen that source of change while leaving stock-price risk in place. Samsung Asset Management distinguishes KODEX U.S. S&P 500 and KODEX U.S. S&P 500 (H) as unhedged and hedged products that follow the same index. Both trade in won but handle currency exposure differently.
+[Samsung Asset Management on hedging and currency exposure](https://samsungfundblog.com/archives/54620)
+<br/>
+Treat `(H)` in a fund name as a clue to check the prospectus. Find out which currency the fund hedges, how much of the exposure it hedges, and what that costs. *A hedge doesn't necessarily reduce currency effects to exactly zero.*
+
+## The Same Dollars Can Be Worth a Different Amount in Won
+
+Suppose you own $1,000 of dollar assets. At 1,400 won per dollar, the won value is `1,000 × 1,400 = 140만 원`, or 1.4 million won. **Multiply the dollar value by the number of won per dollar.** A lower rate buys fewer won for the same dollars. Investor.gov explains that exchange rates can increase or reduce returns on international investments.
+[Investor.gov on international investing](https://www.investor.gov/introduction-investing/investing-basics/investment-products/international-investing)
+<br/>
+Now assume the asset gains 10% and the exchange rate falls 5%. The dollar value becomes $1,100 and the rate falls to 1,330 won per dollar.
+
+| Measure | Before | After |
+| --- | ---: | ---: |
+| Asset value in dollars | $1,000 | $1,100 |
+| Won per dollar | 1,400 won | 1,330 won |
+| Asset value in won | 1.4 million won | 1,463,000 won |
+
+The new value is `1,100 × 1,330 = 146만 3,000원`, or 1,463,000 won. The dollar asset gained 10%, but the won value rose by only 63,000 won. That's `63,000 ÷ 1,400,000 × 100 = 4.5%`. **The dollar asset gained value, but translating it at a lower exchange rate brings the won return to 4.5%.**
+<br/>
+We assume a fixed quantity and no contributions, distributions, fees, taxes, or currency hedges. For an actual conversion, check the applied rate and any exchange fees.
+
+<Ads1/>
+
+## Can You Just Subtract 5% from 10%?
+
+It's tempting to calculate `10% − 5% = 5%`. The new exchange rate, however, applies to the full $1,100 after the gain. **Multiply the higher asset value by the new exchange rate.**
+<br/>
+In growth factors, that's `1.10 × 0.95 = 1.045`. You end up with 104.5% of the starting value, for a return of +4.5%. Multiplying the actual dollar amount and rate, as above, gives the same result.
+
+<Img src="/portfolio-reading-03-currency-exposure-20261017.webp" width={750} height={500} alt="A 10% gain on a dollar asset and a 5% drop in the exchange rate produce a 4.5% return in won"/>
+
+Use the same calculation for moves in either direction.
+
+| Dollar asset price | Won per dollar | Return in won |
+| ---: | ---: | ---: |
+| +10% | +5% | +15.5% |
+| +10% | −5% | +4.5% |
+| −10% | +5% | −5.5% |
+| −10% | −5% | −14.5% |
+
+A higher exchange rate raises the won value under these assumptions, but it may offset only part of a stock loss. In the third row, the asset falls 10%, the rate rises 5%, and the result is still −5.5%.
+<br/>
+For a Korean-listed overseas ETF traded in won, the quoted price can already reflect currency movements. **Multiplying a return calculated from won prices by the currency move again can double-count it.** The value of the underlying assets can also differ from the execution price. For actual returns, consider the prices you traded at, distributions you received, and costs.
+[Investor.gov ETF guide](https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-24)
+
+## Label the Currency Exposure of a 10 Million Won Portfolio
+
+Add currency information to the [holdings worksheet from Part 1](https://www.promleeblog.com/blog/post/458-portfolio-reading-consolidated-holdings). A and X trade in dollars. B is a Korean-listed U.S. equity ETF traded in won. All three are unhedged. The structure of gold ETF E remains unconfirmed.
+
+| Asset | Portfolio weight | Trading currency | Currency notes |
+| --- | ---: | --- | --- |
+| U.S. equity ETF A | 30% | Dollars | U.S. stocks, unhedged |
+| Individual stock X | 5% | Dollars | Dollar-denominated stock, no separate hedge |
+| U.S. growth ETF B | 15% | Won | U.S. stocks, unhedged |
+| Korean equity ETF C | 10% | Won | Indirect currency effects on companies considered separately |
+| Won bond ETF D | 20% | Won | Won-denominated bonds |
+| Gold ETF E | 5% | Won | Pricing currency, structure, and hedge unconfirmed |
+| Won cash | 15% | Won | Combined cash from two accounts |
+| Total | **100%** | | |
+
+A and X trade in dollars, so the dollar-traded share is `30 + 5 = 35%`. Include B to calculate unhedged U.S. equity exposure: `30 + 5 + 15 = 50%`. **B trades in won and still has currency exposure, which is why the numbers differ.** Checking currency exposure means identifying holdings whose value is linked to exchange rates, as in this second calculation.
+<br/>
+The 5% in gold ETF E needs more research. The other 45% can also have currency exposure. Korean companies, for example, can be affected through imports, exports, or foreign-currency debt. We haven't measured those indirect effects using the same conversion as for U.S. equities.
+
+<Ybox>
+“Unconfirmed” and “no effect” are different answers. For an unknown field, record which source to check rather than entering zero.
+</Ybox>
+
+<Ads2/>
+
+## Two Values to Check in PortRhythm
+
+In the holding details, look at the currency beside the unit price and the valuation in won. For a U.S. security, check how the dollar price translates into the won value. Check the quantity and the timing of the price and exchange rate too. See [asset registration](https://www.promleeblog.com/blog/post/438-portrhythm-asset-registration-guide) and the [holdings guide](https://www.promleeblog.com/blog/post/440-portrhythm-dashboard-holdings-guide) for the controls and screen layout.
+
+<Img src="/portrhythm-guide5-desktop-detail-20261008.webp" width={650} height={428} alt="Holding details showing the current price in dollars, quantity, and valuation in won"/>
+
+Look for the dollar sign beside the current price and the separate won valuation. Convert U.S. holdings and dollar cash at the applicable rate, and use won prices for domestic holdings. An overseas ETF listed in Korea already has a won price.
+<br/>
+The app's conversion to won is separate from any hedge the ETF uses. **Check the prospectus for the hedging policy and record it in your checklist.** Answer the following for each fund and keep the official link and the date you checked it.
+
+- What currency does it trade in?
+- What does it actually invest in?
+- Which currency exposure does it try to reduce?
+- What remains unconfirmed?
+
+## Conclusion
+
+The dollar asset gained 10%, but a 5% decline in the exchange rate left it up 4.5% in won. Buying in won can still expose you to currency movements. **The checklist records trading currency, underlying investments, hedging, and what you still need to verify.**
+<br/>
+Pick one overseas investment in [PortRhythm holdings](https://pf.promleeblog.com/?view=holdings) and answer the four questions. Next, we'll look at another reason balances grow: new contributions. We'll separate money you added from money your investments earned.
+
+[← Part 2](https://www.promleeblog.com/blog/post/459-portfolio-reading-etf-overlap) · [Part 4 →](https://www.promleeblog.com/blog/post/461-portfolio-reading-return-cash-flows)
+
+### References
+
+- [Reading Your Portfolio, Part 1: Consolidated holdings](https://www.promleeblog.com/blog/post/458-portfolio-reading-consolidated-holdings)
+- [Samsung Asset Management on hedging and currency exposure](https://samsungfundblog.com/archives/54620)
+- [Investor.gov on international investing](https://www.investor.gov/introduction-investing/investing-basics/investment-products/international-investing)
+- [Investor.gov ETF guide](https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-24)
+- [PortRhythm asset registration guide](https://www.promleeblog.com/blog/post/438-portrhythm-asset-registration-guide)
+- [PortRhythm dashboard and holdings guide](https://www.promleeblog.com/blog/post/440-portrhythm-dashboard-holdings-guide)

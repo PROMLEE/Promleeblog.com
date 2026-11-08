@@ -1,0 +1,90 @@
+---
+post_id: '453'
+locale: en
+title: Model Performance and What Makes an AI Product Competitive
+description: >-
+  Separate model quality from customer outcomes, then evaluate data, workflow,
+  permissions, and switching costs in a hypothetical document service.
+source_hash: cb3bd7d32fe06934a3caa3e281a5f39bc306cce58de3ea27e8f34b45dce6fa8d
+reviewed_at: '2026-11-08T02:28:55.688Z'
+---
+## Before We Begin
+
+You built a service that summarizes uploaded documents and answers questions. Then the model provider released a similar feature. If your customers can use that model directly, why keep paying for your service? Switching to a better model and making a product more competitive are separate decisions.
+<br/>
+This article looks at **what value remains for the customer when the model changes**. We'll use the same hypothetical document service as in the previous articles. The experiment below is illustrative. It does not measure actual model performance or claim that one product is superior. The technical references were checked on October 16, 2026.
+
+## What Counts as Completing the Work?
+
+“Get a good summary” is too broad to compare products. In our example, the customer wants an answer based on the latest team policy, then wants to check the evidence and share it with colleagues. The document version, permissions, location of the cited passage, and sharing method can matter more than elegant wording. **The product's completion criteria extend from the model response to the customer's next action.**
+<br/>
+A fluent summary citing a retired policy doesn't complete the work. Even a correct answer leaves review work if the user has to find the document again. Track response quality, the share of tasks the product completes, and actual customer outcomes separately. All three can improve together, but they measure different things.
+
+<Img src="/261016-aibiz-04-product-value.webp" width={650} height={433} alt="Diagram separating the model from the product's data, workflow, trust and permissions, and quality of completed work"/>
+
+## Make the Data Useful
+
+A large document collection alone doesn't make a product competitive. You need rights to use the documents, an update schedule, and people responsible for maintaining them. Old and new versions mixed together, or documents from different customers appearing in one search result, can make the data a liability.
+<br/>
+Evaluate retrieval quality separately from the model. Anthropic explains how storing document chunks alone can strip away their original context and proposes adding context to support retrieval. [Anthropic Contextual Retrieval](https://www.anthropic.com/engineering/contextual-retrieval)
+In this example, you could store the policy's effective date, document title, and applicable team together. Keep the published experiment's gains separate from your own service's accuracy and revenue figures.
+<br/>
+First check whether retrieval returned the evidence needed for the answer. That helps distinguish retrieval failures from generation failures. Using a more expensive model for every retrieval failure can increase costs while leaving the cause untouched. Include the time people spend cleaning and reindexing data in operating costs.
+
+<Ads1/>
+
+## Workflow and Trust
+
+If customers have to download a file, upload it, and copy out the answer every time, there's a lot of work around the model call. Connecting to their document repository, linking citations back to the source, and letting them review before sharing can remove steps. Measure the actual steps and rework time saved.
+<br/>
+Apply permissions from the moment a search begins. OWASP identifies weak access controls and cross-user leaks in vector and embedding systems as risks and recommends permission-aware retrieval, data separation, and logging. [OWASP on vector and embedding weaknesses](https://genai.owasp.org/llmrisk/llm082025-vector-and-embedding-weaknesses/)
+Check whether the user can view the source and whether citations and cached content enforce the same permissions.
+
+<Rbox>
+Enforce access in retrieval before sending information to the model. A prompt saying “Don't show another team's documents” can't repair the trust boundary after restricted content has entered the model input.
+</Rbox>
+
+The audit trail should record who retrieved which document version and which model and validation rules were used. Avoid duplicating full documents in logs unnecessarily, and define retention and access. The feature is ready for daily work when people can retry after a failure and stop an improper share.
+
+## Try Switching Models
+
+Use the same inputs and acceptance criteria with each candidate to see what depends on the model. This example includes 80 answerable requests and 20 that must be denied. The figures illustrate how to record the experiment and aren't benchmark results.
+
+| Evaluation item | Candidate A | Candidate B |
+| --- | --- | --- |
+| Answerable requests passing quality checks, out of 80 | 70 | 74 |
+| Correct denials of restricted requests, out of 20 | 20 | 19 |
+| Human editing time for answerable tasks | 40 minutes total | 25 minutes total |
+| Total cost of running the evaluation | Recorded separately | Recorded separately |
+
+Candidate B answers more requests successfully but fails one permissions check. *A higher average can't make up for exposing restricted information.* **Require candidates to pass essential security checks first**, then compare completion, latency, editing time, and cost. Record a safe denial as a distinct kind of success and keep denials and completed answers separate when calculating cost per task.
+<br/>
+Changing models also costs time to adjust prompts, validate output formats and tool calls, and prepare for operational recovery. As in the [verification loop article](/blog/post/433-agent-code-verification-loop), rerun the same checks after the change and record failures. Search, permissions, and workflow connections that survive the switch are assets the product retains. What you have to adapt is part of the switching cost.
+
+<Ads2/>
+
+## A Checklist for What Sets the Product Apart
+
+Turn “we use AI too” into questions you can answer with evidence.
+
+| Area | What to ask | Evidence to keep |
+| --- | --- | --- |
+| Data | Does it find current documents the user is allowed to access? | Versions, update ownership, retrieval failures |
+| Workflow | Does it remove steps for the customer? | Completion time and repeated data entry |
+| Trust | Do permissions and failure handling hold up? | Denial tests and audit records |
+| Model portability | Can another model complete the same work? | Results on the same evaluation set |
+
+A single demo can't establish why customers will keep paying. Observe repeat use, paid renewals, support requests, and the work customers actually complete. A complex integration doesn't establish value by itself either. If it saves less work than maintaining another system requires, customers have less reason to buy.
+
+<Bbox>
+Pick one common customer task and write out how it gets completed manually, with a model directly, and with your product. Differences may show up in the remaining review and sharing steps.
+</Bbox>
+
+## Conclusion
+
+An AI product can compete by **helping customers finish work safely and consistently**. Distinguish features that better models may make unnecessary from the data, permissions, and workflow connections customers will still need. Whether maintaining that value yourself is worth the cost is a separate question. Next, we'll compare the 12-month cost of building a solution and buying SaaS for the same requirements.
+
+### References
+
+- [Anthropic Contextual Retrieval](https://www.anthropic.com/engineering/contextual-retrieval)
+- [OWASP on vector and embedding weaknesses](https://genai.owasp.org/llmrisk/llm082025-vector-and-embedding-weaknesses/)

@@ -1,0 +1,152 @@
+---
+post_id: '466'
+locale: ja
+title: ETFの選び方 第1回 - ETFの名前から読み取る情報
+description: >-
+  ETFの名前をブランド、投資対象、為替ヘッジに分け、銘柄コードで確認します。TIGER、ACE、SOLの公式資料を見ながら、名前だけでわかることと、説明書で確認することを整理します。
+source_hash: 122c46dad693cf43ba44d3d03c8d1d709ed6e19f3a5e1fe6f20a1dcb85e3c8ce
+---
+## はじめに
+
+検索欄に「米国S&P500」と入力しました。
+似た名前がずらりと並びますが、先頭の英字が異なり、末尾に `(H)` が付く商品もあります。
+同じラテだと思ってメニューを見たら、ミルクやシロップが違っていたようなものです。
+**ETFの名前は注文票の最初の行です。中身まで知るには、もう少し読み進める必要があります。**
+<br/>
+「ETFの選び方」では、米国S&P500に投資する韓国上場のETFを3つ並べ、比較表を作ります。
+今回は、どの商品がよいかを選ぶ前に、**今見ているのが正確にはどの商品か**を確かめます。
+最初に作るのは、名称、コード、投資対象、為替ヘッジを記録した表です。
+
+<Rbox>
+商品情報は2026年10月20日に確認した公式資料に基づきます。
+説明用の計算は投資の推奨ではありません。実際に選ぶ前には最新の商品条件を確認します。
+</Rbox>
+
+## 商品名の3つの部分
+
+`TIGER 미국S&P500(H)` を3つに分けます。
+
+| 部分 | 読み取れること | 次に確認すること |
+| --- | --- | --- |
+| TIGER | 運用会社の商品ブランド | 正確な運用会社と銘柄コード |
+| 米国S&P500 | 投資対象の手がかり | 指数の正式名称と計算方法 |
+| (H) | 為替の影響を抑える戦略の手がかり | どの通貨をどの程度ヘッジするか |
+
+ブランドは、商品を探すための名札です。
+ACEとSOLのようにブランドが異なっても、同じ市場に投資できます。同じブランドの中にも、まったく異なる戦略があります。
+**先頭の英字が同じでも、同じ投資とは限りません。**
+
+<Img src="/etf-selection-01-reading-names-20261020.webp" width={750} height={500} alt="ETFの名称をブランド、投資対象、為替ヘッジに分け、コードと説明書で確認する項目につないだ図"/>
+
+S&P500は、米国の大型株を代表する指数です。
+個別企業を一社ずつ選ぶ代わりに、一定のルールで作られた銘柄リストをたどる出発点と考えられます。
+指数提供会社は、米国の主要企業500社を含むと説明しています。
+ただし、時価総額順に上位500社を切り取るだけで構成が決まるわけではありません。
+[S&P DJIのS&P500公式案内](https://www.spglobal.com/spdji/en/indices/equity/sp-500/)
+
+## 銘柄コードで商品を特定する
+
+似た名前が多いほど、6桁の銘柄コードが役立ちます。
+連絡先に同じ名前があっても、電話番号で区別できるのと同じです。
+今回比較するのは次の3商品です。
+
+| 商品名 | コード | 運用会社 |
+| --- | --- | --- |
+| TIGER 米国S&P500 | 360750 | 未来アセット資産運用 |
+| ACE 米国S&P500 | 360200 | 韓国投資信託運用 |
+| SOL 米国S&P500 | 433330 | 新韓資産運用 |
+
+運用会社の公式ページや文書で、**商品名と銘柄コードの両方が一致するか**を確かめます。
+古い記事のブランド名や、似た検索結果だけで説明書を選ばないようにします。
+上の一覧は[TIGERの商品ページ](https://www.tigeretf.com/ko/product/search/detail/index.do?ksdFund=KR7360750004)、[ACEの公式商品情報](https://papi.aceetf.co.kr/api/funds/K55101D78195)、[SOLの商品ページ](https://www.soletf.com/ko/fund/etf/210930)で確認しました。
+<br/>
+PortRhythmに保有資産が登録済みなら、まず銘柄コードを照合してください。
+商品を調べるために、候補のすべてを自分の残高へ登録する必要はありません。
+保有一覧の確認方法は[PortRhythmの保有資産ガイド](https://www.promleeblog.com/blog/post/440-portrhythm-dashboard-holdings-guide)にまとめています。
+
+<Ads1/>
+
+## Hが付いたときに確認すること
+
+為替ヘッジは、為替変動の影響を抑える方法です。
+米ドル建ての資産価格が同じでも、ウォン換算額は為替で変わります。商品がこの変化をどう扱うかを確認します。
+「ウォンで買う」ことと「為替の影響を抑える」ことは別です。
+この区別に慣れていなければ、[米ドル建て資産と為替の説明](https://www.promleeblog.com/blog/post/460-portfolio-reading-currency-exposure)を先に読めます。
+<br/>
+TIGER米国S&P500の公式文書は、為替ヘッジを行わないとしています。
+一方、TIGER米国S&P500(H)、コード `448290` では、為替ヘッジ戦略を採用すると案内しています。
+[基本型の運用方法](https://www.tigeretf.com/ko/product/search/detail/index.do?ksdFund=KR7360750004) · [H型の運用方法](https://www.tigeretf.com/ko/product/search/detail/index.do?ksdFund=KR7448290007)
+<br/>
+**Hは、株価の下落を防ぐという表示ではありません。**
+何を、どの割合で、どのくらいの費用でヘッジするかも説明書で確認します。
+また、H型の商品ページには、トータルリターン指数を示す `Total Return` の記載もあります。
+2商品の実績に差があっても、そのすべてを為替だけでは説明できません。
+
+## 「合成」と「アクティブ」の表記
+
+商品名が長くなるのには理由があります。
+投資対象に加え、投資方法を示す言葉が付くためです。
+
+- **合成**
+  取引相手と結ぶ店頭スワップ契約で、指数のリターンを受け取る仕組みを確認する手がかりです。
+  スワップは、定めた条件でリターンなどを交換する契約です。
+  説明書で取引相手、担保、契約条件を見ます。
+- **アクティブ**
+  ベンチマークをそのまま複製するだけでなく、運用会社の判断で超過リターンなどを目指す目的と、運用の範囲を確認します。
+  どのような判断が許されるかは、商品の投資目的と戦略を読みます。
+
+[韓国取引所の合成ETFの説明](https://m.krx.co.kr/contents/06/0609/060901/JHPETP060901M01.jsp) · [Investor.govの指数連動型とアクティブ型の説明](https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-4)
+<br/>
+名前は説明書のどこを見ればよいかを教える目印です。
+同じ「アクティブ」でも投資範囲は異なります。指数連動型の商品でも、一部のETFやデリバティブを使うことがあります。
+株を直接組み入れるか、ほかのETFも使うかを見れば、「名前が普通だから、中身も同じだろう」という思い込みを避けられます。
+TIGERとSOLの投資説明書も、指数の構成銘柄を中心としつつ、関連資産を活用できる範囲を説明しています。
+[TIGERの投資説明書](https://investments.miraeasset.com/tigeretf/upload/etf/20261008090949000003.pdf) · [SOLの投資説明書のダウンロード](https://www.soletf.com/ko/fund/etf/210930)
+
+<Ads2/>
+
+## 説明書を読んで最初の比較表を作る
+
+今回は費用とリターンの欄を空けておきます。
+まずは、どの商品かを確認した結果だけを書きます。
+
+| 確認項目 | TIGER | ACE | SOL |
+| --- | --- | --- | --- |
+| 銘柄コード | 360750 | 360200 | 433330 |
+| 投資対象 | 米国S&P500の株式 | 米国S&P500の株式 | 米国S&P500の株式 |
+| 為替管理 | ヘッジなし | ヘッジなしの予定 | ヘッジなしの予定 |
+| 主な方式 | 指数の構成銘柄が中心 | 指数連動 | 構成銘柄が中心、複製戦略 |
+| 次の確認 | 指数の配当基準、費用 | 指数の配当基準、費用 | 指数の配当基準、費用 |
+
+ACEとSOLの為替管理方針は、それぞれの投資説明書の為替リスク管理の項目で確認しました。
+文書の日付は、ACEの効力発生日が `2026-02-13`、SOLの作成基準日が `2026-05-22` です。
+[ACEの公式文書一覧](https://papi.aceetf.co.kr/api/funds/K55101D78195/documents) · [SOLの公式文書](https://www.soletf.com/ko/fund/etf/210930)
+
+<Bbox>
+商品を1つ選び、まず名称、コード、投資目的、為替ヘッジを記録してください。
+わからない欄は推測で埋めず、説明書で探す言葉を書いておきます。
+</Bbox>
+
+## おわりに
+
+ETFの名前から、ブランド、投資対象、戦略の手がかりを読み取りました。
+コードで正確な商品を特定し、説明書で為替ヘッジと投資方法を確認しました。
+今日の比較表は、**この商品にどんな役割を任せるかを考えるための身分証明書**です。
+<br/>
+次回は、3商品を並べるための比較条件をそろえます。
+同じS&P500という名前でも、期間、通貨、分配金の基準をそろえる必要がある理由を見ていきます。
+
+[第2回 →](https://www.promleeblog.com/blog/post/467-etf-selection-comparing-same-index)
+
+### 参考
+
+- [S&P DJIのS&P500](https://www.spglobal.com/spdji/en/indices/equity/sp-500/)
+- [TIGER米国S&P500](https://www.tigeretf.com/ko/product/search/detail/index.do?ksdFund=KR7360750004)
+- [TIGER米国S&P500の投資説明書](https://investments.miraeasset.com/tigeretf/upload/etf/20261008090949000003.pdf)
+- [TIGER米国S&P500(H)](https://www.tigeretf.com/ko/product/search/detail/index.do?ksdFund=KR7448290007)
+- [ACEの公式商品情報](https://papi.aceetf.co.kr/api/funds/K55101D78195)
+- [ACEの公式文書一覧](https://papi.aceetf.co.kr/api/funds/K55101D78195/documents)
+- [SOL米国S&P500と公式文書](https://www.soletf.com/ko/fund/etf/210930)
+- [PortRhythmの保有資産ガイド](https://www.promleeblog.com/blog/post/440-portrhythm-dashboard-holdings-guide)
+- [韓国取引所の合成ETFの説明](https://m.krx.co.kr/contents/06/0609/060901/JHPETP060901M01.jsp)
+- [Investor.govの指数連動型とアクティブ型のファンド](https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-4)

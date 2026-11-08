@@ -1,0 +1,233 @@
+---
+title_en: ETA Feature Engineering Strategy - XGBoost Recommendation System Part 3
+title_ko: ETA 거리 의도 피처 엔지니어링 전략 - XGBoost 추천시스템 3편
+url: eta-feature-engineering-strategy-xgboost-3
+series_no: 3
+desc: >-
+  meetinthemiddle 추천을 위해 ETA 이동비용을 공정성 피처로 설계합니다. ETA 분포 지표와 목적 카테고리 시간대 피처를
+  만들고, 상관분석과 중요도로 단순화하며, NDCG로 성능 비교까지 실습합니다. 운영 적용 주의점도 함께 정리합니다. 체크리스트도 제공합니다.
+thumbnail_url: /260405-190307.webp
+metatag: 'XGBoost, 추천시스템, 머신러닝, 피처엔지니어링, ETA, 이동시간, 공정성, 랭킹, 데이터셋, NDCG, 상관분석, 중요도, 파이썬'
+tags: 'AI, Python'
+post_id: '426'
+locale: zh
+title: ETA、距离与意图的特征工程——XGBoost 推荐系统，第 3 篇
+description: 为 meetinthemiddle 推荐系统设计 ETA 公平性和意图特征，结合相关性、重要性和 NDCG 分析与比较特征集，并梳理上线注意事项。
+source_hash: ad215acd01ddb53144739a1a548b0e01f7b8274c5cb06ec5b9f547f149f24a02
+reviewed_at: '2026-11-07T17:39:38.690Z'
+---
+
+## 开始之前
+大家好。
+第 1 篇将推荐问题定义为排序问题，并设计了标签。
+第 2 篇构建了 Station Place Edge 数据集和清洗流水线。
+第 3 篇介绍如何将 ETA 出行时间转换为衡量公平性的特征。
+<br/>
+[练习代码和数据集见 GitHub 仓库](https://github.com/PROMLEE/xgboost-ml-practice/tree/part3)。
+
+<Img src="/260405-185443.webp" width={500} alt="系列文章路线图"/>
+
+### 本篇路线图
+- 先区分特征和标签。
+- 说明 ETA 公平性特征与意图特征的设计原则。
+- 逐步解释 `scripts` 和 `ml` 中的代码实际执行了什么。
+- 说明如何解读 `NDCG` 结果，并整理特征简化检查项。
+
+<Ads1/>
+## 什么是特征？
+在机器学习中，特征是模型用于判断的输入信息。
+训练数据的每一行通常对应一个房间与一个候选地点的组合。
+各项特征用数字或类别表示这个组合的属性。
+例如，`eta_mean` 是平均出行时间，`eta_range` 是参与者之间的出行时间差距。
+`purpose_match` 表示聚会目的与场所类别是否匹配。
+
+### 标签与特征的区别
+- 标签是模型需要预测的正确答案。
+- 特征是帮助预测标签的线索。
+
+这次练习将基于行为日志生成的 `target_score` 用作标签。
+ETA 统计量与意图信息则作为特征。
+
+## 为什么用 ETA 衡量公平性？
+推荐会面地点时，只看平均出行时间可能会掩盖不公平。
+例如，三位参与者的 ETA 分别为 15、15 和 45 分钟，平均值是 25 分钟，看起来不错。
+但其中一位明显承担了更重的出行负担。
+因此，应将 ETA 分布本身作为特征，让模型能够学习参与者实际感受到的公平程度。
+
+### 出行成本特征
+- `eta_mean`：参与者的平均出行时间。
+- `eta_std`：参与者出行时间的离散程度。
+- `eta_range`：最大 ETA 与最小 ETA 之差。
+- `eta_min`：最短出行时间。
+- `eta_max`：最长出行时间。
+- `eta_p90`：反映较长延迟区间的保守指标。
+
+### 意图特征
+- `purpose_match`：`purpose` 与 `category` 的含义是否匹配。
+- `hour_bucket`：将时间划分为早上、下午、晚上等区间后得到的值。
+- `group_size`：参与人数，用来反映差距可能随人数增大的情况。
+
+<Img src="/260405-191219.webp" width={500} alt="为什么需要公平性特征"/>
+<Ads2/>
+
+## 训练代码的核心逻辑
+先看 Python 训练代码中的核心公式。
+
+### 生成候选分数
+```python title="ml/synthetic_generator_part3.py" showLineNumbers
+eta_range = float(np.max(etas) - np.min(etas))
+eta_mean = float(np.mean(etas))
+bonus = _purpose_category_bonus(purpose, str(place.get("category", "")))
+
+score = 1.2 * eta_range + 0.3 * eta_mean - 8.0 * bonus
+```
+- 使用 `eta_range` 和 `eta_mean` 同时衡量出行负担与公平性。
+- 给目的匹配较高的加分，让候选地点更符合聚会意图。
+
+### 合成标签
+```python title="ml/label_builder.py" showLineNumbers
+click_score = weights.click if int(action.get("is_clicked", 0)) == 1 else 0.0
+vote_score = weights.vote if int(action.get("is_voted", 0)) == 1 else 0.0
+final_score = weights.final if int(action.get("is_final_selected", 0)) == 1 else 0.0
+
+rating = float(action.get("rating", 0) or 0)
+rating = max(0.0, min(5.0, rating))
+feedback_score = (rating / 5.0) * weights.rating_max_bonus
+
+return click_score + vote_score + final_score + feedback_score
+```
+- 将漏斗各阶段的行为合成为一个连续值标签，用于排序训练。
+
+### 生成 ETA 特征
+```python title="ml/feature_builder_part3.py" showLineNumbers
+etas_np = np.array(etas, dtype=float)
+
+eta_mean = float(np.mean(etas_np))
+eta_std = float(np.std(etas_np))
+eta_max = float(np.max(etas_np))
+eta_min = float(np.min(etas_np))
+eta_range = float(eta_max - eta_min)
+eta_p90 = float(np.percentile(etas_np, 90))
+```
+- 除了平均值，还纳入分布统计量，保留公平性信息。
+
+### 计算 NDCG
+```python title="ml/evaluate_part3.py" showLineNumbers
+def ndcg_at_k(y_true, y_score, group_ids, k):
+    ndcgs = []
+    for gid in np.unique(group_ids):
+        m = group_ids == gid
+        t = y_true[m]
+        s = y_score[m]
+
+        order = np.argsort(-s)
+        ideal = np.argsort(-t)
+
+        dcg = _dcg(t[order], k=k)
+        idcg = _dcg(t[ideal], k=k)
+        ndcgs.append(0.0 if idcg == 0.0 else dcg / idcg)
+
+    return float(np.mean(ndcgs)) if ndcgs else 0.0
+```
+- 在相同的 `room_id` 分组内，评估排名靠前的结果质量。
+
+下面结合脚本，说明这些代码按什么顺序执行。
+
+<Ads3/>
+
+## 实践步骤
+依次准备环境、生成数据、生成特征、进行评估。
+### 各操作系统使用的脚本
+macOS 与 Linux 使用以 `_mac_linux.sh` 结尾的脚本，Windows 使用以 `_windows.ps1` 结尾的脚本。
+
+### 运行前检查
+- 按顺序执行各步骤。
+- 如果在 Mac 上导入 XGBoost 时出错，先运行 `scripts/install_libomp_mac.sh`。
+- 解读结果时，重点比较各特征集的相对表现。
+
+## 脚本说明
+### 1）准备环境
+```bash title="scripts/setup_mac_linux.sh" showLineNumbers
+#!/usr/bin/env bash
+set -euo pipefail
+
+python3 -m venv .venv-ml
+source .venv-ml/bin/activate
+
+python -m pip install --upgrade pip
+pip install -r requirements-ml.txt
+
+echo "Environment ready."
+```
+- `set -euo pipefail` 可以尽早暴露错误，减少静默失败。
+- 独立的虚拟环境可以避免系统 Python 与项目依赖发生冲突。
+
+### 2）生成数据并标注
+```bash title="scripts/generate_part3.sh" showLineNumbers
+#!/usr/bin/env bash
+set -euo pipefail
+
+source .venv-ml/bin/activate
+
+python ml/synthetic_generator_part3.py   --stations ml/out/stations.csv   --places ml/out/places.csv   --n-rooms 80   --seed 42   --out-rooms ml/rooms_part3.jsonl   --out-actions ml/synthetic_actions_part3.jsonl
+
+python ml/label_builder.py   --input ml/synthetic_actions_part3.jsonl   --output ml/synthetic_actions_part3_labeled.jsonl
+```
+- 使用相同的 `seed` 保证结果可复现。
+- 将生成的行为日志转换为 `target_score` 标签，供模型训练使用。
+
+### 3）生成特征
+```bash title="scripts/build_features_part3.sh" showLineNumbers
+#!/usr/bin/env bash
+set -euo pipefail
+
+source .venv-ml/bin/activate
+
+python ml/feature_builder_part3.py   --stations ml/out/stations.csv   --places ml/out/places.csv   --edges ml/out/edges.csv   --rooms ml/rooms_part3.jsonl   --labeled-actions ml/synthetic_actions_part3_labeled.jsonl   --out-dir ml/out_part3
+```
+- 计算 ETA 分布的统计量，生成 `train_ltr.csv`。
+- 同时生成的 `feature_report.json` 记录数据划分和 ETA 来源的使用量。
+
+### 4）评估
+```bash title="scripts/evaluate_part3.sh" showLineNumbers
+#!/usr/bin/env bash
+set -euo pipefail
+
+source .venv-ml/bin/activate
+
+python ml/evaluate_part3.py   --data ml/out_part3/train_ltr.csv   --feature-report ml/out_part3/feature_report.json   --out ml/out_part3/eval_report.json   --k 4
+```
+- 在相同条件下比较 `no_eta`、`eta_mean_only` 和 `full_fairness`。
+- 依据结果文件 `eval_report.json` 解读表现。
+
+## 输出示例与解读
+```json title="ml/out_part3/eval_report.json" showLineNumbers
+{
+  "models": {
+    "no_eta": {
+      "ndcg_at_k": 0.553259
+    },
+    "eta_mean_only": {
+      "ndcg_at_k": 0.541776
+    },
+    "full_fairness": {
+      "ndcg_at_k": 0.669059
+    }
+  }
+}
+```
+
+### 解读要点
+- `eta_mean_only` 只反映均值，因此无法充分体现不公平的情况。
+- `full_fairness` 也使用分布特征，排序质量有所改善。
+
+<Ads4/>
+## 结语
+第 3 篇将 ETA 作为分布来处理，使特征能反映公平性。
+我们也了解了如何结合聚会目的、时段和群组规模等意图特征，稳定提升推荐质量。
+> 第 4 篇将以这张特征表为基础，介绍 XGBoost 训练流水线，以及失败时的回退方案。
+
+### 参考资料
+- [xgboost-ml-practice 第 3 篇](https://github.com/PROMLEE/xgboost-ml-practice/tree/part3)
+- [XGBoost 文档](https://xgboost.readthedocs.io/en/stable/)
+

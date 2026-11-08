@@ -1,0 +1,96 @@
+---
+post_id: '454'
+locale: en
+title: Building In-House or Buying SaaS in the AI Era
+description: >-
+  Compare 12 months of costs for an internal AI document service, including
+  setup, subscriptions, maintenance, usage, and migration.
+source_hash: 028eaa5ed96bcb32601d0278bb506a1b06df7da3424564164cbc78155b4d3017
+---
+## Before We Begin
+
+You look at your team's document tool and think you could build it with AI over a weekend. The interface and summarization come together quickly, but documents keep changing, access requests come in, and people report errors. Faster development doesn't make the cost of running a service disappear.
+<br/>
+This article asks **whether it makes more sense to build or buy for the same work over 12 months**. The example uses the hypothetical document service from earlier articles with 20 internal users. This is an internal cost comparison, so it excludes sales and payment processing fees. Official prices were checked on October 16, 2026. Labor and usage are illustrative assumptions.
+
+## Define the Work You Are Comparing
+
+Align requirements before comparing costs. A demo that summarizes documents and a production tool with permissions, updates, and audit records cover different ground. Both options in this example must support document search, question answering, citations to original documents, team-specific access, and basic incident response. Assume the same document update schedule and level of support.
+<br/>
+If a purchase candidate falls short, either remove it from the comparison or add the cost of integrating the missing features. For the build option, include the work for features you haven't implemented. Record the upfront effort, including security review and rollout preparation, for each option. **A total cost comparison needs matching features and responsibilities.**
+
+## Actual Prices and Model Assumptions
+
+The published prices for Claude Team Standard are USD 25 per seat on monthly billing and the equivalent of USD 20 a month on an annual commitment. ChatGPT Business also distinguishes USD 25 monthly from the USD 20 monthly equivalent on an annual commitment. [Claude pricing](https://claude.com/pricing), [Official OpenAI pricing](https://learn.chatgpt.com/docs/pricing)
+This example uses **USD 25 a month as a real reference price per seat**.
+<br/>
+We haven't established that either named product meets every requirement in the example. The purchase model assumes a seat-based service has been verified against the requirements and usage needs. Check shared integrations, security settings, usage limits, and extra charges when adopting a service. Included API credits do not imply permission to serve customer requests or unlimited throughput.
+
+| Assumption | Build | Buy SaaS |
+| --- | --- | --- |
+| Users and usage | 20 people, 200 tasks each per month | Assumed to cover the same workload |
+| Initial work | 80 hours | 20 hours for rollout and setup |
+| Monthly labor | 12 hours of maintenance and 4 of support | 2 hours of administration |
+| Value of time | 30,000 won per hour | Same rate |
+| Technology and subscriptions | 91,000 won a month plus task costs | USD 25 per seat per month |
+
+As in the previous articles, assume 1,400 won per dollar. The 91,000 won base includes the server, database, and one development subscription. Cost per task stays at 43.64 won. The purchase option includes no separate development subscription. Costs exclude recoverable input tax. Add unrecoverable tax, currency conversion fees, and overages separately.
+
+<Ads1/>
+
+## Total Cost of Ownership Over 12 Months
+
+Total cost of ownership adds upfront work to the costs incurred over the period of use. Building costs 20 people × 200 tasks × 43.64 won = 174,560 won a month for tasks. Monthly labor is 16 hours × 30,000 won = 480,000 won.
+
+```text
+직접 개발 = 80시간 × 30,000원
+          + 12개월 × (480,000 + 91,000 + 174,560)
+          = 11,346,720원
+
+SaaS 구매 = 20시간 × 30,000원
+          + 12개월 × (20명 × $25 × 1,400 + 2시간 × 30,000)
+          = 9,720,000원
+```
+
+Under these assumptions, buying costs about 1.63 million won less over 12 months. The result follows from the labor and scope in the example. If you enter zero for build labor, the comparison changes substantially, but the time still has an opportunity cost.
+
+<Img src="/261016-aibiz-05-tco.webp" width={650} height={433} alt="Illustrative 12-month cost of buying versus building a document tool for 20 people at different maintenance workloads"/>
+
+## Maintenance and Scale
+
+If build maintenance and support take only eight hours a month, the 12-month cost falls to 8,466,720 won, below the same purchase option. *The comparison is sensitive to maintenance time as well as the number of users.* If you lack operating records, calculate a low and high estimate instead of choosing one optimistic number.
+<br/>
+When documents change, you may need to rebuild the search index and review failures. Authentication changes, model and SDK updates, and provider outages also take work. Track testing, recovery, and communications with users in addition to deploying changes. List irregular costs, such as outage losses and security reviews, as risks outside the base estimate.
+
+<Bbox>
+Record how long one support request takes and how much time a month of deployments and verification requires. Use that to judge whether eight hours of maintenance and support is realistic.
+</Bbox>
+
+As usage grows, SaaS costs usually follow the number of seats. Check discounts, seat minimums, and contract terms. Building also means more API usage and support, and infrastructure expansion can raise costs in steps. Revisit the 91,000 won base as the service grows.
+
+<Ads2/>
+
+## Migration and External Dependencies
+
+Both building and buying involve outside dependencies. A custom interface can still use a model API, database, and hosting provider. The question is whether you can move the work if the terms change.
+<br/>
+Check whether you can export source documents, user permissions, citations, and evaluation cases. Downloading files is only one step. The receiving system must also restore document versions and permission relationships. Check retention, deletion, and migration support after cancellation. A custom tool can also be expensive to move if it depends closely on a model's output format or a particular search store.
+
+<Ybox>
+Run a small migration test to prepare for a price increase or model change. The time it takes to restore source documents, permissions, and citations doesn't appear in the subscription price.
+</Ybox>
+
+## How to Choose
+
+Buying can be a good starting point when the task is common and an existing product meets the requirements. Building can make sense when a specialized workflow is central to the value and you have an owner and budget for operations. You can also combine the approaches. For example, buy general document writing tools and build only the search workflow where permissions matter most. Include overlapping subscriptions, integrations, and support in that comparison too.
+
+## Conclusion
+
+AI can shorten implementation, while **operating responsibility and developer time still carry costs**. Match the team's requirements first, then estimate a year of upfront work, recurring time, subscriptions, usage charges, and migration. Vary maintenance hours and usage to see where the decision changes. Next, we'll look at the AI infrastructure behind the costs of both approaches.
+
+### References
+
+- [Claude pricing](https://claude.com/pricing)
+- [Official OpenAI pricing](https://learn.chatgpt.com/docs/pricing)
+- [Part 1: Service unit economics](/blog/post/450-ai-service-unit-economics)
+- [Part 2: The cost of an AI request](/blog/post/451-ai-request-total-cost)

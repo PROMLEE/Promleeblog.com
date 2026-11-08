@@ -1,0 +1,99 @@
+---
+post_id: '451'
+locale: en
+title: The Cost of an AI Request Beyond Token Prices
+description: >-
+  Calculate the cost of a successful AI task from model calls, retries, and
+  incremental expenses, and see how caching and quality change the result.
+source_hash: ed5dfc190463a9b390d454c99cff0b0e02f8cdd4c7fe214ab6306be630ad58ee
+---
+## Before We Begin
+
+The user clicks “Summarize this document” once. The server searches the document and calls the model. When the answer lacks supporting evidence, it calls the model again. One user action produced two billable responses. **Counting each user request as a single model call can understate the cost.**
+<br/>
+The example is a hypothetical document summarization and question-answering service. The call counts, token counts, and quality results are illustrative. Only the official unit rates come from a price list, checked on October 15, 2026. We assume 1,400 won per U.S. dollar.
+
+## What Are You Measuring?
+
+A user request is a task someone tried to complete. A model call is an individual API request. A task succeeds when it meets the service's completion criteria, which can require more than receiving a response. Here, the service must answer the question and link the main claims to evidence in the document. In production, separately record how you judge completion and what human review costs.
+
+<Img src="/261015-aibiz-02-cost-flow.webp" width={650} height={433} alt="Cost flow from user request through retrieval, model call, and quality check, with a paid retry if the answer falls short"/>
+
+The service may need document preprocessing, embeddings, retrieval, storage, and server execution alongside the model API. They use different billing units: storage often depends on volume and retention, while embedding costs depend on the amount processed. Adding resources already included in the base monthly fee to each task counts them twice. Track only charges that rise beyond the allowance or incur a separate external bill as incremental costs.
+
+## Apply Official Unit Rates
+
+The standard Claude Sonnet 5.5 API rates used here are USD 2 per million regular input tokens and USD 10 per million output tokens. A five-minute cache write costs USD 2.50 per million tokens, and a cache read costs USD 0.10 per million. These are global, non-batch rates without discounts or surcharges for other processing options. [Claude API pricing](https://platform.claude.com/docs/en/about-claude/pricing)
+
+| Per-call assumption | Tokens | Cost in USD |
+| --- | --- | --- |
+| Regular input | 8,000 | 0.016 |
+| Output | 1,000 | 0.010 |
+| Total | No caching | 0.026 |
+
+One call therefore costs 36.4 won at the assumed exchange rate. Count all billed input, including system instructions, documents, conversation history, and tool definitions. A retry may include the previous answer, changing the token count. This example simplifies the calculation by keeping calls the same size. *The same document can produce different token counts in different models.* Use each model's usage fields when comparing costs.
+
+<Ads1/>
+
+## Include Failures in the Cost
+
+The example starts with 100 tasks. Ninety meet the quality bar on the first attempt. Ten get a response but lack adequate evidence. We retry each of those once and assume they all pass.
+
+| Item | Count or amount |
+| --- | --- |
+| Initial tasks | 100 |
+| First model calls | 100 |
+| Retries after a failed quality check | 10 |
+| Total billable calls | 110 |
+| Tasks completed successfully | 100 |
+| Model cost | 110 × 36.4 = 4,004 won |
+| Assumed incremental non-model cost | 100 × 3.6 = 360 won |
+| Total task cost | 4,364 won |
+| Cost per successful task | 4,364 ÷ 100 = 43.64 won |
+
+The 360 won is a budget assumption for extra services such as external preprocessing and embeddings. It doesn't represent a provider's retrieval price. Allocate actual incremental monthly charges to the tasks that incurred them. Using 43.64 won in [Part 1's break-even calculation](/blog/post/450-ai-service-unit-economics), 200 tasks cost 8,728 won per user.
+<br/>
+Here, failure means *a paid response that fell short of the quality bar*. Claude says it does not charge for failed requests, but a request that would have succeeded can be billable if the client disconnects or times out. Check what the provider billed before classifying an error as paid or free. [Claude API billing guide](https://support.claude.com/en/articles/8977456-how-do-i-pay-for-my-claude-api-usage)
+
+<Bbox>
+Log the `task_id`, `attempt`, `model`, input, output and cache token counts, provider request ID, cost, and quality decision. Prefer metadata needed to track costs over storing the user's original document. Reconcile the log with the provider's bill.
+</Bbox>
+
+## How Caching and Quality Change the Result
+
+Suppose we get cache hits on the same example workload. In this idealized batch, the first call writes 6,000 shared tokens out of the 8,000-token input to the cache, and the other 109 read that prefix within five minutes. The other 2,000 input tokens and the 1,000 output tokens on every call are still billed.
+
+```text
+첫 호출 = 6,000 × $2.5/백만 + 2,000 × $2/백만 + 1,000 × $10/백만
+        = $0.029
+이후 호출 = 6,000 × $0.1/백만 + 2,000 × $2/백만 + 1,000 × $10/백만
+          = $0.0146
+전체 비용 = ($0.029 + 109 × $0.0146) × 1,400 + 360
+          = 2,628.56원
+성공 작업당 비용 = 26.2856원
+```
+
+**Even including the cache write, the cost per successful task falls under these conditions.** Private documents from different customers don't automatically share a cache, and a day's requests won't necessarily arrive within five minutes. This scenario illustrates a possible saving and leaves Part 1's baseline unchanged. See [prompt caching](/blog/post/446-prompt-caching-for-coding-agents) for configuration and cache-hit conditions.
+<br/>
+If the same 4,364 won yields only 80 passing tasks, cost per success rises to 54.55 won. With zero successes, **cost per successful task is undefined**. Keep the total cost and failure count in the record. When experimenting with another model, use a [verification loop](/blog/post/433-agent-code-verification-loop) to compare quality, response time, and human editing time together.
+
+<Ads2/>
+
+## Subscriptions and Credits
+
+Track the production API bill separately from development subscriptions. Development work that uses Codex with an API key is billed as API usage. Separate it from customer-facing calls by project, key, and purpose. [OpenAI pricing](https://learn.chatgpt.com/docs/pricing)
+<br/>
+Some subscriptions include API benefits. Claude Max 5x and 20x describe monthly API credits of USD 100 and USD 200, respectively. Eligibility and account linking are required. The credits don't apply to Claude Code extra usage, and unused credit expires at the end of the period. [Claude's guide to included API credits](https://platform.claude.com/docs/en/about-claude/api-credits-for-subscribers)
+<br/>
+Keep the token-based resource cost even if you have credits. Record applied credits and additional cash spending separately to compare profitability after credits expire or run out. This series assumes one lower-priced monthly subscription and zero API credit, excluding Max fees and benefits.
+
+## Conclusion
+
+Cost starts with **what it took to finish a task that meets the quality bar**. Take 100 of your own tasks and record first calls, retries, final successes, and incremental charges over the same period. Then check whether completion rates and human editing time hold steady when you reduce token use. Next, we'll design [AI service pricing](/blog/post/452-ai-service-pricing) that customers can understand and that covers those costs.
+
+### References
+
+- [Claude API pricing](https://platform.claude.com/docs/en/about-claude/pricing)
+- [Claude API billing guide](https://support.claude.com/en/articles/8977456-how-do-i-pay-for-my-claude-api-usage)
+- [OpenAI pricing](https://learn.chatgpt.com/docs/pricing)
+- [Claude's guide to included API credits](https://platform.claude.com/docs/en/about-claude/api-credits-for-subscribers)
