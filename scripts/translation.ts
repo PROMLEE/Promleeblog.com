@@ -278,6 +278,7 @@ async function main() {
       where: { post_id: BigInt(id), locale, status: "draft" },
     });
   });
+  await fs.rm(draftPath, { force: true });
   await refreshLivePages();
   console.log(
     `Published to the database: ${id}/${locale}. No Vercel deployment is needed.`,
