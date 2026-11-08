@@ -215,9 +215,32 @@ async function main() {
 
   const cleanMetadata = { ...metadata } as Record<string, unknown>;
   delete cleanMetadata.reviewed_at;
-  await upsertTranslation("draft", cleanMetadata, content, null);
-
   if (!isPublish) {
+    const published = await prisma.postTranslation.findUnique({
+      where: {
+        post_id_locale_status: {
+          post_id: BigInt(id),
+          locale,
+          status: "published",
+        },
+      },
+    });
+    if (
+      published &&
+      published.title === metadata.title &&
+      published.description === metadata.description &&
+      published.content === content &&
+      published.source_hash === metadata.source_hash
+    ) {
+      await prisma.postTranslation.deleteMany({
+        where: { post_id: BigInt(id), locale, status: "draft" },
+      });
+      console.log(
+        `Translation matches the published version; no draft saved: ${id}/${locale}`,
+      );
+      return;
+    }
+    await upsertTranslation("draft", cleanMetadata, content, null);
     console.log(`Draft saved to the database: ${id}/${locale}`);
     return;
   }
@@ -226,7 +249,35 @@ async function main() {
     ...cleanMetadata,
     reviewed_at: reviewedAt.toISOString(),
   };
-  await upsertTranslation("published", publishedMetadata, content, reviewedAt);
+  const values = {
+    title: metadata.title,
+    description: metadata.description,
+    content,
+    metadata: jsonMetadata(publishedMetadata),
+    source_hash: metadata.source_hash,
+    reviewed_at: reviewedAt,
+  };
+  await prisma.$transaction(async (transaction) => {
+    await transaction.postTranslation.upsert({
+      where: {
+        post_id_locale_status: {
+          post_id: BigInt(id),
+          locale,
+          status: "published",
+        },
+      },
+      create: {
+        post_id: BigInt(id),
+        locale,
+        status: "published",
+        ...values,
+      },
+      update: values,
+    });
+    await transaction.postTranslation.deleteMany({
+      where: { post_id: BigInt(id), locale, status: "draft" },
+    });
+  });
   await refreshLivePages();
   console.log(
     `Published to the database: ${id}/${locale}. No Vercel deployment is needed.`,
