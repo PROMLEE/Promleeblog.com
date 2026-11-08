@@ -1,0 +1,238 @@
+---
+post_id: '223'
+locale: zh
+title: 在 Next.js 中插入 AdSense 广告代码
+description: 克服 AdSense 自动广告的位置与展示问题，了解展示广告、原生广告类型和 Next.js 脚本及广告组件的手动集成方式。
+source_hash: 6a3305d24a3b106ffa293ba410d05e6872f0069b5dbfdf769222ba3f85f3f941
+---
+## 开始之前
+经过大约两个月，我终于通过了 Google AdSense 审核，也就是常说的“AdSense 考试”。
+开始投放广告后我发现，自动广告虽然设置方便，但有时会出现在意料之外的位置，打断用户原本的阅读流程。
+<Img src="/250423-103029.webp" width={300} alt="等待了两个月……"/>
+
+因此，我最终改为在指定位置手动插入广告，本文会详细分享整个过程。
+我会展示自己使用的广告代码，并说明各类广告以及如何在 Next.js 中实现。
+
+## 自动广告的局限
+自动广告是 Google AdSense 提供的功能，即使用户没有指定位置，它也会自动寻找页面中的合适位置并插入广告。
+不过，它也存在以下问题。
+- 广告突然出现在正文中间，打断阅读节奏。
+- 广告重复显示或展示数量过多。
+- 页面布局可能错乱，广告也可能与 UI 元素重叠。
+
+如果博客中间连续出现两三条与内容无关的广告，我会担心这可能导致用户更快离开页面。
+## 手动插入广告的优点
+手动插入广告有以下优点。
+- 可以自由选择广告位置。
+- 能够自然地融入内容流程，不破坏阅读体验。
+- 可以根据广告类型尝试不同的位置策略。
+- 需要时可以暂时停用广告，或按条件加载。
+
+例如，可以在文章约三分之一的位置放置横幅广告，并在最后一段下方放置链接广告。
+## 常见广告类型示例
+Google AdSense 提供多种广告类型。
+下面逐一介绍四种常见且推荐的广告类型。
+### 1. 展示广告
+这是一种用途广泛、不太受位置限制的广告。
+它的尺寸灵活，适合响应式设计，因此常用作基础广告单元。
+这是大家最常见的广告形式，使用的属性为 `data-ad-client` 和 `data-ad-slot`。
+<Img src="/250423-103248.webp" width={200} alt="展示广告"/>
+```tsx
+<ins
+  className="adsbygoogle"
+  style={{ display: 'block' }}
+  data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+  data-ad-slot="1234567890"
+  data-ad-format="auto"
+  data-full-width-responsive="true"
+></ins>
+```
+### 2. 原生信息流广告
+这种广告适合列表内容，例如博客文章列表或卡片列表。
+它可以调整为与网站设计自然融合。
+使用的属性为 `data-ad-format` 和 `data-ad-layout`。
+它最大的特点是可以根据网站设计调整背景色、字体和边框，让广告自然融入内容。
+<Img src="/250423-103419.webp" width={200} alt="原生信息流广告"/>
+```tsx
+<ins
+  className="adsbygoogle"
+  style={{ display: 'block' }}
+  data-ad-format="fluid"
+  data-ad-layout="in-feed"
+  data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+  data-ad-slot="1234567890"
+  data-ad-layout-key="-2n+2w+3e+4d"
+></ins>
+```
+### 3. 原生文章内广告
+这种广告可以自然地插入文章内容之间，较长的文本中通常能获得不错的广告效果。
+由于正文与广告之间的界限可能不明显，有时点击率也会更高。
+它同样支持自定义字体、背景色和边框，使其符合网站的设计。
+使用的属性为 `data-ad-format` 和 `data-ad-layout`。
+<Img src="/250423-103513.webp" width={200} alt="原生文章内广告"/>
+```tsx
+<ins
+  className="adsbygoogle"
+  style={{ display: 'block', textAlign: 'center' }}
+  data-ad-format="fluid"
+  data-ad-layout="in-article"
+  data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+  data-ad-slot="1234567890"
+></ins>
+```
+### 4. 原生多重广告
+这种广告以网格形式展示多个广告，适合新闻网站或推荐内容区域。
+它看起来像内容推荐，因此有时能获得较高的点击率。
+使用的属性为 `data-ad-format` 和 `data-ad-layout`。
+<Img src="/250423-103724.webp" width={400} alt="原生多重广告"/>
+```tsx
+<ins
+  className="adsbygoogle"
+  style={{ display: 'block' }}
+  data-ad-format="autorelaxed"
+  data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+  data-ad-slot="1234567890"
+></ins>
+```
+
+<Ads1 />
+
+## 在 Next.js 中插入脚本
+在 Next.js 中，可以使用 `next/script` 模块将广告脚本插入页面。
+该模块有助于优化页面加载性能。
+```tsx title="/components/adsense.tsx"
+import Script from "next/script";
+import { FunctionComponent } from "react";
+
+export const GoogleAdSense: FunctionComponent = () => {
+  if (process.env.NEXT_PUBLIC_NODE_ENV !== "production") {
+    return null;
+  }
+  return (
+    <Script
+      async
+      src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-${process.env.NEXT_PUBLIC_GAPID}`}
+      crossOrigin="anonymous"
+      strategy="afterInteractive"
+    />
+  );
+};
+```
+
+将它添加到根布局中即可。
+```tsx title="/app/layout.tsx"
+// ...
+import { GoogleAdSense } from "@/components/adsense";
+// ...
+      <head>
+        <GoogleAdSense />
+      </head>
+      <body>
+        {/* ... other content ... */}
+      </body>
+// ...
+```
+## 在 Next.js 中构建广告组件
+为了在 Next.js 项目中高效插入广告，建议创建一个通用广告组件。
+下面是一个适用于 Next.js App Router 的组件示例。
+```tsx title="AdComponent.tsx"
+"use client";
+
+import React, { useEffect } from "react";
+import { usePathname } from "next/navigation";
+interface AdComponentProps {
+  adSlot: string;
+  adFormat?: string;
+  adLayout?: string;
+  layoutKey?: string;
+  style?: React.CSSProperties;
+}
+const AdComponent: React.FC<AdComponentProps> = ({
+  adSlot,
+  adFormat = "auto",
+  adLayout = "",
+  layoutKey = "",
+  style,
+}) => {
+  const pathname = usePathname();
+    useEffect(() => {
+    try {
+      (window as any).adsbygoogle = (window as any).adsbygoogle || [];
+      (window as any).adsbygoogle.push({});
+    } catch (e) {
+      console.error("Error loading ads:", e);
+    }
+  }, []);
+    return pathname.startsWith("/test") || pathname.startsWith("/aboutme") ? null : (
+    <ins
+      className="adsbygoogle"
+      style={{ display: "block", ...style }}
+      data-ad-client={"ca-pub-" + process.env.NEXT_PUBLIC_GAPID}
+      data-ad-slot={adSlot}
+      data-ad-format={adFormat}
+      data-ad-layout={adLayout}
+      data-ad-layout-key={layoutKey}
+    ></ins>
+  );
+};
+export default AdComponent;
+```
+### 使用示例
+创建广告后，设置自己的客户端 ID、广告单元 ID 和广告格式。
+下面示例展示了如何在博客文章页面中插入广告。
+```tsx title="page.tsx"
+import React from "react";
+import AdComponent from "@/components/AdComponent";
+
+const BlogPage = () => {
+  return (
+    <div>
+      <h1>블로그 글 제목</h1>
+      <p>블로그 글 내용...</p>
+      <AdComponent adSlot="1234567890" adFormat="auto" /> {/* 디스플레이 광고 */}
+      <AdComponent
+        adSlot="0987654321"
+        adFormat="fluid"
+        adLayout="in-article"
+        style={{ textAlign: "center" }}
+      /> {/* 네이티브 인아티클 광고 */}
+      <AdComponent
+        adSlot="1122334455"
+        adFormat="fluid"
+        layoutKey="-2n+2w+3e+4d"
+      /> {/* 네이티브 인피드 광고 */}
+      <AdComponent
+        adSlot="5566778899"
+        adFormat="autorelaxed"
+      /> {/* 네이티브 멀티플렉스 광고 */}
+      <p>블로그 글 내용...</p>
+    </div>
+  );
+};
+
+export default BlogPage;
+```
+### 📁 推荐的文件结构示例
+```
+/app
+  /blog
+    page.tsx
+/components
+  AdComponent.tsx
+.env
+```
+- 广告客户端 ID 通过环境变量 `NEXT_PUBLIC_GAPID` 管理。
+```env title=".env"
+NEXT_PUBLIC_GAPID=xxxxxxxxxxxxxxxx
+  ```
+- `/test`、`/aboutme` 等页面也实现了隐藏广告的条件。
+- 广告样式通过 `style` prop 传入，便于灵活调整。
+
+## 总结
+自动广告适合作为新手的起点，但如果你重视广告位置和内容阅读流程，我更推荐手动插入。
+手动插入广告代码后，可以灵活尝试各种策略，在不损害用户体验的情况下优化收益。
+希望你能为自己的博客或网站找到合适的广告策略。
+### 参考
+- [Google AdSense 广告代码指南](https://support.google.com/adsense/answer/9274634?hl=ko)
+- [信息流广告样式指南](https://support.google.com/adsense/answer/9183363?hl=ko)
+- [Google 官方原生广告说明](https://support.google.com/adsense/answer/9183363?hl=ko&ref_topic=9267647)

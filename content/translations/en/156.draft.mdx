@@ -1,0 +1,120 @@
+---
+post_id: '156'
+locale: en
+title: Automatically Convert Files on Mac with Folder Actions
+description: Automate conversions of MP4, GIF, and PNG files to WebP on a Mac using Automator Folder Actions and ffmpeg, including setup steps and scripts.
+source_hash: d1cf802c87d071d18c346b1841c602a5381a13365d716bb962cb885bf6711d4e
+---
+## Before You Begin
+
+Web images and videos sometimes need to be converted for performance or quality reasons.
+Doing this manually can be tedious and time-consuming, so this guide shows how to automate file conversion on a Mac with Folder Actions.
+I automated converting MP4, GIF, and PNG files into WebP images for my blog, which saves time and removes repetitive work.
+
+## Set Up the Environment
+
+First, install ffmpeg on a system that has Homebrew.
+If Homebrew is not installed, follow [How to Install Homebrew](/blog/post/119-homebrew), then run this command.
+```bash
+brew install ffmpeg
+```
+
+Create a folder wherever you like and give it a name.
+I created an `mp4_to_webp` folder on my desktop for converting MP4 files to WebP.
+<Img src="/posts/250317-162026.webp" width={100} alt=""/>
+<Rbox>Once you finish configuring a Folder Action, you will not be able to rename its folder. Choose the folder name carefully before continuing.</Rbox>
+
+Open `Automator` from the Finder Applications menu and choose `폴더 적용 스크립트` (Folder Action).
+<Img src="/posts/250317-162241.webp" width={500} alt=""/>
+
+Select the folder you created and add `선택된 finder 항목 가져오기` (Get Selected Finder Items).
+<Img src="/posts/250317-162603.webp" width={500} alt=""/>
+
+From the Utilities category, add `쉘 스크립트 실행` (Run Shell Script) and change the input setting to “as arguments.”
+<Img src="/posts/250317-162751.webp" width={500} alt=""/>
+
+The setup is complete. Now let's write the scripts.
+
+<Ads1 />
+## Write the Scripts
+
+All examples delete the original file and save the converted file in `/Users/{사용자명}/Documents`.
+Change the destination to the path you want to use.
+### Convert Video to WebP (MP4, MOV to WebP)
+```bash
+for f in "$@"; do
+    /opt/homebrew/bin/ffmpeg -n -loglevel error -i "$f" -vf "fps=15,scale=720:-1:flags=lanczos" -loop 0 "/Users/promlee/Documents/$(date +"%y%m%d-%H%M%S").webp"
+    rm -f "$f"
+done
+```
+
+
+The table below explains the commands and options used in the script.
+| Command | Description |
+| --- | --- |
+| for f in "\$@" | A loop that processes each input file (f) in sequence. |
+| /opt/homebrew/bin/ffmpeg | Runs the Homebrew installation of ffmpeg. |
+| -n | Does not overwrite an existing file with the same name. |
+| -loglevel error | Prints errors only and hides other unnecessary logs. |
+| -i "\$f" | Specifies the input file (\$f, the video to convert). |
+| -vf | Sets the video filter options. |
+| "fps=15" | Converts at 18 frames per second to reduce the output size by lowering the frame count. |
+| "scale=720:-1" | Sets the width to 720 px and keeps the aspect ratio (-1 is calculated automatically). |
+| "flags=lanczos" | Uses a high-quality resampling (scaling) algorithm. |
+| -loop 0 | Makes the animated WebP loop indefinitely. |
+| -f | Deletes the original video file (\$f) after conversion. |
+
+### Convert PNG to WebP
+```bash
+for f in "$@"; do
+    /opt/homebrew/bin/cwebp -q 70 "$f" -o "/Users/promlee/Documents/$(date +"%y%m%d-%H%M%S").webp";
+    rm -f "$f"
+done
+```
+
+
+### Convert Video to GIF
+```bash
+for f in "$@"; do
+    /opt/homebrew/bin/ffmpeg -n -loglevel error -i "$f" -vf "fps=15,scale=720:-1:flags=lanczos" "/Users/promlee/Documents/$(date +"%y%m%d-%H%M%S").gif";
+    rm -f "$f"
+done
+```
+
+<Ads2 />
+## Apply the Action and Check the Results
+
+Click Save, then check that the script works as expected.
+After a successful conversion, the original file is deleted.
+<Img src="/posts/250317-174040.webp" width={500} alt=""/>
+
+After setup, right-click the folder and choose Folder Actions Setup to confirm that the action is applied.
+<Img src="/posts/250317-174747.webp" width={150} alt=""/>
+<Img src="/posts/250317-174934.webp" width={300} alt="Folder name on the left and script name on the right"/>
+
+## File Size Comparison
+
+| **MP4** | **2 MB** |
+| --- | --- |
+| GIF | 968 KB |
+| WebP | 459 KB |
+
+| **PNG** | **194 KB** |
+| --- | --- |
+| WebP | 41 KB |
+
+## Conclusion
+
+We used macOS Folder Actions to automate file conversion.
+The setup is powerful enough that I want to extend it to more tasks: a folder can become an interface for any command-line app.
+My desktop is now more useful than ever. :)
+
+### Ideas to Explore
+
+- Try a YouTube downloader or Twitter downloader script using [this reference](https://interfacecraft.online/posts/blog/2025/how-i-automated-my-computer-life-with-macos-folder-actions/).
+- Write other scripts of your own.
+
+### References
+
+- [JoCoding](https://www.youtube.com/shorts/DORh-ikvXb8?app=desktop)
+- [How I Automated My Computer Routine With macOS Folder Actions](https://interfacecraft.online/posts/blog/2025/how-i-automated-my-computer-life-with-macos-folder-actions/)

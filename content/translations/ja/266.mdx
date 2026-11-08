@@ -1,0 +1,244 @@
+---
+post_id: '266'
+locale: ja
+title: MongoDBの主要ツールとユーティリティ（Compass、mongodump、mongorestore、mongoimport、mongoexport）
+description: >-
+  MongoDB
+  Compassによるデータ管理、mongodump・mongorestoreによるバックアップと復元、mongoimport・mongoexportによるデータ入出力を解説します。
+source_hash: 1e3e1282778bb1448954cb6118b19fffc9ed2521c819d648afd545d16aa6343a
+reviewed_at: '2026-11-08T12:22:51.466Z'
+---
+
+
+## はじめに
+
+前回は、クラウドでMongoDBを手軽に運用できるMongoDB Atlasについて学びました。
+Atlasにも便利な管理機能がありますが、MongoDBエコシステムには開発や運用を効率化するツールやユーティリティがほかにもあります。
+データを視覚的に確認したいとき、安全にバックアップしたいとき、別形式のデータをMongoDBとやり取りしたいときに役立ちます。
+
+<Ads1 />
+## 1. MongoDB Compass
+> GUIツール
+
+MongoDB CompassはMongoDB公式の*グラフィカルユーザーインターフェース（GUI）*です。
+これまで`mongosh`というコマンドラインインターフェース（CLI）でテキスト操作していたMongoDBを、Compassでは画面上の操作で探索・管理できます。
+
+### Compassの主な機能
+
+- **サーバー接続とデータベース・コレクションの探索**：
+    - ローカルMongoDBサーバーだけでなく、Atlasクラスターにも簡単に接続できます（Atlasが接続文字列を提供します）。
+    - データベースとコレクションの一覧がツリー表示され、簡単に探索できます。
+- **ドキュメントの表示と編集**：
+    - コレクションのドキュメントをテーブル、JSON、ツリーなどの形式で表示します。
+    - GUI上でドキュメントの追加、編集、削除を行えます。
+- **クエリの実行とフィルタリング**：
+    - クエリバーに`find`の条件（JSON形式）を入力し、結果をすぐに確認できます。
+    - フィルターで条件に合うドキュメントだけを簡単に検索できます。
+- **インデックス管理**：
+    - コレクションのインデックスを視覚的に確認し、GUIで作成・削除できます。
+- **集計パイプラインビルダー**：
+    - 複数ステージからなる複雑な集計パイプラインをGUIで作成・テストし、結果をプレビューできます。コードを直接書くより直感的です。
+- **スキーマ分析**：
+    - コレクションのドキュメントをサンプリングし、各フィールドの型、分布、値の範囲を分析・可視化します。データ構造の把握やデータモデリングの改善に役立ちます。
+- **パフォーマンス監視**：
+    - 遅いクエリ、ネットワークトラフィック、処理数などの指標をリアルタイム表示し、性能問題の診断に役立ちます。Atlasクラスターでは、より詳細な情報をAtlas UIで確認できます。
+- **地理空間データの可視化**：
+    - GeoJSONデータを地図上に表示する機能もあります。
+
+### Compassのインストールと使い方
+
+MongoDB CompassはMongoDBの開発・管理を便利にする強力なツールです。インストールも簡単です。
+
+#### Compassをダウンロードする
+
+まず、MongoDB公式サイトのCompassダウンロードページを開きます。
+[https://www.mongodb.com/try/download/compass](https://www.mongodb.com/try/download/compass)
+ページでは、使用中のOS（Windows、macOS、Linux）に合うバージョンが自動検出されるか、選択肢が表示されます。
+- **Version**：通常は最新の安定版（Stable）を選びます。
+- **Platform**：使用するOSを選びます（例：Windows 64-bit（msi）、macOS 64-bit（dmg）、Linux向けdeb/rpmなど）。
+- **Package**：通常は既定のパッケージ形式を選びます（例：Windowsは.msi、macOSは.dmg）。
+
+「Download」をクリックしてインストーラーをダウンロードします。
+<Img src="/250508-095739.webp" width={500} alt="ダウンロードページ"/>
+
+#### OSごとのインストール
+
+**Windows**
+1. ダウンロードした`.msi`インストーラーをダブルクリックして起動します。
+2. インストーラーの案内に従います。通常は「Next」を数回クリックしてライセンスに同意すれば完了します。変更が必要な項目はほとんどありません。
+3. インストール後、スタートメニューまたはデスクトップからMongoDB Compassを起動できます。
+
+**macOS**
+1. ダウンロードした`.dmg`ファイルをダブルクリックして開きます。
+2. MongoDB CompassのアイコンをApplicationsフォルダーへドラッグ＆ドロップしてインストールします。
+    <Img src="/250508-100015.webp" width={500} alt="ドラッグ＆ドロップ"/>
+3. LaunchpadまたはApplicationsフォルダーから起動します。初回起動時にセキュリティ警告が出た場合は「開く」を選択します。
+
+**Linux**
+- `.deb`（Debian/Ubuntu系）：`sudo dpkg -i <다운로드된_compass.deb_파일경로>`でインストールし、必要なら`sudo apt-get install -f`で依存関係を解決します。
+- `.rpm`（RedHat/Fedora/CentOS系）：`sudo rpm -ivh <다운로드된_compass.rpm_파일경로>`でインストールします。
+- インストール後はアプリケーションメニューから起動するか、ターミナルで`mongodb-compass`（または同様のコマンド）を実行します。
+
+#### Compassを起動してサーバーに接続する
+
+Compassを初めて起動すると、新しい接続（New Connection）の設定画面が表示されます。
+MongoDBサーバーへ接続する*接続文字列（Connection String URI）*を入力するか、Hostname、Port、Authenticationなどの各欄を設定します。
+**ローカルサーバーの場合**：既定の`mongodb://localhost:27017`で接続できます。
+**MongoDB Atlasクラスターの場合**：Atlasダッシュボードが提供する接続文字列をコピーして貼り付けるのが簡単です。[Atlas入門（11日目）](/blog/post/265-11-mongodb-atlas)も参照してください。
+<Img src="/250508-100313.webp" width={300} alt="New Connection画面"/>
+必要な認証情報（ユーザー名、パスワード）を入力し、「Connect」をクリックします。
+接続に成功するとCompassのメイン画面が開き、データベースやコレクションを確認できます。
+<Img src="/250508-100701.webp" width={300} alt="Atlasのデータベース・コレクション接続画面"/>
+MongoDBを学び始めた方やコマンドラインに慣れていない方にとって、Compassはデータベース構造を理解し、基本操作を行うのに便利なツールです。
+さまざまな機能を試しながらMongoDBに慣れていきましょう。
+
+<Ads2 />
+## 2. mongodumpとmongorestore：データのバックアップと復元
+データは重要な資産です。ハードウェア障害や操作ミスなどから守るため、定期的な*バックアップ*が欠かせません。
+`mongodump`と`mongorestore`は、MongoDBデータをバックアップ・復元するコマンドラインツールです。
+
+### mongodump
+> データベースをバックアップする
+
+`mongodump`はMongoDBサーバーのデータをBSON（Binary JSON）形式で書き出し、バックアップを作成します。
+
+#### 基本的な使い方
+```bash
+mongodump --uri="mongodb://<username>:<password>@host:<port>/<databaseName>" --out="/path/to/backup_directory"
+```
+- `--uri`
+  接続するMongoDBサーバーの接続文字列です。
+  認証情報、ホスト、ポート、バックアップ対象のデータベース名などを含められます。
+  データベースを指定しない場合、サーバー上のすべてのデータベースが対象になります。
+- `--out`または`-o`
+  バックアップの保存先ディレクトリを指定します。
+  ディレクトリが存在しない場合は自動作成されます。
+  省略すると、カレントディレクトリに`dump`というディレクトリが作成されます。
+#### 主なオプション
+- `--db <databaseName>`
+  指定したデータベースだけをバックアップします。
+- `--collection <collectionName>`
+  特定のコレクションだけをバックアップします（`--db`と併用）。
+- `--gzip`
+  バックアップをgzip圧縮して保存容量を節約します。
+- `--archive`
+  すべてのバックアップデータを1つのアーカイブファイルにまとめます。
+- `--username <user>`、`--password <pass>`、`--authenticationDatabase <authDB>`
+  認証情報を指定します。
+
+#### 例
+`test`データベース全体を圧縮し、`~/mongodb`へバックアップします。
+```bash
+mongodump --uri="mongodb://localhost:27017/test" --out="~/mongodb"
+```
+<Img src="/250508-103805.webp" width={1000} alt="mongodumpの実行結果"/>
+
+### mongorestore
+> バックアップを復元する
+`mongorestore`は`mongodump`で作成したBSONバックアップをMongoDBサーバーへ戻し、データを復元します。
+
+#### 基本的な使い方
+```bash
+mongorestore --uri="mongodb://<username>:<password>@<host>:<port>/<targetDatabaseName>" /path/to/backup_directory
+```
+- `--uri`：復元先MongoDBサーバーの接続文字列です。
+- 最後の引数：`mongodump`で作成したバックアップファイルの保存先ディレクトリです。
+
+#### 主なオプション
+- `--db <targetDatabaseName>`：指定したデータベースへ復元します。
+- `--collection <targetCollectionName>`：指定したコレクションへ復元します。
+- `--gzip`：圧縮されたバックアップを復元するときに使います。
+- `--archive`：単一のアーカイブファイルから復元します。
+- `--drop`：復元前に対象コレクションの既存データをすべて削除します。注意してください。
+- `--nsInclude <namespacePattern>`、`--nsExclude <namespacePattern>`：指定したnamespaceだけを含める、または除外します。
+
+#### 例
+先ほどのバックアップを`restoredDB`データベースへ復元します。
+```bash
+mongorestore --uri="mongodb://localhost:27017/restoredDB" ~/mongodb/test
+```
+<Img src="/250508-104850.webp" width={500} alt="復元完了"/>
+
+<Bbox>mongodumpとmongorestoreは、データ移行や開発環境の構築など、さまざまな場面で役立ちます。</Bbox>
+
+<Ads3 />
+
+## 3. mongoimportとmongoexport
+> データ形式を変換する
+
+MongoDBのデータをJSONやCSVなどの形式に書き出したり、別形式のデータをMongoDBへ取り込んだりすることがあります。
+`mongoimport`と`mongoexport`は、この作業に使うコマンドラインツールです。
+
+### mongoexport
+> MongoDBのデータを外部ファイルへ書き出す
+`mongoexport`はコレクションのデータをJSON、CSV、TSV形式で書き出します。
+
+#### 基本的な使い方（JSON）
+```bash
+mongoexport --uri="mongodb://username:password@host:port/databaseName" --collection="collectionName" --out="output_file.json"
+```
+#### 主なオプション
+- `--type <json|csv|tsv>`：ファイル形式（デフォルトはjson）。
+    - JSON：`--jsonArray`を使うと全体を配列として出力します。
+    - CSV/TSV：`--fields`または`--fieldFile`でフィールド一覧を指定します。
+- `--query <JSON_query_string>`：条件に合うドキュメントだけを書き出します。
+- `--pretty`：JSONを整形します。
+
+#### 例
+> `users`コレクションから、statusが「active」のユーザーの`name`と`email`をCSVに書き出します。
+
+次のコマンドでtestコレクションにデータを作成します。
+```js
+db.users.insertMany([
+  { name: "Alice", email: "alice@example.com", status: "active" },
+  { name: "Bob", email: "bob@example.com", status: "disabled" },
+  { name: "Charlie", email: "charlie@example.com", status: "active" },
+  { name: "Daisy", email: "daisy@example.com", status: "inactive" }
+])
+```
+
+```bash
+mongoexport --uri="mongodb://localhost:27017/test" --collection="users" --type="csv" --fields="name,email" --query='{"status": "active"}' --out="active_users.csv"
+```
+<Img src="/250508-110130.webp" width={500} alt="CSVファイルの作成結果"/>
+
+### mongoimport
+> 外部データをMongoDBへ取り込む
+
+`mongoimport`はJSON、CSV、TSVファイルのデータをMongoDBコレクションへ取り込みます。
+
+#### 基本的な使い方（JSON）
+```bash
+mongoimport --uri="mongodb://username:password@host:port/databaseName" --collection="collectionName" --file="input_file.json"
+```
+##### 主なオプション
+- `--type <json|csv|tsv>`：ファイル形式（デフォルトはjson）。
+    - JSON：1行ごとのJSONオブジェクトを使うか、`--jsonArray`を指定します。
+    - CSV/TSV：`--headerline`で先頭行をフィールド名として使うか、`--fields`／`--fieldFile`で指定します。
+- `--drop`：取り込み前に既存データを削除します。
+- `--mode <insert|upsert|merge>`：挿入方法を指定します（`--upsertFields`が必要です）。
+
+##### 例
+> 先ほど書き出した`active_users.csv`を`importedUsers`コレクションへ取り込みます。
+```bash
+mongoimport --uri="mongodb://localhost:27017/test" --collection="importedUsers" --type="csv" --headerline --file="active_users.csv"
+```
+
+<Img src="/250508-110442.webp" width={500} alt="mongoimportの結果"/>
+
+<Ads4 />
+## まとめ
+今回はMongoDBでの作業を便利かつ効率的にする主要ツールとユーティリティを紹介しました。
+データを視覚的に管理するMongoDB Compass、バックアップ・復元用の`mongodump`と`mongorestore`、異なる形式のデータをやり取りする`mongoimport`と`mongoexport`の特徴と使い方を確認しました。
+これらのツールを活用すれば、MongoDBの開発と運用の生産性を高められます。
+
+> 次回はプログラミング言語とMongoDBを連携する方法を学びます。
+Node.jsからMongoDB Atlasクラスターへ接続し、基本的なCRUD操作を行う方法を詳しく見ていきます。
+
+### 参考
+
+- MongoDB Compass（公式ドキュメント）：[https://www.mongodb.com/docs/compass/current/](https://www.mongodb.com/docs/compass/current/)
+- mongodump（公式ドキュメント）：[https://www.mongodb.com/docs/database-tools/mongodump/](https://www.mongodb.com/docs/database-tools/mongodump/)
+- mongorestore（公式ドキュメント）：[https://www.mongodb.com/docs/database-tools/mongorestore/](https://www.mongodb.com/docs/database-tools/mongorestore/)
+- mongoexport（公式ドキュメント）：[https://www.mongodb.com/docs/database-tools/mongoexport/](https://www.mongodb.com/docs/database-tools/mongoexport/)
+- mongoimport（公式ドキュメント）：[https://www.mongodb.com/docs/database-tools/mongoimport/](https://www.mongodb.com/docs/database-tools/mongoimport/)

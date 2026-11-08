@@ -1,0 +1,277 @@
+---
+post_id: '223'
+locale: en
+title: Adding AdSense Ad Code in Next.js
+description: >-
+  Learn how to place AdSense ads exactly where you want them in a Next.js site,
+  with examples of four ad formats, script setup, a reusable component, and
+  testing guidance.
+source_hash: 6a3305d24a3b106ffa293ba410d05e6872f0069b5dbfdf769222ba3f85f3f941
+reviewed_at: '2026-11-08T12:17:21.519Z'
+---
+## Before We Begin
+
+After about two months, I finally got through the Google AdSense approval process, often called the "AdSense exam."
+While adding ads, I found that Auto Ads were easy to set up but often appeared in unexpected places or interrupted the flow I wanted for readers.
+<Img src="/250423-103029.webp" width={300} alt="Two months of waiting"/>
+
+I decided to switch to placing ads manually and will share the process in detail here.
+I'll use ad code that I placed myself as examples, explain the different ad formats, and show how to implement them in Next.js.
+
+## Limitations of Auto Ads
+
+Auto Ads is a Google AdSense feature that finds suitable places on a page and inserts ads even when the site owner has not chosen their positions.
+However, it has a few drawbacks.
+- Ads may suddenly appear in the middle of an article and interrupt the reading flow.
+- Ads may appear repeatedly or show up too often.
+- The layout may break or overlap with UI elements.
+
+When I saw several ads unrelated to the content appear in the middle of my blog, I worried that readers might leave more often.
+
+## Benefits of Manual Ad Placement
+
+Placing ads yourself has several advantages.
+- You can choose exactly where ads appear.
+- Ads can fit naturally without disrupting the content flow.
+- You can experiment with placements for different ad formats.
+- You can temporarily disable ads or load them conditionally when needed.
+
+For example, you can place a banner ad one-third of the way through an article and a link ad below the final paragraph.
+
+## Examples of Common Ad Formats
+
+Google AdSense provides several ad formats.
+Here are four commonly recommended types.
+
+### 1. Display Ads
+
+Display ads work in a wide range of placements and contexts.
+Their flexible sizing makes them suitable for responsive layouts, so they are often used as a basic ad unit.
+This is the basic format you have probably seen most often.
+The attributes are `data-ad-client` and `data-ad-slot`.
+<Img src="/250423-103248.webp" width={200} alt="Display ad"/>
+
+```tsx
+<ins
+  className="adsbygoogle"
+  style={{ display: 'block' }}
+  data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+  data-ad-slot="1234567890"
+  data-ad-format="auto"
+  data-full-width-responsive="true"
+></ins>
+```
+
+### 2. Native In-Feed Ads
+
+In-feed ads work well in lists of content, such as blog posts or cards.
+They can be configured to blend naturally into the site's design.
+The attributes are `data-ad-format` and `data-ad-layout`.
+One of their main benefits is that you can adjust the background color, font, and borders to match your site's design, helping the ad blend into the content.
+<Img src="/250423-103419.webp" width={200} alt="Native in-feed ad"/>
+
+```tsx
+<ins
+  className="adsbygoogle"
+  style={{ display: 'block' }}
+  data-ad-format="fluid"
+  data-ad-layout="in-feed"
+  data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+  data-ad-slot="1234567890"
+  data-ad-layout-key="-2n+2w+3e+4d"
+></ins>
+```
+
+### 3. Native In-Article Ads
+
+In-article ads can be placed naturally between sections of an article.
+They tend to perform well inside long-form text.
+Because the boundary between the article and the ad can be less obvious, click-through rates may be higher.
+You can also adjust the font, background color, and borders to match your site's design.
+The attributes are `data-ad-format` and `data-ad-layout`.
+<Img src="/250423-103513.webp" width={200} alt="Native in-article ad"/>
+
+```tsx
+<ins
+  className="adsbygoogle"
+  style={{ display: 'block', textAlign: 'center' }}
+  data-ad-format="fluid"
+  data-ad-layout="in-article"
+  data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+  data-ad-slot="1234567890"
+></ins>
+```
+
+### 4. Native Multiplex Ads
+
+Multiplex ads display multiple ads in a grid and work well on news sites or in recommended-content sections.
+They can look like content recommendations and may get more clicks.
+This format uses `data-ad-format` and `data-ad-layout`.
+<Img src="/250423-103724.webp" width={400} alt="Native multiplex ad"/>
+```tsx
+<ins
+  className="adsbygoogle"
+  style={{ display: 'block' }}
+  data-ad-format="autorelaxed"
+  data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+  data-ad-slot="1234567890"
+></ins>
+```
+
+<Ads1 />
+## Add the Ad Script in Next.js
+
+In Next.js, use the `next/script` module to add an ad script to a page.
+It helps optimize page loading performance.
+
+```tsx title="/components/adsense.tsx"
+import Script from "next/script";
+import { FunctionComponent } from "react";
+
+export const GoogleAdSense: FunctionComponent = () => {
+  if (process.env.NEXT_PUBLIC_NODE_ENV !== "production") {
+    return null;
+  }
+  return (
+    <Script
+      async
+      src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-${process.env.NEXT_PUBLIC_GAPID}`}
+      crossOrigin="anonymous"
+      strategy="afterInteractive"
+    />
+  );
+};
+```
+
+Then add it to the root layout.
+
+```tsx title="/app/layout.tsx"
+// ...
+import { GoogleAdSense } from "@/components/adsense";
+// ...
+      <head>
+        <GoogleAdSense />
+      </head>
+      <body>
+        {/* ... other content ... */}
+      </body>
+// ...
+```
+
+## Build an Ad Component for Next.js
+
+To place ads efficiently in a Next.js project, create a shared component and reuse it.
+Here is an example for a Next.js project using the App Router.
+
+```tsx title="AdComponent.tsx"
+"use client";
+
+import React, { useEffect } from "react";
+import { usePathname } from "next/navigation";
+interface AdComponentProps {
+  adSlot: string;
+  adFormat?: string;
+  adLayout?: string;
+  layoutKey?: string;
+  style?: React.CSSProperties;
+}
+const AdComponent: React.FC<AdComponentProps> = ({
+  adSlot,
+  adFormat = "auto",
+  adLayout = "",
+  layoutKey = "",
+  style,
+}) => {
+  const pathname = usePathname();
+    useEffect(() => {
+    try {
+      (window as any).adsbygoogle = (window as any).adsbygoogle || [];
+      (window as any).adsbygoogle.push({});
+    } catch (e) {
+      console.error("Error loading ads:", e);
+    }
+  }, []);
+    return pathname.startsWith("/test") || pathname.startsWith("/aboutme") ? null : (
+    <ins
+      className="adsbygoogle"
+      style={{ display: "block", ...style }}
+      data-ad-client={"ca-pub-" + process.env.NEXT_PUBLIC_GAPID}
+      data-ad-slot={adSlot}
+      data-ad-format={adFormat}
+      data-ad-layout={adLayout}
+      data-ad-layout-key={layoutKey}
+    ></ins>
+  );
+};
+export default AdComponent;
+```
+
+### Example Usage
+
+After creating the ad component, set your publisher key, ad slot ID, and ad format.
+Here is an example of inserting ads into a blog post page.
+
+```tsx title="page.tsx"
+import React from "react";
+import AdComponent from "@/components/AdComponent";
+
+const BlogPage = () => {
+  return (
+    <div>
+      <h1>블로그 글 제목</h1>
+      <p>블로그 글 내용...</p>
+      <AdComponent adSlot="1234567890" adFormat="auto" /> {/* 디스플레이 광고 */}
+      <AdComponent
+        adSlot="0987654321"
+        adFormat="fluid"
+        adLayout="in-article"
+        style={{ textAlign: "center" }}
+      /> {/* 네이티브 인아티클 광고 */}
+      <AdComponent
+        adSlot="1122334455"
+        adFormat="fluid"
+        layoutKey="-2n+2w+3e+4d"
+      /> {/* 네이티브 인피드 광고 */}
+      <AdComponent
+        adSlot="5566778899"
+        adFormat="autorelaxed"
+      /> {/* 네이티브 멀티플렉스 광고 */}
+      <p>블로그 글 내용...</p>
+    </div>
+  );
+};
+
+export default BlogPage;
+```
+
+### 📁 Example File Structure
+
+```
+/app
+  /blog
+    page.tsx
+/components
+  AdComponent.tsx
+.env
+```
+
+- Manage the ad client ID with the `NEXT_PUBLIC_GAPID` environment variable.
+
+  ```env title=".env"
+  NEXT_PUBLIC_GAPID=xxxxxxxxxxxxxxxx
+  ```
+
+- The example also hides ads on selected pages such as `/test` and `/aboutme`.
+- Pass ad styles flexibly through the `style` prop.
+
+## Conclusion
+
+Auto Ads can be a good starting point for beginners, but I recommend manual placement when ad position and content flow matter.
+Placing ad code yourself lets you experiment with different strategies and optimize revenue without harming the user experience.
+Find an ad strategy that works for your blog or website.
+
+### References
+
+- [Google AdSense ad code guide](https://support.google.com/adsense/answer/9274634?hl=ko)
+- [Guide to styling in-feed ads](https://support.google.com/adsense/answer/9183363?hl=ko)
+- [Google's native ads overview](https://support.google.com/adsense/answer/9183363?hl=ko&ref_topic=9267647)

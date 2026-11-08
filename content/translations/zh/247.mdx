@@ -1,0 +1,170 @@
+---
+post_id: '247'
+locale: zh
+title: React 渲染方式详解：SSR、SSG 与 Hydration（React 入门第 7 天）
+description: >-
+  比较 React 的 CSR、SSR 和 SSG，说明 Hydration 的作用与风险，并介绍 Next.js 流式 SSR、部分 Hydration
+  和岛屿架构。
+source_hash: 9cccb243a75393301d37ddf5413181883b4e41a8edfd85df41cadf5b56ed40b4
+reviewed_at: '2026-11-08T12:14:25.030Z'
+---
+## 开始之前
+到目前为止，我们一直在学习如何使用 React 创建动态用户界面。
+通常，React 应用采用 *客户端渲染（Client-Side Rendering，CSR）*：在用户浏览器中运行 JavaScript 并绘制页面。
+CSR 能提供丰富的交互体验，但初次加载时用户可能会看到空白页面，而且搜索引擎优化（SEO）也可能比较困难。
+为了解决这些问题，出现了 *服务器端渲染（Server-Side Rendering，SSR）* 和 *静态站点生成（Static Site Generation，SSG）*。
+今天我们会了解各种渲染方式的工作原理和特点，以及与它们密切相关的 *Hydration（水合）* 概念。
+
+## CSR：客户端渲染
+先简单了解最熟悉的客户端渲染（CSR）。
+### 工作方式
+1. 用户访问网站后，浏览器下载最基本的 HTML 文件和 JavaScript 包。
+2. 浏览器运行下载的 JavaScript。
+3. JavaScript（React 代码）创建虚拟 DOM、操作实际 DOM 并绘制界面。
+4. 之后，JavaScript 会根据用户交互持续更新界面。
+### 优点
+- 首次加载后，页面跳转快速流畅，无需刷新整个页面。
+- 服务器负载较低，服务器主要提供 API。
+- 适合实现丰富的动态交互。
+### 缺点
+- 首次加载时需要下载并运行 JavaScript 包，用户可能要等待一段时间才能看到首屏内容（首次有效绘制时间较慢）。
+- 初始 HTML 几乎为空，搜索引擎爬虫可能难以正确获取内容，影响 SEO。
+<Ads1 />
+
+## SSR：服务器端渲染
+服务器端渲染（SSR）是为了解决 CSR 在首次加载和 SEO 方面的不足而出现的。
+顾名思义，SSR 会在*服务器端预先渲染页面内容*，再以完整 HTML 的形式发送给客户端（浏览器）。
+### 工作方式
+1. 用户访问网站时，浏览器向服务器请求页面。
+2. 服务器获取页面所需的数据（例如调用 API），渲染 React 组件并生成完整的 HTML 字符串。
+3. 服务器将生成的 HTML 响应给浏览器。
+4. 浏览器立即显示收到的 HTML，用户可以较快看到内容。
+5. 与此同时，浏览器在后台下载所需的 JavaScript 包。
+6. JavaScript 加载完成后，React 在服务器生成的静态 HTML 上连接事件处理器等，使页面可以交互。这个过程称为 *Hydration*，稍后会详细介绍。
+
+<Img src="/250502-112248.webp" width={300} alt="比较 CSR 与 SSR 的初始加载过程"/>
+
+### 与 CSR 的比较
+- **初次加载速度（TTFP/FCP）**
+  TTFP（Time To First Paint，首次绘制时间）和 FCP（First Contentful Paint，首次内容绘制）衡量用户看到首屏所需的时间。
+  SSR 会发送服务器生成的完整 HTML，因此用户看到首屏内容的时间（FCP）通常比 CSR 更早，初次加载体验更好。
+- **SEO**
+  页面提供完整的服务器端 HTML，搜索引擎爬虫可以轻松获取内容，因此更有利于 SEO。
+- **服务器负载**
+  服务器必须为每个用户请求渲染页面，因此负载高于 CSR。
+- **首字节时间（TTFB）**
+  服务器需要先生成 HTML，所以从服务器收到第一个数据字节所需的时间（Time To First Byte，TTFB）可能比 CSR 更长。
+
+### Next.js 与流式 SSR
+传统 SSR 必须等服务器生成完整页面 HTML 后才能发送响应，因此页面复杂或数据加载耗时较长时，TTFB 会变慢。
+为改善这一点，出现了 *流式 SSR（Streaming SSR）*。
+Next.js App Router（app 目录模式）默认支持流式 SSR。
+- **流式 SSR**
+  服务器先发送页面的基本框架（Shell），再按准备完成的顺序逐块发送 UI 内容（Chunk）。
+  浏览器收到内容后会逐步渲染 HTML，并同时加载所需 JavaScript 以执行 Hydration。
+- **优点**
+  用户可以更早看到页面的部分内容，服务器渲染不会阻塞整个响应，因此有助于改善 TTFB 和用户体验。
+  它与 React Suspense 紧密协作。
+<Ads2 />
+
+## SSG：静态站点生成
+静态站点生成（SSG）会在*构建时*预先为网站的所有页面生成 HTML 文件。
+### 工作方式
+1. 开发者构建代码。
+2. 构建过程中，框架（例如 Next.js、Gatsby）会为已定义的所有路径预先渲染页面，并分别生成 HTML 文件；所需数据也会在构建时获取。
+3. 生成的 HTML、CSS、JavaScript 文件会部署到静态文件服务器或 CDN（内容分发网络）。
+4. 用户请求某个页面时，服务器会立即返回已经生成的 HTML 文件。
+5. 与 CSR 类似，浏览器显示 HTML 后还会加载 JavaScript，使页面具备交互能力（Hydration）。
+
+### 与 CSR/SSR 的比较
+- **性能**
+  由于提供的是预先生成的静态文件，请求时无需服务器渲染，因此速度很快。
+  使用 CDN 后，还可以从世界各地快速获取内容。
+- **服务器依赖与负载**
+  服务器只需传递静态文件，负载几乎为零；甚至可以不使用服务器来运行网站（Jamstack 架构）。
+- **安全性**
+  服务器端逻辑很少，攻击面更小，因此有利于安全。
+- **构建时间**
+  页面数量很多或数据加载复杂时，构建时间可能变长。
+- **数据时效性**
+  内容更改后，需要重新构建和部署网站才能反映最新内容。
+  （Incremental Static Regeneration，ISR 等技术可以缓解这一问题。）
+
+### 适合哪些场景？
+当内容不常变化，且能在构建时生成全部页面时，SSG 非常有效。
+- 博客文章
+- 文档网站（API 文档、教程等）
+- 营销页面和落地页
+- 作品集网站
+
+> Q：“SSR 和 SSG 有什么区别？分别适合什么时候使用？”
+> A：“SSR 在收到请求时由服务器生成 HTML，SSG 则在构建时预先生成 HTML。SSR 适合用户专属的动态内容或经常变化的数据；SSG 适合以静态内容为主、追求最佳性能的网站。”
+
+<Ads3 />
+
+## Hydration：让服务器生成的 HTML 变得可交互
+通过 SSR 或 SSG 生成的 HTML 最初只是“能够显示”的静态文档。
+要让用户点击按钮或输入内容，就需要 JavaScript（React）。
+*Hydration* 是指在服务器生成的静态 HTML 上运行客户端 JavaScript（React），将其转化为可交互的动态应用状态，就像给干燥的土地浇水（hydrate）一样。
+
+### 为什么需要 Hydration？
+Hydration 过程中，React 会执行以下重要工作。
+- **连接事件处理器**
+  将组件定义的事件处理器连接到实际 DOM 元素，例如按钮点击（`onClick`）和输入变化（`onChange`）。
+- **初始化状态**
+  初始化由 `useState`、`useReducer` 等管理的组件内部状态，必要时使用服务器传来的初始值。
+- **创建虚拟 DOM 树**
+  在内存中生成与服务器 HTML 结构一致的虚拟 DOM 树，为之后高效处理客户端更新做好准备。
+
+换句话说，Hydration 就是把 React 这套“神经系统和肌肉（JavaScript）”连接到服务器生成的“骨架（HTML）”上，让应用真正运转起来。
+
+### 注意：Hydration 错误
+Hydration 时，React 期望服务器渲染的 HTML 结构与客户端准备渲染的虚拟 DOM 结构*完全一致*。
+如果两者不一致，React 会发出 Hydration Mismatch Error 警告；有时还会在客户端重新渲染整个页面，从而失去 SSR/SSG 的优势。
+不一致常见于以下情况。
+- 服务器和客户端环境不同（例如访问 `window` 对象、时区差异等）。
+- HTML 嵌套错误（例如在 `p` 标签内放入 `div`）。
+- 渲染时使用了会变化的内容（例如 `Math.random()`、当前时间；服务器渲染和客户端 Hydration 的时间不同）。
+
+为避免这些错误，服务器和客户端的渲染结果必须保持一致。
+必要时，可以使用 `useEffect` 将只应在客户端执行的逻辑分离出来。
+<Ads4 />
+
+## 不断演进的渲染模式
+最近，前端社区开始关注一些新模式：保留 SSR/SSG 优点的同时，减少 JavaScript 的加载和执行成本。
+
+### 部分 Hydration
+与一次性 Hydration 整个页面不同，部分 Hydration 只对*需要交互的组件*进行选择性 Hydration。
+静态部分保留为 HTML，只有动态部分加载并运行 JavaScript，因此可以缩短初次加载时间和达到可交互状态的时间（Time to Interactive，TTI）。
+
+### Islands Architecture（岛屿架构）
+岛屿架构基于部分 Hydration 的理念，将网页构建为静态 HTML“海洋”上分布的多个可交互“岛屿（Island）”。
+每个“岛屿”都是独立的小组件或组件，会自行加载脚本并执行 Hydration。
+#### 优点
+每个组件（岛屿）只加载所需的 JavaScript，因此可以减少整体 JS 体积。
+不重要组件的 JavaScript 加载不会阻塞其他重要组件的交互。
+它支持渐进式 Hydration，有助于进一步改善 TTI。
+#### 实现
+Astro、Fresh 等新框架积极采用这种架构，Next.js 的 Server Components 也有类似目标。
+
+<Img src="/250502-155956.webp" width={500} alt="岛屿架构：每个岛屿独立加载 JavaScript 并执行 Hydration"/>
+
+## 总结
+今天我们深入了解了 React 应用向用户展示内容时采用的各种渲染方式。
+- **CSR** 在客户端处理所有渲染，适合丰富交互，但初次加载和 SEO 可能较弱。
+- **SSR** 在服务器端预先渲染 HTML，可以改善初次加载速度和 SEO，但会增加服务器负载。*流式 SSR* 是一种改善 TTFB 的演进方式。
+- **SSG** 在构建时生成静态 HTML，提供出色的性能和稳定性，但处理动态数据时会受限制。
+- **Hydration** 是在 SSR/SSG 生成的静态 HTML 上运行 JavaScript（React）、让应用具备交互能力的必要过程。
+- **部分 Hydration** 和 **岛屿架构** 只加载并运行必要部分的 JavaScript，以进一步优化性能。
+
+很难说哪一种渲染方式绝对最好。
+应综合考虑应用特点、内容动态程度、性能要求以及 SEO 的重要性，选择最合适的方式，也可以组合使用多种方式。
+Next.js 等框架提供了许多功能，让你可以方便地使用和组合这些渲染策略。
+> 下次我们将介绍 React 中会用到的各种*数据结构*。
+我们会了解数组、链表、树等基础数据结构如何用于 React 的内部工作或组件实现，进一步打牢基础。
+
+### 参考
+- Google Developers - Rendering on the Web: [https://developers.google.com/web/updates/2019/02/rendering-on-the-web](https://developers.google.com/web/updates/2019/02/rendering-on-the-web)
+- Next.js 官方文档 - Rendering: [https://nextjs.org/docs/basic-features/rendering](https://nextjs.org/docs/basic-features/rendering)
+- web.dev - Hydration: [https://web.dev/rendering-hydration/](https://web.dev/rendering-hydration/)
+- Patterns.dev - Islands Architecture: [https://www.patterns.dev/posts/islands-architecture/](https://www.patterns.dev/posts/islands-architecture/)

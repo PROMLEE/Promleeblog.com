@@ -1,0 +1,118 @@
+---
+post_id: '340'
+locale: en
+title: 'Comparing Real-Time Communication: Polling, Webhooks, SSE, and WebSockets'
+description: >-
+  Compare polling, webhooks, SSE, and WebSockets for real-time client-server
+  communication, including how each works, its trade-offs, and when to use it.
+source_hash: d264cb139f0601ea25f45b6e749276bf30a6927a3242ba0110b7633fe75b1f63
+reviewed_at: '2026-11-08T12:03:25.946Z'
+---
+## Before We Begin
+
+In this article, we will explore different ways for clients and servers to exchange information in real time.
+Traditional web communication follows a request-and-response model, but modern services often need to notify clients immediately about changes, as with chat, live notifications, or stock prices.
+<br/>
+Four major technologies address this need: *Polling, Webhooks, SSE, and WebSockets*.
+Each has a different design, with its own strengths and trade-offs, so choosing the right one matters when building an efficient system.
+Let's look at how each technology works.
+
+## 1. Polling: The Client Keeps Asking
+
+Polling is the simplest and most traditional approach.
+> The client repeatedly asks the server, "Is there any new data?" at a fixed interval.
+-   **How it works**
+Using a function such as `setInterval`, the client sends an HTTP request to the server at a fixed interval, such as every one or two seconds.
+-   **Advantages**
+It is very easy to implement and works in almost any server environment.
+-   **Disadvantages**
+The client keeps sending requests even when no data has changed, putting unnecessary load on the server and network.
+There is also a delay between a change in the data and the next polling request, so it is not truly real-time.
+(※ *Long polling* improves on this by keeping the request open until the server has an update, but it still has fundamental limitations.)
+
+<Ads1/>
+
+## 2. Webhooks: The Server Delivers the Mail
+
+Unlike polling, **a webhook lets the server send data to a URL that the client registered in advance when a specific event occurs**.
+-   **How it works**
+The client, usually another server, registers a URL where it can receive data with the other service.
+When an event occurs, such as a new commit on GitHub or a completed payment, that service sends an HTTP POST request to the registered URL.
+-   **Advantages**
+Because webhooks are event-driven, they avoid unnecessary requests and work well for automated integrations between servers.
+-   **Disadvantages**
+The client must expose a public URL that can receive data, so webhooks are mainly used for server-to-server communication rather than directly with a user's browser.
+
+## 3. SSE (Server-Sent Events): A One-Way Radio Broadcast
+
+As the name suggests, **SSE is a technology that continuously pushes data from the server to the client**.
+<br/>
+Think of a radio station continually broadcasting news to its listeners.
+Listeners can receive the broadcast, but they cannot send their own voice back to the station.
+SSE is therefore specialized for **one-way communication from server to client**.
+<br/>
+-   **How it works**
+The client requests a connection to the server through an `EventSource` object.
+The server keeps the connection open and streams new data to the client whenever it becomes available.
+Because SSE is based on standard HTTP, it is relatively straightforward to implement.
+-   **Advantages**
+SSE is lighter and simpler to implement than WebSockets, and its use of HTTP makes it compatible with existing infrastructure.
+It also includes automatic reconnection.
+-   **Disadvantages**
+SSE only supports one-way communication, so it is not a good fit when the client also needs to send data to the server.
+
+<Ads2/>
+
+## 4. WebSockets: A Fully Two-Way Phone Call
+
+With **WebSockets, once the client and server establish a connection, either side can freely send data whenever it needs to**.
+<br/>
+It is like a phone call between two people.
+Once the call is connected, either person can speak at any time.
+WebSockets are designed for fully **bidirectional real-time communication**.
+<br/>
+-   **How it works**
+The connection starts with HTTP, but after the client and server agree, they upgrade the protocol to WebSocket (`ws://` or `wss://`) and create a persistent connection.
+The connection stays open until one side explicitly closes it.
+-   **Advantages**
+WebSockets provide genuinely bidirectional real-time communication with very low latency.
+-   **Disadvantages**
+Because WebSockets use a different protocol from HTTP, both the client and server must support them, and implementation is comparatively complex.
+<Img src="/250620-103252.webp" width={300} alt="Real-time communication comparison"/>
+
+## Common Interview Questions
+
+Interviewers often ask whether you understand the characteristics and differences among these technologies.
+
+### 1. What are the problems with polling, and what technologies can address them?
+
+The key is to explain both the problem and the alternatives.
+> Because the client sends requests periodically, polling **creates unnecessary traffic** when no data has changed and puts extra load on the server.
+It also cannot provide fully real-time communication.
+Server-push technologies emerged to address these problems by sending data from the server to the client.
+**SSE (Server-Sent Events)** is suitable for one-way streaming from the server to the client, while **WebSockets** are used when bidirectional real-time communication is required.
+
+### 2. How do SSE and WebSockets differ, and when is SSE a better choice?
+
+This question checks whether you understand the core distinction and trade-offs between the two technologies.
+> Their biggest difference is the **direction of communication**.
+WebSockets support bidirectional communication, while SSE only sends data from the server to the client.
+If a project only needs to receive updates, such as live stock prices or social media feed notifications, and does not need the client to send data to the server, SSE is often a better choice.
+SSE runs over standard HTTP, making it simpler and lighter to implement and less demanding on the server than WebSockets.
+
+## Conclusion
+
+Today we looked at four major technologies for real-time communication.
+-   **Polling**
+The simplest approach: the client keeps asking, but it can be inefficient.
+-   **Webhooks**
+An approach designed for event-driven notifications between servers.
+-   **SSE**
+A technology optimized for one-way data streaming from the server to the client.
+-   **WebSockets**
+A powerful choice when fully bidirectional real-time communication is needed.
+
+### References
+
+- [MDN — Using server-sent events (SSE)](https://developer.mozilla.org/ko/docs/Web/API/Server-sent_events/Using_server-sent_events)
+- [MDN — WebSockets](https://developer.mozilla.org/ko/docs/Web/API/WebSockets_API)

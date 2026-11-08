@@ -1,0 +1,395 @@
+---
+title_ko: >-
+  React security and stability (from XSS and CSRF prevention to OAuth and
+  third-party management) - Day 12 of Knowing and Using React
+title_en: 'React Security and Reliability: XSS, CSRF, OAuth, and Third-Party Scripts'
+desc: >-
+  Learn how to prevent XSS and CSRF in React, understand the front end’s role in
+  OAuth 2.0/OIDC, and manage code splitting and third-party scripts safely.
+thumbnail_url: /250504-204120.webp
+metatags: >-
+  React, security, XSS, CSRF, input sanitization, CSP, OAuth, OIDC,
+  authentication, authorization, code splitting, third-party scripting,
+  stability, frontend security, interview
+post_id: '253'
+locale: en
+title: 'React Security and Reliability: XSS, CSRF, OAuth, and Third-Party Scripts'
+description: >-
+  Learn how to prevent XSS and CSRF in React, understand the front end’s role in
+  OAuth 2.0/OIDC, and manage code splitting and third-party scripts safely.
+source_hash: d86baec01a5bb3ca19130e4ec171721c58138e056be96a41da0816c794c01a3e
+reviewed_at: '2026-11-08T12:39:21.449Z'
+---
+
+## Introduction
+
+We’ve covered React’s features, architecture, and performance optimization. But even a powerful, fast application can lose users’ trust if it is insecure or unreliable.
+Security and reliability are especially important for services that handle personal or financial information. Recent incidents, such as the SIM data leak at SKT and the Kakao service outage, show that these concerns go beyond a developer’s preference: they can affect a company’s survival.
+Front-end developers share responsibility for security and reliability with their back-end counterparts.
+<br/>
+<br/>
+
+Today, we’ll look at how to prevent two major front-end threats, *cross-site scripting (XSS)* and *cross-site request forgery (CSRF)*. We’ll also cover the front end’s role in the *OAuth 2.0/OIDC* authentication flow and ways to improve *reliability* when using code splitting and third-party libraries.
+
+
+## Preventing XSS (Cross-Site Scripting)
+
+XSS occurs when an attacker injects malicious JavaScript into a web page and causes it to run in the browsers of other people who visit that page.
+The attacker may use it to steal cookies (and session information), access personal data, or make the user perform actions they did not intend.
+
+### An XSS attack example
+
+XSS often occurs when an application displays user input without processing it.
+For example, imagine a profile feature that lets users write a bio and show it to others.
+<br/>
+<Rbox> This is an intentionally unsafe code example for practice only. </Rbox>
+
+This example carelessly uses `dangerouslySetInnerHTML` to render user input as HTML.
+```tsx
+import React from "react";
+
+function UserProfile({ bio }: { bio: string }) {
+  // 사용자가 입력한 bio 내용을 HTML로 해석하여 그대로 삽입
+  // 절대 이렇게 사용하면 안 됩니다!
+  return (
+    <div>
+      <h3>소개</h3>
+      <div dangerouslySetInnerHTML={{ __html: bio }} />
+    </div>
+  );
+}
+
+const UserProfilePage = () => {
+  // 만약 공격자가 bio에 다음과 같은 악성 스크립트를 입력했다면?
+  const bio =
+    '안녕하세요! 저는 웹 개발자입니다. <script>alert("XSS 공격 성공! 쿠키: " + document.cookie);</script>';
+  return (
+    <div>
+      <h1>사용자 프로필</h1>
+      <UserProfile bio={bio} /> 
+      {/* 이 컴포넌트가 렌더링되면, 다른 사용자의 브라우저에서 스크립트가 실행되어 경고창이 뜨고 쿠키 정보가 노출될 수 있습니다. */}
+    </div>
+  );
+};
+export default UserProfilePage;
+```
+<Img src="/250504-183411.webp" width={500} alt="Rendering with dangerouslySetInnerHTML"/>
+If unfiltered user input contains a malicious script and is rendered through `dangerouslySetInnerHTML`, that script may run in other visitors’ browsers and cause serious problems, such as cookie theft.
+
+### How to prevent XSS
+
+React includes built-in protection against basic XSS attacks, and you can add further safeguards.
+
+#### 1. Use React’s automatic escaping
+
+By default, React treats the content inside JSX curly braces `{}` as text and automatically *escapes* special characters such as `<`, `>`, and `&` that could otherwise be interpreted as HTML or scripts.
+So even if a string contains a `<script>` tag, the browser treats it as text instead of executing it.
+```tsx
+import React from "react";
+
+function UserProfile({ bio }: { bio: string }) {
+  // 사용자가 입력한 bio 내용을 HTML로 해석하여 그대로 삽입
+  // 절대 이렇게 사용하면 안 됩니다!
+  return (
+    <div>
+      <h3>소개</h3>
+      <div>{bio}</div>
+    </div>
+  );
+}
+
+const UserProfilePage = () => {
+  // 만약 공격자가 bio에 다음과 같은 악성 스크립트를 입력했다면?
+  const bio =
+    '안녕하세요! 저는 웹 개발자입니다. <script>alert("XSS 공격 성공! 쿠키: " + document.cookie);</script>';
+  return (
+    <div>
+      <UserProfile bio={bio} />
+      {/* 이 컴포넌트가 렌더링되면, 다른 사용자의 브라우저에서 스크립트가 실행되어 경고창이 뜨고 쿠키 정보가 노출될 수 있습니다. */}
+    </div>
+  );
+};
+export default UserProfilePage;
+```
+<Img src="/250504-183638.webp" width={600} alt="Treated as a string"/>
+
+Therefore, the most basic and important XSS prevention rule is to avoid `dangerouslySetInnerHTML` whenever possible and render user input through *JSX curly braces* `{}`.
+
+#### 2. Use dangerouslySetInnerHTML with care
+
+As its name suggests, this property can be dangerous.
+Use it only when you truly need to render HTML directly, and make sure the HTML is trusted or has been sanitized first.
+
+#### 3. Input sanitization
+
+Removing potentially dangerous scripts or attributes from user input or HTML received from an external API before displaying it is called *input sanitization*.
+Implementing sanitization yourself is difficult and error-prone, so it is safer to use a trusted library.
+- **DOMPurify**: A widely used JavaScript library for sanitizing HTML. It lets you specify allowed tags and attributes and removes unsafe content.
+  ```tsx
+  import DOMPurify from 'dompurify';
+
+  function SanitizedHtmlComponent({ dirtyHtml }: { dirtyHtml: string }) {
+    // HTML 정제 수행
+    const cleanHtml = DOMPurify.sanitize(dirtyHtml);
+
+    // 정제된 안전한 HTML만 렌더링
+    return <div dangerouslySetInnerHTML={{ __html: cleanHtml }} />;
+  }
+  ```
+
+#### 4. Content Security Policy (CSP)
+
+CSP is an HTTP response header that controls which sources the browser can use to load and run resources such as scripts, styles, and images.
+A properly configured CSP can block scripts from unexpected sources, including scripts injected in an XSS attack, at the browser level.
+For example, the *Content-Security-Policy: script-src 'self'* header allows scripts loaded from the current domain only.
+
+<Ads1 />
+
+## CSRF (Cross-Site Request Forgery)
+
+CSRF tricks a user’s browser into sending a request to a site that performs an action chosen by an attacker, such as changing a password, deleting a post, or placing an order.
+It commonly occurs when a user is logged in to a site and then opens another site or an email containing malicious content.
+
+### A CSRF attack example
+Suppose a user is logged in to `mybank.com`.
+The user then visits the malicious site `evil.com`.
+The `evil.com` page could hide code like this:
+<br/>
+<Rbox> This is an intentionally unsafe code example for practice only. </Rbox>
+
+```html
+<!-- 사용자는 이 이미지를 보지만, 브라우저는 mybank.com으로 요청을 보낸다 -->
+<img src="https://mybank.com/transfer?to=hacker&amount=1000000" width="1" height="1" />
+
+<!-- 또는, 자동으로 제출되는 숨겨진 폼 -->
+<form id="csrf-form" action="https://mybank.com/change-password" method="POST" style="display:none;">
+  <input type="hidden" name="newPassword" value="hacked123" />
+</form>
+<script>document.getElementById('csrf-form').submit();</script>
+```
+When the user visits `evil.com`, the browser may automatically *include* the user’s `mybank.com` login cookie in the image request or form submission sent to `mybank.com`.
+If the `mybank.com` server does not verify that the user intended the request, an attacker may be able to transfer money or change the user’s password.
+
+### How to prevent CSRF
+
+CSRF protection is primarily a server-side responsibility, but the front end can support those defenses.
+
+#### 1. Synchronizer Token Pattern (CSRF tokens)
+
+This is one of the most widely used approaches.
+- **Principle**:
+1. When a user signs in or opens a form page, the server generates an unpredictable random string (a *CSRF token*), stores it in the user’s session, and also sends it to the client—for example, in a hidden HTML form field, a meta tag, or an API response.
+2. The client stores the CSRF token it received from the server, for example in a JavaScript variable.
+3. When the user makes a state-changing request, such as transferring money or changing a password, the client includes the saved token in the request body or an HTTP header such as `X-CSRF-Token`.
+4. The server compares the token in the request with the token stored in the user’s session.
+5. If the tokens match, the server processes the request. If they do not, it rejects the request as a suspected CSRF attack.
+- **Front-end responsibilities**:
+  - Receive and store the CSRF token securely.
+  - Include it in state-changing requests, usually POST, PUT, or DELETE. Libraries such as Axios can add it through an interceptor.
+
+<Img src="/250504-191907.webp" width={500} alt="CSRF token pattern flow"/>
+
+#### 2. Use the SameSite cookie attribute
+
+Modern browsers support the cookie `SameSite` attribute, which can help reduce the risk of CSRF attacks.
+- **SameSite=Strict**
+Cookies are sent only with requests initiated from the same site.
+Requests initiated by another site, such as `evil.com` navigating to `mybank.com`, do not include the cookie, providing strong CSRF protection.
+However, cookies may also be withheld during legitimate navigation from an external site through a link.
+- **SameSite=Lax**
+`Strict` is more restrictive than Lax. With Lax, cookies are sent on some safe top-level navigations from another site, such as following a link (`<a>` tag) or submitting a form with the `GET` method.
+This blocks most CSRF requests, including POST requests and requests from elements such as `<img>`, while generally preserving a good user experience. For that reason, Lax is often recommended as a default.
+- **SameSite=None; Secure**
+Cookies are sent with both same-site and cross-site requests. You must also set the `Secure` attribute so that cookies are sent only over HTTPS.
+Use this setting only when cookies are needed in a third-party context, such as authentication for embedded content.
+
+Setting sensitive session cookies to `SameSite=Lax` or `Strict` can help prevent CSRF. Front-end developers should know which setting is in use and verify that it is configured as intended.
+
+#### 3. Other methods (additional safeguards)
+
+- **Check the Referer header**
+  Check the request’s `Referer` header to see whether it originated from an allowed domain.
+  This is not a complete defense: users can disable the header, and proxies may remove it.
+- **Require a custom request header**
+  The server can require a custom header such as `X-Requested-With`.
+  This relies on the same-origin policy, which makes it difficult for JavaScript on another domain to send a request with a custom header.
+  Misconfigured CORS can undermine this protection.
+
+>Q: “What is a CSRF attack, and how can it be prevented?”
+A: Explain how the attack works, how CSRF tokens and SameSite cookies help prevent it, and what the front end is responsible for.
+
+<Ads2 />
+
+## OAuth 2.0 / OIDC
+
+Many web services offer social sign-in through accounts from providers such as Google, Facebook, and Kakao instead of building their own login systems.
+Two standard protocols used for this are *OAuth 2.0* and *OpenID Connect (OIDC)*.
+- **OAuth 2.0**
+  OAuth 2.0 is an *authorization* framework that lets a user grant one service (such as our app) permission to access information held by another service (such as a Google profile or email address).
+  It is primarily used to grant access to APIs.
+- **OIDC**
+  OIDC is an *authentication* layer built on OAuth 2.0.
+  It verifies a user’s identity and provides basic profile information.
+
+In this flow, the front end directs the user to an external identity provider (the authorization server), handles the authentication and authorization results safely, and manages the resulting sign-in state.
+
+### Authorization Code Flow with PKCE
+
+For public clients such as single-page applications (SPAs), the authorization code flow with the *Proof Key for Code Exchange (PKCE)* extension is recommended to improve security.
+
+1. **Start the authorization request**
+   - The user clicks a button such as “Sign in with Google.”
+   - The front end generates a random secret called *code_verifier*, then hashes it (for example, with SHA-256) to create a *code_challenge*.
+   - It redirects the user to the Google authorization server and includes the following URL parameters:
+     - `client_id`: The identifier registered for the app.
+     - `redirect_uri`: The app address where the authorization code will be returned.
+     - `response_type=code`: Indicates that the app is requesting an authorization code.
+     - `scope`: The user information being requested (for example, `openid profile email`).
+     - `code_challenge`: The hash generated in the previous step.
+     - `code_challenge_method=S256`: The hash algorithm to use.
+     - `state`: A random string used to help prevent CSRF attacks. It is optional but recommended.
+2. **Receive the authorization code**
+   - After the user signs in to Google and grants permission, Google redirects them to the `redirect_uri` specified by the front end.
+   - The redirect URL includes the *authorization code* and the `state` value sent earlier.
+   - The front end reads the authorization code and state from the URL, then checks that the state matches to help prevent CSRF.
+3. **Request tokens (backend handling recommended)**
+- **Important for security**
+   Requesting tokens directly from the browser with a client secret is highly risky.
+   A common, safer approach is to send the authorization code to a backend server (or a BFF, Backend for Frontend). The backend then exchanges it with the authorization server for an *Access Token* and a *Refresh Token*.
+   - The front end sends the authorization code to the backend API along with the *code_verifier* generated in step 1. The backend forwards both to the authorization server when requesting tokens.
+4. **Receive and store the tokens**
+   - After obtaining the tokens, the backend returns the Access Token and, if needed, the Refresh Token to the front end.
+   - The front end must store these tokens securely.
+   - **Access Token**: Usually short-lived and used for API requests. Keeping it in memory (for example, in a JavaScript variable) is relatively safe. LocalStorage and SessionStorage are accessible to scripts and may be vulnerable to XSS.
+   - **Refresh Token**: Used to obtain a new Access Token after the current one expires. It lasts longer and is more sensitive. If possible, store it in a cookie tied to the server-side session and marked `HttpOnly`, `Secure`, and `SameSite=Strict` (or Lax), so front-end JavaScript cannot access it directly. If that is not possible, store it in memory and use other safeguards.
+5. **Use the token in API requests**
+   - For each protected API call, the front end sends the Access Token in the HTTP `Authorization` header (for example, `Authorization: Bearer YOUR_ACCESS_TOKEN`).
+6. **Refresh the token**
+   - If an API responds that the Access Token has expired (for example, with 401 Unauthorized), the front end uses the Refresh Token to request a new Access Token from the backend. The browser sends it automatically if it is in an HttpOnly cookie; otherwise, the front end sends it directly. After the backend returns a new token, save it and retry the failed request.
+7. **Sign out**
+   - The front end removes stored tokens from memory, cookies, or other storage.
+   - If needed, redirect the user to the authorization server’s logout endpoint to sign out of the external service as well.
+
+<Img src="/250504-201356.webp" width={600} alt="OAuth 2.0 authorization code flow"/>
+
+### Access Token
+This token identifies and authorizes the user when making API requests.
+It is usually short-lived and sent in the Authorization header with API requests.
+Keeping it in **memory**, such as in a JavaScript variable, is relatively safer from XSS. Browser storage such as LocalStorage and SessionStorage is script-accessible and therefore more exposed to XSS.
+```typescript
+// Zustand 스토어 예시
+import create from 'zustand';
+interface AuthState {
+  accessToken: string | null;
+  setAccessToken: (token: string | null) => void;
+}
+const useAuthStore = create<AuthState>((set) => ({
+  accessToken: null,
+  setAccessToken: (token) => set({ accessToken: token }),
+}));
+
+// 로그인 성공 후 토큰 저장
+// const { setAccessToken } = useAuthStore.getState();
+// setAccessToken(receivedAccessToken);
+
+// API 요청 시 토큰 사용
+// const accessToken = useAuthStore((state) => state.accessToken);
+// axios.get('/api/protected', { headers: { Authorization: `Bearer ${accessToken}` } });
+```
+### Refresh Token
+The Refresh Token is used to obtain a new Access Token without asking the user to sign in again after the current one expires.
+It has a longer lifetime (from days to months) and must be protected carefully because theft can create a serious security risk.
+#### Option 1: Store it in a server-set HttpOnly cookie (recommended)
+When returning tokens, the backend can set the Refresh Token in a cookie with `HttpOnly`, `Secure`, and `SameSite=Strict` (or `Lax`) attributes.
+Because of `HttpOnly`, client-side JavaScript cannot read the cookie, which helps prevent an XSS attacker from stealing it.
+`Secure` restricts the cookie to HTTPS, while `SameSite` helps defend against CSRF.
+- **Front-end role**: The front end does not need to read or manage this cookie. When the Access Token expires, it calls the backend refresh endpoint (for example, `/api/refresh_token`). The browser automatically sends the HttpOnly cookie with that request. The backend reads it, issues a new Access Token, and returns the token in the response.
+- **Example: setting a cookie on the server (Node.js/Express)**
+  ```javascript
+  // 백엔드에서 로그인 성공 또는 토큰 발급 시
+  res.cookie('refreshToken', receivedRefreshToken, {
+    httpOnly: true, // JavaScript 접근 불가
+    secure: true, // HTTPS에서만 전송
+    sameSite: 'lax', // 또는 'strict'
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 예: 7일 유효기간
+  });
+  res.json({ accessToken: receivedAccessToken }); // Access Token은 JSON 응답으로 전달
+  ```
+#### Option 2: Store it in memory (less convenient; use with care)
+As with an Access Token, the Refresh Token can be kept in a JavaScript variable, such as in a state management library or Context API.
+This is simple to implement and relatively resistant to CSRF.
+**The token is lost when the browser refreshes**, which ends the session unless the app can obtain a new one. Storing the Refresh Token in LocalStorage or SessionStorage may seem like a solution, but those stores are highly vulnerable to XSS and are not recommended for Refresh Tokens.
+An in-memory token could also theoretically be stolen if an XSS attacker captures it while the app is running.
+
+<br/>
+
+**A less secure workaround for page refreshes**: Some apps store the Refresh Token in LocalStorage and load it into memory when the app starts, so the user stays signed in after a refresh.
+This exposes the Refresh Token to XSS and is not recommended. If you have no alternative, take extra care to defend against XSS.
+
+<Bbox> When possible, a server-set HttpOnly cookie is the safest way to manage a Refresh Token. </Bbox>
+
+
+>Q: “What does the front end do in the OAuth 2.0 authorization code flow?” or “Where should an Access Token be stored?”
+A: Explain each stage of the flow and the security trade-offs of different storage options, including XSS risks with LocalStorage and the CSRF protections provided by HttpOnly cookies.
+
+## Code splitting and third-party script reliability
+
+Application stability is just as important as security.
+Code splitting and third-party libraries can improve performance and developer productivity, but they also introduce reliability concerns.
+
+### Code splitting and error isolation
+
+Code splitting with React.lazy primarily improves initial load performance, but it can also help limit the impact of errors.
+If a page’s code chunk fails to load or throws a runtime error, Suspense fallbacks or an ErrorBoundary may let the rest of the application continue running while that part handles the error. Errors in shared modules can still affect the whole app.
+
+### Risks of third-party scripts
+
+Analytics tools such as Google Analytics, ad scripts, social media widgets, and external library CDNs are convenient, but they can introduce several risks:
+- **Performance degradation**: Slow responses from external servers, or scripts that are large or take a long time to run, can make the app load more slowly or feel less responsive.
+- **Security vulnerabilities (supply-chain attacks)**: If a third-party service is compromised or malicious code is injected, it can be used to attack users through your application.
+- **Service outages**: If a third-party service goes down or returns errors, features in your application may stop working or behave incorrectly.
+
+### Monitoring and management strategies
+
+Consider the following strategies to reduce these risks and improve reliability:
+- **Review and update dependencies regularly**
+  Use tools such as `npm audit`, Snyk, and Dependabot to find libraries with known vulnerabilities and keep them updated. Remove dependencies you no longer need.
+- **Control when third-party scripts load**:
+  Use `async` or `defer` on HTML `<script>` tags so scripts do not block page rendering.
+  You can also load scripts dynamically only when they are needed.
+- **Subresource Integrity (SRI)**
+  When loading scripts or stylesheets from an external server such as a CDN, specify the resource’s hash in the `integrity` attribute of the `<script>` or `<link>` tag.
+  The browser checks the hash after downloading the resource and blocks it if the file has changed.
+  ```html
+  <script src="https://example.com/library.js"
+          integrity="sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxy9rx7HNQlGYl1kPzQho1wx4JwY8w/"
+          crossorigin="anonymous"></script>
+  ```
+- **Content Security Policy (CSP)**
+  Configure strict CSP headers to allow scripts only from trusted sources and block unexpected third-party scripts.
+- **Monitor performance and errors**
+  Measure performance regularly with Lighthouse or WebPageTest, and use services such as Sentry or Datadog to detect and investigate issues caused by third-party scripts.
+
+<Ads3 />
+
+## Conclusion
+
+Today we covered key ways to improve the security and reliability of React applications.
+- **XSS**: Handle user input safely through automatic escaping and sanitization, and configure CSP. Use `dangerouslySetInnerHTML` only with great care.
+- **CSRF**: The client and server can work together to defend against CSRF with unpredictable tokens or the SameSite cookie attribute.
+- **OAuth 2.0/OIDC**: These standards support authentication and authorization. The front end directs users to the authorization server and handles tokens safely. For SPAs, the PKCE authorization code flow is recommended.
+- **Code splitting** can help isolate some errors as well as improve performance. **Third-party scripts** bring risks to performance, security, and reliability, so monitor and manage them carefully. SRI and CSP can help.
+
+Security and reliability require ongoing attention; they are not one-time settings.
+As new vulnerabilities emerge and technology changes, defensive measures need to evolve as well.
+The key is to make security and reliability part of the development culture and consider them throughout design, deployment, and operation.
+> Next time, we’ll look at *developer tools and testing* that improve React productivity and code quality, from React DevTools and testing libraries such as Jest and React Testing Library to Storybook.
+
+### References
+
+- OWASP Top 10 (web application security risks): [https://owasp.org/www-project-top-ten/](https://owasp.org/www-project-top-ten/) (includes XSS, CSRF, and more)
+- MDN Web Docs - Content Security Policy (CSP): [https://developer.mozilla.org/ko/docs/Web/HTTP/CSP](https://developer.mozilla.org/ko/docs/Web/HTTP/CSP)
+- MDN Web Docs - SameSite cookies: [https://developer.mozilla.org/ko/docs/Web/HTTP/Headers/Set-Cookie/SameSite](https://developer.mozilla.org/ko/docs/Web/HTTP/Headers/Set-Cookie/SameSite)
+- Official OAuth 2.0 website: [https://oauth.net/2/](https://oauth.net/2/)
+- Official OpenID Connect (OIDC) website: [https://openid.net/connect/](https://openid.net/connect/)
+- MDN Web Docs - Subresource Integrity (SRI): [https://developer.mozilla.org/ko/docs/Web/Security/Subresource_Integrity](https://developer.mozilla.org/ko/docs/Web/Security/Subresource_Integrity)

@@ -1,0 +1,282 @@
+---
+post_id: '132'
+locale: ja
+title: FlutterアプリにMetaMaskを連携する（Reown、WalletConnect）
+description: >-
+  Reown AppKitを使い、FlutterアプリからMetaMaskを接続する手順を紹介します。iOS・AndroidのURL
+  Scheme設定、ウォレット接続、アドレス表示まで実装します。
+source_hash: 0b89270bcba662c7578906c67af6208366ccfc88273d526eaf8caf54fb12ec1d
+reviewed_at: '2026-11-08T12:03:48.853Z'
+---
+## はじめに
+基本的なFlutterプロジェクトを作成済みの状態から始めます。
+### MetaMaskとは
+> https://metamask.io/
+> Web3のあらゆる情報を一か所で追跡・管理できる便利な方法をお楽しみください。
+<Img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1024px-MetaMask_Fox.svg.png?20220831120339" alt="MetaMask" width={100} />
+MetaMaskは、Ethereumブロックチェーンとやり取りするためのソフトウェア*暗号資産ウォレット*です。
+[ブラウザー拡張機能とモバイルアプリ](https://metamask.io/ko/download/)として提供され、鍵の保管庫、安全なログイン、トークンウォレット、トークン交換など、デジタル資産を管理するための機能を備えています。
+ブラウザー拡張機能やモバイルアプリからEthereumウォレットへアクセスし、*分散型アプリケーション*とやり取りできます。
+### Reownとは
+> https://reown.com/
+> Reownは、デジタル所有権を簡単・直感的・安全に体験できるユーザー体験を構築するためのツールを開発者に提供します。
+<Img src="https://avatars.githubusercontent.com/u/179229932?s=200&v=4" alt="Reown" width={100} />
+Reown（旧WalletConnect）は、分散型アプリ（DApp）とウォレットの連携を簡単にするツールです。
+前述のMetaMaskのようなウォレットをアプリに接続できます。
+この記事ではReownを使い、FlutterアプリとMetaMaskを連携します。
+
+<Ads1 />
+
+## 1. ライブラリのインストールと基本設定
+### 1.1. ライブラリのインストール
+[Reown公式ドキュメント](https://docs.reown.com/appkit/flutter/core/installation)に従ってライブラリをインストールします。
+```bash
+flutter pub add reown_appkit
+```
+### 1.2. iOSの設定
+`/ios/Podfile`の上部にあるコメントアウト済みの`platform :ios, 'xx.0'`を有効にし、iOSのバージョンを13.0以上に設定します。
+該当する行がない場合は、ファイル上部に追加してください。
+```xml title="/ios/Podfile"
+platform :ios, '13.0'
+```
+続いて、次のコマンドでiOSフォルダー内の設定を完了します。
+```bash
+cd ios
+pod install
+```
+### 1.3. ウォレット連携の設定（iOS、Android）
+各OSのネイティブコードに、連携するウォレットの設定を追加します。
+ここではMetaMaskだけを追加しますが、ほかのウォレットを追加する場合は[サンプル（iOS）](https://github.com/reown-com/reown_flutter/blob/master/packages/reown_appkit/example/modal/ios/Runner/Info.plist)と[サンプル（Android）](https://github.com/reown-com/reown_flutter/blob/develop/packages/reown_appkit/example/base/android/app/src/main/AndroidManifest.xml)を参照してください。
+#### iOS
+`/ios/Runner/Info.plist`を開き、利用するウォレットを追加します。
+さらにURL Schemeも設定します。
+任意の小文字の文字列を指定します。ここでは`exampleapp`を使います。後で使うため、値を控えておいてください。
+アプリのBundle IDも指定します。ここでは`com.example.yourBundleId`を使います。
+```xml title="/ios/Runner/Info.plist"
+<dict>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>metamask</string> <!-- 지갑 이름 -->
+		<!-- 다른 지갑 이름을 추가할 수 있습니다 -->
+	</array>
+	<array>
+		<dict>
+    <key>CFBundleTypeRole</key>
+    <string>Editor</string>
+    <key>CFBundleURLName</key>
+    <string>com.example.yourBundleId</string> <!-- 앱의 Bundle ID -->
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>exampleapp</string> <!-- 임의의 소문자로 이루어진 문자열 -->
+			</array>
+		</dict>
+	</array>
+</dict>
+```
+#### Android
+`/android/app/src/main/AndroidManifest.xml`を開き、利用するウォレットを追加します。
+AndroidでもURL Schemeを設定します。
+任意の小文字の文字列を指定します。ここでは`exampleapp`を使います。後で使うため、値を控えておいてください。
+```xml title="/android/app/src/main/AndroidManifest.xml"
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+			<activity > <!-- 태그 속성 생략 -->
+				<intent-filter>
+					<action android:name="android.intent.action.VIEW" />
+					<category android:name="android.intent.category.DEFAULT" />
+					<category android:name="android.intent.category.BROWSABLE" />
+					<data android:scheme="exampleapp" /> <!-- 임의의 소문자로 이루어진 문자열 -->
+				</intent-filter>
+			</activity>
+    </application>
+		<!-- ... -->
+    <queries>
+        <package android:name="io.metamask"/> <!-- 지갑 이름 -->
+        <!-- 다른 지갑 이름을 추가할 수 있습니다 -->
+    </queries>	
+</manifest>
+```
+### 1.4. Reownプロジェクトの作成
+Reownを動かすにはproject_idが必要です。
+そのため、まずReownプロジェクトを作成します。
+[Reownにログイン](https://cloud.reown.com/sign-in)し、案内に従ってプロジェクトを作成したら、DashboardでProject IDを確認してください。
+<Img src="/posts/250221-110929.png" width={300} alt="ReownのProject ID"/>
+これで、主要なウォレットとの連携に必要な設定が完了しました。
+次にFlutter側でウォレットを接続するコードを作成します。
+
+<Ads2 />
+
+## 2. MetaMaskとの連携
+<Rbox>iOSシミュレーターにMetaMaskをインストールするには開発者アカウントが必要で、手順も複雑です。ここではAndroidシミュレーターを使います。</Rbox>
+### 2.1. MetaMaskのインストール
+AndroidシミュレーターのPlay StoreでMetaMaskを検索してインストールし、ログインします。
+すでにウォレットを持っている場合は、シークレットリカバリーフレーズで既存のウォレットを復元します。
+### 2.2. page_wallet.dartの作成
+```
+📦 lib
+┣ 📜 page_wallet.dart
+┗ 📜 main.dart
+```
+まずパッケージをimportします。
+```dart
+import 'package:reown_appkit/reown_appkit.dart';
+```
+StatefulWidgetを作成します。
+```dart title="/lib/page_wallet.dart"
+class PageWallet extends StatefulWidget {
+  const PageWallet({super.key});
+  @override
+  State<PageWallet> createState() => _PageWalletState();
+}
+
+class _PageWalletState extends State<PageWallet> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Wallet'),
+      ),
+    );
+  }
+}
+```
+`_PageWalletState`クラスで`@override`メソッドをオーバーライドします。
+ここでは前の手順で決めたURL Schemeを使います。今回の例では`exampleapp`です。
+その他の項目も、各キーに対応する値を設定してください。
+```dart title="/lib/page_wallet.dart"
+// _PageWalletState 클래스 내부
+	late ReownAppKitModal appKitModal;
+
+	@override
+	void initState() {
+		super.initState();
+
+		appKitModal = ReownAppKitModal(
+			context: context,
+			projectId: '{YOUR_PROJECT_ID}', // 프로젝트 ID 입력
+			metadata: const PairingMetadata(
+				name: 'Example App',
+				description: 'Example app description',
+				url: 'https://example.com/',
+				icons: ['https://example.com/logo.png'],
+				redirect: Redirect(  // OPTIONAL 이지만 (준)필수인 항목입니다
+					native: 'exampleapp://', // 위에서 정의한 url scheme
+					universal: 'https://reown.com/exampleapp',
+					linkMode: true|false,
+				),
+			),
+		);
+
+		appKitModal.init().then((value) => setState(() {}));
+	}
+// ...
+```
+### 2.3. ウォレットアドレスの取得
+ウォレットアドレスを使えば、ログインの実装や、トランザクション結果を確認するリンクの作成ができます。
+appKitModalをリスナーとして登録し、接続状態が変わるたびにウォレットアドレスを更新します。
+```dart title="/lib/page_wallet.dart"
+// _PageWalletState 클래스 내부
+	String address = "none";
+	late ReownAppKitModal appKitModal;
+
+	@override
+	void initState() {
+		super.initState();
+
+		appKitModal = ReownAppKitModal(
+			context: context,
+			projectId: '{YOUR_PROJECT_ID}', // 프로젝트 ID 입력
+			metadata: const PairingMetadata(
+				name: 'Example App',
+				description: 'Example app description',
+				url: 'https://example.com/',
+				icons: ['https://example.com/logo.png'],
+				redirect: Redirect(  // OPTIONAL 이지만 (준)필수인 항목입니다
+					native: 'exampleapp://', // 위에서 정의한 url scheme
+					universal: 'https://reown.com/exampleapp',
+					linkMode: true|false,
+				),
+			),
+		);
+
+
+    appKitModal.init();
+    appKitModal.addListener(updateAddress);
+	}
+
+	void updateAddress() {
+    setState(() {
+      address = appKitModal.session
+              ?.getAddress(ReownAppKitModalNetworks.getNamespaceForChainId(
+            appKitModal.selectedChain?.chainId ?? "1",
+          )) ??
+          "none";
+    });
+  }
+// ...
+```
+
+<Ads3 />
+
+### 2.4. ウォレット接続ウィジェットの作成
+ウォレット接続用のウィジェットは、大きく分けて4種類あります。
+- ウォレット接続用ウィジェット
+	- AppKitModalConnectButton：モーダルを開き、ウォレットまたはソーシャルログインで接続します。
+	- AppKitModalNetworkSelectButton：利用するネットワークを選択します。
+- ウォレット情報用ウィジェット
+	- AppKitModalAccountButton：接続後にアカウント画面を開くボタンです。
+	- AppKitModalBalanceButton：接続後に残高画面を開くボタンです。
+	- AppKitModalAddressButton：接続後にアドレス画面を開くボタンです。
+```dart title="/lib/page_wallet.dart"
+// _PageWalletState 클래스 내부
+	@override
+	Widget build(BuildContext context) {
+		return Scaffold(
+			backgroundColor: Colors.white,
+			body: Center(
+				child: Stack(
+					children: [
+						Column(
+							mainAxisAlignment: MainAxisAlignment.center,
+							crossAxisAlignment: CrossAxisAlignment.center,
+							children: [
+								AppKitModalNetworkSelectButton(
+									appKit: appKitModal,
+									context: context,
+								),
+								AppKitModalConnectButton(
+									appKit: appKitModal,
+									context: context,
+								),
+								AppKitModalAccountButton(
+									appKitModal: appKitModal,
+								),
+								AppKitModalAddressButton(
+									appKitModal: appKitModal,
+									onTap: appKitModal.openModalView,
+								),
+								Text(address),
+							],
+						),
+					],
+				),
+			),
+		);
+	}
+```
+<Img src="/posts/250224-105108.gif" width={300} alt="ウォレット接続ウィジェットの動作"/>
+
+## まとめ
+FlutterアプリにMetaMaskを連携し、Web3ベースのDAppを構築するための基礎を紹介しました。
+この方法なら、ユーザーはウォレットをアプリに接続し、さまざまなブロックチェーン機能を利用できます。
+### さらに考えてみる
+- MetaMask以外のウォレットも連携する
+- カスタムネットワークを連携する
+
+### 参考
+- [MetaMask公式ドキュメント](https://metamask.io/)
+- [Reown公式ドキュメント](https://docs.reown.com/appkit/flutter/core/installation)
+- [Reown公式サンプル](https://github.com/reown-com/reown_flutter/tree/master/packages/reown_appkit/example)
+- [Reown公式サンプル（iOS）](https://github.com/reown-com/reown_flutter/blob/master/packages/reown_appkit/example/modal/ios/Runner/Info.plist)
+- [Reown公式サンプル（Android）](https://github.com/reown-com/reown_flutter/blob/develop/packages/reown_appkit/example/base/android/app/src/main/AndroidManifest.xml)

@@ -1,0 +1,232 @@
+---
+post_id: '266'
+locale: zh
+title: >-
+  MongoDB 必备工具与实用程序：Compass、mongodump、mongorestore、mongoimport 和 mongoexport（第
+  12 天）
+description: >-
+  介绍 MongoDB Compass 可视化管理，以及 mongodump、mongorestore、mongoimport、mongoexport
+  的备份、恢复和数据交换用法。
+source_hash: 1e3e1282778bb1448954cb6118b19fffc9ed2521c819d648afd545d16aa6343a
+reviewed_at: '2026-11-08T12:26:27.430Z'
+---
+## 开始之前
+上次我们学习了如何在云端通过 MongoDB Atlas 轻松运行 MongoDB。
+Atlas 自身提供了出色的管理功能，MongoDB 生态中还有许多工具和实用程序，可以让开发与运维工作更加高效。
+无论是想直观查看数据、安全备份数据，还是导入或导出其他格式的数据，这些工具都能派上用场。
+
+<Ads1 />
+## 1. MongoDB Compass
+> GUI 工具
+
+MongoDB Compass 是 MongoDB 官方提供的*图形用户界面（GUI）*工具。
+之前我们通过命令行界面（CLI）`mongosh` 以文本方式与 MongoDB 交互；Compass 则让我们通过可视界面和鼠标操作来浏览与管理数据库。
+
+### Compass 的主要功能
+- **连接服务器并浏览数据库和集合**
+  可以连接本地 MongoDB 服务器，也可以通过连接字符串连接 MongoDB Atlas 集群。
+  数据库和集合会以树状结构显示，便于浏览。
+- **查看和编辑文档**
+  集合中的文档可以用表格、JSON、树形等不同视图展示。
+  也可以直接在 GUI 中方便地添加、修改和删除文档。
+- **运行查询并筛选结果**
+  在直观的 Query Bar 中输入 `find` 命令的 JSON 条件，就能立即查看结果。
+  使用筛选选项，可以轻松查找符合特定条件的文档。
+- **管理索引**
+  可以可视化查看集合索引，并在 GUI 中创建新索引或删除现有索引。
+- **聚合管道（Aggregation Pipeline）构建器**
+  可以在 GUI 中逐步创建和测试包含多个阶段的复杂聚合管道，并预览结果，比直接编写代码更直观。
+- **模式分析（Schema Analysis）**
+  Compass 会抽样集合文档，分析并可视化每个字段的数据类型、分布和取值范围。
+  这有助于理解数据结构并改进数据模型。
+- **性能监控（Performance Monitoring）**
+  实时查看慢查询、网络流量和操作次数等服务器性能指标，有助于诊断性能问题。
+  对 Atlas 集群，更详细的监控可在 Atlas UI 中查看。
+- **地理空间数据可视化（Geospatial Data Visualization）**
+  还可以将 GeoJSON 数据以地图形式可视化。
+
+### 安装和使用 Compass
+MongoDB Compass 可以大幅简化 MongoDB 的开发与管理工作，安装过程也很简单。
+
+#### 下载 Compass
+前往 MongoDB 官方网站的 Compass 下载页面。
+[https://www.mongodb.com/try/download/compass](https://www.mongodb.com/try/download/compass)
+页面会自动检测或允许你选择操作系统（Windows、macOS、Linux）对应的版本。
+- **Version**：通常选择最新稳定版本（Stable）。
+- **Platform**：选择当前使用的操作系统，例如 Windows 64-bit（msi）、macOS 64-bit（dmg）或 Linux 发行版的 deb/rpm。
+- **Package**：大多数情况下使用默认软件包格式即可，例如 Windows 的 .msi、macOS 的 .dmg。
+
+点击 Download 下载安装程序。
+<Img src="/250508-095739.webp" width={500} alt="下载页面"/>
+
+#### 按操作系统安装
+**Windows**
+1. 双击下载的 `.msi` 安装文件。
+2. 按照安装向导操作，通常只需点击几次 Next 并接受许可协议即可，基本不需要更改选项。
+3. 安装完成后，可从开始菜单或桌面启动 MongoDB Compass。
+
+**macOS**
+1. 双击下载的 `.dmg` 文件打开。
+2. 通常将 MongoDB Compass 图标拖到 Applications 文件夹图标上即可完成安装。
+   <Img src="/250508-100015.webp" width={500} alt="拖放安装"/>
+3. 安装完成后，可从 Launchpad 或 Applications 文件夹启动 Compass。
+   首次启动时可能出现安全提示，选择 Open 即可继续。
+
+**Linux**
+- `.deb` 文件（Debian/Ubuntu 系列）：在终端使用 `sudo dpkg -i <다운로드된_compass.deb_파일경로>` 安装；如有需要，可运行 `sudo apt-get install -f` 解决依赖问题。
+- `.rpm` 文件（RedHat/Fedora/CentOS 系列）：使用 `sudo rpm -ivh <다운로드된_compass.rpm_파일경로>` 安装。
+- 安装后可从应用程序菜单启动 MongoDB Compass，也可以在终端运行 `mongodb-compass`（或类似命令）。
+
+#### 启动 Compass 并连接服务器
+首次启动 Compass 时会出现设置新连接（New Connection）的页面。
+可以直接输入连接 MongoDB 服务器的*连接字符串（Connection String URI）*，也可以填写主机名、端口和身份验证等字段。
+**连接本地服务器**：可以使用默认配置 `mongodb://localhost:27017`。
+**连接 MongoDB Atlas 集群**：最方便的方式是从 Atlas 控制台复制连接字符串并粘贴。可参考[第 11 天 Atlas 入门指南](/blog/post/265-11-mongodb-atlas)。
+<Img src="/250508-100313.webp" width={300} alt="新建连接页面"/>
+
+填写所需的身份验证信息（用户名、密码），然后点击 Connect。
+连接成功后，就能在 Compass 主界面浏览数据库和集合。
+<Img src="/250508-100701.webp" width={300} alt="已连接的 Atlas 数据库和集合"/>
+对于刚开始学习 MongoDB 或不熟悉命令行的人来说，Compass 是理解数据库结构和执行基本操作的实用工具。
+可以亲自尝试各种功能，逐步熟悉 MongoDB。
+
+<Ads2 />
+## 2. mongodump 与 mongorestore：备份和恢复数据
+数据非常重要，因此定期*备份（Backup）*对于防范硬件故障、用户误操作等意外问题至关重要。
+`mongodump` 和 `mongorestore` 是用于备份和恢复 MongoDB 数据的命令行工具。
+
+### mongodump
+> 备份数据库
+
+`mongodump` 会将 MongoDB 服务器中的数据导出为 BSON（Binary JSON）文件，用于创建备份。
+
+#### 基本用法
+```bash
+mongodump --uri="mongodb://<username>:<password>@host:<port>/<databaseName>" --out="/path/to/backup_directory"
+```
+- `--uri`
+  MongoDB 服务器的连接字符串。
+  其中可以包含身份验证信息、主机、端口和要备份的数据库名称。
+  如果未指定数据库，就会备份服务器上的所有数据库。
+- `--out` 或 `-o`
+  指定备份文件的保存目录。
+  如果目录不存在，会自动创建。
+  如果省略，则会在当前目录下创建名为 `dump` 的目录。
+#### 主要选项
+- `--db <databaseName>`：只备份指定数据库。
+- `--collection <collectionName>`：只备份指定集合（与 `--db` 配合使用）。
+- `--gzip`：压缩备份文件以节省存储空间。
+- `--archive`：将所有备份数据合并为一个归档文件。
+- `--username <user>`、`--password <pass>`、`--authenticationDatabase <authDB>`：指定身份验证信息。
+
+#### 示例
+将整个 `test` 数据库压缩备份到 `~/mongodb` 目录。
+```bash
+mongodump --uri="mongodb://localhost:27017/test" --out="~/mongodb"
+```
+<Img src="/250508-103805.webp" width={1000} alt="mongodump 执行结果"/>
+
+### mongorestore
+> 恢复备份数据
+`mongorestore` 会将 `mongodump` 生成的 BSON 备份文件重新导入 MongoDB 服务器，以恢复数据。
+
+#### 基本用法
+```bash
+mongorestore --uri="mongodb://<username>:<password>@<host>:<port>/<targetDatabaseName>" /path/to/backup_directory
+```
+- `--uri`：要恢复数据的 MongoDB 服务器连接字符串。
+- 最后一个参数：由 `mongodump` 创建的备份文件目录。
+
+#### 主要选项
+- `--db <targetDatabaseName>`：恢复到指定数据库。
+- `--collection <targetCollectionName>`：恢复到指定集合。
+- `--gzip`：恢复压缩备份文件。
+- `--archive`：从单个归档文件中恢复。
+- `--drop`：恢复前删除目标集合中已有的所有数据（请谨慎使用）。
+- `--nsInclude <namespacePattern>`、`--nsExclude <namespacePattern>`：包含或排除指定命名空间。
+
+#### 示例
+将上面备份的数据恢复到 `restoredDB` 数据库。
+```bash
+mongorestore --uri="mongodb://localhost:27017/restoredDB" ~/mongodb/test
+```
+<Img src="/250508-104850.webp" width={500} alt="恢复完成"/>
+
+<Bbox>mongodump 和 mongorestore 可用于数据迁移、搭建开发环境等多种场景。</Bbox>
+
+<Ads3 />
+## 3. mongoimport 与 mongoexport
+> 转换数据格式
+
+有时需要将 MongoDB 数据导出为 JSON、CSV 等其他格式，或把其他格式的数据导入 MongoDB。
+`mongoimport` 和 `mongoexport` 是用于这些任务的命令行工具。
+
+### mongoexport
+> 将 MongoDB 数据导出到外部文件
+`mongoexport` 可以将集合数据导出为 JSON、CSV 或 TSV 格式。
+
+#### 基本用法（JSON）
+```bash
+mongoexport --uri="mongodb://username:password@host:port/databaseName" --collection="collectionName" --out="output_file.json"
+```
+#### 主要选项
+- `--type <json|csv|tsv>`：文件格式，默认为 json。
+  - JSON：使用 `--jsonArray` 将输出包裹在数组中。
+  - CSV/TSV：必须使用 `--fields` 或 `--fieldFile` 指定字段列表。
+- `--query <JSON_query_string>`：只导出符合条件的文档。
+- `--pretty`：美化 JSON 格式，便于阅读。
+
+#### 示例
+> 将 `users` 集合中状态为“active”的用户的 `name` 和 `email` 字段导出为 CSV。
+
+使用以下命令在 test 集合中创建示例数据。
+```js
+db.users.insertMany([
+  { name: "Alice", email: "alice@example.com", status: "active" },
+  { name: "Bob", email: "bob@example.com", status: "disabled" },
+  { name: "Charlie", email: "charlie@example.com", status: "active" },
+  { name: "Daisy", email: "daisy@example.com", status: "inactive" }
+])
+```
+```bash
+mongoexport --uri="mongodb://localhost:27017/test" --collection="users" --type="csv" --fields="name,email" --query='{"status": "active"}' --out="active_users.csv"
+```
+<Img src="/250508-110130.webp" width={500} alt="生成的 CSV 文件"/>
+
+### mongoimport
+> 将外部数据导入 MongoDB
+
+`mongoimport` 可以将 JSON、CSV 或 TSV 文件导入 MongoDB 集合。
+
+#### 基本用法（JSON）
+```bash
+mongoimport --uri="mongodb://username:password@host:port/databaseName" --collection="collectionName" --file="input_file.json"
+```
+##### 主要选项
+- `--type <json|csv|tsv>`：文件格式，默认为 json。
+  - JSON：文件可以每行包含一个 JSON 对象，也可以使用 `--jsonArray`。
+  - CSV/TSV：使用 `--headerline`（将首行作为字段名）、`--fields` 或 `--fieldFile` 指定字段。
+- `--drop`：导入前删除已有数据。
+- `--mode <insert|upsert|merge>`：指定写入方式（需要 `--upsertFields`）。
+
+##### 示例
+> 将上例导出的 `active_users.csv` 导入 `importedUsers` 集合。
+```bash
+mongoimport --uri="mongodb://localhost:27017/test" --collection="importedUsers" --type="csv" --headerline --file="active_users.csv"
+```
+<Img src="/250508-110442.webp" width={500} alt="mongoimport 结果"/>
+
+<Ads4 />
+## 总结
+今天我们了解了让 MongoDB 开发和管理更方便、高效的重要工具与实用程序。
+我们介绍了用于可视化管理数据的 MongoDB Compass，用于可靠备份和恢复的 `mongodump` 与 `mongorestore`，以及用于不同格式数据交换的 `mongoimport` 与 `mongoexport`。
+熟练使用这些工具能够显著提升 MongoDB 开发与运维效率。
+> 下次我们将学习如何将 MongoDB 与编程语言连接起来。
+我们会使用 Node.js 连接 MongoDB Atlas 集群，并执行基本的 CRUD 操作。
+
+### 参考
+- MongoDB Compass（官方文档）：[https://www.mongodb.com/docs/compass/current/](https://www.mongodb.com/docs/compass/current/)
+- mongodump（官方文档）：[https://www.mongodb.com/docs/database-tools/mongodump/](https://www.mongodb.com/docs/database-tools/mongodump/)
+- mongorestore（官方文档）：[https://www.mongodb.com/docs/database-tools/mongorestore/](https://www.mongodb.com/docs/database-tools/mongorestore/)
+- mongoexport（官方文档）：[https://www.mongodb.com/docs/database-tools/mongoexport/](https://www.mongodb.com/docs/database-tools/mongoexport/)
+- mongoimport（官方文档）：[https://www.mongodb.com/docs/database-tools/mongoimport/](https://www.mongodb.com/docs/database-tools/mongoimport/)

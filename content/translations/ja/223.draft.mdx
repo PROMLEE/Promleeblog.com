@@ -1,0 +1,234 @@
+---
+post_id: '223'
+locale: ja
+title: Next.jsでGoogle AdSense広告コードを挿入する方法
+description: >-
+  Next.jsでGoogle AdSenseの自動広告に頼らず、広告を配置する位置や形式を制御する方法を解説します。広告タイプ別コード例とAdComponentの実装例も紹介します。
+source_hash: 6a3305d24a3b106ffa293ba410d05e6872f0069b5dbfdf769222ba3f85f3f941
+---
+
+## はじめに
+約2か月にわたるGoogle AdSenseの審査、いわゆる*AdSense試験*を終えました。広告を導入する中で、自動広告（Auto Ads）は設定が簡単な一方、予想外の位置に表示されたり、意図した閲覧の流れを妨げたりすることが多いと感じました。
+<Img src="/250423-103029.webp" width={300} alt="2か月の待ち時間"/>
+
+そのため、広告を希望する位置に手動で挿入する方法へ切り替えました。この記事では、その手順を詳しく紹介します。
+実際に使った広告コードを例に、広告タイプの説明とNext.jsでの実装方法を解説します。
+
+## 自動広告の限界
+自動広告は、ユーザーが位置を指定しなくてもGoogle AdSenseがページ内の場所を選んで広告を挿入する機能です。一方で、次のような短所があります。
+- 本文の途中に突然広告が入り、文章の流れが途切れることがあります。
+- 広告が繰り返し表示されたり、表示数が多くなりすぎたりします。
+- レイアウトが崩れたり、UI要素が重なったりする場合もあります。
+
+実際にブログでコンテンツと関係のない広告が途中に複数表示されると、ユーザーが離脱しやすくなるのではないかと感じました。
+## 手動挿入のメリット
+広告を手動で挿入すると、次のメリットがあります。
+- 広告の位置を自由に指定できます。
+- コンテンツの流れを損なわず自然に配置できます。
+- 広告タイプごとに配置を試せます。
+- 必要に応じて広告を一時停止したり、条件付きで読み込んだりできます。
+
+たとえば、記事の3分の1の位置にバナー広告を、最後の段落の下にリンク広告を置くなど、戦略的に配置できます。
+## 代表的な広告タイプの例
+Google AdSenseには複数の広告タイプがあります。ここでは代表的な4種類を見ていきます。
+### 1. ディスプレイ広告
+用途や配置場所を選ばず使いやすい広告です。サイズに柔軟性があり、レスポンシブデザインにも適しているため、基本的な広告ユニットとしてよく使われます。
+よく見かける標準的な広告形式です。`data-ad-client`と`data-ad-slot`を指定します。
+<Img src="/250423-103248.webp" width={200} alt="ディスプレイ広告"/>
+
+```tsx
+<ins
+  className="adsbygoogle"
+  style={{ display: 'block' }}
+  data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+  data-ad-slot="1234567890"
+  data-ad-format="auto"
+  data-full-width-responsive="true"
+></ins>
+```
+### 2. ネイティブインフィード広告
+ブログ記事一覧やカード一覧など、リスト形式のコンテンツに適した広告です。サイトのデザインに自然になじむように設定できます。
+`data-ad-format`と`data-ad-layout`を指定します。
+背景色、フォント、枠線などをサイトのデザインに合わせられる点が大きな特徴です。広告をコンテンツになじませやすくなります。
+<Img src="/250423-103419.webp" width={200} alt="ネイティブインフィード広告"/>
+
+```tsx
+<ins
+  className="adsbygoogle"
+  style={{ display: 'block' }}
+  data-ad-format="fluid"
+  data-ad-layout="in-feed"
+  data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+  data-ad-slot="1234567890"
+  data-ad-layout-key="-2n+2w+3e+4d"
+></ins>
+```
+### 3. ネイティブイン記事広告
+本文の段落間に自然に挿入できる広告です。長文コンテンツ内で効果を発揮しやすい形式です。
+本文と広告の境界が目立たないため、クリック率が高まる場合もあります。
+この形式もデザインを調整できます。たとえば、フォントや背景色、枠線をサイトのデザインに合わせられます。
+`data-ad-format`と`data-ad-layout`を指定します。
+<Img src="/250423-103513.webp" width={200} alt="ネイティブイン記事広告"/>
+
+```tsx
+<ins
+  className="adsbygoogle"
+  style={{ display: 'block', textAlign: 'center' }}
+  data-ad-format="fluid"
+  data-ad-layout="in-article"
+  data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+  data-ad-slot="1234567890"
+></ins>
+```
+### 4. ネイティブマルチプレックス広告
+複数の広告をグリッド表示する形式です。ニュースサイトやおすすめコンテンツ欄によく合い、コンテンツの推薦のように見せられるため、クリック率が高くなることもあります。
+この広告では`data-ad-format`と`data-ad-layout`を使います。
+<Img src="/250423-103724.webp" width={400} alt="ネイティブマルチプレックス広告"/>
+```tsx
+<ins
+  className="adsbygoogle"
+  style={{ display: 'block' }}
+  data-ad-format="autorelaxed"
+  data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+  data-ad-slot="1234567890"
+></ins>
+```
+
+<Ads1 />
+
+## Next.jsにスクリプトを挿入する
+Next.jsでは広告スクリプトの挿入に`next/script`モジュールを使います。ページの読み込みパフォーマンスを最適化するのに役立ちます。
+```tsx title="/components/adsense.tsx"
+import Script from "next/script";
+import { FunctionComponent } from "react";
+
+export const GoogleAdSense: FunctionComponent = () => {
+  if (process.env.NEXT_PUBLIC_NODE_ENV !== "production") {
+    return null;
+  }
+  return (
+    <Script
+      async
+      src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-${process.env.NEXT_PUBLIC_GAPID}`}
+      crossOrigin="anonymous"
+      strategy="afterInteractive"
+    />
+  );
+};
+```
+これをルートレイアウトに追加します。
+```tsx title="/app/layout.tsx"
+// ...
+import { GoogleAdSense } from "@/components/adsense";
+// ...
+      <head>
+        <GoogleAdSense />
+      </head>
+      <body>
+        {/* ... other content ... */}
+      </body>
+// ...
+```
+## Next.jsで広告コンポーネントを構成する
+Next.jsプロジェクトで広告を効率よく挿入するには、共通の広告コンポーネントを作ると便利です。以下はNext.js（App Router環境）で使える例です。
+```tsx title="AdComponent.tsx"
+"use client";
+
+import React, { useEffect } from "react";
+import { usePathname } from "next/navigation";
+interface AdComponentProps {
+  adSlot: string;
+  adFormat?: string;
+  adLayout?: string;
+  layoutKey?: string;
+  style?: React.CSSProperties;
+}
+const AdComponent: React.FC<AdComponentProps> = ({
+  adSlot,
+  adFormat = "auto",
+  adLayout = "",
+  layoutKey = "",
+  style,
+}) => {
+  const pathname = usePathname();
+    useEffect(() => {
+    try {
+      (window as any).adsbygoogle = (window as any).adsbygoogle || [];
+      (window as any).adsbygoogle.push({});
+    } catch (e) {
+      console.error("Error loading ads:", e);
+    }
+  }, []);
+    return pathname.startsWith("/test") || pathname.startsWith("/aboutme") ? null : (
+    <ins
+      className="adsbygoogle"
+      style={{ display: "block", ...style }}
+      data-ad-client={"ca-pub-" + process.env.NEXT_PUBLIC_GAPID}
+      data-ad-slot={adSlot}
+      data-ad-format={adFormat}
+      data-ad-layout={adLayout}
+      data-ad-layout-key={layoutKey}
+    ></ins>
+  );
+};
+export default AdComponent;
+```
+
+### 使用例
+広告ユニットを作成した後、自分のキー、スロットID、広告形式などを設定して利用します。次はブログ記事に広告を挿入する例です。
+```tsx title="page.tsx"
+import React from "react";
+import AdComponent from "@/components/AdComponent";
+
+const BlogPage = () => {
+  return (
+    <div>
+      <h1>블로그 글 제목</h1>
+      <p>블로그 글 내용...</p>
+      <AdComponent adSlot="1234567890" adFormat="auto" /> {/* 디스플레이 광고 */}
+      <AdComponent
+        adSlot="0987654321"
+        adFormat="fluid"
+        adLayout="in-article"
+        style={{ textAlign: "center" }}
+      /> {/* 네이티브 인아티클 광고 */}
+      <AdComponent
+        adSlot="1122334455"
+        adFormat="fluid"
+        layoutKey="-2n+2w+3e+4d"
+      /> {/* 네이티브 인피드 광고 */}
+      <AdComponent
+        adSlot="5566778899"
+        adFormat="autorelaxed"
+      /> {/* 네이티브 멀티플렉스 광고 */}
+      <p>블로그 글 내용...</p>
+    </div>
+  );
+};
+
+export default BlogPage;
+```
+### 📁 推奨ファイル構成の例
+```
+/app
+  /blog
+    page.tsx
+/components
+  AdComponent.tsx
+.env
+```
+- 広告クライアントIDは環境変数`NEXT_PUBLIC_GAPID`で管理します。
+  ```env title=".env"
+  NEXT_PUBLIC_GAPID=xxxxxxxxxxxxxxxx
+  ```
+- `/test`や`/aboutme`など、特定ページで広告を非表示にする条件も実装しています。
+- 広告のスタイルは`style` propで渡し、柔軟に調整できます。
+
+## まとめ
+自動広告は初心者にとって良い出発点です。一方、広告の位置やコンテンツの流れを大切にするなら、手動で挿入する方法がおすすめです。
+広告コードを直接挿入すれば、さまざまな配置を柔軟に試し、ユーザー体験を損なわずに収益を最適化できます。
+ブログやWebサイトに合った広告戦略を見つけてください。
+### 参考
+- [Google AdSense広告コードのガイド](https://support.google.com/adsense/answer/9274634?hl=ko)
+- [インフィード広告のスタイル設定ガイド](https://support.google.com/adsense/answer/9183363?hl=ko)
+- [Google公式ネイティブ広告の説明](https://support.google.com/adsense/answer/9183363?hl=ko&ref_topic=9267647)

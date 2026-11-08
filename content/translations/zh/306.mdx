@@ -1,0 +1,169 @@
+---
+post_id: '306'
+locale: zh
+title: AI 代码编辑器实用技巧：用 Cursor、Copilot 和 ChatGPT 高效编程
+description: 介绍 Cursor 的 YOLO 模式、测试驱动编程、TypeScript 错误修复、日志调试和快捷键等 AI 编程技巧。
+source_hash: 3bb675ebf1851bbe3b5d8b13c7a5109c25d5eaeedb99f297b710abad317db7d8
+reviewed_at: '2026-11-08T12:18:53.742Z'
+---
+## 开始之前
+今天我们来了解正在改变编程方式的工具——AI 代码编辑器 *Cursor*，以及一些实用技巧。
+<Bbox>这些方法也适用于 Copilot、Codeium 等其他 AI 编程工具，正在使用 AI 编程工具的开发者不妨参考。</Bbox>
+本文将介绍如何利用 Cursor 的强大 AI 功能，让编码工作更高效。
+
+## 什么是 AI 代码编辑器？
+AI 代码编辑器利用人工智能技术，帮助开发者编写和修改代码。
+常见工具包括 Cursor、GitHub Copilot 和 Codeium。
+<Img src="/250526-101417.webp" width={300} alt="VSCode Copilot"/>
+
+<Ads1 />
+## 充分利用 AI 核心功能
+下面逐一介绍如何充分利用 AI 代码编辑器的强大功能。
+本文以 Cursor 为主，但类似技巧也适用于其他 AI 编程工具。
+
+### 1. YOLO 模式：放心交给 AI 修改代码
+Cursor 设置中有一个名称有趣的“YOLO 模式”。
+开启后，AI Agent 不仅能生成代码或提出修改建议，还可以实际运行测试、检查构建错误，并在问题解决前*自行反复修改代码*。
+例如，可以将以下提示词设置为 YOLO 模式的规则。
+```txt
+any kind of tests are always allowed like vitest, npm test, nr test, etc.
+also basic build commands like build, tsc, etc.
+creating files and making directories (like touch, mkdir, etc) is always ok too
+```
+这样，当 AI 在编译 TypeScript 代码（`tsc`）时发现错误，就能自行修复并再次构建，直到成功为止。
+
+### 2. 测试驱动的 AI 编程：生成更可靠的代码
+让 AI 实现复杂功能时，与其只说“帮我写这个函数”，不如先要求它编写测试用例，效果会更好。
+这与我们采用 TDD（Test-Driven Development，测试驱动开发）的思路相同。
+例如，可以要求：“写一个将 Markdown 字符串转换为 HTML 字符串的函数。*请先编写测试，再编写代码；运行测试并持续修改，直到测试通过。*”
+<br/>
+Cursor 会分析项目中的 `package.json` 等文件，生成合适的测试文件，检查 AI 编写的代码是否通过测试，并持续改进代码。
+当然，AI 并不总是完美的，应留意进度，并在方向不对时及时介入。
+
+### 3. 利用现有测试增强代码稳健性
+如果项目已有高质量测试，可以利用它们进一步提高代码的稳健性。
+例如，可以要求：“请把这些情况加入现有测试，并修改代码以通过所有测试。”
+将真实生产环境中的错误情况逐一添加为测试，再让 AI 修复，代码会随着时间变得更加可靠。
+
+### 4. 把 TypeScript 错误交给 AI
+认真编码时，TypeScript 类型错误或构建错误常会逐渐累积。
+与其逐一手动修复，不如让 Cursor AI 执行 `npm run build`（或项目的构建命令），检查错误并持续修改，直到构建成功。
+不少开发者会在工作接近尾声时，用这种方式一次性整理 Prettier、ESLint、tsc 错误。
+
+#### 示例：请求修复 TypeScript 错误
+可以这样要求 AI：“请修复下面 TypeScript 代码中的类型错误。”
+```typescript
+// AI에게 수정 요청할 예시 코드
+function greet(person: string, date: Date): string { // 반환 타입 명시
+  console.log(`Hello ${person}, today is ${date.toDateString()}!`);
+  return `Hello ${person}, today is ${date.toDateString()}!`; // 반환문 추가
+}
+
+// 만약 다른 곳에서 date를 string으로 전달하려고 할 때 발생하는 오류를 AI가 수정하도록 유도
+// const todayString = new Date().toISOString();
+// greet("Alice", new Date(todayString)); // AI는 Date 객체로 변환하거나, 함수 시그니처를 바꿀 수 있음
+```
+Cursor 会检测类型不匹配，并提出相应建议，例如让 `greet` 函数调用中的 `date` 参数使用 `Date` 对象，或调整函数参数类型使其更灵活。
+
+<Ads2 />
+### 5. 基于日志调试：与 AI 一起排查问题
+排查棘手的 Bug 时，日志非常有用。
+可以让 Cursor AI 在代码中加入日志，再把日志结果交给 AI，逐步查找问题原因和解决方案。
+
+#### 示例
+```txt title="로그 기반 디버깅 요청 예시"
+이 React 컴포넌트의 `useEffect` 훅이 예상대로 동작하지 않는데, 주요 상태(state)와 속성(props) 값의 변화를 확인할 수 있도록 `console.log`를 추가해줘.
+```
+**Cursor AI**：（在组件代码中添加 `console.log`）
+```tsx
+// 예시: React useEffect 디버깅
+import React, { useState, useEffect } from 'react';
+
+interface MyComponentProps {
+  userId: number;
+}
+
+function MyComponent({ userId }: MyComponentProps) {
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    // AI가 로그 추가 요청 시 아래와 같이 로그를 삽입 가능
+    console.log(`[useEffect] userId changed: ${userId}`); 
+    if (userId) {
+      console.log(`[useEffect] Fetching data for userId: ${userId}`);
+      fetch(`/api/users/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          console.log(`[useEffect] Data received:`, data);
+          setUserData(data);
+        })
+        .catch(error => {
+          console.error(`[useEffect] Error fetching data:`, error);
+        });
+    }
+  }, [userId]); // userId가 변경될 때마다 실행
+
+  return (
+    <div>
+      {/* 사용자 데이터 표시 */}
+    </div>
+  );
+}
+```
+```txt title="AI에게 로그 분석 요청 예시"
+userId가 1일 때 로그 결과는 이렇네. `userData`가 `null`로 계속 나오는데, 뭐가 문제인 것 같아?
+```
+**Cursor AI**：（分析日志后，推测“API 请求路径可能错误”或“数据解析可能有问题”，并给出解决代码）
+多次重复这个过程，就能为复杂问题找到突破口。
+
+### 6. 实用快捷键
+Cursor 提供了可以快速调用 AI 功能的快捷键。
+- **Command K（或 Ctrl K）**
+  用于快速修改选中的代码块。
+  例如，选中代码后按 Command K，再要求“将这个函数改成 async 函数”或“把变量名改为 camelCase”，AI 就会快速修改相应部分。
+  通过内联界面即可轻松使用。
+- **Command I（或 Ctrl I）**
+  打开 AI Agent 聊天窗口，并自动将选中的代码加入上下文。
+  适合围绕选中的代码提问或请求复杂修改。
+
+### 7. 在终端中使用 AI
+Cursor 的 Command K 功能也可以在终端中使用。
+不必记住复杂的 Git 命令，只要用自然语言提出请求，例如“列出最近 5 个 Git 分支”或“将当前分支变基到 main”，就能提高终端工作的效率。
+
+### 8. 善用智能补全（Autocomplete）
+Cursor 的自动补全不仅能补全代码片段，也会建议整行或整块代码。
+灰色建议出现时可以按 Tab 接受，但有时 Tab 会切换到下一条建议或跳到代码的其他位置，需要一些适应。
+持续使用、熟悉操作很重要。
+
+### 9. 让 AI 撰写提交信息
+编写 Git 提交信息也常常让人觉得繁琐，Cursor 可以帮上忙。
+在 Source Control 标签页点击魔法棒图标后，AI 会根据已修改的代码生成提交信息。
+结果不一定完美，但可以作为不错的初稿。
+<Img src="/250526-103533.webp" width={300} alt="撰写提交信息"/>
+### 10. Bug Finder 功能
+按 Command Shift P（或 Ctrl Shift P）打开命令面板，搜索“bug finder”即可使用此功能。
+它会将当前修改与主分支比较，并尝试找出潜在 Bug。
+例如，在 UI 开发中，它可能会指出代码没有处理某个值为 0 的情况。
+
+## 平衡 AI 辅助与编程能力
+有人担心使用 AI 编程工具会削弱自己的编程能力。
+但 AI 可以自动化许多重复工作，让开发者专注于更困难、更重要的问题，是一种*工具*。
+AI 无法包办一切；开发者仍需要理解代码、调试问题，并引导 AI 朝正确方向工作。
+善用 AI 工具本身，也可能成为未来开发者的一项重要竞争力。
+
+<Img src="/250526-103806.webp" width={300} alt="开发者与 AI"/>
+
+<Ads3 />
+## 总结
+今天介绍了多种使用 AI 代码编辑器的技巧。
+善用 YOLO 模式、测试驱动的 AI 编程、自动修错和基于日志的调试等功能，Cursor 有望显著提升开发效率。
+<br/>
+当然，AI 不能代替所有工作，基础编程知识和解决问题的能力仍是开发者最重要的资产。
+明智地使用 Cursor 等 AI 工具，把重复工作交给 AI，让自己专注于更有创造性、更重要的问题。
+
+### 参考
+- [Builder.io Blog - How I use Cursor (+ my best tips)](https://www.builder.io/blog/cursor-tips)
+- [Cursor - 官方网站](https://cursor.sh/)
+- [Visual Studio Code - 官方网站](https://code.visualstudio.com/)
+- [TypeScript - 官方网站](https://www.typescriptlang.org/)
+- [React - 官方网站](https://react.dev/)

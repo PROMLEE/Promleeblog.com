@@ -1,0 +1,201 @@
+---
+post_id: '306'
+locale: en
+title: 'Mastering AI Coding Tools in Cursor: Practical Tips for Developers'
+description: >-
+  Get more from Cursor and other AI coding tools with tips for YOLO mode,
+  test-driven development, TypeScript fixes, log-based debugging, terminal
+  commands, and shortcuts.
+source_hash: 3bb675ebf1851bbe3b5d8b13c7a5109c25d5eaeedb99f297b710abad317db7d8
+reviewed_at: '2026-11-08T12:11:42.591Z'
+---
+## Before You Begin
+
+Today, let's explore useful tips for *Cursor*, an AI-powered code editor that is changing how developers work.
+<Bbox>These ideas also apply to other AI coding tools such as Copilot and Codeium, so they are useful no matter which tool you use.</Bbox>
+Learn how to use Cursor's AI features to make your coding workflow smarter.
+
+## What Is an AI-Powered Code Editor?
+
+An AI-powered code editor uses artificial intelligence to help developers write and modify code.
+There are many options, including Cursor, GitHub Copilot, and Codeium.
+<Img src="/250526-101417.webp" width={300} alt="VS Code Copilot"/>
+
+<Ads1 />
+## Make the Most of AI Features
+
+Let's look at several useful tips for getting more from the AI features in a code editor.
+These examples use Cursor, but similar approaches work with other AI coding tools.
+
+### 1. YOLO Mode: Let AI Make Code Changes
+
+Cursor settings include a feature with the playful name "YOLO mode."
+When enabled, you can let the AI agent do more than generate code or suggest edits: it can run tests, check build errors, and *keep modifying the code until the issue is resolved*.
+For example, you could set a prompt like this for YOLO mode.
+
+```txt
+any kind of tests are always allowed like vitest, npm test, nr test, etc.
+also basic build commands like build, tsc, etc.
+creating files and making directories (like touch, mkdir, etc) is always ok too
+```
+
+If the AI finds an error while building TypeScript code with tsc, it can fix the error and try the build again, repeating until the build succeeds.
+
+### 2. Test-Driven AI Coding: Generate More Reliable Code
+
+When requesting a complex feature, it is more effective to ask the AI to write test cases first than to simply say, "Make this function."
+It is similar to how we use TDD (Test-Driven Development).
+For example, you could ask: "Create a function that converts a Markdown string into an HTML string. *Write the tests first, then write the code, and keep fixing the code until the tests pass.*"
+<br/>
+Cursor can inspect the project's `package.json`, create an appropriate test file, check whether the AI-generated code passes the tests, and improve the code accordingly.
+AI is not always perfect, so keep an eye on its progress and step in if needed with a comment such as, "Wait, this seems to be going in the wrong direction."
+
+### 3. Reuse Existing Tests to Strengthen Code
+
+If you already have well-written tests, use them to make your code more robust.
+For example, you can ask, "Add these cases to the existing tests, then update the code so that all tests pass."
+Add real production bugs as test cases one by one and ask the AI to fix them; over time, you can make the code more resilient.
+
+### 4. Let AI Handle TypeScript Errors
+
+TypeScript type errors and build errors can pile up while you are coding.
+Instead of fixing each one manually, you can ask Cursor AI: *"There are some build errors. Run `npm run build` (or this project's build command), identify the errors, and fix them until the build succeeds."*
+Many developers use this approach near the end of a task to resolve issues from Prettier, ESLint, and `tsc` in one pass.
+
+#### Example: Ask AI to Fix a TypeScript Error
+
+You can ask the AI:
+"Fix the type error in this TypeScript code:"
+```typescript
+// AI에게 수정 요청할 예시 코드
+function greet(person: string, date: Date): string { // 반환 타입 명시
+  console.log(`Hello ${person}, today is ${date.toDateString()}!`);
+  return `Hello ${person}, today is ${date.toDateString()}!`; // 반환문 추가
+}
+
+// 만약 다른 곳에서 date를 string으로 전달하려고 할 때 발생하는 오류를 AI가 수정하도록 유도
+// const todayString = new Date().toISOString();
+// greet("Alice", new Date(todayString)); // AI는 Date 객체로 변환하거나, 함수 시그니처를 바꿀 수 있음
+```
+
+Cursor can detect the type mismatch and suggest, for example, changing the `date` argument in the `greet` call to a `Date` object or making the function parameter type more flexible.
+
+<Ads2 />
+### 5. Debug with Logs and AI
+
+Logs are very useful when tracking down a difficult bug.
+Ask Cursor AI to add logs to the code, then share the log output with the AI to investigate the cause and find a solution.
+
+#### Example
+
+```txt title="로그 기반 디버깅 요청 예시"
+이 React 컴포넌트의 `useEffect` 훅이 예상대로 동작하지 않는데, 주요 상태(state)와 속성(props) 값의 변화를 확인할 수 있도록 `console.log`를 추가해줘.
+```
+
+**Cursor AI**: (Adds `console.log` statements to the component code)
+```tsx
+// 예시: React useEffect 디버깅
+import React, { useState, useEffect } from 'react';
+
+interface MyComponentProps {
+  userId: number;
+}
+
+function MyComponent({ userId }: MyComponentProps) {
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    // AI가 로그 추가 요청 시 아래와 같이 로그를 삽입 가능
+    console.log(`[useEffect] userId changed: ${userId}`); 
+    if (userId) {
+      console.log(`[useEffect] Fetching data for userId: ${userId}`);
+      fetch(`/api/users/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          console.log(`[useEffect] Data received:`, data);
+          setUserData(data);
+        })
+        .catch(error => {
+          console.error(`[useEffect] Error fetching data:`, error);
+        });
+    }
+  }, [userId]); // userId가 변경될 때마다 실행
+
+  return (
+    <div>
+      {/* 사용자 데이터 표시 */}
+    </div>
+  );
+}
+```
+
+```txt title="AI에게 로그 분석 요청 예시"
+userId가 1일 때 로그 결과는 이렇네. `userData`가 `null`로 계속 나오는데, 뭐가 문제인 것 같아?
+```
+
+**Cursor AI**: (After analyzing the logs, it may identify a cause such as "The API path may be wrong" or "There may be a problem parsing the data," and suggest a fix.)
+Repeating this process a few times can help you find a way to solve even complex problems.
+
+### 6. Useful Shortcuts
+
+Cursor has shortcuts that let you call AI features quickly.
+- **Command K (or Ctrl K)**
+  Use it to request a quick change to selected code.
+  For example, select a piece of code, press Command K, and ask, "Convert this function to async" or "Change this variable name to camelCase."
+  The change can be made quickly through the inline UI.
+- **Command I (or Ctrl I)**
+  Opens the AI agent chat and adds the selected code to the chat context.
+  This is useful when you need to ask a detailed question about selected code or request a complex change.
+
+### 7. Use AI in the Terminal
+
+Cursor's Command K feature also works in the terminal.
+Instead of memorizing complex Git commands, you can use natural language prompts such as "Show me the five most recent Git branches" or "Rebase the current branch onto main."
+This can make terminal work much more efficient.
+
+### 8. Use Autocomplete Effectively
+
+Cursor's autocomplete can suggest entire lines or blocks of code, not just small snippets.
+You can accept a gray suggestion by pressing Tab.
+It may take some practice: Tab can sometimes move to the next suggestion or jump to another part of the code.
+Keep using it to get a feel for its behavior.
+
+### 9. Let AI Write Commit Messages
+
+Writing commit messages can be a small but tedious part of using Git.
+Cursor can help with this too.
+Click the magic wand icon in the Source Control tab, and AI will generate a commit message based on the changed code.
+It may not be perfect, but it can provide a useful first draft.
+<Img src="/250526-103533.webp" width={300} alt="Writing a commit message"/>
+
+### 10. Use Bug Finder
+
+Press Command Shift P (or Ctrl Shift P) to open the command palette, then search for "bug finder."
+This feature compares the current changes with the main branch and tries to find potential bugs.
+For example, it may point out that a UI change does not handle a value of 0.
+
+## Balance AI Assistance with Coding Skills
+
+Some developers worry that AI coding tools will reduce their coding skills.
+However, AI is a *tool* that automates repetitive work and helps developers focus on harder, more important problems.
+AI cannot solve everything, and developers still need the fundamentals to understand and debug code and guide the AI in the right direction.
+The ability to use AI tools effectively may itself become an important competitive advantage for future developers.
+
+<Img src="/250526-103806.webp" width={300} alt="A developer working with AI"/>
+
+<Ads3 />
+## Conclusion
+
+Today we looked at several ways to use an AI-powered code editor.
+Cursor features such as YOLO mode, test-driven AI coding, automatic error fixes, and log-based debugging can significantly improve developer productivity when used well.
+<br/>
+AI cannot do everything for us, and fundamental programming knowledge and problem-solving skills remain essential.
+Use AI tools such as Cursor thoughtfully: delegate repetitive tasks to AI and focus your own attention on more creative and important problems.
+
+### References
+
+- [Builder.io Blog — How I use Cursor (+ my best tips)](https://www.builder.io/blog/cursor-tips)
+- [Cursor official website](https://cursor.sh/)
+- [Visual Studio Code official website](https://code.visualstudio.com/)
+- [TypeScript official website](https://www.typescriptlang.org/)
+- [React official website](https://react.dev/)

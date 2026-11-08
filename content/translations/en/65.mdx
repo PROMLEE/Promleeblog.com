@@ -1,0 +1,268 @@
+---
+post_id: '65'
+locale: en
+title: 'UML Sequence Diagrams: Visualizing Object Interactions'
+description: >-
+  Understand UML sequence diagrams through lifelines, message types,
+  activations, control frames, and a practical use case that shows how objects
+  collaborate over time.
+source_hash: 16f2ce79decfd553e878ac109a966d02f9e5417a55b3abb9431c6cb3772ebd54
+reviewed_at: '2026-11-08T12:14:47.398Z'
+---
+## Before You Begin
+
+Last time, we used UML class diagrams to examine the static *structure* of software: its foundation.
+But real software is not a static picture; it moves and performs many different functions.
+Today, we will explore *UML sequence diagrams*, which vividly show how objects inside a system collaborate by exchanging *conversations (messages)* over time, much like actors performing a scene.
+
+## What Is a Sequence Diagram?
+
+A sequence diagram is one of the diagrams in UML (Unified Modeling Language).
+It is a dynamic modeling tool that shows the *interactions* among objects involved in a system or feature in *time order*.
+As the name suggests, sequence is central: a request goes from one object to another, and the receiver responds or asks another object to do something; the diagram shows these steps from top to bottom along a timeline.
+<Img src="/250528-102231.webp" width={300} alt="Sequence diagram"/>
+
+If a class diagram introduces the "characters" in a system, a sequence diagram is the "script" that shows what "lines (messages)" those characters exchange and how they "act (behave)" in a particular "scene (scenario)."
+Sequence diagrams are particularly useful for:
+- **Realizing use cases**
+  Showing concretely how a user's requirement (use case) is carried out through collaboration among objects inside the system.
+- **Analyzing complex logic**
+  Understanding the flow and logic of a task involving many interdependent objects.
+- **Validating and communicating a design**
+  Simulating dynamic system behavior before implementation to find issues and build a shared understanding within the development team.
+- **API design and documentation**
+  Visually describing integrations with external systems, API call order, and data flow.
+
+## Core Elements of a Sequence Diagram
+
+Sequence diagrams use a few intuitive symbols and notations to show object interactions clearly.
+
+### Actors, Objects, and Lifelines
+
+- **Actor**
+  Represents a person, another system, or a device outside the system that interacts with it.
+  Actors are usually drawn as stick figures and often appear on the far left or right of the diagram as the starting or ending point of an interaction.
+  Examples: `사용자` (user), `외부 API 서버` (external API server), `센서 장치` (sensor device).
+- **Object and lifeline**
+  An object is a participant in the diagram that sends and receives messages.
+  It may be shown in a rectangle as `객체이름:클래스이름` (for example, `myOrder:Order`), or using only a class name as `:클래스이름` (an anonymous object, such as `:DatabaseManager`).
+  A long vertical dashed line extends below each object; this is called its *lifeline*.
+  A lifeline visually represents how long the object exists and is active during the scenario.
+<Img src="/250528-103027.webp" width={400} alt="Actors, objects, and lifelines"/>
+<Ads1/>
+### Messages
+
+A message represents one object requesting an action from another object or passing information to it.
+It is drawn as an arrow between two lifelines, and the arrowhead and line style communicate different meanings.
+
+#### Synchronous Message
+
+- **Notation**
+  A solid line with a filled arrowhead (`->`).
+- **Meaning**
+  The sender *waits* until the receiver completes the requested task and returns a response.
+  This is similar to a regular function call.
+- **Example**
+  `사용자` sends a `login(아이디, 비밀번호)` message to the `로그인UI` object and waits until `로그인UI` returns a result.
+
+#### Asynchronous Message
+
+- **Notation**
+  A solid line with an open arrowhead (`-->` or a stick arrow).
+- **Meaning**
+  The sender does *not wait* for the receiver to finish and immediately continues with its next task.
+  This is common in parallel processing and event-driven systems.
+- **Example**
+  `주문처리시스템` sends `sendOrderConfirmationEmail(주문정보)` to `이메일서비스` and continues its logic without waiting for the email to be sent.
+
+#### Reply Message (Return Message)
+
+- **Notation**
+  A dashed arrow (`<--` or `<..`).
+- **Meaning**
+  The receiver sends the result of a synchronous operation back to the sender.
+  It indicates that control has returned to the sender.
+  To keep diagrams concise, an explicit reply is sometimes omitted and implied by the end of the activation associated with the synchronous message.
+- **Example**
+  `데이터베이스` returns `사용자정보객체` in response to the synchronous `사용자정보조회()` message.
+
+#### Self-Message
+
+- **Notation**
+  An arrow that leaves an object's lifeline and loops back to the same lifeline.
+- **Meaning**
+  Represents an object calling one of its own internal methods.
+  This is useful for showing complex logic inside an object.
+- **Example**
+  The `ShoppingCart` object calls its own `calculateTotalPrice()` method to calculate the cart total.
+
+#### Create Message
+
+- **Notation**
+  A dashed arrow pointing to the point where the object's lifeline begins.
+  It is often used with the `<<create>>` stereotype.
+  The object's rectangle can appear in the middle of the lifeline.
+- **Meaning**
+  Represents creating a new object during the scenario.
+- **Example**
+  `OrderController` receives an order request and creates a new `Order` object.
+
+#### Destroy Message
+
+- **Notation**
+  An arrow pointing to an 'X' at the end of an object's lifeline.
+  It is often used with the `<<destroy>>` stereotype.
+- **Meaning**
+  Represents an object being destroyed during the scenario, such as removing a temporary object that is no longer needed.
+
+<Img src="/250528-103922.webp" width={1000} alt="Messages"/>
+
+### Activation (Execution Occurrence)
+
+An activation represents the period when an object receives a message and performs a task—in other words, when it is *actively executing*.
+It is shown as a thin, tall rectangle on the lifeline; the rectangle's height represents how long the task takes.
+When an object receives a synchronous message, a new activation begins on its lifeline.
+Control returns to the sender only after that activation ends and the task is complete.
+<Img src="/250528-104254.webp" width={300} alt="Activation"/>
+
+### Control Frames (Combined Fragments)
+
+Complex scenarios need more than simple message exchanges; they may include conditional branches (if-else), loops, exception handling, or parallel processing.
+Sequence diagrams can represent this logic explicitly with rectangular regions called *control frames*.
+The operator at the upper-left corner of a frame identifies its type.
+
+#### `alt` (Alternatives)
+
+One interaction block runs depending on which condition is met, much like an if-else if-else statement.
+Dashed dividers separate the frame into operands, each marked with a guard condition (`[조건문]`).
+For example, a login attempt can follow different paths for `[인증 성공]` (authentication succeeds) and `[인증 실패]` (authentication fails).
+<Img src="/250528-105013.webp" width={400} alt="alt frame"/>
+
+#### `opt` (Optional)
+
+The interaction block runs only when a specific condition is true, much like an if statement.
+For example, apply a discount only when `[쿠폰 사용 가능]` (coupon is available) is satisfied.
+<Img src="/250528-105227.webp" width={400} alt="opt frame"/>
+
+#### `loop` (Loop)
+
+Repeats the interaction block while a condition is met or for a specified number of times.
+You can show the loop condition, such as `[아이템 수만큼]` (once per item) or `[while x < 10]`.
+For example, check `[상품 재고 확인]` (product inventory) for each item in the cart.
+<Img src="/250528-105327.webp" width={400} alt="loop frame"/>
+
+#### `par` (Parallel)
+
+Indicates that multiple interaction blocks within the frame can run in parallel.
+Dashed dividers separate the parallel blocks.
+For example, request data from multiple external services at the same time and wait for each response.
+<Img src="/250528-105434.webp" width={400} alt="par frame"/>
+
+#### `ref` (Reference)
+
+Used to refer to a separate sequence diagram that represents part of the current diagram.
+This helps modularize complex diagrams and improve readability.
+The frame names the sequence diagram being referenced; for example, `ref [인증 처리]` (authentication handling).
+
+#### `break` (Break)
+
+When a condition is met in a frame such as `loop` or `alt`, this operator stops the current frame and exits it, much like a break statement in regular programming.
+For example, break during a loop when `[오류 발생 시]` (an error occurs).
+<Img src="/250528-105849.webp" width={400} alt="break frame"/>
+
+<Ads2/>
+## Example: A Use Case-Based Sequence Diagram
+
+Theory can be hard to picture on its own, so let's draw a sequence diagram for an online bookstore where a user searches for a book and adds it to the cart.
+
+### Use Case Scenario: Main Flow
+
+1. The user enters a book title in the search box and clicks the Search button.
+2. The search UI passes the search request to the search controller.
+3. The search controller asks the book service to search for books.
+4. The book service searches the book repository (such as a database) for the title.
+5. The repository returns the list of matching books to the book service.
+6. The book service returns the results to the search controller.
+7. The search controller passes the results to the search UI for display.
+8. The user clicks Add to Cart for a book in the results.
+9. The search UI asks the cart controller to add that book to the cart.
+10. The cart controller asks the cart service to add the book.
+11. The cart service adds the book to the current user's cart and returns whether it succeeded.
+12. If it succeeded, the cart controller sends a success message to the search UI.
+13. The search UI displays a "Added to cart" notification to the user.
+
+Now let's represent the main interactions in this scenario as a sequence diagram.
+(The actual diagram is much easier to understand when drawn visually.)
+
+### Participants
+
+- `사용자:Actor` (user)
+- `검색UI:SearchUI` (search UI)
+- `검색컨트롤러:SearchController` (search controller)
+- `도서서비스:BookService` (book service)
+- `도서저장소:BookRepository` (book repository)
+- `장바구니컨트롤러:CartController` (cart controller)
+- `장바구니서비스:CartService` (cart service)
+
+### Main Sequence: Pseudocode-Style Messages
+
+```txt
+사용자:Actor --1. searchButtonClicked(도서명)--> 검색UI:SearchUI
+  검색UI:SearchUI --2. requestSearch(도서명)--> 검색컨트롤러:SearchController
+    검색컨트롤러:SearchController --3. findBooks(도서명)--> 도서서비스:BookService
+      도서서비스:BookService --4. queryBooksByName(도서명)--> 도서저장소:BookRepository
+      도서저장소:BookRepository --5. bookList --> 도서서비스:BookService (응답)
+    도서서비스:BookService --6. searchResult(bookList) --> 검색컨트롤러:SearchController (응답)
+  검색컨트롤러:SearchController --7. displayResults(searchResult)--> 검색UI:SearchUI
+
+사용자:Actor --8. addToCartButtonClicked(선택된도서ID)--> 검색UI:SearchUI
+  검색UI:SearchUI --9. requestAddToCart(선택된도서ID)--> 장바구니컨트롤러:CartController
+    장바구니컨트롤러:CartController --10. addItemToCart(사용자ID, 선택된도서ID)--> 장바구니서비스:CartService
+    장바구니서비스:CartService --11. isSuccess --> 장바구니컨트롤러:CartController (응답: true/false)
+
+    장바구니컨트롤러:CartController --[isSuccess == true] (opt 프레임 시작)-->
+      장바구니컨트롤러:CartController --12. notifyCartUpdateSuccess()--> 검색UI:SearchUI
+      검색UI:SearchUI --13. showNotification("장바구니 추가 성공")--> 사용자:Actor
+    -- (opt 프레임 종료) -->
+    
+    장바구니컨트롤러:CartController --[isSuccess == false] (opt 프레임 시작)-->
+      장바구니컨트롤러:CartController -- notifyCartUpdateFail()--> 검색UI:SearchUI
+      검색UI:SearchUI -- showNotification("장바구니 추가 실패")--> 사용자:Actor
+    -- (opt 프레임 종료) -->
+```
+
+<Img src="/250528-110854.webp" width={1000} alt="Book search and add-to-cart scenario"/>
+
+This shows how sequence diagrams make even complex interactions easier to understand and explain step by step over time.
+
+<Ads3/>
+## Tips for Creating Sequence Diagrams
+
+Keep these points in mind when creating an effective sequence diagram.
+- **Focus on one scenario**
+  A sequence diagram should usually show one main scenario, such as a use case's main flow or a specific exception flow.
+  Trying to show too much at once can make it harder to understand.
+- **Choose an appropriate level of abstraction**
+  There is no need to show every implementation detail, such as variable assignments or simple calculations.
+  Focus on meaningful messages and interactions between objects.
+- **Move from left to right and top to bottom**
+  Usually, place the actor or object that starts the interaction on the left and let time flow naturally from top to bottom.
+- **Choose clear message names**
+  Use verbs that make it clear what action the object performs, such as `getUserDetails()`, `validatePassword()`, or `updateInventory()`.
+- **Use diagrams to communicate**
+  A diagram that only its author can understand is not useful.
+  Review it with teammates and improve it together to build a shared understanding.
+
+## Conclusion
+
+Today we explored how UML sequence diagrams show dynamic interactions as objects exchange messages over time.
+We covered lifelines, message types, activations, control frames for complex flows, and a practical use-case example.
+> Next time, we will look at the *SOLID principles for good software design*, which help evaluate and improve how robust and flexible a design is.
+
+### References
+
+- [UML Sequence Diagrams — Visual Paradigm](https://www.visual-paradigm.com/guide/uml-unified-modeling-language/what-is-sequence-diagram/) (detailed explanation and examples)
+- [Sequence diagram — Wikipedia](https://en.wikipedia.org/wiki/Sequence_diagram)
+- [PlantUML — Sequence Diagram](https://plantuml.com/sequence-diagram) (tool and documentation for creating diagrams from text)
+- [Lucidchart — UML Sequence Diagram Tutorial](https://www.lucidchart.com/pages/uml-sequence-diagram) (tutorial and instructions)
+- [Draw.io (diagrams.net)](https://app.diagrams.net/) (free web-based diagramming tool with UML support)

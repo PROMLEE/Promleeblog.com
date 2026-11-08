@@ -1,0 +1,298 @@
+---
+post_id: '132'
+locale: zh
+title: 使用 Reown AppKit 将 MetaMask 连接到 Flutter 应用
+description: 介绍使用 Reown AppKit 将 MetaMask 连接到 Flutter 应用，包括 iOS、Android URL Scheme 设置、项目配置和钱包连接组件。
+source_hash: 0b89270bcba662c7578906c67af6208366ccfc88273d526eaf8caf54fb12ec1d
+---
+## 开始之前
+本文假设你已经创建了一个基本的 Flutter 项目。
+
+### 什么是 MetaMask？
+> https://metamask.io/
+> 立即体验在一个地方轻松追踪和管理 Web3 活动。
+
+<Img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1024px-MetaMask_Fox.svg.png?20220831120339" alt="MetaMask" width={100} />
+
+MetaMask 是一种用于与 Ethereum 区块链交互的软件*加密货币钱包*，提供[浏览器扩展和移动应用](https://metamask.io/ko/download/)。
+它提供浏览器扩展和移动应用，并具备管理数字资产所需的功能，包括密钥库、安全登录、代币钱包和代币兑换。
+用户可以通过浏览器扩展或移动应用访问 Ethereum 钱包，并使用它与*去中心化应用*交互。
+
+### 什么是 Reown？
+> https://reown.com/
+> Reown 为开发者提供工具，让数字资产所有权体验变得轻松、直观且安全。
+
+<Img src="https://avatars.githubusercontent.com/u/179229932?s=200&v=4" alt="Reown" width={100} />
+
+Reown（原 WalletConnect）提供工具，帮助去中心化应用（DApp）更轻松地连接 MetaMask 等钱包。
+本文将使用它把 MetaMask 连接到 Flutter 应用。
+
+<Ads1 />
+## 1. 安装库并配置项目
+
+### 1.1. 安装库
+按照 [Reown 官方文档](https://docs.reown.com/appkit/flutter/core/installation)安装库。
+```bash
+flutter pub add reown_appkit
+```
+
+### 1.2. 配置 iOS
+打开 `/ios/Podfile`，取消文件顶部 `platform :ios, 'xx.0'` 行的注释，并将版本设为 13.0 或更高。
+如果文件顶部没有这行，可以自行添加。
+```xml title="/ios/Podfile"
+platform :ios, '13.0'
+```
+
+在 ios 目录中运行以下命令完成设置。
+```bash
+cd ios
+pod install
+```
+
+### 1.3. 在 iOS 与 Android 上配置钱包链接
+为每个平台的原生代码添加钱包 Scheme。
+本文以 MetaMask 为例；如需添加其他钱包，请参考 [iOS 示例](https://github.com/reown-com/reown_flutter/blob/master/packages/reown_appkit/example/modal/ios/Runner/Info.plist)和 [Android 示例](https://github.com/reown-com/reown_flutter/blob/develop/packages/reown_appkit/example/base/android/app/src/main/AndroidManifest.xml)。
+
+#### iOS
+打开 `/ios/Runner/Info.plist`，添加要支持的钱包。
+还需要定义 URL Scheme，使用自选的小写字符串即可。
+本例使用 `exampleapp`，稍后会用到，请记住它。
+同时填写应用的 Bundle ID；本例使用 `com.example.yourBundleId`。
+```xml title="/ios/Runner/Info.plist"
+<dict>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>metamask</string> <!-- 지갑 이름 -->
+		<!-- 다른 지갑 이름을 추가할 수 있습니다 -->
+	</array>
+	<array>
+		<dict>
+    <key>CFBundleTypeRole</key>
+    <string>Editor</string>
+    <key>CFBundleURLName</key>
+    <string>com.example.yourBundleId</string> <!-- 앱의 Bundle ID -->
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>exampleapp</string> <!-- 임의의 소문자로 이루어진 문자열 -->
+			</array>
+		</dict>
+	</array>
+</dict>
+```
+
+#### Android
+打开 `/android/app/src/main/AndroidManifest.xml` 并添加要支持的钱包。
+Android 同样需要 URL Scheme，使用自选的小写字符串即可。
+本例使用 `exampleapp`，后面会用到。
+```xml title="/android/app/src/main/AndroidManifest.xml"
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+			<activity > <!-- 태그 속성 생략 -->
+				<intent-filter>
+					<action android:name="android.intent.action.VIEW" />
+					<category android:name="android.intent.category.DEFAULT" />
+					<category android:name="android.intent.category.BROWSABLE" />
+					<data android:scheme="exampleapp" /> <!-- 임의의 소문자로 이루어진 문자열 -->
+				</intent-filter>
+			</activity>
+    </application>
+		<!-- ... -->
+    <queries>
+        <package android:name="io.metamask"/> <!-- 지갑 이름 -->
+        <!-- 다른 지갑 이름을 추가할 수 있습니다 -->
+    </queries>	
+</manifest>
+```
+
+### 1.4. 创建 Reown 项目
+运行 Reown 需要 project_id，因此先创建一个 Reown 项目。
+[登录 Reown](https://cloud.reown.com/sign-in)
+按照指示创建项目，然后在控制台中找到它的 Project ID。
+<Img src="/posts/250221-110929.png" width={300} alt="Reown 项目 ID"/>
+
+大多数生产环境钱包的连接配置到这里就完成了。
+接下来编写 Flutter 代码来连接钱包。
+
+<Ads2 />
+## 2. 连接 MetaMask
+
+<Rbox>由于需要开发者账号，在 iOS 模拟器中安装 MetaMask 比较困难。本文使用 Android 模拟器演示。</Rbox>
+
+### 2.1. 安装 MetaMask
+在 Android 模拟器的 Play 商店搜索 MetaMask，安装并登录。
+如果已经拥有钱包，也可以使用恢复短语恢复钱包。
+
+### 2.2. 创建 page_wallet.dart
+```
+📦 lib
+┣ 📜 page_wallet.dart
+┗ 📜 main.dart
+```
+
+先导入依赖包。
+```dart
+import 'package:reown_appkit/reown_appkit.dart';
+```
+
+创建一个 StatefulWidget。
+```dart title="/lib/page_wallet.dart"
+class PageWallet extends StatefulWidget {
+  const PageWallet({super.key});
+  @override
+  State<PageWallet> createState() => _PageWalletState();
+}
+
+class _PageWalletState extends State<PageWallet> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Wallet'),
+      ),
+    );
+  }
+}
+```
+
+在 `_PageWalletState` 类中重写 `@override` 方法。
+使用之前定义的 URL Scheme，本例是 `exampleapp`，并按各个 key 填写对应的值。
+```dart title="/lib/page_wallet.dart"
+// _PageWalletState 클래스 내부
+	late ReownAppKitModal appKitModal;
+
+	@override
+	void initState() {
+		super.initState();
+
+		appKitModal = ReownAppKitModal(
+			context: context,
+			projectId: '{YOUR_PROJECT_ID}', // 프로젝트 ID 입력
+			metadata: const PairingMetadata(
+				name: 'Example App',
+				description: 'Example app description',
+				url: 'https://example.com/',
+				icons: ['https://example.com/logo.png'],
+				redirect: Redirect(  // OPTIONAL 이지만 (준)필수인 항목입니다
+					native: 'exampleapp://', // 위에서 정의한 url scheme
+					universal: 'https://reown.com/exampleapp',
+					linkMode: true|false,
+				),
+			),
+		);
+
+		appKitModal.init().then((value) => setState(() {}));
+	}
+// ...
+```
+
+### 2.3. 获取钱包地址
+钱包地址可用于实现登录，也可用于创建查看交易结果的链接。
+将 appKitModal 注册为监听器，这样连接变化时地址就会更新。
+```dart title="/lib/page_wallet.dart"
+// _PageWalletState 클래스 내부
+	String address = "none";
+	late ReownAppKitModal appKitModal;
+
+	@override
+	void initState() {
+		super.initState();
+
+		appKitModal = ReownAppKitModal(
+			context: context,
+			projectId: '{YOUR_PROJECT_ID}', // 프로젝트 ID 입력
+			metadata: const PairingMetadata(
+				name: 'Example App',
+				description: 'Example app description',
+				url: 'https://example.com/',
+				icons: ['https://example.com/logo.png'],
+				redirect: Redirect(  // OPTIONAL 이지만 (준)필수인 항목입니다
+					native: 'exampleapp://', // 위에서 정의한 url scheme
+					universal: 'https://reown.com/exampleapp',
+					linkMode: true|false,
+				),
+			),
+		);
+
+
+    appKitModal.init();
+    appKitModal.addListener(updateAddress);
+	}
+
+	void updateAddress() {
+    setState(() {
+      address = appKitModal.session
+              ?.getAddress(ReownAppKitModalNetworks.getNamespaceForChainId(
+            appKitModal.selectedChain?.chainId ?? "1",
+          )) ??
+          "none";
+    });
+  }
+// ...
+```
+
+<Ads3 />
+### 2.4. 添加钱包连接组件
+创建用于连接钱包的组件。
+主要有四种组件类型。
+- 钱包连接组件
+  - AppKitModalConnectButton：打开弹窗以连接钱包或使用社交账号选项。
+  - AppKitModalNetworkSelectButton：让用户选择可用网络。
+- 钱包账户组件
+  - AppKitModalAccountButton：连接后打开账户视图。
+  - AppKitModalBalanceButton：连接后打开余额视图。
+  - AppKitModalAddressButton：连接后打开地址视图。
+
+```dart title="/lib/page_wallet.dart"
+// _PageWalletState 클래스 내부
+	@override
+	Widget build(BuildContext context) {
+		return Scaffold(
+			backgroundColor: Colors.white,
+			body: Center(
+				child: Stack(
+					children: [
+						Column(
+							mainAxisAlignment: MainAxisAlignment.center,
+							crossAxisAlignment: CrossAxisAlignment.center,
+							children: [
+								AppKitModalNetworkSelectButton(
+									appKit: appKitModal,
+									context: context,
+								),
+								AppKitModalConnectButton(
+									appKit: appKitModal,
+									context: context,
+								),
+								AppKitModalAccountButton(
+									appKitModal: appKitModal,
+								),
+								AppKitModalAddressButton(
+									appKitModal: appKitModal,
+									onTap: appKitModal.openModalView,
+								),
+								Text(address),
+							],
+						),
+					],
+				),
+			),
+		);
+	}
+```
+<Img src="/posts/250224-105108.gif" width={300} alt="钱包连接组件的运行效果"/>
+
+## 总结
+将 MetaMask 连接到 Flutter 应用，可以为构建 Web3 DApp 打下基础。
+用户可以把钱包连接到应用，并使用各类区块链功能。
+
+### 延伸思考
+- 除 MetaMask 之外，还可以添加哪些钱包？
+- 如何连接自定义网络？
+
+### 参考
+- [MetaMask 文档](https://metamask.io/)
+- [Reown 文档](https://docs.reown.com/appkit/flutter/core/installation)
+- [Reown 示例](https://github.com/reown-com/reown_flutter/tree/master/packages/reown_appkit/example)
+- [Reown iOS 示例](https://github.com/reown-com/reown_flutter/blob/master/packages/reown_appkit/example/modal/ios/Runner/Info.plist)
+- [Reown Android 示例](https://github.com/reown-com/reown_flutter/blob/develop/packages/reown_appkit/example/base/android/app/src/main/AndroidManifest.xml)

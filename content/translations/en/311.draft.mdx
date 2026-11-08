@@ -1,0 +1,353 @@
+---
+post_id: '311'
+locale: en
+title: "Use Two GitHub Accounts in Windows Terminal"
+description: "Set up work and personal GitHub accounts in Windows using Git Bash or WSL. This guide covers SSH keys and HTTPS with Git Credential Manager."
+source_hash: 65b54397696b1df023dde8752e4fe0bbe4eddf4b0fb83f3e118e139ff097f486
+---
+---
+title_ko: Using two GitHub accounts together in Windows Terminal
+title_en: Using Two GitHub Accounts in Windows Terminal
+desc: Set up work and personal GitHub accounts in Windows using Git Bash or WSL. This guide covers SSH keys and HTTPS with Git Credential Manager.
+thumbnail_url: /250604-134748.webp
+metatag: Git, GitHub, Multiple Accounts, SSH, HTTPS, Windows, Git Bash, WSL, development environment, separate GitHub accounts, company account, personal account, user.name, user.email, credential manager, PAT
+---
+
+## Introduction
+
+When studying development or working on a company project, you may need to use more than one GitHub account.
+For example, you might want to keep your *work GitHub account* separate from the *personal account* you use for side projects or learning.
+This guide is for developers who need to manage both.
+I’ll walk you through setting up work and personal accounts in a Windows terminal (Git Bash or WSL) and using the right account for each project.
+<Img src="/250604-103716.png" width={300} alt="Two separate GitHub profiles"/>
+## Why keep GitHub accounts separate?
+
+Before setting things up, let’s look briefly at why you might want to use separate GitHub accounts.
+
+1. **Separation of work and personal life**
+Company code, personal experiments, and open-source contributions serve different purposes.
+Separate accounts keep work commits distinct from your personal activity.
+2. **Security and access rights management**
+Company projects often have tightly controlled access.
+Using separate accounts helps prevent a personal account from accessing company repositories, or a work account from accessing personal projects.
+3. **GitHub profile management**
+Your GitHub profile is an important place to showcase your work as a developer.
+You can use your personal profile to highlight side projects and open-source contributions, while keeping company activity under your work account. That way, each profile reflects its intended purpose.
+
+That’s why many developers use separate GitHub accounts for different purposes.
+Below, I’ll cover the *SSH method* and the _HTTPS method_ separately.
+
+<Ads1 />
+## Method 1: Use SSH keys for multiple accounts (recommended)
+SSH (Secure Shell) is a protocol for secure communication over a network.
+With an SSH key, you can authenticate securely with GitHub without entering your username and password each time.
+It is also the cleanest and most convenient option when using multiple accounts.
+### Step 1: Create an SSH key for each account
+Create one SSH key for your work account and another for your personal account.
+
+1. **Open a terminal**
+Use Git Bash, or, if you have WSL installed, open a Linux terminal such as Ubuntu.
+This guide uses Git Bash, but the commands are nearly identical in WSL.
+    <Img src="/250604-104250.webp" width={400} alt="Git Bash"/>
+In Git Bash, use `Shift + Insert` to paste; the usual Ctrl+V shortcut does not work.
+2. **Check for an existing SSH key (optional)**
+First, check whether you already have an SSH key.
+SSH keys are usually stored in `~/.ssh`, with names such as `id_rsa` (private key) and `id_rsa.pub` (public key).
+    ```bash
+    ls -al ~/.ssh
+    ```
+If `id_rsa` and `id_rsa.pub` already exist and are in use for an account (for example, your personal account), create the new key with a different name.
+
+3. **Create an SSH key for your work account**
+Run the following command in the terminal. Replace `your_work_email@example.com` with the email address associated with your work GitHub account.
+The `-f` option specifies the name of the key file. Here, we’ll use `id_rsa_work`.
+
+    ```bash
+    ssh-keygen -t rsa -b 4096 -C "your_work_email@example.com" -f ~/.ssh/id_rsa_work
+    ```
+
+- `-t rsa`: Selects the RSA algorithm. The `ed25519` algorithm is also widely used: `ssh-keygen -t ed25519 -C "your_email@example.com"`.
+- `-b 4096`: Sets the key length to 4096 bits. This option does not apply to ed25519 keys.
+- `-C "..."`: Adds a comment, usually an email address, to help identify the key.
+- `-f ~/.ssh/id_rsa_work`: Sets the path and filename for the key. `~` represents your home directory.
+
+_When you run the command, you’ll be prompted with the following questions:_
+
+    - `Enter passphrase (empty for no passphrase):`
+This sets an additional passphrase for your SSH key. It improves security, but you’ll need to enter it whenever you use the key.
+Set a passphrase if you like, or press Enter to continue without one. This guide assumes you leave it empty.
+    - `Enter same passphrase again:`
+If you set a passphrase, enter it again to confirm.
+
+If key generation succeeds, it creates two files: `~/.ssh/id_rsa_work` (private key) and `~/.ssh/id_rsa_work.pub` (public key).
+    <Img src="/250604-104840.png" width={600} alt="Successful ssh-keygen output"/>
+4. **Create an SSH key for your personal account**
+Repeat the process for your personal account, using the filename `id_rsa_personal`.
+Replace `your_personal_email@example.com` with the email address associated with your personal GitHub account.
+
+    ```bash
+    ssh-keygen -t rsa -b 4096 -C "your_personal_email@example.com" -f ~/.ssh/id_rsa_personal
+    ```
+
+As with the work key, set a passphrase or press Enter to continue without one.
+This creates `~/.ssh/id_rsa_personal` and `~/.ssh/id_rsa_personal.pub`.
+
+### Step 2: Add each SSH public key to its GitHub account
+
+Copy the public keys you just created (`id_rsa_work.pub` and `id_rsa_personal.pub`) and add each one to the corresponding GitHub account.
+
+1. **Copy the public key for your work account**
+Use the following command to display the contents of `id_rsa_work.pub`, then copy the entire output.
+In Git Bash, you can copy it directly to the clipboard with `clip < ~/.ssh/id_rsa_work.pub`.
+
+    ```bash title="터미널"
+    cat ~/.ssh/id_rsa_work.pub
+    ```
+    ```bash title="Git Bash(바로 클립보드에 복사)"
+    clip < ~/.ssh/id_rsa_work.pub
+    ```
+
+Copy the entire output, which will look like `ssh-rsa AAAA... your_work_email@example.com`.
+
+2. **Add the key to your work GitHub account**
+In a browser, sign in to *your work GitHub account*.
+Open your profile menu in the upper-right corner, choose Settings, then select SSH and GPG keys from the left menu.
+Click **New SSH key** or **Add SSH key**.
+      <Img src="/250604-105348.png" width={500} alt="GitHub Settings"/>
+For **Title**, enter a descriptive name, such as “My Work Laptop - Windows.”
+In the **Key** field, paste the full contents of the `id_rsa_work.pub` file you copied.
+Click **Add SSH key** to save it.
+    <Img src="/250604-105558.png" width={500} alt="SSH key added"/>
+
+3. **Copy and add the public key for your personal account**
+Repeat the same steps, this time copying the contents of `id_rsa_personal.pub`.
+    ```bash title="터미널"
+    cat ~/.ssh/id_rsa_personal.pub
+    ```
+    ```bash title="Git Bash(바로 클립보드에 복사)"
+    clip < ~/.ssh/id_rsa_personal.pub
+    ```
+Sign in to your *personal GitHub account* (sign out of the work account first if needed), then add the key in the same way.
+Use a separate **Title**, such as “My Personal Laptop - Windows,” to tell the two keys apart.
+
+### Step 3: Edit the SSH configuration file
+
+Next, create a configuration file that tells SSH which key to use for each GitHub host.
+1. **Open or create the SSH config file**
+Open `~/.ssh/config` in a text editor. If it does not exist, create it.
+You can use `nano ~/.ssh/config` or `vim ~/.ssh/config` in the terminal, or go to the `C:\Users\사용자이름\.ssh` folder in Windows Explorer and create a `config` file directly and open it with Notepad, etc. (`notepad ~/.ssh/config` is also possible in Git Bash)
+
+2. **Add the account settings**
+Add the following entries to `config`, then save the file.
+    ```
+    # Work GitHub account
+    Host github.com-work
+        HostName github.com
+        User git
+        IdentityFile ~/.ssh/id_rsa_work
+        IdentitiesOnly yes
+
+    # Personal GitHub account
+    Host github.com-personal
+        HostName github.com
+        User git
+        IdentityFile ~/.ssh/id_rsa_personal
+        IdentitiesOnly yes
+
+    # (선택 사항) 기본 GitHub 계정 설정 (둘 중 하나를 기본으로 사용하고 싶을 때)
+    # 예를 들어 개인 계정을 기본으로 사용하고 싶다면 아래처럼 추가
+    # Host github.com
+    #     HostName github.com
+    #     User git
+    #     IdentityFile ~/.ssh/id_rsa_personal # 또는 id_rsa (기존 기본 키가 있다면)
+    #     IdentitiesOnly yes
+    ```
+
+**What each setting means**
+
+    - `Host github.com-work`
+This is an alias you’ll use later. It differs from the actual `github.com` host.
+    - `HostName github.com`
+This is the address of the GitHub server SSH connects to.
+    - `User git`
+This is the default username for SSH connections to GitHub. Leave it as is.
+    - `IdentityFile ~/.ssh/id_rsa_work`
+This is the private key SSH should use when connecting through `github.com-work`.
+    - `IdentitiesOnly yes`
+This tells SSH to use only the specified `IdentityFile`, instead of trying other keys in sequence.
+### Step 4: Add the keys to SSH Agent (optional)
+
+If your SSH key has a passphrase, you’ll need to enter it whenever you use the key.
+SSH Agent lets you enter the passphrase once and keeps the key available for the rest of the session.
+<Bbox>If you did not set a passphrase, you can skip this step.</Bbox>
+
+1. **Check whether SSH Agent is running, and start it if needed**
+In Git Bash or WSL, run this command to start SSH Agent if it is not already running.
+
+    ```bash
+    eval $(ssh-agent -s)
+    ```
+
+A message such as “Agent pid XXXX” means it started successfully.
+
+2. **Add your SSH keys to the agent**
+    ```bash
+    ssh-add ~/.ssh/id_rsa_work
+    ssh-add ~/.ssh/id_rsa_personal
+    ```
+If the keys have passphrases, enter them when prompted. You generally won’t need to enter them again during the same terminal session.
+After restarting Windows, you may need to start SSH Agent and add the keys again.
+Automation is possible, but this guide covers only the basics.
+
+### Step 5: Use the right account for each repository
+
+You’re ready to go. Clone each repository with the appropriate account, or update the remote URL of an existing clone.
+When you clone a repository, Git uses an SSH URL by default.
+<Img src="/250604-111508.png" width={500} alt="SSH URL"/>
+- **Clone a work repository**
+Instead of the original `git clone git@github.com:회사계정명/저장소명.git`, use the `Host` name (`github.com-work`) set in the `config` file.
+
+  ```bash
+  git clone git@github.com-work:회사계정명/저장소명.git
+  ```
+
+- **Clone a personal repository**
+Use the `Host` alias for your personal account, `github.com-personal`.
+
+  ```bash
+  git clone git@github.com-personal:개인계정명/저장소명.git
+  ```
+
+- **Change the remote URL of an existing repository**
+If you cloned a repository over HTTPS, or set its SSH URL to use another account, update the remote URL.
+From the repository directory, run the following command.
+For example, to switch a work repository to `github.com-work`:
+
+  ```bash
+  # 현재 설정된 원격 URL 확인
+  git remote -v
+  # origin  git@github.com:회사계정명/저장소명.git (fetch)
+  # origin  git@github.com:회사계정명/저장소명.git (push)
+
+  # 원격 URL 변경 (origin이라는 이름의 원격을 변경)
+  git remote set-url origin git@github.com-work:회사계정명/저장소명.git
+  ```
+
+From this repository, `git push`, `git pull`, and other commands will now connect to `github.com-work` using the `id_rsa_work` key.
+
+This setup makes it easy to manage multiple accounts securely.
+
+<Ads3 />
+
+## Method 2: Use multiple accounts over HTTPS
+
+HTTPS is often easier to set up than SSH, but switching between accounts can be less convenient.
+On Windows, Git Credential Manager is usually installed with Git and manages HTTPS credentials for you.
+
+### Use Windows Credential Manager
+
+Git for Windows usually includes Git Credential Manager (GCM).
+The first time you connect to GitHub over HTTPS, GCM saves your username and password (or PAT) and uses them to authenticate future connections.
+<br/>
+By default, GCM stores only one credential for the `github.com` host.
+So if you are signed in with your work account and try to access a personal repository, Git may use the work credentials, and vice versa.
+
+1. **Remove the saved credentials**
+To switch accounts, manually delete the existing `github.com` credential from Windows Credential Manager.
+
+- Search for “Credential Manager” in Windows and open it.
+- Select **Windows Credentials**.
+- Under **Generic Credentials**, look for an entry such as `git:https://github.com`.
+- Expand the entry and select **Remove**.
+    <Img src="/250604-112605.png" width={600} alt="Removing a saved credential"/>
+
+2. **Sign in with the other account**
+After removing the saved credential, run a command such as `git pull` or `git push` in a repository you want to access with the other account.
+GCM will prompt you for a username and password (or PAT). The new credentials will then be saved in Credential Manager.
+
+This approach is cumbersome because you must delete the saved credential each time you switch accounts.
+With HTTPS, using a separate _PAT (Personal Access Token)_ for each account may be easier and safer to manage.
+
+### Use a PAT (Personal Access Token)
+
+A PAT can be used in place of a password and can be restricted to specific permissions (scopes), which improves security.
+Create a PAT with the required permissions for each GitHub account (work and personal).
+
+- **PAT for your work account**
+- **PAT for your personal account**
+
+To create a PAT, go to GitHub Settings > Developer settings > Personal access tokens > Tokens (classic) or Fine-grained tokens.
+Fine-grained tokens are recommended because they let you set permissions more precisely.
+<br />
+When Git prompts for a password while you are using an HTTPS URL, enter the PAT instead.
+GCM saves the PAT and uses it the next time you connect.
+GCM still stores only one PAT per `github.com` host, so switching accounts requires removing the saved credential as described above.
+
+<Ads3 />
+## Set Git user information (user.name, user.email) for each project
+
+GitHub account authentication is separate from the author information recorded in each Git commit (name and email address).
+When using multiple accounts, make sure each project uses the correct author information.
+
+- **Set global user information**
+You usually configure this once when you first install Git. It applies by default to all local repositories.
+
+  ```bash
+  git config --global user.name "Your Name"
+  git config --global user.email "your_email@example.com"
+  ```
+
+For example, you can set your personal account as the global default.
+
+- **Set user information for an individual repository**
+Some projects, such as work repositories, require different author information from the global default.
+Go to the repository directory and set the values with `--local` (or omit the option). Repository-level values take precedence over the global settings.
+
+  ```bash
+  # 회사 프로젝트 디렉토리로 이동
+  cd /path/to/work-project
+
+  # 회사용 이름과 이메일로 설정
+  git config user.name "Your Work Name"
+  git config user.email "your_work_email@example.com"
+  ```
+
+Commits in `work-project` will now use “Your Work Name” and “your_work_email@example.com”; your other personal projects will continue to use the global settings.
+
+<Rbox>After you start or clone a project, make a habit of checking that the project has the correct user.name and user.email settings.</Rbox>
+Check the current values with the `git config user.name` and `git config user.email` commands.
+
+## Precautions and tips
+
+- **Keep SSH keys and PATs private**
+Never share them publicly or commit them to a repository.
+Take particular care with private SSH key files such as `id_rsa_work` and `id_rsa_personal`.
+- **Check your `.gitconfig` files**
+Global Git settings are stored in `.gitconfig` in your home directory, while repository-specific settings are stored in each project’s `.git/config`.
+Opening these files can help you understand which settings are in effect.
+- **Using WSL**
+Within WSL, SSH keys and Git settings use WSL’s home directory (such as `~/.ssh` and `~/.gitconfig`).
+Because WSL is separate from Git Bash on Windows, you may need to configure it separately. You can also configure WSL to use a Windows SSH key.
+- **IDE integration**
+VS Code and other IDEs include Git features and extensions that can make it easier to manage multiple accounts.
+- **Avoid mix-ups**
+Always check which account you are using and which author information your commits will contain.
+You can also customize your terminal prompt to show the current Git branch or account.
+
+
+## Conclusion
+
+This guide showed how to use work and personal GitHub accounts side by side in a Windows terminal.
+We covered two approaches: *SSH keys* and *HTTPS*.
+
+- **SSH** takes more setup initially, but once configured it is convenient and secure for each account, making it the recommended option. The settings in `~/.ssh/config` are key.
+- **HTTPS** uses Windows Credential Manager, but switching accounts can mean manually removing saved credentials.
+
+Whichever method you choose, make sure the correct *user.name and user.email are set for each project*.
+Take care not to push a personal project under your work account, or a work project under your personal account.
+
+### References
+
+- [GitHub documentation - Managing multiple accounts](https://docs.github.com/ko/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-personal-account/managing-multiple-accounts)
+- [GitHub documentation - Generating a new SSH key](https://docs.github.com/ko/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
+- [Git documentation - git config](https://git-scm.com/docs/git-config)

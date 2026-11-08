@@ -1,0 +1,348 @@
+---
+post_id: '311'
+locale: ja
+title: WindowsターミナルでGitHubの2アカウントを使い分ける
+description: >-
+  WindowsのGit BashやWSLで会社用と個人用のGitHubアカウントを使い分ける方法を解説します。SSH鍵の設定、HTTPS認証、PAT、Gitのユーザー情報を整理します。
+source_hash: 65b54397696b1df023dde8752e4fe0bbe4eddf4b0fb83f3e118e139ff097f486
+---
+
+
+## はじめに
+
+開発の学習や仕事のプロジェクトで、複数のGitHubアカウントを使う必要が出てくることがあります。
+たとえば、*仕事用のGitHubアカウント*と*個人プロジェクトや学習用アカウント*を使い分けたい場合です。
+こうした悩みを持つ方に向けて、この記事を用意しました。
+Windowsのターミナル（Git BashやWSLのLinuxターミナルなど）で仕事用と個人用のアカウントを設定し、プロジェクトごとに簡単に使い分ける手順を説明します。
+<Img src="/250604-103716.png" width={300} alt="異なる2つのGitHubプロフィール"/>
+## GitHubアカウントを分ける理由
+
+設定に入る前に、GitHubアカウントを分けて使う理由を簡単に確認しましょう。
+
+1. **仕事と個人活動を分ける**
+    仕事で扱うコードと、個人の学習プロジェクトやオープンソースへの貢献は性質が異なります。
+    アカウントを分けると、仕事のコミットと個人活動の履歴を明確に区別できます。
+2. **セキュリティとアクセス権を管理する**
+    会社のプロジェクトでは、通常アクセス権が厳密に管理されています。
+    個人アカウントで会社のリポジトリにアクセスしたり、会社アカウントで個人プロジェクトにアクセスしたりするのを防ぎ、セキュリティを高められます。
+3. **GitHubプロフィールを使い分ける**
+    GitHubプロフィールは、開発者としての自分を示す大切な場所です。
+    個人アカウントには個人プロジェクトやOSS活動を掲載し、仕事の活動は会社アカウントで行うことで、用途に合ったプロフィールを保てます。
+
+こうした理由から、多くの開発者が用途に応じてGitHubアカウントを使い分けています。
+ここからは、*SSH方式*と_HTTPS方式_の2つを説明します。
+
+<Ads1 />
+## 方法1：SSH鍵で複数アカウントを設定する（推奨）
+SSH（Secure Shell）は、ネットワーク経由で安全に通信するためのプロトコルです。
+GitHubとの通信にSSH鍵を使うと、毎回ユーザー名やパスワードを入力せず、安全に認証できます。
+複数アカウントの使い分けに適した、推奨方法です。
+### ステップ1：アカウントごとにSSH鍵を作成する
+まず、仕事用と個人用のSSH鍵をそれぞれ作成します。
+
+1. **ターミナルを起動する**
+    Git Bashを使うか、WSLを導入済みの場合はUbuntuなどのLinuxターミナルを起動します。
+    この記事ではGit Bashを使いますが、WSLでもコマンドはほぼ同じです。
+    <Img src="/250604-104250.webp" width={400} alt="Git Bash"/>
+    Git Bashの貼り付けショートカットは`Shift + Insert`です。通常のCtrl + Vは動作しません。
+2. **既存のSSH鍵を確認する（任意）**
+    作成済みのSSH鍵があるか確認します。
+    SSH鍵は通常`~/.ssh`に保存され、`id_rsa`が秘密鍵、`id_rsa.pub`が公開鍵です。
+    ```bash
+    ls -al ~/.ssh
+    ```
+    すでに`id_rsa`と`id_rsa.pub`があり、個人アカウントなどで使っている場合は、新しい鍵に別の名前を付けてください。
+
+3. **仕事用SSH鍵を作成する**
+    ターミナルで次のコマンドを実行します。`your_work_email@example.com`は、仕事用GitHubアカウントに登録したメールアドレスへ置き換えてください。
+    `-f`の後ろで鍵ファイル名を指定します。ここでは`id_rsa_work`とします。
+
+    ```bash
+    ssh-keygen -t rsa -b 4096 -C "your_work_email@example.com" -f ~/.ssh/id_rsa_work
+    ```
+
+    - `-t rsa`：RSA暗号方式を使います。現在は`ed25519`もよく使われます（`ssh-keygen -t ed25519 -C "your_email@example.com"`）。
+    - `-b 4096`：鍵の長さを4096ビットに設定します（RSAの場合。ed25519では不要です）。
+    - `-C "..."`：コメントを指定します。通常は識別しやすいようメールアドレスを入れます。
+    - `-f ~/.ssh/id_rsa_work`：鍵の保存先とファイル名を指定します。`~`はホームディレクトリを表します。
+
+    _コマンドを実行すると、次の質問が表示されます。_
+
+    - `Enter passphrase (empty for no passphrase):`
+      SSH鍵に追加のパスフレーズを設定します。設定すると鍵を使うたびに入力が必要になり、セキュリティは高まりますが少し手間がかかります。
+      必要に応じて設定するか、Enterを押してパスフレーズなしで進めます。ここでは設定しない例にします。
+    - `Enter same passphrase again:`
+      パスフレーズを設定した場合は、もう一度入力します。
+
+    成功すると、秘密鍵`~/.ssh/id_rsa_work`と公開鍵`~/.ssh/id_rsa_work.pub`が作成されます。
+    <Img src="/250604-104840.png" width={600} alt="ssh-keygenの成功"/>
+4. **個人用SSH鍵を作成する**
+    同じ手順で個人用SSH鍵も作成します。ファイル名は`id_rsa_personal`にします。
+    `your_personal_email@example.com`は、個人用GitHubアカウントに登録したメールアドレスへ置き換えてください。
+
+    ```bash
+    ssh-keygen -t rsa -b 4096 -C "your_personal_email@example.com" -f ~/.ssh/id_rsa_personal
+    ```
+
+    仕事用の鍵と同様に、パスフレーズを設定するかEnterで省略します。
+    `~/.ssh/id_rsa_personal`と`~/.ssh/id_rsa_personal.pub`が追加で作成されます。
+
+### ステップ2：SSH公開鍵を各GitHubアカウントに登録する
+
+作成したSSH _公開鍵_（`id_rsa_work.pub`、`id_rsa_personal.pub`）の内容をコピーし、それぞれのGitHubアカウントに登録します。
+
+1. **仕事用公開鍵をコピーする**
+    次のコマンドで`id_rsa_work.pub`の内容を表示し、全体をコピーします。
+    Git Bashでは`clip < ~/.ssh/id_rsa_work.pub`を実行すると、内容を直接クリップボードへコピーできます。
+
+    ```bash title="터미널"
+    cat ~/.ssh/id_rsa_work.pub
+    ```
+    ```bash title="Git Bash(바로 클립보드에 복사)"
+    clip < ~/.ssh/id_rsa_work.pub
+    ```
+
+    `ssh-rsa AAAA... your_work_email@example.com`の形式で表示される文字列全体をコピーします。
+
+2. **仕事用GitHubアカウントに公開鍵を登録する**
+    ブラウザーで*仕事用GitHubアカウント*にログインします。
+    右上のプロフィールアイコンをクリックし、Settings > SSH and GPG keysを選択します。
+    「New SSH key」または「Add SSH key」をクリックします。
+      <Img src="/250604-105348.png" width={500} alt="Settings画面"/>
+    Titleには「My Work Laptop - Windows」など、識別しやすい名前を入力します。
+    Key欄に、コピーした`id_rsa_work.pub`の内容をすべて貼り付けます。
+    「Add SSH key」をクリックして保存します。
+    <Img src="/250604-105558.png" width={500} alt="SSH keyの登録完了"/>
+
+3. **個人用公開鍵をコピーして登録する**
+    同じ方法で`id_rsa_personal.pub`の内容をコピーします。
+    ```bash title="터미널"
+    cat ~/.ssh/id_rsa_personal.pub
+    ```
+    ```bash title="Git Bash(바로 클립보드에 복사)"
+    clip < ~/.ssh/id_rsa_personal.pub
+    ```
+    *個人用GitHubアカウント*にログインし（必要なら仕事用アカウントからログアウトして切り替えます）、同様にSSH鍵を登録します。
+    Titleには「My Personal Laptop - Windows」など、仕事用と区別できる名前を付けましょう。
+
+### ステップ3：SSH設定ファイル（config）を編集する
+
+次に、GitHubの各ホストで使うSSH鍵を指定する設定ファイルを作成します。
+1. **SSH設定ファイルを開く（または作成する）**
+    `~/.ssh/config`をテキストエディターで開きます。ファイルがなければ新規作成してください。
+    ターミナルで`nano ~/.ssh/config`または`vim ~/.ssh/config`を使います。Windowsエクスプローラーで`C:\Users\사용자이름\.ssh`を開き、`config`を作ってメモ帳などで編集する方法もあります（Git Bashでは`notepad ~/.ssh/config`も使えます）。
+
+2. **設定を追加する**
+    `config`に次の内容を追加して保存します。
+    ```
+    # Work GitHub account
+    Host github.com-work
+        HostName github.com
+        User git
+        IdentityFile ~/.ssh/id_rsa_work
+        IdentitiesOnly yes
+
+    # Personal GitHub account
+    Host github.com-personal
+        HostName github.com
+        User git
+        IdentityFile ~/.ssh/id_rsa_personal
+        IdentitiesOnly yes
+
+    # (선택 사항) 기본 GitHub 계정 설정 (둘 중 하나를 기본으로 사용하고 싶을 때)
+    # 예를 들어 개인 계정을 기본으로 사용하고 싶다면 아래처럼 추가
+    # Host github.com
+    #     HostName github.com
+    #     User git
+    #     IdentityFile ~/.ssh/id_rsa_personal # 또는 id_rsa (기존 기본 키가 있다면)
+    #     IdentitiesOnly yes
+    ```
+
+    **설정 설명**
+
+    - `Host github.com-work`
+      ここで使う別名のホスト名です。実際の`github.com`とは異なる名前を指定して区別します。
+    - `HostName github.com`
+      実際に接続するGitHubサーバーのアドレスです。
+    - `User git`
+      GitHubへSSH接続するときのユーザー名です。変更しないでください。
+    - `IdentityFile ~/.ssh/id_rsa_work`
+      このホスト（`github.com-work`）に接続するときに使う秘密鍵ファイルのパスです。
+    - `IdentitiesOnly yes`
+      指定した`IdentityFile`だけで認証を試みます。他の鍵を順番に試さないため、使用する鍵を明確にできます。
+### ステップ4：SSH Agentに鍵を登録する（任意）
+
+SSH鍵にパスフレーズを設定した場合、鍵を使うたびに入力が必要です。
+SSH Agentを使うと、パスフレーズを一度入力するだけでセッション中は保持できます。
+<Bbox>パスフレーズを設定していない場合、この手順は省略できます。</Bbox>
+
+1. **SSH Agentの状態を確認して起動する**
+    Git BashまたはWSLで次のコマンドを実行し、SSH Agentが動作しているか確認します。停止中なら起動します。
+
+    ```bash
+    eval $(ssh-agent -s)
+    ```
+
+    「Agent pid XXXX」のようなメッセージが表示されれば起動成功です。
+
+2. **作成したSSH鍵をAgentに追加する**
+    ```bash
+    ssh-add ~/.ssh/id_rsa_work
+    ssh-add ~/.ssh/id_rsa_personal
+    ```
+    鍵にパスフレーズを設定している場合は入力を求められます。一度入力すれば、ターミナルセッション中は再度聞かれません。
+    Windowsを再起動するとSSH Agentを再起動し、鍵を再追加する必要がある場合があります。
+    自動化する方法もありますが、ここでは基本的な手順のみ扱います。
+
+### ステップ5：アカウントごとにリポジトリを使う
+
+これで設定は完了です。各アカウントのリポジトリをcloneするか、既存リポジトリのremote URLを変更して使います。
+cloneするときはSSH URLを使います。
+<Img src="/250604-111508.png" width={500} alt="SSH URL"/>
+- **仕事用リポジトリをcloneする場合**
+  通常の`git clone git@github.com:회사계정명/저장소명.git`ではなく、`config`で設定した`Host`名（`github.com-work`）を使います。
+
+  ```bash
+  git clone git@github.com-work:회사계정명/저장소명.git
+  ```
+
+- **個人用リポジトリをcloneする場合**
+  同様に`Host`名（`github.com-personal`）を使います。
+
+  ```bash
+  git clone git@github.com-personal:개인계정명/저장소명.git
+  ```
+
+- **既存ローカルリポジトリのremote URLを変更する**
+  HTTPSでclone済みの場合や、別アカウントのSSH URLを設定したリポジトリがある場合は、remote URLを変更します。
+  ローカルリポジトリのディレクトリへ移動し、次のコマンドを実行します。
+  たとえば、仕事用リポジトリのremote URLで`github.com-work`を使うには、次のようにします。
+
+  ```bash
+  # 현재 설정된 원격 URL 확인
+  git remote -v
+  # origin  git@github.com:회사계정명/저장소명.git (fetch)
+  # origin  git@github.com:회사계정명/저장소명.git (push)
+
+  # 원격 URL 변경 (origin이라는 이름의 원격을 변경)
+  git remote set-url origin git@github.com-work:회사계정명/저장소명.git
+  ```
+
+  これで、このリポジトリから`git push`や`git pull`を実行すると、`id_rsa_work`を使って`github.com-work`へ接続します。
+
+SSHの設定は一度行えば、複数アカウントを便利かつ安全に管理できます。
+
+<Ads3 />
+
+## 方法2：HTTPSで複数アカウントを使う
+
+HTTPS方式はSSHより設定が簡単な場合がありますが、アカウントの切り替えが少し面倒です。
+Windowsでは通常、Gitのインストール時にGit Credential Managerも導入され、HTTPSの認証情報を管理します。
+
+### Windows資格情報マネージャーを使う
+
+WindowsにGitをインストールすると、通常Git Credential Manager for Windows（GCM）もインストールされます。
+GitHubなどのサービスへHTTPSで初めてログインするときに、ユーザー名とパスワード（またはPAT）を保存し、次回から自動認証します。
+<br/>
+問題は、GCMが標準では*1つの`github.com`ホストに対して1つの資格情報しか保存しない*ことです。
+仕事用アカウントでログインしていると個人リポジトリにも仕事用アカウントで接続しようとし、その逆も起こります。
+
+1. **既存の資格情報を削除する**
+    別のアカウントを使うには、Windowsの「資格情報マネージャー」で既存の`github.com`関連資格情報を手動削除します。
+
+    - Windowsの検索欄に「資格情報マネージャー」と入力して起動します。
+    - 「Windows資格情報」を選択します。
+    - 「汎用資格情報」から`git:https://github.com`に似た項目を探します。
+    - 該当項目を展開し、「削除」をクリックします。
+    <Img src="/250604-112605.png" width={600} alt="資格情報の削除"/>
+
+2. **新しいアカウントで認証する**
+    資格情報を削除した後、新しいアカウント（例：個人アカウント）でアクセスするリポジトリに対して`git pull`や`git push`を実行します。
+    GCMがユーザー名とパスワード（またはPAT）を尋ねるので、新しいアカウント情報を入力します。入力情報は資格情報マネージャーに保存されます。
+
+この方法ではアカウントを切り替えるたびに資格情報を手動で削除する必要があり、手間がかかります。
+そのためHTTPS方式では、アカウントごとに_PAT（Personal Access Token）_を発行して使うと、安全で管理しやすい場合があります。
+
+### PAT（Personal Access Token）を使う
+
+PATはパスワードの代わりに使うトークンです。トークンごとに権限（scope）を指定できるため、セキュリティ面でも有利です。
+仕事用と個人用、それぞれのGitHubアカウントで必要な権限を持つPATを発行します。
+
+- **仕事用アカウントのPATを発行**
+- **個人アカウントのPATを発行**
+
+GitHubのSettings > Developer settings > Personal access tokensから、Tokens (classic)またはFine-grained tokensを選んで発行できます。
+（Fine-grained tokensはより細かく権限を設定できるため推奨です。）
+<br />
+HTTPS URLでGitを操作するとき、パスワードを求められたら代わりに発行済みPATを入力します。
+GCMはPATを保存し、次回の接続で使用します。
+ただしGCMは依然として1つの`github.com`につき1つのPATしか保持しないため、アカウント切り替え時は前述の資格情報削除が必要です。
+
+<Ads3 />
+## プロジェクトごとにGitユーザー情報を設定する（user.name、user.email）
+
+GitHubの認証とは別に、Gitのコミットには作成者の名前とメールアドレスが記録されます。
+複数アカウントを使う場合、プロジェクトごとに正しいユーザー情報がコミットへ記録されるよう設定することが重要です。
+
+- **グローバルのユーザー情報を設定する**
+  通常はGitの初回設定時に一度指定し、すべてのローカルリポジトリに適用します。
+
+  ```bash
+  git config --global user.name "Your Name"
+  git config --global user.email "your_email@example.com"
+  ```
+
+  たとえば、個人アカウントの情報をグローバル設定にできます。
+
+- **ローカルリポジトリごとにユーザー情報を設定する**
+  仕事用プロジェクトなど、グローバル設定とは別の情報を使いたいプロジェクトもあります。
+  対象リポジトリへ移動し、`--local`オプション（またはオプションなし）で設定します。この値はグローバル設定より優先されます。
+
+  ```bash
+  # 회사 프로젝트 디렉토리로 이동
+  cd /path/to/work-project
+
+  # 회사용 이름과 이메일로 설정
+  git config user.name "Your Work Name"
+  git config user.email "your_work_email@example.com"
+  ```
+
+  これにより、`work-project`でのコミットには「Your Work Name」と「your_work_email@example.com」が使われ、個人プロジェクトではグローバル設定が適用されます。
+
+<Rbox>プロジェクトを開始またはcloneしたら、user.nameとuser.emailがプロジェクトに合っているか確認する習慣をつけましょう。</Rbox>
+`git config user.name`と`git config user.email`で現在の設定を確認できます。
+
+## 注意点と追加のヒント
+
+- **SSH鍵とPATは秘密情報です**
+  公開の場所に共有したり、コミットしたりしないでください。
+  特にSSH秘密鍵（`id_rsa_work`、`id_rsa_personal`）は厳重に管理してください。
+- **`.gitconfig`を確認する**
+  Gitの設定はホームディレクトリの`.gitconfig`（グローバル）と各プロジェクトの`.git/config`（ローカル）に保存されます。
+  ファイルを直接開くと設定内容を確認できます。
+- **WSLを使う場合**
+  WSLのLinux環境では、SSH鍵やGit設定をWSLのホームディレクトリ（`~/.ssh`、`~/.gitconfig`）で管理します。
+  WindowsのGit Bashとは別環境なので、それぞれに設定が必要な場合があります。WSLからWindows側のSSH鍵を共有する方法もあります。
+- **IDEとの連携**
+  VS CodeなどのIDEはGit機能を内蔵し、複数アカウントの管理を支援する拡張機能も提供しています。
+- **アカウントの取り違えを防ぐ**
+  現在どのアカウントで作業し、どのユーザー情報でコミットしているか常に把握しましょう。
+  ターミナルプロンプトをカスタマイズして、Gitブランチやユーザー情報を表示する方法もあります。
+
+
+## まとめ
+
+今回はWindowsのターミナルで、仕事用と個人用のGitHubアカウントを併用する方法を紹介しました。
+*SSH鍵を使う方法*と*HTTPS方式*の2つを取り上げました。
+
+- **SSH方式**は初期設定が少し多いものの、一度設定すれば便利で安全に使えるため最もおすすめです。ポイントは`~/.ssh/config`の設定です。
+- **HTTPS方式**はWindows資格情報マネージャーで動きますが、アカウント切り替え時に資格情報を手動で削除する手間があります。
+
+どちらの方式でも、プロジェクトに合った*user.nameとuser.emailを正確に設定する*ことが重要です。
+個人プロジェクトに仕事用アカウントでコミットするなど、取り違えないよう注意してください。
+
+### 参考
+
+- [GitHub公式ドキュメント - 複数アカウントの管理](https://docs.github.com/ko/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-personal-account/managing-multiple-accounts)
+- [GitHub公式ドキュメント - SSH鍵の作成](https://docs.github.com/ko/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
+- [Git公式ドキュメント - git config](https://git-scm.com/docs/git-config)

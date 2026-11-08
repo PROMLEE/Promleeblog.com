@@ -1,0 +1,227 @@
+---
+post_id: '142'
+locale: ja
+title: >-
+  React
+  Nativeでデータ読み込み中にIndicatorを表示する（ActivityIndicator、react-native-skeleton-placeholder）
+description: >-
+  React Nativeでデータを読み込む間にActivityIndicatorとSkeleton
+  Placeholderを表示する方法を解説します。用途に合わせたローディング表示の選び方も紹介します。
+source_hash: bf2b59438ff209a183706d40d4c4ce18c2c3a3ce78cd89aa17d8f54c3a5afa97
+reviewed_at: '2026-11-08T12:05:29.834Z'
+---
+
+## はじめに
+> この記事はExpo環境で作成していますが、すべてのReact Native環境で利用できます。
+また、基本的な設定が済んだプロジェクトを前提にしています。
+
+### Indicatorとは
+Indicatorは、処理の進行中であることをユーザーに知らせるUI要素です。データの読み込みやページ遷移などの際に表示します。Indicatorがないと処理中なのかどうか分からず、使い勝手が悪くなることがあります。
+Indicatorにはいくつか種類がありますが、この記事では代表的な`ActivityIndicator`と`react-native-skeleton-placeholder`を使います。`ActivityIndicator`は標準で使える円形のローディング表示です。`react-native-skeleton-placeholder`は、コンテンツの骨組みを先に表示するIndicatorです。状況に応じて使い分けることで、より良いユーザー体験につながります。
+
+<Ads1 />
+## テスト画面を作る
+Indicatorを使うため、テスト画面を作成します。`App.js`を開いて次のコードを記述してください。画面を更新するたびに2秒後の現在時刻を表示する画面です。更新の仕組みは[React Native RefreshControlの記事](/blog/post/140-react-native-refreshcontrol)を参照してください。
+```tsx title=app/index.tsx
+import React, { useEffect, useState } from 'react';
+import { Text, ScrollView, RefreshControl, View, SafeAreaView } from 'react-native';
+
+const Card = () => {
+  const [now, setNow] = useState('');
+
+  useEffect(() => {
+    setTimeout(() => {
+      setNow(new Date().toLocaleString());
+    }, 2000);
+  }, []);
+
+  return (
+    <View style={{ flex: 1 }}>
+      {Array.from({ length: 100 }).map((_, index) => (
+        <Text key={index} style={{ textAlign: 'center', justifyContent: 'center', fontSize: 20 }}>{`${now}`}</Text>
+      ))}
+    </View>
+  );
+};
+
+const List = () => {
+  const [key, setKey] = useState(new Date().getTime());
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setKey(new Date().getTime());
+    setRefreshing(false);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white', padding: 20 }}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['blue', 'red', 'green']} />
+        }
+      >
+        <View style={{ flex: 1, flexDirection: 'row' }}>
+          <Card key={key} />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default List;
+```
+画面を更新してからデータの読み込みが終わるまでは空白になるため、ユーザーは処理中なのかエラーなのか判断できません。
+<Img src="/posts/250303-131043.gif" width={200} alt=""/>
+Indicatorを使って改善してみましょう。
+
+<Ads2 />
+## 1. ActivityIndicatorを使う
+ActivityIndicatorは標準で用意されている円形のローディングIndicatorです。`ActivityIndicator`は標準コンポーネントなので、追加のインストールは必要ありません。`ActivityIndicator`は次のように記述して使います。
+更新時のIndicatorと区別するため、青色に設定しました。データの読み込み中だけ表示するために、`isLoading`状態も追加しています。
+```tsx title=app/index.tsx {6, 9, 12, 20}
+import React, { useEffect, useState } from 'react';
+import { Text, ScrollView, RefreshControl, View, SafeAreaView, ActivityIndicator } from 'react-native';
+
+const Card = () => {
+  const [now, setNow] = useState('');
+  const [isLoading, setIsLoading] = useState(true); // isLoading 추가
+
+  useEffect(() => {
+    setIsLoading(true); // 데이터 로딩 시작
+    setTimeout(() => {
+      setNow(new Date().toLocaleString());
+      setIsLoading(false); // 데이터 로딩 완료
+    }, 2000);
+  }, []);
+
+  return (
+    <View style={{ flex: 1 }}>
+      {isLoading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', height: 200 }}>
+          <ActivityIndicator size="large" color="blue" /> // ActivityIndicator 추가
+        </View>
+      ) : (
+        Array.from({ length: 100 }).map((_, index) => (
+          <Text key={index} style={{ textAlign: 'center', justifyContent: 'center', fontSize: 20 }}>{`${now}`}</Text>
+        ))
+      )}
+    </View>
+  );
+};
+
+const List = () => {
+  const [key, setKey] = useState(new Date().getTime());
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setKey(new Date().getTime());
+    setRefreshing(false);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white', padding: 20 }}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['blue', 'red', 'green']} />
+        }
+      >
+        <View style={{ flex: 1, flexDirection: 'row' }}>
+          <Card key={key} />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default List;
+```
+この例では、データを読み込む2秒間Indicatorが表示され、読み込み完了後に消えてデータが表示されます。
+<Img src="/posts/250303-131044.gif" width={200} alt=""/>
+
+<Ads3 />
+## 2. `react-native-skeleton-placeholder`を使う
+`react-native-skeleton-placeholder`は、コンテンツの骨組みを先に表示するIndicatorです。使用前にインストールが必要です。次のどちらかのコマンドを実行してください。
+```bash title="npm 사용 시"
+npm install @react-native-masked-view/masked-view react-native-linear-gradient --save
+npm install react-native-skeleton-placeholder --save
+```
+```bash title="yarn 사용 시"
+yarn add @react-native-masked-view/masked-view react-native-linear-gradient 
+yarn add react-native-skeleton-placeholder
+```
+
+`react-native-skeleton-placeholder`は、次のように記述して使います。
+```tsx title=app/index.tsx
+
+import React, { useEffect, useState } from 'react';
+import { Text, ScrollView, RefreshControl, View, SafeAreaView } from 'react-native';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+
+const Card = () => {
+  const [now, setNow] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setNow(new Date().toLocaleString());
+      setIsLoading(false);
+    }, 2000);
+  }, []);
+
+  return (
+    <View style={{ flex: 1 }}>
+      {isLoading ? (
+        <SkeletonPlaceholder borderRadius={4}>
+          <Text style={{ marginTop: 6, fontSize: 14, lineHeight: 18 }}>Hello world</Text>
+        </SkeletonPlaceholder>
+      ) : (
+        Array.from({ length: 100 }).map((_, index) => (
+          <Text key={index} style={{ textAlign: 'center', justifyContent: 'center', fontSize: 20 }}>{`${now}`}</Text>
+        ))
+      )}
+    </View>
+  );
+};
+
+const List = () => {
+  const [key, setKey] = useState(new Date().getTime());
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setKey(new Date().getTime());
+    setRefreshing(false);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white', padding: 20 }}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['blue', 'red', 'green']} />
+        }
+      >
+        <View style={{ flex: 1, flexDirection: 'row' }}>
+          <Card key={key} />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default List;
+```
+現在、`ERROR Warning: TypeError: Cannot read property 'bubblingEventTypes' of null`というエラーが発生しており、解決方法を調査しています。解決でき次第、記事を更新します。
+[GitHub Issue](https://github.com/chramos/react-native-skeleton-placeholder/issues/138)
+
+<Ads4 />
+## まとめ
+### さらに考えてみる
+- どのIndicatorが適しているか、用途に合わせて考えてみましょう。
+- どのタイミングでIndicatorを表示するか考えてみましょう。
+
+### 参考
+- [ActivityIndicator公式ドキュメント](https://reactnative.dev/docs/activityindicator)
+- [react-native-skeleton-placeholder公式ドキュメント](https://github.com/chramos/react-native-skeleton-placeholder)

@@ -1,0 +1,161 @@
+---
+post_id: '153'
+locale: en
+title: Biometric Authentication in React Native with Expo
+description: Add local biometric authentication to a React Native app with Expo Local Authentication, including Expo and bare React Native setup and Face ID or fingerprint sign-in.
+source_hash: 07d5e60fd6661b5d6e64f327cdd69c0f17d612bc0da23a2501d2ca98fec4b9dd
+---
+## Before You Begin
+
+This guide assumes that you have created a basic Expo project.
+For setup instructions, see [Create an Expo Project for Windows](/blog/post/117-expo-proj-init) or [Create an Expo Project for Mac](/blog/post/143-expo-init-mac).
+You can also use this library in a basic React Native CLI environment with a few additional setup steps.
+
+### Biometric Authentication on Phones
+
+Biometrics help strengthen phone security by authenticating users with fingerprints, facial recognition, or iris scans.
+They also make it more convenient to unlock and use a phone.
+With expo-local-authentication, you can authenticate a user with a fingerprint or face scan using the biometric prompt on Android or Face ID and Touch ID on iOS.
+
+## Install expo-local-authentication
+
+```bash
+expo install expo-local-authentication
+```
+
+## Additional Configuration
+
+### Expo Projects
+
+In an Expo project, add the following configuration to the root `app.json` file.
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
+        }
+      ]
+    ]
+  }
+}
+```
+
+### React Native CLI Projects
+
+See the [installation instructions for bare React Native projects](https://github.com/expo/expo/tree/main/packages/expo-local-authentication#installation-in-bare-react-native-projects) for additional setup.
+For Android, add these permissions to `android/app/src/main/AndroidManifest.xml`.
+```xml
+<uses-permission android:name="android.permission.USE_BIOMETRIC" />
+<uses-permission android:name="android.permission.USE_FINGERPRINT" />
+```
+
+For iOS, run this command in the terminal.
+```bash
+npx pod-install
+```
+
+Also add the following configuration to `ios/Info.plist`.
+```xml
+<key>NSFaceIDUsageDescription</key>
+<string>Allow $(PRODUCT_NAME) to use FaceID</string>
+```
+
+<Ads1 />
+## Use the Library
+
+```tsx
+import * as LocalAuthentication from 'expo-local-authentication';
+import React from 'react';
+import { Button, Text, View } from 'react-native';
+
+export default function App() {
+	const handleAuthentication = async () => {
+		const hasHardware = await LocalAuthentication.hasHardwareAsync();
+		if (!hasHardware) {
+			alert('생체 인증을 사용할 수 없는 기기입니다.');
+			return;
+		}
+		const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+		if (!isEnrolled) {
+			alert('생체 인증이 등록되어 있지 않습니다.');
+			return;
+		}
+		const result = await LocalAuthentication.authenticateAsync({
+			promptMessage: '생체 인증을 사용하여 로그인하세요.',
+		});
+		if (result.success) {
+			alert('로그인 성공!');
+		} else {
+			alert('로그인 실패!');
+		}
+	};
+
+	return (
+		<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+			<Text>생체 인증을 사용하여 로그인하세요.</Text>
+			<Button title="로그인" onPress={handleAuthentication} />
+		</View>
+	);
+}
+```
+<Img src="/posts/250313-162954.webp" width={200} alt="Fingerprint authentication on Android"/>
+
+Fingerprint authentication is not visible in the middle of the process because the screen cannot be captured for security reasons.
+Here is what each function does.
+
+### LocalAuthentication.hasHardwareAsync
+
+Checks whether the device has a face or fingerprint scanner.
+It returns a `Promise<boolean>`.
+
+### LocalAuthentication.isEnrolledAsync
+
+Checks whether a fingerprint or face has been enrolled on the device.
+It returns a `Promise<boolean>`.
+
+### LocalAuthentication.authenticateAsync
+
+Attempts authentication with a fingerprint or Touch ID, or with Face ID if it is available on the device.
+The function accepts `LocalAuthenticationOptions` as a parameter.
+Here are some useful options.
+- promptMessage: string
+The message displayed in the Touch ID or Face ID prompt.
+Use it to tell the user why you are requesting authentication.
+- cancelLabel: string
+The label for the cancel button in the Touch ID or Face ID prompt.
+The default is 'Cancel'.
+- biometricsSecurityLevel: 'strong' | 'weak'
+Sets the security level of biometrics that the app accepts.
+`strong` allows only Class 3 biometrics on Android, such as fingerprints or 3D face scans.
+`weak` allows both Class 3 and Class 2 biometrics on Android.
+Class 2 biometrics are less secure than Class 3; camera-based face unlock is one example.
+- disableDeviceFallback: boolean
+After several failed attempts, the system falls back to the device passcode.
+Enable this option to disable that behavior and handle fallback yourself, which can be useful in a custom authentication flow.
+
+The overall flow is as follows.
+1. Use `hasHardwareAsync` to check whether biometric authentication is available.
+2. Use `isEnrolledAsync` to check whether biometrics are enrolled.
+3. Use `authenticateAsync` to attempt biometric authentication.
+
+<Ads2 />
+## Conclusion
+
+Biometric authentication in React Native with Expo Local Authentication offers a secure and convenient way to verify users.
+By using the library's capabilities, developers can integrate biometrics into a React Native app to strengthen security and improve the user experience.
+Biometrics provide a reliable way to verify a user without a password and can reduce the risk of data exposure.
+Expo Local Authentication is a simple, effective tool for building secure mobile apps.
+
+### Ideas to Explore
+
+- Instead of using biometrics only to sign in, how could you use them to encrypt or decrypt data?
+- How does this relate to Expo SecureStore?
+[expo-secure-store](https://docs.expo.dev/versions/latest/sdk/securestore)
+
+### References
+
+- [expo-local-authentication](https://docs.expo.dev/versions/latest/sdk/local-authentication)
+- [Biometric Authentication in React Native using Expo Local Authentication](https://ashankaushalya97.medium.com/biometric-authentication-in-react-native-using-expo-local-authentication-36ec29bed1e4)

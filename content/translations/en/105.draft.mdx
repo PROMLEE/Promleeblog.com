@@ -1,0 +1,341 @@
+---
+post_id: '105'
+locale: en
+title: Fetching Data from Supabase in Next.js (CSR/SSR)
+description: Compare custom API endpoints powered by Prisma with Supabase REST API for fetching data in Next.js, including setup examples and a performance comparison.
+source_hash: bf1a799d80d1dd5a074b6679558a66e83e3910b6ed1505be0c1ce5a572421ea1
+---
+
+## Before you begin
+There are two main ways to fetch data from Supabase in Next.js.
+1. Create a *custom API endpoint* to fetch data, together with [Prisma](https://www.prisma.io/)
+2. Use Supabase’s *REST API*
+
+Here is a comparison of their advantages and disadvantages.
+| Approach | Advantages | Disadvantages |
+| --- | --- | --- |
+| Custom API endpoint | - You can use an ORM to work with the database easily. <br/> - Direct database access can make data retrieval more efficient. | - It takes longer because you need to build the API yourself. <br/> - Direct database access can introduce security risks. <br/> - It is relatively complex. |
+| Supabase REST API | - No direct database access is needed. <br/> - The code is very concise. | - There may be limitations on the data you can retrieve. <br/> - Data retrieval may take longer. |
+
+In short, use **Supabase REST API** when you want a straightforward, concise way to fetch data,
+and create a **custom API endpoint** when you want to handle data more efficiently.
+I built this blog using a combination of both approaches. Here is how.
+
+<Ads1 />
+## Using a custom API endpoint
+### Install Prisma
+``` bash
+npm i -D prisma
+npm i @prisma/client
+```
+You can now run Prisma with npx.
+Prisma requires initial setup in Next.js.
+``` bash
+npx prisma init
+```
+The command creates a prisma folder containing a schema.prisma file.
+It also creates a .env file, where you need to set DB_URL.
+You can find it under your Supabase project’s Settings > Configurations > Database > Connection string.
+<Img src="/posts/240621-203617.png" width={800}/>
+
+Replace `[YOUR-PASSWORD]{:bash}` with your project password.
+Delete the trailing port and path placeholder `:[포트번호]/postgress`.
+``` bash title="./.env"
+DATABASE_URL="postgres://postgres.[Reference ID]:[YOUR-PASSWORD]@aws-0-ap-northeast-2.pooler.supabase.com
+```
+DIRECT_URL is an environment variable required when using the Prisma client.
+If you deploy the Next.js project, add a command so the Prisma client is also available during the build.
+``` json title="./package.json"
+{
+  "scripts": {
+		// ...
+    "postinstall": "prisma generate"
+	}
+}
+```
+
+### Pull the database schema
+Prisma can pull the database schema into your project.
+``` bash
+npx prisma db pull
+```
+This command automatically adds the database schema to prisma/schema.prisma.
+``` prisma title="./prisma/schema.prisma (예)"
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Tag { // 추가
+  id       BigInt     @id @unique @default(autoincrement())
+  name     String     @default("")
+}
+```
+Generate the Prisma client using the schema you pulled.
+``` bash
+npx prisma generate
+```
+
+### Push the database schema
+If you have changed the database schema, push the changes to the database.
+``` bash
+npx prisma db push
+```
+Generate the Prisma client again using the updated schema.
+``` bash
+npx prisma generate
+```
+
+### Create an API endpoint
+Let’s create an API endpoint that fetches data with the Prisma client.
+``` javascript title="./src/app/api/tag/route.ts"
+const { PrismaClient } = require("@prisma/client");
+import { NextResponse, NextRequest } from "next/server";
+
+const prisma = new PrismaClient();
+
+export async function GET() {
+  try {
+    return NextResponse.json( {data: await getTags()}, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error || "Tags not Found" },
+      { status: 405 },
+    );
+  }
+}
+
+async function getTags() {
+  const Tags = await prisma.tag.findMany({
+    orderBy: {
+      id: "asc",
+    },
+  });
+  return Tags;
+}
+```
+For Prisma data filtering, sorting, pagination, and more, see [Prisma Docs](https://www.prisma.io/docs/orm/prisma-client/queries/filtering-and-sorting).
+
+### Fetch data
+You can now fetch data from a Next.js page through the API endpoint.
+`${process.env.NEXT_PUBLIC_API_BASE_URL}{:javascript}` is the API URL configured in `.env.local`.
+In debug mode, set it to `http://localhost:3000`; for deployment, use `https://[your-domain]`.
+``` javascript title="./src/app/tag/page.ts - SSR"
+export const Page = async () => {
+	let tags;
+  try {
+    tags = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tag`,
+      { next: { revalidate: 60 } },
+    )
+      .then((res) => res.json())
+      .then((data) => data.data);
+  } catch (e) {
+    tags = [];
+  }
+	return (
+		<div>
+			{tags.map((tag) => (
+				<div key={tag.id}>
+					<h1>{tag.name}</h1>
+				</div>
+			))}
+		</div>
+	);
+};
+```
+``` javascript title="./src/app/tag/page.ts - CSR"
+"use client";
+import { useState, useEffect } from "react";
+
+export const Page = () => {
+	const [tags, setTags] = useState([]);
+	useEffect(() => {
+		fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tag`)
+			.then((res) => res.json())
+			.then((data) => setTags(data.data));
+	}, []);
+	return (
+		<div>
+			{tags.map((tag) => (
+				<div key={tag.id}>
+					<h1>{tag.name}</h1>
+				</div>
+			))}
+		</div>
+	);
+};
+```
+<Ads2 />
+## Using the Supabase REST API
+### Install and configure Supabase
+Install the library that makes it easier to use Supabase REST API.
+``` bash
+npm i @supabase/supabase-js @supabase/ssr
+```
+Set the project environment variables to connect to Supabase.
+You can find them in section `3. Declare Supabase Environment Variables` partway through the [Supabase guide](https://supabase.com/docs/guides/getting-started/quickstarts/nextjs).
+<Img src="/posts/240621-231736.png" width={800}/>
+
+``` bash title="./.env.local"
+NEXT_PUBLIC_SUPABASE_URL=https://[your-project-id].supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=[your-anon-key]
+```
+### Create Supabase clients
+Create separate utility files for the client used in *SSR* and the client used in *CSR*.
+``` typescript title="./src/utils/serverclientSSR.ts - SSR"
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { cookies } from "next/headers";
+
+export const createClient = () => {
+  const cookieStore = cookies();
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value, ...options });
+          } catch (error) {
+          }
+        },
+        remove(name: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value: "", ...options });
+          } catch (error) {
+          }
+        },
+      },
+    },
+  );
+};
+```
+``` typescript title="./src/utils/serverclientCSR.ts - CSR"
+import { createClient } from "@supabase/supabase-js";
+
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+);
+```
+
+### Fetch data
+Fetching data with the Supabase REST API is straightforward.
+``` typescript title="./src/app/tag/page.ts - SSR"
+import { createClient } from "@/utils/serverclientSSR";
+interface Tag { // 데이터의 타입 정의
+	id: number;
+	name: string;
+}
+
+const getData = async () => {
+  const supabase = createClient();
+  const { data }: { data: Tag[] } = await supabase
+    .from("Tag") // 테이블 이름
+    .select(); // 모든 열의 데이터 가져오기
+  return data;
+};
+
+export const Page = async () => {
+	const tags = await getData();
+	return (
+		<div>
+			{tags.map((tag) => (
+				<div key={tag.id}>
+					<h1>{tag.name}</h1>
+				</div>
+			))}
+		</div>
+	);
+};
+```
+``` typescript title="./src/app/tag/page.ts - CSR"
+"use client";
+import { supabase } from "@/utils/serverclientCSR";
+import { useEffect, useState } from "react";
+interface Tag { // 데이터의 타입 정의
+	id: number;
+	name: string;
+}
+
+export const Page = () => {
+	const [tags, setTags] = useState<Tag[]>([]);
+	useEffect(() => {
+		const getData = async () => {
+			const { data }: { data: Tag[] } = await supabase
+				.from("Tag") // 테이블 이름
+				.select(); // 모든 열의 데이터 가져오기
+			setTags(data);
+		};
+		getData();
+	}, []);
+	return (
+		<div>
+			{tags.map((tag) => (
+				<div key={tag.id}>
+					<h1>{tag.name}</h1>
+				</div>
+			))}
+		</div>
+	);
+};
+```
+For filtering methods, see [Supabase - Fetch data](https://supabase.com/docs/reference/javascript/select).
+
+
+<Ads3 />
+## Troubleshooting
+### The .env DATABASE_URL setting is tied to the OS and cannot be changed
+[github issue](https://github.com/prisma/prisma/discussions/12170)
+#### Fix
+Rename the DATABASE_URL variable.
+``` bash title="./.env"
+NEWNAME_DATABASE_URL="postgres://postgres.[Reference ID]:[YOUR-PASSWORD]@aws-0-ap-northeast-2.pooler.supabase.com"
+```
+``` ts title="./prisma/schema.prisma"
+datasource db {
+	provider = "postgresql"
+	url      = env("NEWNAME_DATABASE_URL")
+}
+```
+### Error when running Prisma generate
+`Error: EPERM: operation not permitted, unlink "C:\\**\\node_modules\\.prisma\\client\\query-engine-windows.exe"`
+#### Fix
+[stackoverflow link](https://stackoverflow.com/questions/46020018/error-eperm-operation-not-permitted-unlink-d-sources-node-modules-fseven)
+Restart VSCode…
+## Conclusion
+
+### A closer look: which approach is faster?
+I naturally assumed that using **Supabase REST API** would be faster and more efficient.
+I expected the **custom API endpoint** to be slower because fetching data requires two steps.
+I compared both approaches under the same conditions on the client side, without Server Actions.
+However, the results showed that data from the **custom API endpoint** appeared to users *faster*.
+The difference in rendering time was noticeable.
+<Img src="/posts/240621-234146.png" width={800}/>
+
+*links* measures the time to fetch data using the **custom API endpoint**,
+while *Category ~* measures the time to fetch data using the **Supabase REST API**.
+After testing several times with the cache disabled, I found that data fetched through the **custom API endpoint** appeared *100 ms faster on average*.
+- \<**Details for the custom API endpoint**\>
+	<Img src="/posts/240621-234251.png" width={300}/>
+- \<**Details for the Supabase REST API**\>
+	<Img src="/posts/240621-234304.png" width={300}/>
+The biggest factor was **queuing**.
+Data fetched through the higher-priority **custom API endpoint** appeared sooner.
+In practice, all data from the **custom API endpoint** is fetched before the **Supabase REST API** data.
+Even when I removed the **custom API endpoint**, the queuing time for the **Supabase REST API** remained the same.
+This directly affects user experience, so I expect to keep using the **custom API endpoint** until I find a way to resolve this.
+### References
+[Prisma Quickstart](https://www.prisma.io/docs/getting-started/quickstart)
+[Supabase Docs](https://supabase.com/docs/guides)
+[Getting started quickly with Supabase Database and Prisma with Next.js](https://www.heropy.dev/p/bCffI2)

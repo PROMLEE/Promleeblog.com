@@ -1,0 +1,182 @@
+---
+post_id: '306'
+locale: ja
+title: AIコードエディター活用術：Cursor、Copilot、ChatGPT、VS Code
+description: >-
+  CursorなどのAIコードエディターを活用する方法を紹介します。YOLOモード、テスト駆動開発、TypeScriptエラー修正、ログデバッグ、ショートカットで開発を効率化します。
+source_hash: 3bb675ebf1851bbe3b5d8b13c7a5109c25d5eaeedb99f297b710abad317db7d8
+---
+
+## はじめに
+
+今回は、コーディングの考え方を変えつつあるAIコードエディター*Cursor*の便利な活用方法を紹介します。
+<Bbox>ここで紹介する方法はCursorだけでなく、CopilotやCodeiumなど、さまざまなAIコーディングツールにも応用できます。AIツールを使っている方はぜひ参考にしてください。</Bbox>
+この記事を通じてCursorのAI機能を活用し、コーディング作業をより効率化しましょう。
+
+## AIコードエディターとは
+AIコードエディターは、人工知能（AI）を使って開発者のコード作成や修正を支援するツールです。
+さまざまな製品がありますが、代表例としてCursor、GitHub Copilot、Codeiumなどが挙げられます。
+<Img src="/250526-101417.webp" width={300} alt="VS Code Copilot"/>
+
+<Ads1 />
+## AI機能を活用するコツ
+
+AIコードエディターの機能を最大限に活用するためのヒントを見ていきます。
+Cursorを基準にしていますが、他のAIコーディングツールにも同様に応用できます。
+
+### 1. YOLOモード：AIにコード修正を任せる
+
+Cursorの設定には「YOLOモード」というユニークな名前の機能があります。
+このモードを有効にすると、AIエージェントはコードを生成・提案するだけでなく、テストを実行してビルドエラーを確認し、問題が解決するまで*自分でコードを繰り返し修正*できます。
+たとえば、YOLOモードに次のようなプロンプトを設定できます。
+
+```txt
+any kind of tests are always allowed like vitest, npm test, nr test, etc.
+also basic build commands like build, tsc, etc.
+creating files and making directories (like touch, mkdir, etc) is always ok too
+```
+このように設定すると、TypeScriptコードのビルドでエラーが起きたとき、AIが`tsc`のエラーを自動修正して再実行し、ビルドが成功するまで試行する動作を体験できます。
+
+### 2. テスト駆動のAIコーディング：生成コードの信頼性を高める
+
+複雑な機能をAIに依頼するときは、単に「この関数を作って」と頼むより、先にテストケースを書かせるほうが効果的です。
+TDD（テスト駆動開発）と同じ考え方です。
+たとえば「Markdown文字列をHTML文字列に変換する関数を作ってください。*先にテストを書いてから実装し、テストが通るまでコードを修正してください。*」と依頼します。
+<br/>
+Cursorはプロジェクトの`package.json`などを分析し、適切なテストファイルを作成します。生成したコードがテストに合格するか自ら確認し、実装を改善していきます。
+もちろんAIが常に正しいとは限りません。進行状況を確認し、必要なら「少し方向が違います」と介入しましょう。
+
+### 3. 既存テストを活用して堅牢性を高める
+
+既存のテストコードが整っている場合、それを活用して実装をさらに堅牢にできます。
+たとえば「既存のテストにこのケースを追加し、すべてのテストに通るようコードを修正してください」と依頼できます。
+実運用で起きた不具合を1つずつテストに加えてAIに修正させれば、時間とともにコードの信頼性を高められます。
+
+### 4. TypeScriptのエラーをAIに任せる
+
+開発を進めていると、TypeScriptの型エラーやビルドエラーがたまることがあります。
+1つずつ直す代わりに、Cursor AIへ*ビルドエラーがあるので、`npm run build`（またはプロジェクトのビルドコマンド）を実行して原因を確認し、成功するまで修正してください。*と頼めます。
+多くの開発者が、作業の終盤にこの方法でPrettier、ESLint、tscのエラーをまとめて解消しています。
+
+#### 例：TypeScriptエラーの修正を依頼する
+AIには次のように依頼できます。
+「次のTypeScriptコードにある型エラーを修正してください。」
+```typescript
+// AI에게 수정 요청할 예시 코드
+function greet(person: string, date: Date): string { // 반환 타입 명시
+  console.log(`Hello ${person}, today is ${date.toDateString()}!`);
+  return `Hello ${person}, today is ${date.toDateString()}!`; // 반환문 추가
+}
+
+// 만약 다른 곳에서 date를 string으로 전달하려고 할 때 발생하는 오류를 AI가 수정하도록 유도
+// const todayString = new Date().toISOString();
+// greet("Alice", new Date(todayString)); // AI는 Date 객체로 변환하거나, 함수 시그니처를 바꿀 수 있음
+```
+Cursorは型の不一致を検出し、たとえば`greet`関数に渡す`date`を`Date`オブジェクトにする、または関数の引数型をより柔軟にするといった修正を提案します。
+
+
+<Ads2 />
+### 5. ログを使ったデバッグ：AIと問題を解決する
+
+複雑なバグの調査にはログが役立ちます。Cursor AIにコードへログを追加させ、その結果を再度AIに渡すと、原因や解決策を探れます。
+
+#### 例
+```txt title="로그 기반 디버깅 요청 예시"
+이 React 컴포넌트의 `useEffect` 훅이 예상대로 동작하지 않는데, 주요 상태(state)와 속성(props) 값의 변화를 확인할 수 있도록 `console.log`를 추가해줘.
+```
+**Cursor AI**：（コンポーネントコードに`console.log`を追加）
+```tsx
+// 예시: React useEffect 디버깅
+import React, { useState, useEffect } from 'react';
+
+interface MyComponentProps {
+  userId: number;
+}
+
+function MyComponent({ userId }: MyComponentProps) {
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    // AI가 로그 추가 요청 시 아래와 같이 로그를 삽입 가능
+    console.log(`[useEffect] userId changed: ${userId}`); 
+    if (userId) {
+      console.log(`[useEffect] Fetching data for userId: ${userId}`);
+      fetch(`/api/users/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          console.log(`[useEffect] Data received:`, data);
+          setUserData(data);
+        })
+        .catch(error => {
+          console.error(`[useEffect] Error fetching data:`, error);
+        });
+    }
+  }, [userId]); // userId가 변경될 때마다 실행
+
+  return (
+    <div>
+      {/* 사용자 데이터 표시 */}
+    </div>
+  );
+}
+```
+```txt title="AI에게 로그 분석 요청 예시"
+userId가 1일 때 로그 결과는 이렇네. `userData`가 `null`로 계속 나오는데, 뭐가 문제인 것 같아?
+```
+**Cursor AI**：（ログを分析し、「APIの呼び出し先が誤っている可能性があります」「データ解析に問題がある可能性があります」などと原因を推定して、修正コードを提案）
+この手順を何度か繰り返すと、複雑な問題を解決する糸口が見つかります。
+
+### 6. 便利なショートカット
+CursorにはAI機能をすばやく呼び出せるショートカットがあります。
+- **Command K（またはCtrl K）**
+  選択したコードブロックをすばやく変更するときに使います。
+  たとえばコードを選択してCommand Kを押し、「この関数をasyncにしてください」や「変数名をcamelCaseに変更してください」と依頼すると、選択した部分だけをすばやく修正できます。
+  インラインUIから手軽に使えます。
+- **Command I（またはCtrl I）**
+  AIエージェントのチャットを開き、選択したコードをそのまま会話のコンテキストに含めます。
+  選択したコードについて詳しく質問したり、複雑な修正を依頼したりするのに便利です。
+
+### 7. ターミナルでもAIを使う
+
+CursorのCommand K機能はターミナルでも利用できます。
+複雑なgitコマンドを覚えなくても、「最近のgitブランチを5つ表示して」や「現在のブランチをmainへrebaseして」のように自然言語で指示できます。ターミナル作業の効率を高められます。
+
+### 8. オートコンプリートを活用する
+
+Cursorの自動補完は、短いコードだけでなく行全体やブロックを提案することもあります。
+グレーで表示された提案はTabキーで採用できますが、Tabキーが次の候補へ進んだり、コードの別の場所へ移動したりすることもあります。慣れるまでは少し時間がかかるかもしれません。
+継続して使い、操作に慣れていきましょう。
+
+### 9. AIにコミットメッセージを書かせる
+
+Gitを使うとき、コミットメッセージを書くのも意外と手間です。Cursorはこの作業も支援します。
+ソース管理タブで魔法の杖アイコンをクリックすると、変更内容をもとにAIがコミットメッセージを作成します。完璧でなくても、良い下書きになります。
+<Img src="/250526-103533.webp" width={300} alt="コミットメッセージの作成"/>
+### 10. Bug Finder機能
+Command Shift P（またはCtrl Shift P）でコマンドパレットを開き、「bug finder」と検索するとBug Finderを使えます。
+この機能は現在の変更をメインブランチと比較し、潜在的なバグを見つけようとします。
+たとえば、UIの特定の値が0の場合を処理していない箇所などを指摘することがあります。
+
+## AI支援とコーディングスキルのバランス
+AIコーディングツールを使うと、コーディングスキルが落ちるのではと心配する声もあります。
+しかしAIは、多くの反復作業を自動化し、開発者がより難しく重要な問題に集中できるよう支援する*ツール*です。
+AIがすべてを解決するわけではありません。コードを理解し、デバッグし、AIを適切な方向へ導く開発者の基礎力は依然として重要です。
+むしろ、AIツールを適切に活用する力そのものが、これからの開発者にとって重要な強みになります。
+
+<Img src="/250526-103806.webp" width={300} alt="開発者とAI"/>
+
+<Ads3 />
+## まとめ
+今回はAIコードエディターを活用するさまざまな方法を紹介しました。
+YOLOモード、テスト駆動のAIコーディング、自動エラー修正、ログを使ったデバッグなど、Cursorの機能を活用すれば開発の生産性を大きく高められます。
+<br/>
+もちろんAIがすべてを代行するわけではありません。基礎的なプログラミング知識と問題解決力は、今も開発者にとって重要な資産です。
+CursorなどのAIツールを賢く使い、反復作業はAIに任せて、より創造的で重要な課題に集中できる開発者を目指しましょう。
+
+### 参考
+
+- [Builder.io Blog - How I use Cursor (+ my best tips)](https://www.builder.io/blog/cursor-tips)
+- [Cursor公式サイト](https://cursor.sh/)
+- [Visual Studio Code公式サイト](https://code.visualstudio.com/)
+- [TypeScript公式サイト](https://www.typescriptlang.org/)
+- [React公式サイト](https://react.dev/)

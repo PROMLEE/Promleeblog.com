@@ -1,0 +1,301 @@
+---
+post_id: '311'
+locale: zh
+title: 在 Windows 终端中同时使用多个 GitHub 账号
+description: >-
+  介绍如何在 Windows 终端（Git Bash、WSL）配置公司与个人 GitHub 账号，涵盖 SSH 密钥、HTTPS、凭据管理器和 Git
+  提交身份设置。
+source_hash: 65b54397696b1df023dde8752e4fe0bbe4eddf4b0fb83f3e118e139ff097f486
+reviewed_at: '2026-11-08T12:31:51.875Z'
+---
+## 开始之前
+学习开发或参与公司项目时，我们常常需要使用多个 GitHub 账号。
+例如，将*公司工作账号*与*个人项目或学习账号*分开使用。
+本文将逐步介绍如何在 Windows 终端（Git Bash 或 WSL 的 Linux 终端）中配置这两种账号，并针对不同项目轻松切换。
+<Img src="/250604-103716.png" width={300} alt="两个不同的 GitHub 个人资料"/>
+
+## 为什么要分开使用多个 GitHub 账号？
+在正式配置前，先简单说明一下分开使用多个账号的原因。
+1. **区分工作与个人活动**
+   公司代码与个人练习项目或开源贡献性质不同。
+   分开账号可以清晰地区分工作提交记录与个人活动。
+2. **安全与访问权限管理**
+   公司项目通常有严格的访问权限管理。
+   使用不同账号可以避免个人账号访问公司仓库，或公司账号访问个人项目，从而加强安全性。
+3. **管理 GitHub 个人资料**
+   GitHub 个人资料是展示开发者形象的重要空间。
+   个人账号可以突出自己的项目和开源贡献，公司活动则通过工作账号进行，使每个资料各自符合用途。
+
+因此，许多开发者会根据用途区分多个 GitHub 账号。
+下面分别介绍 *SSH 方式*和 _HTTPS 方式_。
+
+<Ads1 />
+## 方法一：使用 SSH 密钥配置多个账号（推荐）
+SSH（Secure Shell）是一种通过网络安全通信的协议。
+使用 SSH 密钥与 GitHub 通信时，无需每次输入用户名和密码即可安全认证，非常方便。
+这也是使用多个账号时更简洁、推荐的方式。
+### 第 1 步：为每个账号创建 SSH 密钥
+首先分别创建公司账号和个人账号的 SSH 密钥。
+1. **打开终端**
+   使用 Git Bash，或在安装 WSL 后启动 Ubuntu 等 Linux 终端。
+   本文以 Git Bash 为例，但在 WSL 终端中使用的命令几乎相同。
+   <Img src="/250604-104250.webp" width={400} alt="Git Bash"/>
+   Git Bash 的粘贴快捷键是 `Shift + Insert`。（普通的 Ctrl + V 无法使用。）
+2. **检查现有 SSH 密钥（可选）**
+   检查是否已经创建 SSH 密钥。
+   默认密钥通常保存在 `~/.ssh` 目录中，文件名例如 `id_rsa`（私钥）和 `id_rsa.pub`（公钥）。
+    ```bash
+    ls -al ~/.ssh
+    ```
+   如果 `id_rsa` 和 `id_rsa.pub` 已存在，并且正在用于某个账号（例如个人账号），则需要使用其他文件名创建新密钥。
+3. **创建公司账号密钥**
+   在终端输入以下命令。
+   将 `your_work_email@example.com` 替换为公司 GitHub 账号中登记的邮箱地址。
+   `-f` 后面指定密钥文件名，本例使用 `id_rsa_work`。
+    ```bash
+    ssh-keygen -t rsa -b 4096 -C "your_work_email@example.com" -f ~/.ssh/id_rsa_work
+    ```
+   - `-t rsa`：使用 RSA 加密方式。（目前也常使用 `ed25519`，例如 `ssh-keygen -t ed25519 -C "your_email@example.com"`。）
+   - `-b 4096`：将密钥长度设为 4096 位（适用于 RSA；ed25519 不需要此选项）。
+   - `-C "..."`：注释字段，通常填入邮箱地址以便识别。
+   - `-f ~/.ssh/id_rsa_work`：指定密钥文件的保存路径和名称。`~` 表示主目录。
+
+   _执行命令后会出现以下提示。_
+   - `Enter passphrase (empty for no passphrase):`
+     可为 SSH 密钥设置额外密码。设置后每次使用密钥都需要输入，安全性更高，但也较麻烦。
+     可以根据需要设置，也可以直接按 Enter 不设置。（本文假设不设置密码。）
+   - `Enter same passphrase again:`
+     如果设置了密码，需要再次输入。
+
+   创建成功后，会生成 `~/.ssh/id_rsa_work`（私钥）和 `~/.ssh/id_rsa_work.pub`（公钥）。
+   <Img src="/250604-104840.png" width={600} alt="ssh-keygen 创建成功"/>
+4. **创建个人账号密钥**
+   同样为个人账号创建 SSH 密钥，这次使用 `id_rsa_personal` 作为文件名。
+   将 `your_personal_email@example.com` 替换为个人 GitHub 账号的邮箱地址。
+    ```bash
+    ssh-keygen -t rsa -b 4096 -C "your_personal_email@example.com" -f ~/.ssh/id_rsa_personal
+    ```
+   与公司密钥一样，可以设置 passphrase，也可以按 Enter 跳过。
+   现在应该还会生成 `~/.ssh/id_rsa_personal` 和 `~/.ssh/id_rsa_personal.pub`。
+
+### 第 2 步：将 SSH 公钥添加到各自的 GitHub 账号
+复制刚创建的 SSH *公钥*（`id_rsa_work.pub`、`id_rsa_personal.pub`）内容，并分别添加到对应的 GitHub 账号。
+1. **复制公司账号公钥**
+   在终端运行以下命令查看 `id_rsa_work.pub` 并复制全部内容。
+   （在 Git Bash 中，也可以运行 `clip < ~/.ssh/id_rsa_work.pub` 直接复制到剪贴板。）
+    ```bash title="터미널"
+    cat ~/.ssh/id_rsa_work.pub
+    ```
+    ```bash title="Git Bash(바로 클립보드에 복사)"
+    clip < ~/.ssh/id_rsa_work.pub
+    ```
+
+   复制完整的 `ssh-rsa AAAA... your_work_email@example.com` 格式文本。
+2. **将公钥添加到公司 GitHub 账号**
+   在浏览器中登录*公司 GitHub 账号*。
+   点击右上角个人资料图标 > Settings > 左侧菜单 SSH and GPG keys。
+   点击“New SSH key”或“Add SSH key”。
+   <Img src="/250604-105348.png" width={500} alt="设置页面"/>
+   在“Title”中填写便于识别的名称，例如“My Work Laptop - Windows”。
+   将复制的 `id_rsa_work.pub` 全文粘贴到“Key”栏，再点击“Add SSH key”保存。
+   <Img src="/250604-105558.png" width={500} alt="SSH 密钥添加完成"/>
+3. **复制并添加个人账号公钥**
+   按照相同方法复制 `id_rsa_personal.pub` 的内容。
+    ```bash title="터미널"
+    cat ~/.ssh/id_rsa_personal.pub
+    ```
+    ```bash title="Git Bash(바로 클립보드에 복사)"
+    clip < ~/.ssh/id_rsa_personal.pub
+    ```
+   然后登录*个人 GitHub 账号*（必要时先退出公司账号再登录个人账号），并按相同步骤添加密钥。
+   “Title”可以填写“My Personal Laptop - Windows”等名称以便区分。
+
+### 第 3 步：修改 SSH 配置文件（config）
+接下来需要创建配置文件，告诉每个 GitHub 主机应该使用哪把 SSH 密钥。
+1. **打开或创建 SSH 配置文件**
+   使用文本编辑器打开 `~/.ssh/config`。
+   如果文件不存在，可以新建。
+   也可以在终端运行 `nano ~/.ssh/config` 或 `vim ~/.ssh/config`；还可以在 Windows 文件资源管理器中打开 `C:\Users\사용자이름\.ssh`，创建 `config` 文件后用记事本编辑。（Git Bash 也可以运行 `notepad ~/.ssh/config`。）
+2. **添加配置**
+   将以下内容添加到 `config` 文件并保存。
+    ```
+    # Work GitHub account
+    Host github.com-work
+        HostName github.com
+        User git
+        IdentityFile ~/.ssh/id_rsa_work
+        IdentitiesOnly yes
+
+    # Personal GitHub account
+    Host github.com-personal
+        HostName github.com
+        User git
+        IdentityFile ~/.ssh/id_rsa_personal
+        IdentitiesOnly yes
+
+    # (선택 사항) 기본 GitHub 계정 설정 (둘 중 하나를 기본으로 사용하고 싶을 때)
+    # 예를 들어 개인 계정을 기본으로 사용하고 싶다면 아래처럼 추가
+    # Host github.com
+    #     HostName github.com
+    #     User git
+    #     IdentityFile ~/.ssh/id_rsa_personal # 또는 id_rsa (기존 기본 키가 있다면)
+    #     IdentitiesOnly yes
+    ```
+
+   **配置说明**
+   - `Host github.com-work`
+     这是之后使用的“别名”，用来区分真实的 `github.com` 主机。
+   - `HostName github.com`
+     实际连接的 GitHub 服务器地址。
+   - `User git`
+     通过 SSH 连接 GitHub 时使用的默认用户名。（不要修改。）
+   - `IdentityFile ~/.ssh/id_rsa_work`
+     连接该主机（`github.com-work`）时使用的 SSH 私钥路径。
+   - `IdentitiesOnly yes`
+     只使用指定的 `IdentityFile` 进行认证，避免依次尝试其他密钥。
+
+### 第 4 步：将密钥添加到 SSH Agent（可选但方便）
+如果 SSH 密钥设置了 passphrase，每次使用密钥时都需要输入。
+SSH Agent 可以在当前会话中记住密码，只需输入一次。
+<Bbox>如果没有设置密码，可以跳过这一步。</Bbox>
+1. **检查并启动 SSH Agent**
+   在 Git Bash 或 WSL 终端运行以下命令，检查 SSH Agent 是否已运行；如果没有，则启动它。
+    ```bash
+    eval $(ssh-agent -s)
+    ```
+   出现类似“Agent pid XXXX”的消息就表示成功。
+2. **将创建的 SSH 密钥添加到 Agent**
+    ```bash
+    ssh-add ~/.ssh/id_rsa_work
+    ssh-add ~/.ssh/id_rsa_personal
+    ```
+   如果为密钥设置了密码，此时会提示输入。
+   在终端会话持续期间，输入一次后通常不会再询问。
+   重启 Windows 后，可能需要重新启动 SSH Agent 并再次添加密钥。
+   虽然可以自动化这一过程，本文只介绍基本步骤。
+
+### 第 5 步：使用各账号的仓库
+现在配置完成了！可以克隆各账号的仓库，或修改现有仓库的远程地址。
+克隆时通常使用 SSH URL。
+<Img src="/250604-111508.png" width={500} alt="SSH URL"/>
+- **克隆公司仓库**
+  使用 `config` 中配置的 `Host` 别名（`github.com-work`），而不是原来的 `git clone git@github.com:회사계정명/저장소명.git`。
+  ```bash
+  git clone git@github.com-work:회사계정명/저장소명.git
+  ```
+- **克隆个人仓库**
+  同样使用配置的 `Host` 别名 `github.com-personal`。
+  ```bash
+  git clone git@github.com-personal:개인계정명/저장소명.git
+  ```
+- **修改现有本地仓库的远程 URL**
+  如果仓库通过 HTTPS 克隆，或 SSH URL 使用了其他账号，需要修改远程地址。
+  进入本地仓库目录后运行命令。
+  例如，要让公司仓库使用 `github.com-work`：
+  ```bash
+  # 현재 설정된 원격 URL 확인
+  git remote -v
+  # origin  git@github.com:회사계정명/저장소명.git (fetch)
+  # origin  git@github.com:회사계정명/저장소명.git (push)
+
+  # 원격 URL 변경 (origin이라는 이름의 원격을 변경)
+  git remote set-url origin git@github.com-work:회사계정명/저장소명.git
+  ```
+  之后在该仓库运行 `git push`、`git pull` 等命令时，就会使用 `id_rsa_work` 密钥连接 `github.com-work`。
+
+这种 SSH 配置只需设置一次，之后就能方便、安全地管理多个账号。
+
+<Ads3 />
+## 方法二：通过 HTTPS 使用多个账号
+HTTPS 可能比 SSH 更容易设置，但切换多个账号时会更麻烦。
+在 Windows 中，Git Credential Manager 通常随 Git 一起安装，可管理 HTTPS 认证信息。
+
+### 使用 Windows 凭据管理器（Credential Manager）
+在 Windows 上安装 Git 时，通常也会安装 Git Credential Manager for Windows（GCM）。
+它会在首次通过 HTTPS 登录 GitHub 等服务时保存用户名和密码（或 PAT），之后自动完成认证。
+<br/>
+问题在于，GCM 默认对同一个 `github.com` 主机只保存一组凭据。
+因此，如果当前保存的是公司账号，访问个人仓库时也会先尝试公司账号，反过来也是如此。
+1. **删除现有凭据**
+   需要切换账号时，在 Windows“凭据管理器”中手动删除现有的 `github.com` 凭据。
+   - 在 Windows 搜索框输入“凭据管理器”并打开。
+   - 选择“Windows 凭据”。
+   - 在“普通凭据”中找到类似 `git:https://github.com` 的条目。
+   - 展开该条目并点击“删除”。
+   <Img src="/250604-112605.png" width={600} alt="删除凭据"/>
+2. **使用新账号认证**
+   删除凭据后，在终端对需要使用新账号（例如个人账号）的仓库运行 `git pull` 或 `git push`。
+   GCM 会弹出窗口询问用户名和密码（或 PAT）。输入新账号信息后，它会再次保存到凭据管理器。
+
+每次切换账号都要手动删除凭据，比较繁琐。
+因此，HTTPS 方式也可以考虑为各账号创建 PAT（Personal Access Token），安全性更好，有时也更易管理。
+
+### 使用 PAT（Personal Access Token）
+PAT 是可替代密码的令牌，可以为每个令牌设置特定权限（scope），因此更安全。
+分别为公司和个人 GitHub 账号创建具有所需权限的 PAT。
+- **创建公司账号 PAT**
+- **创建个人账号 PAT**
+
+可以在 GitHub Settings > Developer settings > Personal access tokens > Tokens (classic) 或 Fine-grained tokens 中创建 PAT。
+建议使用 Fine-grained tokens，因为它支持更细粒度的权限设置。
+<br/>
+通过 HTTPS 执行 Git 操作时，如果终端提示输入密码，请输入 PAT 而不是账号密码。
+GCM 会保存 PAT 并在下次连接时继续使用。
+不过，GCM 仍然只为一个 `github.com` 记住一个 PAT，因此切换账号时仍需按上文所述删除凭据。
+
+<Ads3 />
+## 为每个项目设置 Git 用户信息（user.name、user.email）
+GitHub 账号认证与 Git 提交中记录的作者信息（名称和邮箱）彼此独立。
+使用多个账号时，应确保每个项目都以正确的用户信息提交。
+- **设置全局（Global）用户信息**
+  通常在首次安装 Git 时设置一次，之后会作为所有本地仓库的默认值。
+  ```bash
+  git config --global user.name "Your Name"
+  git config --global user.email "your_email@example.com"
+  ```
+  例如，可以把个人账号信息设为全局默认值。
+- **按本地（Local）仓库设置用户信息**
+  某些项目（例如公司项目）需要使用与全局设置不同的用户信息。
+  进入对应仓库目录后，使用 `--local` 选项（或不带选项）设置。
+  本地设置优先于全局设置。
+  ```bash
+  # 회사 프로젝트 디렉토리로 이동
+  cd /path/to/work-project
+
+  # 회사용 이름과 이메일로 설정
+  git config user.name "Your Work Name"
+  git config user.email "your_work_email@example.com"
+  ```
+  这样，在 `work-project` 中提交时会使用公司名称和 your_work_email@example.com，其他个人项目仍使用全局设置。
+<Rbox>开始项目或克隆仓库后，务必检查 user.name 和 user.email 是否设置为该项目对应的信息！</Rbox>
+可以通过 `git config user.name` 和 `git config user.email` 查看当前设置。
+
+## 注意事项与其他建议
+- **SSH 密钥和 PAT 都是机密信息**
+  绝不要公开分享或提交到仓库。
+  尤其要妥善保管 SSH 私钥文件（`id_rsa_work`、`id_rsa_personal`）。
+- **检查 `.gitconfig` 文件**
+  全局配置保存在主目录的 `.gitconfig` 中，各项目的配置保存在 `.git/config` 中。
+  可以直接查看这些文件来理解配置。
+- **使用 WSL 时**
+  WSL Linux 环境会根据自己的主目录（`~/.ssh`、`~/.gitconfig`）管理 SSH 密钥和 Git 配置。
+  它与 Windows Git Bash 是相互独立的环境，因此有时需要分别配置；也可以配置 WSL 共用 Windows 的 SSH 密钥。
+- **与 IDE 集成**
+  VS Code 等 IDE 内置 Git 功能，也提供了便于管理多个账号的扩展。
+- **避免混淆**
+  始终确认当前使用的账号以及提交时记录的用户信息。
+  也可以自定义终端提示符，显示当前 Git 分支或用户信息。
+
+## 总结
+本文介绍了如何在 Windows 终端中同时使用公司和个人 GitHub 账号。
+主要介绍了两种方式：使用 *SSH 密钥*以及通过 _HTTPS_ 认证。
+- **SSH 方式**初始设置步骤稍多，但配置完成后可以方便、安全地切换账号，因此最为推荐。（关键是设置 `~/.ssh/config`。）
+- **HTTPS 方式**依赖 Windows 凭据管理器，切换账号时可能需要手动删除凭据。
+
+无论采用哪种方式，都要为每个项目正确设置 *user.name 和 user.email*。
+始终留意账号，避免误用个人账号提交公司项目，或反过来。
+
+### 参考
+- [GitHub 官方文档 - 管理多个账号](https://docs.github.com/ko/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-personal-account/managing-multiple-accounts)
+- [GitHub 官方文档 - 生成 SSH 密钥](https://docs.github.com/ko/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
+- [Git 官方文档 - git config](https://git-scm.com/docs/git-config)

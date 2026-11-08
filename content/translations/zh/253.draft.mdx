@@ -1,0 +1,382 @@
+---
+post_id: '253'
+locale: zh
+title: React 安全与稳定性（从 XSS、CSRF 防护到 OAuth 和第三方管理）——React 学习第 12 天
+description: 通过示例了解如何防范 React 应用中的 XSS、CSRF 等安全威胁，并介绍 OAuth 2.0/OIDC 认证流程、代码分割以及稳定管理第三方脚本的策略。
+source_hash: d86baec01a5bb3ca19130e4ec171721c58138e056be96a41da0816c794c01a3e
+---
+
+
+
+## 前言
+
+到目前为止，我们学习了 React 的各种功能、架构和性能优化方法。但无论应用功能多么强大、运行多么快速，只要安全性薄弱或运行不稳定，用户就会失去信任并离开。
+对于处理个人信息或金融信息的服务，安全性和稳定性尤其重要。近期 SKT SIM 卡信息泄露事件和 Kakao 服务故障等案例表明，安全与稳定并非开发者可自行取舍的选项，而是关系企业存续的问题。
+前端开发者也应像服务端开发者一样，对安全性和稳定性承担责任。
+<br/>
+<br/>
+
+今天我们将详细了解前端开发必须掌握的典型安全威胁——*跨站脚本攻击（XSS）*和*跨站请求伪造（CSRF）*的预防方法、安全用户认证所用的 *OAuth 2.0/OIDC* 流程中前端的职责，以及通过代码分割或使用外部库来确保*稳定性*的方法。
+
+
+## 预防 XSS（跨站脚本攻击）
+
+XSS 是攻击者将恶意 JavaScript 代码注入网页，并让访问该网页的其他用户在浏览器中执行这些代码的一种攻击。
+攻击者可能借此窃取用户 Cookie（会话信息）或个人信息，也可能诱使用户执行违背其本意的操作。
+
+### XSS 攻击示例
+
+最常见的情况是将用户输入的内容原样显示在页面上。
+例如，假设有一项功能允许用户填写个人简介，并展示给其他用户。
+<br/>
+<Rbox> 这段代码是错误示例，仅供练习使用。 </Rbox>
+
+这是一个不谨慎使用 `dangerouslySetInnerHTML`、将用户输入直接作为 HTML 渲染的例子。
+```tsx
+import React from "react";
+
+function UserProfile({ bio }: { bio: string }) {
+  // 사용자가 입력한 bio 내용을 HTML로 해석하여 그대로 삽입
+  // 절대 이렇게 사용하면 안 됩니다!
+  return (
+    <div>
+      <h3>소개</h3>
+      <div dangerouslySetInnerHTML={{ __html: bio }} />
+    </div>
+  );
+}
+
+const UserProfilePage = () => {
+  // 만약 공격자가 bio에 다음과 같은 악성 스크립트를 입력했다면?
+  const bio =
+    '안녕하세요! 저는 웹 개발자입니다. <script>alert("XSS 공격 성공! 쿠키: " + document.cookie);</script>';
+  return (
+    <div>
+      <h1>사용자 프로필</h1>
+      <UserProfile bio={bio} /> 
+      {/* 이 컴포넌트가 렌더링되면, 다른 사용자의 브라우저에서 스크립트가 실행되어 경고창이 뜨고 쿠키 정보가 노출될 수 있습니다. */}
+    </div>
+  );
+};
+export default UserProfilePage;
+```
+<Img src="/250504-183411.webp" width={500} alt="通过 dangerouslySetInnerHTML 渲染时"/>
+如上例所示，如果未经筛选的用户输入包含恶意脚本，并通过 `dangerouslySetInnerHTML` 渲染，脚本就可能在其他访问者的浏览器中执行，导致 Cookie 信息被窃取等严重问题。
+
+### XSS 预防方法
+
+React 内置了防止基本 XSS 攻击的功能，也可以进一步采用其他防御策略。
+
+#### 1. 使用 React 的自动转义
+
+React 默认将 JSX 花括号 `{}` 中的内容视为字符串，并自动*转义*可能被解释为 HTML 标签或脚本的特殊字符（例如 `<`、`>`、`&`）。
+也就是说，即使将 `<script>` 标签作为字符串传入，浏览器也会把它当作普通文本而不会执行。
+```tsx
+import React from "react";
+
+function UserProfile({ bio }: { bio: string }) {
+  // 사용자가 입력한 bio 내용을 HTML로 해석하여 그대로 삽입
+  // 절대 이렇게 사용하면 안 됩니다!
+  return (
+    <div>
+      <h3>소개</h3>
+      <div>{bio}</div>
+    </div>
+  );
+}
+
+const UserProfilePage = () => {
+  // 만약 공격자가 bio에 다음과 같은 악성 스크립트를 입력했다면?
+  const bio =
+    '안녕하세요! 저는 웹 개발자입니다. <script>alert("XSS 공격 성공! 쿠키: " + document.cookie);</script>';
+  return (
+    <div>
+      <UserProfile bio={bio} />
+      {/* 이 컴포넌트가 렌더링되면, 다른 사용자의 브라우저에서 스크립트가 실행되어 경고창이 뜨고 쿠키 정보가 노출될 수 있습니다. */}
+    </div>
+  );
+};
+export default UserProfilePage;
+```
+<Img src="/250504-183638.webp" width={600} alt="作为字符串处理"/>
+
+因此，尽量避免使用 `dangerouslySetInnerHTML`，始终通过 *JSX 花括号* `{}` 渲染用户输入，是预防 XSS 最基本也最重要的原则。
+
+#### 2. 谨慎使用 dangerouslySetInnerHTML
+
+正如它的名字所示，这个属性可能带来“危险”。
+只有确实需要直接渲染 HTML 内容时才应使用它，并且必须确保要渲染的 HTML 可信，或事先经过*输入净化（Sanitization）*。
+
+#### 3. 输入净化（Input Sanitization）
+
+当需要在页面上显示用户输入的数据或外部 API 返回的 HTML 内容时，移除其中潜在危险的脚本或属性，这个过程称为*输入净化*。
+自行实现净化逻辑非常困难，也容易出错，因此使用经过验证的库更安全。
+- **DOMPurify**：常用的 JavaScript HTML 净化库之一。它可以配置允许的标签和属性，并移除不安全的代码。
+  ```tsx
+  import DOMPurify from 'dompurify';
+
+  function SanitizedHtmlComponent({ dirtyHtml }: { dirtyHtml: string }) {
+    // HTML 정제 수행
+    const cleanHtml = DOMPurify.sanitize(dirtyHtml);
+
+    // 정제된 안전한 HTML만 렌더링
+    return <div dangerouslySetInnerHTML={{ __html: cleanHtml }} />;
+  }
+  ```
+
+#### 4. 内容安全策略（Content Security Policy，CSP）
+
+CSP 是一种 HTTP 响应头，用于控制浏览器可以从哪些来源加载和执行资源（脚本、样式、图片等）。
+在服务器上配置适当的 CSP 响应头，可以在浏览器层面阻止来自意外来源的脚本（包括 XSS 攻击）运行，是一种非常有效的防御手段。
+例如，*Content-Security-Policy: script-src 'self'* 响应头只允许执行从当前域名加载的脚本。
+
+<Ads1 />
+
+## CSRF——跨站请求伪造
+
+CSRF 是一种攻击：攻击者让用户在违背自身意愿的情况下，向某个网站发起攻击者指定的操作（例如更改密码、删除文章或下单）。
+通常发生在用户已登录某个网站，同时打开了包含恶意脚本的其他网站或邮件时。
+
+### CSRF 攻击示例
+假设用户已登录 `mybank.com`。
+此时用户访问了恶意网站 `evil.com`。
+`evil.com` 中可能隐藏着如下代码。
+<br/>
+<Rbox> 这段代码是错误示例，仅供练习使用。 </Rbox>
+
+```html
+<!-- 사용자는 이 이미지를 보지만, 브라우저는 mybank.com으로 요청을 보낸다 -->
+<img src="https://mybank.com/transfer?to=hacker&amount=1000000" width="1" height="1" />
+
+<!-- 또는, 자동으로 제출되는 숨겨진 폼 -->
+<form id="csrf-form" action="https://mybank.com/change-password" method="POST" style="display:none;">
+  <input type="hidden" name="newPassword" value="hacked123" />
+</form>
+<script>document.getElementById('csrf-form').submit();</script>
+```
+用户打开 `evil.com` 后，浏览器会*自动附带 `mybank.com` 的登录 Cookie*，并将图片 URL 请求或表单提交发送到 `mybank.com` 服务器。
+如果 `mybank.com` 服务器没有验证请求是否确由用户本人发起，攻击者就可能以用户的身份转账、修改密码或执行其他恶意操作。
+
+### CSRF 预防方法
+
+CSRF 主要需要在服务端防御，前端也应配合实施防御策略。
+
+#### 1. Synchronizer Token Pattern——使用 CSRF Token
+
+这是最常见的方法。
+- **原理**：
+  1. 用户登录或访问某个表单页面时，服务器生成不可预测的随机字符串（*CSRF Token*），保存在用户会话中，同时传给客户端（前端），例如放在 HTML 表单的 hidden 字段、meta 标签或 API 响应中。
+  2. 客户端保存服务器发来的 CSRF Token（例如保存在 JavaScript 变量中）。
+  3. 用户执行重要操作（例如转账、更改密码等会改变状态的请求）时，客户端将保存的 CSRF Token 放入请求数据（表单数据或 HTTP 请求头，例如 `X-CSRF-Token`）并发送给服务器。
+  4. 服务器收到请求后，将请求中的 Token 与用户会话中保存的 Token 进行比较。
+  5. 两个 Token 一致时，服务器判定请求有效并进行处理；不一致时，则将其视为 CSRF 攻击并拒绝请求。
+- **前端的职责**：
+  - 从服务器安全地接收并保存 CSRF Token。
+  - 在所有会导致状态改变的请求（通常是 POST、PUT、DELETE 等）中附带 CSRF Token。Axios 等库可通过配置拦截器简化这一操作。
+
+<Img src="/250504-191907.webp" width={500} alt="CSRF Token 模式的工作流程图"/>
+
+#### 2. 使用 SameSite Cookie 属性
+
+现代浏览器支持 Cookie 的 `SameSite` 属性，有助于减轻 CSRF 攻击。
+- **SameSite=Strict**
+  只有从同一站点发起的请求才会发送 Cookie。
+  从外部站点发起的请求（例如从 `evil.com` 前往 `mybank.com`）不会携带 Cookie，因此防护效果较强。
+  但即使用户通过外部网站上的链接正常访问自己的网站，Cookie 也可能不会发送。
+- **SameSite=Lax**
+  限制比 `Strict` 略宽松。在点击链接（`<a>` 标签）、通过 `GET` 方法提交表单等被视为安全的部分顶层导航中，即使请求来自其他网站，也会发送 Cookie。
+  它可以阻止大多数 CSRF 攻击（POST、`<img>` 等），且对用户体验影响较小，因此经常被建议作为默认值。
+- **SameSite=None; Secure**
+  所有请求（同站点和跨站点）都会携带 Cookie。必须同时设置 `Secure` 属性（仅通过 HTTPS 发送 Cookie）。
+  仅在第三方上下文确实需要 Cookie（例如嵌入式内容认证）时有限使用。
+
+在服务器上为重要的会话 Cookie 设置 `SameSite=Lax` 或 `Strict`，有助于预防 CSRF。前端开发者也应确认并理解这些属性是否正确设置。
+
+#### 3. 其他方法（辅助措施）
+
+- **验证 Referer 请求头**
+  检查请求头中的 `Referer` 值，确认请求是否来自允许的域名。
+  但用户可能会禁用 Referer，代理也可能将其移除，因此这不是完整的防御措施。
+- **使用自定义请求头**
+  服务器只接受包含特定自定义请求头（例如 `X-Requested-With`）的请求。
+  该方法利用了浏览器的同源策略（Same-Origin Policy）：其他域名难以通过 JavaScript 添加自定义请求头来发送请求。
+  但如果 CORS 配置不正确，这种防御可能被绕过。
+
+>Q: “什么是 CSRF 攻击？该如何预防？”
+A: 请说明攻击原理、预防措施（CSRF Token、SameSite Cookie）的工作方式，以及前端开发者承担的职责。
+
+<Ads2 />
+
+## OAuth 2.0 / OIDC
+
+如今，许多 Web 服务提供社交登录（快捷登录），让用户使用 Google、Facebook、Kakao 等外部服务的账号登录，而无需注册本服务的账号。
+实现这类功能时，常用的标准协议就是 *OAuth 2.0* 和 *OpenID Connect（OIDC）*。
+- **OAuth 2.0**
+  这是一种*授权（Authorization）*框架，允许用户将访问其他服务（例如 Google）中自身信息（例如个人资料、电子邮件）的*权限委托（Delegation）*给特定服务（例如我们的应用）。
+  它主要用于获取 API 访问权限。
+- **OIDC**
+  这是构建在 OAuth 2.0 之上的*认证（Authentication）*层。
+  它用于确认用户身份并获取基本个人资料。
+
+在此流程中，前端开发者负责引导用户前往外部认证服务（授权服务器），安全处理认证与授权结果，并最终管理用户的登录状态。
+
+### 授权码流程（Authorization Code Flow with PKCE）
+
+对于单页应用（SPA）等公共客户端，建议使用增加了 *PKCE（Proof Key for Code Exchange）* 扩展的授权码流程来提升安全性。
+
+1.  **发起授权请求**
+    - 用户点击“使用 Google 登录”等按钮。
+    - 前端生成随机秘密字符串 *code_verifier*，并通过哈希（例如 SHA256）生成 *code_challenge*。
+    - 将用户重定向到 Google 授权服务器 URL，并在 URL 参数中加入以下信息。
+      - `client_id`：预先注册的应用标识符。
+      - `redirect_uri`：接收授权码的应用地址。
+      - `response_type=code`：表示请求授权码。
+      - `scope`：请求的用户信息范围（例如 `openid profile email`）。
+      - `code_challenge`：上一步生成的哈希值。
+      - `code_challenge_method=S256`：指定哈希算法。
+      - `state`：用于防止 CSRF 攻击的随机字符串（可选，但建议设置）。
+2.  **接收授权码**
+    - 用户在 Google 完成登录和授权同意后，Google 授权服务器会将用户重定向回前端指定的 `redirect_uri`。
+    - 重定向 URL 的查询参数中会带回*授权码（authorization_code）*以及之前发送的 `state` 值。
+    - 前端从 URL 中提取授权码和 state 值，并检查 state 是否匹配以防御 CSRF。
+3.  **请求 Token（建议交由后端处理）**
+    - **安全提醒**
+      在前端（浏览器）直接使用客户端密钥请求 Token 非常危险。
+      通常更安全的做法是将授权码传给后端服务器（或 BFF——Backend for Frontend），再由后端使用授权码向授权服务器获取 *Access Token* 和 *Refresh Token*。
+    - 前端将提取到的授权码发送给后端 API，同时也要发送第 1 步生成的 *code_verifier*。（后端会将它与授权码一起发送给授权服务器以请求 Token。）
+4.  **接收并保存 Token**
+    - 后端成功取得 Token 后，会将 Access Token，以及必要时的 Refresh Token 返回给前端。
+    - 前端必须安全地保存这些 Token。
+      - **Access Token**：有效期通常较短，用于 API 请求。保存在内存（JavaScript 变量）中相对安全。LocalStorage 或 SessionStorage 可能容易受到 XSS 攻击。
+      - **Refresh Token**：有效期较长，用于 Access Token 过期后获取新的 Access Token。它非常敏感；如果可能，应保存到关联服务端会话且带有 `HttpOnly`、`Secure`、`SameSite=Strict`（或 Lax）属性的 Cookie 中，避免前端 JavaScript 直接访问。如果做不到，则应保存在内存中并采取其他安全措施。
+5.  **在 API 请求中使用 Token**
+    - 每次调用受保护的 API 时，前端都在 HTTP 请求头的 `Authorization` 字段中发送已保存的 Access Token（例如 `Authorization: Bearer YOUR_ACCESS_TOKEN`）。
+6.  **更新 Token**
+    - 如果 API 请求返回 Access Token 已过期（例如 401 Unauthorized），前端使用 Refresh Token 请求后端签发新的 Access Token（若存储在 HttpOnly Cookie 中，浏览器会自动发送；若存储在内存中，则由前端发送）。后端签发新 Token 后，前端保存它并重试失败的 API 请求。
+7.  **注销**
+    - 前端删除已保存的 Token（内存、Cookie 等）。
+    - 如有需要，将用户重定向到授权服务器的注销端点，完成外部服务的注销。
+
+<Img src="/250504-201356.webp" width={600} alt="OAuth 2.0 授权码流程"/>
+
+### Access Token
+这是 API 请求中用于用户认证和授权的 Token。
+它的有效期较短，通常放在 API 请求的 Authorization 请求头中发送。
+将 Token 保存在 JavaScript 变量等**内存**中，相对不容易受到 XSS 攻击。浏览器存储（LocalStorage、SessionStorage）可通过脚本访问，因此容易受到 XSS 攻击。
+```typescript
+// Zustand 스토어 예시
+import create from 'zustand';
+interface AuthState {
+  accessToken: string | null;
+  setAccessToken: (token: string | null) => void;
+}
+const useAuthStore = create<AuthState>((set) => ({
+  accessToken: null,
+  setAccessToken: (token) => set({ accessToken: token }),
+}));
+
+// 로그인 성공 후 토큰 저장
+// const { setAccessToken } = useAuthStore.getState();
+// setAccessToken(receivedAccessToken);
+
+// API 요청 시 토큰 사용
+// const accessToken = useAuthStore((state) => state.accessToken);
+// axios.get('/api/protected', { headers: { Authorization: `Bearer ${accessToken}` } });
+```
+### Refresh Token
+当 Access Token 过期时，无需用户重新登录即可获取新 Access Token 的 Token。
+它的有效期较长（数天到数月），且非常敏感；一旦被窃取，安全风险很高。
+#### 方案 1：服务端 HttpOnly Cookie（最推荐）
+后端返回 Token 时，将 Refresh Token 设置为带有 `HttpOnly`、`Secure`、`SameSite=Strict`（或 `Lax`）属性的 Cookie 并保存到浏览器。
+由于设置了 `HttpOnly`，客户端 JavaScript 无法访问该 Cookie，因此无法通过 XSS 窃取。
+`Secure` 确保 Cookie 只通过 HTTPS 发送，`SameSite` 则用于防御 CSRF。
+- **前端的职责**：前端无需直接读取或管理此 Cookie。Access Token 过期时，只需调用后端的 Token 刷新端点（例如 `/api/refresh_token`）。浏览器请求该端点时会自动附带包含 Refresh Token 的 HttpOnly Cookie。后端读取该 Cookie，签发新的 Access Token 并在响应中返回。
+- **服务端 Cookie 设置示例（Node.js/Express）**
+  ```javascript
+  // 백엔드에서 로그인 성공 또는 토큰 발급 시
+  res.cookie('refreshToken', receivedRefreshToken, {
+    httpOnly: true, // JavaScript 접근 불가
+    secure: true, // HTTPS에서만 전송
+    sameSite: 'lax', // 또는 'strict'
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 예: 7일 유효기간
+  });
+  res.json({ accessToken: receivedAccessToken }); // Access Token은 JSON 응답으로 전달
+  ```
+#### 方案 2：保存在内存中（次选方案，需谨慎）
+与 Access Token 一样，将其保存在 JavaScript 变量（状态管理库、Context API 等）中。
+实现简单，并且相对不易受到 CSRF 攻击。
+**浏览器刷新后 Token 会丢失**，用户因此会退出登录。有人会将 Token 存在 LocalStorage/SessionStorage 来解决，但这些存储**极易受到 XSS 攻击**，绝不建议用来保存 Refresh Token。
+此外，理论上攻击者也可能在特定时刻尝试转储内存，从而窃取内存中的 Token。
+
+<br/>
+
+**尝试解决刷新问题（安全性较低的方法）**：有些实现会将 Refresh Token 存入 LocalStorage，并在应用启动时读取到内存，以便刷新后保持登录状态。
+但这会让 Refresh Token 暴露于 XSS 风险中，因此不建议这样做。如果确实无法避免，必须格外重视 XSS 防御。
+
+<Bbox> 如果条件允许，使用服务端 HttpOnly Cookie 是安全管理 Refresh Token 的最佳方式。 </Bbox>
+
+
+>Q: “在 OAuth 2.0 授权码流程中，前端负责什么？”或“Access Token 存在哪里更安全？”
+A: 清晰说明流程各阶段的职责，以及不同 Token 存储位置的安全考量（例如 LocalStorage 容易受到 XSS 攻击、HttpOnly Cookie 有助于防御 CSRF）。
+
+## 代码分割与第三方脚本的稳定性
+
+应用的稳定性与安全性同样重要。
+代码分割和外部库（第三方脚本）可以提升性能或开发效率，但也会带来新的稳定性考量。
+
+### 代码分割与错误隔离
+
+使用 React.lazy 等进行代码分割，主要目的是改善初始加载性能，同时也可能有助于限制错误的影响范围。
+即使某个页面或功能对应的代码块加载失败，或其中发生运行时错误，也可能通过 Suspense 的 fallback 或 ErrorBoundary 只处理该部分，而不让整个应用停止运行。（当然，共享模块的错误仍可能影响整个应用。）
+
+### 第三方脚本的风险
+
+Google Analytics 等分析工具、广告脚本、社交媒体小组件以及外部库 CDN 等第三方脚本虽然方便，但也存在以下风险。
+- **性能下降**：外部服务器响应延迟、脚本体积或运行时间可能降低应用的加载速度和响应能力。
+- **安全漏洞（供应链攻击）**：如果第三方服务遭到入侵或被注入恶意代码，它就可能成为攻击用户的途径。
+- **服务故障**：第三方服务中断或出错时，应用功能也可能失效或发生错误。
+
+### 监控与管理策略
+
+可考虑以下策略来降低风险并提升稳定性。
+- **定期检查并更新依赖项**
+  使用 `npm audit`、Snyk、Dependabot 等工具查找存在已知安全漏洞的库，并定期更新；移除不必要的依赖项。
+- **控制第三方脚本的加载**：
+  在 HTML `<script>` 标签中使用 `async` 或 `defer` 属性，避免阻塞页面渲染。
+  也可以只在真正需要时才动态加载脚本。
+- **Subresource Integrity（SRI）**
+  从 CDN 等外部服务器加载脚本或样式表时，可以预先在 `<script>` 或 `<link>` 标签的 `integrity` 属性中指定资源哈希值。
+  浏览器下载资源后会比较哈希值；如果文件内容已被更改，就会阻止加载。
+  ```html
+  <script src="https://example.com/library.js"
+          integrity="sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxy9rx7HNQlGYl1kPzQho1wx4JwY8w/"
+          crossorigin="anonymous"></script>
+  ```
+- **内容安全策略（CSP）**
+  严格配置 CSP 响应头，只允许加载可信来源的脚本，以阻止意外的第三方脚本运行。
+- **性能与错误监控**
+  使用 Lighthouse、WebPageTest 定期测量性能，并借助 Sentry、Datadog 等错误监控服务发现和处理第三方脚本引起的性能问题或错误。
+
+<Ads3 />
+
+## 总结
+
+今天我们了解了提升 React 应用安全性和稳定性的重要概念与方法。
+- **XSS**：安全处理用户输入（自动转义、输入净化）并配置 CSP。使用 `dangerouslySetInnerHTML` 时必须格外谨慎。
+- **CSRF**：可以使用不可预测的 Token（CSRF Token）或 SameSite Cookie 属性，由服务端和客户端共同防御。
+- **OAuth 2.0/OIDC**：这是安全认证与授权的标准协议。前端负责引导用户前往授权服务器并安全管理 Token；尤其建议 SPA 使用包含 PKCE 的授权码流程。
+- **代码分割**：除性能提升外，也可能有助于隔离错误。**第三方脚本**虽有便利性，但在性能、安全和稳定性方面都存在风险，需要谨慎管理和监控。SRI、CSP 等可以提供帮助。
+
+安全性与稳定性不是设置一次就结束，而是需要持续关注和投入的领域。
+随着新漏洞出现、技术不断变化，我们的防御策略也需要持续更新。
+最重要的是将安全与稳定纳入开发文化，在设计、部署和运维的每个阶段都始终牢记这一点。
+> 下次我们将介绍提升 React 开发效率和代码质量的*开发者工具与测试*。从 React DevTools 到 Jest、React Testing Library 等测试库和 Storybook，一起了解各种工具。
+
+### 参考资料
+
+- OWASP Top 10（Web 应用程序安全威胁）：[https://owasp.org/www-project-top-ten/](https://owasp.org/www-project-top-ten/)（包含 XSS、CSRF 等）
+- MDN Web Docs - 内容安全策略（CSP）：[https://developer.mozilla.org/ko/docs/Web/HTTP/CSP](https://developer.mozilla.org/ko/docs/Web/HTTP/CSP)
+- MDN Web Docs - SameSite Cookie：[https://developer.mozilla.org/ko/docs/Web/HTTP/Headers/Set-Cookie/SameSite](https://developer.mozilla.org/ko/docs/Web/HTTP/Headers/Set-Cookie/SameSite)
+- OAuth 2.0 官方网站：[https://oauth.net/2/](https://oauth.net/2/)
+- OpenID Connect (OIDC) 官方网站：[https://openid.net/connect/](https://openid.net/connect/)
+- MDN Web Docs - Subresource Integrity (SRI)：[https://developer.mozilla.org/ko/docs/Web/Security/Subresource_Integrity](https://developer.mozilla.org/ko/docs/Web/Security/Subresource_Integrity)
