@@ -50,7 +50,7 @@ function fingerprint(source: string) {
           attribute.name,
           typeof attribute.value === "object"
             ? attribute.value?.value
-            : ["alt", "title", "caption", "label"].includes(
+            : ["alt", "title", "caption", "label", "aria-label"].includes(
                   attribute.name || "",
                 )
               ? "translated text"

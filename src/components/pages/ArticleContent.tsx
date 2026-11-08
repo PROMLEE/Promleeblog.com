@@ -53,9 +53,11 @@ export default function ArticleContent({
             originalContent={originalContent}
           />
         </div>
-        <div className="my-8 md:hidden">
-          <PortRhythmCard compact />
-        </div>
+        {locale === "ko" && (
+          <div className="my-8 md:hidden">
+            <PortRhythmCard compact />
+          </div>
+        )}
         <AdComponent
           adSlot="6830024817"
           adFormat="fluid"

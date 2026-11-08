@@ -114,9 +114,11 @@ const Home = async ({ locale = "ko" }: { locale?: Locale }) => {
         )}
       </p>
 
-      <div className="mt-8">
-        <PortRhythmCard />
-      </div>
+      {locale === "ko" && (
+        <div className="mt-8">
+          <PortRhythmCard />
+        </div>
+      )}
       <div className="mt-10 mb-5 text-4xl font-bold text-gray-900 dark:text-slate-200">
         📰 {locale === "ko" ? "Recent Posts" : t.recent}
       </div>

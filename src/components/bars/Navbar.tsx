@@ -283,17 +283,12 @@ export const Navbar = () => {
             {list.map((category, index) => (
               <AccordionItem
                 key={index}
-                value={
-                  locale !== "ko"
-                    ? categoryLabel(category.url, locale) ||
-                      englishLabel(category.url)
-                    : category.nameko
-                }
+                value={category.url}
                 className="border-none"
               >
                 <AccordionTrigger
                   onClick={() => {
-                    setValue(value === category.nameko ? "" : category.nameko);
+                    setValue(value === category.url ? "" : category.url);
                   }}
                   className="hover:bg-button/15 data-[state=open]:bg-button/10 px-5 py-4 text-base font-medium transition-colors hover:no-underline data-[state=open]:font-semibold"
                 >
