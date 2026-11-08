@@ -5,7 +5,7 @@ import InternationalPage, {
 import { isTranslationLocale } from "@/lib/i18n/routing";
 
 type Props = { params: Promise<{ locale: string; path?: string[] }> };
-export const revalidate = 14400;
+export const revalidate = 60;
 export async function generateMetadata({ params }: Props) {
   const { locale, path = [] } = await params;
   if (!isTranslationLocale(locale)) notFound();

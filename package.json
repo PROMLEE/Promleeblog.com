@@ -17,7 +17,8 @@
     "vercel-deploy": "next build && next export",
     "translation": "tsx --env-file-if-exists=.env scripts/translation.ts",
     "test:i18n": "node --conditions=react-server --import tsx --test tests/i18n.test.ts tests/translation-cli.test.ts tests/seo.test.ts tests/mdx-invariants.test.ts tests/heading-aliases.test.ts",
-    "translation:check": "tsx --env-file-if-exists=.env scripts/check-translations.ts"
+    "translation:check": "tsx --env-file-if-exists=.env scripts/check-translations.ts",
+    "translation:import-db": "tsx --env-file-if-exists=.env scripts/import-translations-db.ts"
   },
   "dependencies": {
     "@bprogress/next": "^3.2.10",

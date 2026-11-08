@@ -1,8 +1,6 @@
 import "server-only";
-import fs from "node:fs/promises";
-import path from "node:path";
-import matter from "gray-matter";
 import { z } from "zod";
+import prisma from "@/lib/prisma";
 import type { TranslationLocale } from "./routing";
 
 export const translationSchema = z.object({
@@ -13,46 +11,61 @@ export const translationSchema = z.object({
   source_hash: z.string().regex(/^[a-f0-9]{64}$/),
   reviewed_at: z.string().datetime(),
 });
+
 export type Translation = z.infer<typeof translationSchema> & {
   content: string;
 };
-const directory = (locale: TranslationLocale) =>
-  path.join(process.cwd(), "content/translations", locale);
+
+function toTranslation(row: {
+  post_id: bigint;
+  locale: string;
+  status: string;
+  title: string;
+  description: string;
+  content: string;
+  source_hash: string;
+  reviewed_at: Date | null;
+}): Translation {
+  if (row.status !== "published" || !row.reviewed_at)
+    throw new Error(`Translation ${row.post_id}/${row.locale} is not published`);
+
+  return {
+    ...translationSchema.parse({
+      post_id: row.post_id.toString(),
+      locale: row.locale,
+      title: row.title,
+      description: row.description,
+      source_hash: row.source_hash,
+      reviewed_at: row.reviewed_at.toISOString(),
+    }),
+    content: row.content,
+  };
+}
 
 export async function getTranslation(
   id: string,
   locale: TranslationLocale,
 ): Promise<Translation | null> {
   if (!/^[1-9]\d*$/.test(id)) return null;
-  let file: string;
-  try {
-    file = await fs.readFile(path.join(directory(locale), `${id}.mdx`), "utf8");
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
-    throw error;
-  }
-  const { data, content } = matter(file);
-  const metadata = translationSchema.parse(data);
-  if (metadata.locale !== locale || metadata.post_id !== id || !content.trim())
-    throw new Error(`Invalid published translation: ${id}`);
-  return { ...metadata, content };
+
+  const row = await prisma.postTranslation.findUnique({
+    where: {
+      post_id_locale_status: {
+        post_id: BigInt(id),
+        locale,
+        status: "published",
+      },
+    },
+  });
+
+  return row ? toTranslation(row) : null;
 }
 
 export async function getTranslations(locale: TranslationLocale) {
-  const files = await fs
-    .readdir(directory(locale))
-    .catch((error: NodeJS.ErrnoException) => {
-      if (error.code === "ENOENT") return [];
-      throw error;
-    });
-  const translations = await Promise.all(
-    files
-      .filter((file) => /^[1-9]\d*\.mdx$/.test(file))
-      .map((file) => getTranslation(file.replace(/\.mdx$/, ""), locale)),
-  );
-  return new Map(
-    translations
-      .filter((item): item is Translation => item !== null)
-      .map((item) => [item.post_id, item]),
-  );
+  const rows = await prisma.postTranslation.findMany({
+    where: { locale, status: "published" },
+    orderBy: { post_id: "asc" },
+  });
+
+  return new Map(rows.map((row) => [row.post_id.toString(), toTranslation(row)]));
 }

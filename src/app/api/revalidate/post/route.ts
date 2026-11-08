@@ -44,7 +44,12 @@ export async function POST(req: NextRequest) {
 
     const path = `/blog/post/${post.id}-${post.url}`;
     revalidatePath(path);
-    for (const locale of ["en", "ja", "zh"]) revalidatePath(`/${locale}${path}`);
+    revalidatePath("/sitemap.xml");
+    for (const locale of ["en", "ja", "zh"]) {
+      revalidatePath(`/${locale}${path}`);
+      revalidatePath(`/${locale}`);
+      revalidatePath(`/${locale}/sitemap.xml`);
+    }
     return NextResponse.json({ revalidated: true, path });
   } catch (error) {
     console.error("Post revalidation failed", error);
