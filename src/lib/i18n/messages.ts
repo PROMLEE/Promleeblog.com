@@ -1,21 +1,33 @@
 import type { Locale } from "./routing";
 export const homeMessages = {
   ko: {
+    greeting: "Hi, There",
+    footerRights: "All Rights Reserved",
+    builtWith: "Built with",
     desktopNote: "이 블로그는 데스크톱과 다크 모드에 최적화되어있습니다",
     hot: "인기 포스팅",
     advertise: "광고",
   },
   en: {
+    greeting: "Hi, there",
+    footerRights: "All rights reserved",
+    builtWith: "Built with",
     desktopNote: "This blog is optimized for desktop and dark mode.",
     hot: "Hot posts",
     advertise: "Advertise",
   },
   ja: {
+    greeting: "こんにちは",
+    footerRights: "無断転載を禁じます",
+    builtWith: "使用技術",
     desktopNote: "このブログはデスクトップとダークモードに最適化されています。",
     hot: "人気の記事",
     advertise: "広告",
   },
   zh: {
+    greeting: "你好",
+    footerRights: "保留所有权利",
+    builtWith: "使用技术",
     desktopNote: "本博客针对桌面浏览和深色模式进行了优化。",
     hot: "热门文章",
     advertise: "广告",

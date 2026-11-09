@@ -56,6 +56,9 @@ model Category {
   id      BigInt    @id @default(autoincrement())
   name    String    @default("")
   nameko  String    @default("")
+  name_en String?   @db.Text
+  name_ja String?   @db.Text
+  name_zh String?   @db.Text
   url     String    @unique
   ord     BigInt    @unique @default(autoincrement())
   desc    String?   @default("")
@@ -80,6 +83,9 @@ model Series {
   subject_id BigInt
   name       String  @default("")
   nameko     String  @default("")
+  name_en    String? @db.Text
+  name_ja    String? @db.Text
+  name_zh    String? @db.Text
   url        String
   subject_no BigInt
   caption    String? @default("")
@@ -94,6 +100,9 @@ model Subject {
   category_id BigInt
   name        String   @default("")
   nameko      String   @default("")
+  name_en     String?  @db.Text
+  name_ja     String?  @db.Text
+  name_zh     String?  @db.Text
   url         String   @unique
   category_no BigInt
   desc        String?  @default("")
@@ -107,6 +116,9 @@ model Tag {
   id         BigInt     @id @unique @default(autoincrement())
   name       String     @unique @default("")
   nameko     String?    @default("")
+  name_en    String?    @db.Text
+  name_ja    String?    @db.Text
+  name_zh    String?    @db.Text
   is_primary Boolean    @default(false)
   Post_Tag   Post_Tag[]
 }

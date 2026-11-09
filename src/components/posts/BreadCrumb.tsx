@@ -1,5 +1,5 @@
-import { localizePath, englishLabel, type Locale } from "@/lib/i18n/routing";
-import { categoryLabel } from "@/lib/i18n/messages";
+import { localizePath, type Locale } from "@/lib/i18n/routing";
+import { taxonomyName } from "@/lib/i18n/taxonomy";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -34,8 +34,7 @@ export const BreadCrumb = ({
             >
               {locale === "ko"
                 ? params.Series.Subject.Category.nameko
-                : categoryLabel(params.Series.Subject.Category.url, locale) ||
-                  englishLabel(params.Series.Subject.Category.url)}
+                : taxonomyName(params.Series.Subject.Category, locale)}
             </Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
@@ -50,21 +49,21 @@ export const BreadCrumb = ({
           >
             {locale === "ko"
               ? params.Series.Subject.nameko
-              : englishLabel(params.Series.Subject.url)}
+              : taxonomyName(params.Series.Subject, locale)}
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
           <BreadcrumbLink
             href={localizePath(
-              `/blog/${params.Series.Subject.Category.url}/${params.Series.Subject.url}#${locale === "ko" ? params.Series.nameko : englishLabel(params.Series.url)}`,
+              `/blog/${params.Series.Subject.Category.url}/${params.Series.Subject.url}#series-${params.Series.id}`,
               locale,
             )}
             className="hover:text-text hover:font-bold"
           >
             {locale === "ko"
               ? params.Series.nameko
-              : englishLabel(params.Series.url)}
+              : taxonomyName(params.Series, locale)}
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />

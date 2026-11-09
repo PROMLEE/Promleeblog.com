@@ -1,6 +1,7 @@
 import { getTranslations } from "@/lib/i18n/translations";
-import { messages, categoryLabel } from "@/lib/i18n/messages";
-import { englishLabel, type Locale } from "@/lib/i18n/routing";
+import { messages } from "@/lib/i18n/messages";
+import type { Locale } from "@/lib/i18n/routing";
+import { taxonomyName } from "@/lib/i18n/taxonomy";
 import PortRhythmCard from "@/components/PortRhythmCard";
 import dayjs from "dayjs";
 import Image from "next/image";
@@ -63,8 +64,7 @@ const Home = async ({ locale = "ko" }: { locale?: Locale }) => {
               <span className="truncate">
                 {locale === "ko"
                   ? post.Series.Subject.Category.nameko
-                  : categoryLabel(post.Series.Subject.Category.url, locale) ||
-                    englishLabel(post.Series.Subject.Category.url)}
+                  : taxonomyName(post.Series.Subject.Category, locale)}
               </span>
             </Link>
             <Link
@@ -75,18 +75,18 @@ const Home = async ({ locale = "ko" }: { locale?: Locale }) => {
               <span className="truncate">
                 {locale === "ko"
                   ? post.Series.Subject.nameko
-                  : englishLabel(post.Series.Subject.url)}
+                  : taxonomyName(post.Series.Subject, locale)}
               </span>
             </Link>
             <Link
-              href={`/blog/${post.Series.Subject.Category.url}/${post.Series.Subject.url}#${locale === "ko" ? post.Series.nameko : englishLabel(post.Series.url)}`}
+              href={`/blog/${post.Series.Subject.Category.url}/${post.Series.Subject.url}#series-${post.Series.id}`}
               className="flex items-center gap-1.5 text-xs text-gray-600 transition-colors duration-200 hover:text-gray-900 hover:underline dark:text-slate-400 dark:hover:text-white"
             >
               <span className="text-gray-500 dark:text-slate-300">#</span>
               <span className="truncate">
                 {locale === "ko"
                   ? post.Series.nameko
-                  : englishLabel(post.Series.url)}
+                  : taxonomyName(post.Series, locale)}
               </span>
             </Link>
           </div>
@@ -101,7 +101,7 @@ const Home = async ({ locale = "ko" }: { locale?: Locale }) => {
   return (
     <div className="px-4">
       <div className="mt-20 mb-5 text-4xl font-bold text-gray-900 dark:text-slate-200">
-        🖐️ Hi, There
+        🖐️ {t.greeting}
       </div>
       <p className="text-sm text-gray-600 dark:text-slate-400">
         {locale === "ko" ? (

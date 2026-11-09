@@ -1,7 +1,7 @@
 "use client";
 import { useLocale } from "@/components/i18n/LocaleProvider";
-import { messages, categoryLabel } from "@/lib/i18n/messages";
-import { englishLabel } from "@/lib/i18n/routing";
+import { messages } from "@/lib/i18n/messages";
+import { taxonomyName } from "@/lib/i18n/taxonomy";
 import {
   Menubar,
   MenubarContent,
@@ -126,8 +126,7 @@ export const Navbar = () => {
                     <MenubarTrigger className="group relative rounded-md px-3 py-2 font-bold hover:cursor-pointer">
                       <span className="relative z-10">
                         {locale !== "ko"
-                          ? categoryLabel(category.url, locale) ||
-                            englishLabel(category.url)
+                          ? taxonomyName(category, locale)
                           : category.nameko}
                       </span>
                       <span className="bg-button absolute bottom-0 left-0 h-0.5 w-0 rounded-full transition-all duration-300 group-hover:w-full"></span>
@@ -141,7 +140,7 @@ export const Navbar = () => {
                           >
                             <MenubarItem className="hover:bg-button/90 hover:text-background/90 cursor-pointer rounded-md px-4 py-2 text-sm transition-colors duration-200">
                               {locale !== "ko"
-                                ? englishLabel(subject.url)
+                                ? taxonomyName(subject, locale)
                                 : subject.nameko}
                             </MenubarItem>
                           </Link>
@@ -293,8 +292,7 @@ export const Navbar = () => {
                   className="hover:bg-button/15 data-[state=open]:bg-button/10 px-5 py-4 text-base font-medium transition-colors hover:no-underline data-[state=open]:font-semibold"
                 >
                   {locale !== "ko"
-                    ? categoryLabel(category.url, locale) ||
-                      englishLabel(category.url)
+                    ? taxonomyName(category, locale)
                     : category.nameko}
                 </AccordionTrigger>
                 <AccordionContent className="px-2 py-3">
@@ -315,7 +313,7 @@ export const Navbar = () => {
                         className="bg-background/50 hover:bg-button hover:text-background mx-4 my-2 block rounded-md px-5 py-3 text-base font-medium shadow-sm transition-all duration-200"
                       >
                         {locale !== "ko"
-                          ? englishLabel(subject.url)
+                          ? taxonomyName(subject, locale)
                           : subject.nameko}
                       </Link>
                     </motion.div>

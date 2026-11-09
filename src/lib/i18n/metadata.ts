@@ -27,7 +27,15 @@ export function pageLanguages(path: string) {
     ["x-default", siteUrl + localizePath(path, "ko")],
   ]);
 }
-export function pageMetadata(locale: Locale, path: string): Metadata {
+export function pageMetadata(
+  locale: Locale,
+  path: string,
+  localized?: {
+    title: string;
+    description: string;
+    languages?: Record<string, string>;
+  },
+): Metadata {
   const t = messages[locale];
   const label =
     path === "/"
@@ -37,14 +45,19 @@ export function pageMetadata(locale: Locale, path: string): Metadata {
         : path === "/sitemap-tree"
           ? t.sitemap
           : t.posts;
+  const pageTitle = localized?.title || label;
+  const description = localized?.description || t.intro;
   const url = siteUrl + localizePath(path, locale);
   return {
-    title: label === "PromleeBlog" ? label : `${label} | PromleeBlog`,
-    description: t.intro,
-    alternates: { canonical: url, languages: pageLanguages(path) },
+    title: pageTitle === "PromleeBlog" ? pageTitle : `${pageTitle} | PromleeBlog`,
+    description,
+    alternates: {
+      canonical: url,
+      languages: localized?.languages || pageLanguages(path),
+    },
     openGraph: {
-      title: label,
-      description: t.intro,
+      title: pageTitle,
+      description,
       url,
       siteName: "PromleeBlog",
       locale: openGraphLocale[locale],
@@ -55,8 +68,8 @@ export function pageMetadata(locale: Locale, path: string): Metadata {
     },
     twitter: {
       card: "summary_large_image",
-      title: label,
-      description: t.intro,
+      title: pageTitle,
+      description,
     },
   };
 }

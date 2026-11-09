@@ -6,6 +6,9 @@ namespace TagsResponse {
       id: string;
       name: string;
       nameko: string;
+      name_en?: string | null;
+      name_ja?: string | null;
+      name_zh?: string | null;
       is_primary: boolean;
       isExist: boolean;
     }[];
@@ -16,6 +19,9 @@ namespace TagsResponse {
       id: string;
       name: string;
       nameko: string;
+      name_en?: string | null;
+      name_ja?: string | null;
+      name_zh?: string | null;
       is_primary: boolean;
       count: number;
     }[];

@@ -65,6 +65,9 @@ async function getTags(sort?: string) {
         id: true,
         name: true,
         nameko: true,
+        name_en: true,
+        name_ja: true,
+        name_zh: true,
         is_primary: true,
       },
     });
@@ -76,6 +79,9 @@ async function getTags(sort?: string) {
       return {
         name: isExist?.name,
         nameko: isExist?.nameko,
+        name_en: isExist?.name_en,
+        name_ja: isExist?.name_ja,
+        name_zh: isExist?.name_zh,
         id: tag.tag_id,
         is_primary: isExist?.is_primary,
         count: tag._count._all,
@@ -87,6 +93,15 @@ async function getTags(sort?: string) {
     return prisma.tag.findMany({
       orderBy: {
         id: "asc",
+      },
+      select: {
+        id: true,
+        name: true,
+        nameko: true,
+        name_en: true,
+        name_ja: true,
+        name_zh: true,
+        is_primary: true,
       },
     });
   }

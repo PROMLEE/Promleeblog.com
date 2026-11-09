@@ -45,16 +45,29 @@ async function findPostById(id: string) {
     include: {
       Series: {
         select: {
+          id: true,
           url: true,
+          name: true,
           nameko: true,
+          name_en: true,
+          name_ja: true,
+          name_zh: true,
           Subject: {
             select: {
               url: true,
+              name: true,
               nameko: true,
+              name_en: true,
+              name_ja: true,
+              name_zh: true,
               Category: {
                 select: {
                   url: true,
+                  name: true,
                   nameko: true,
+                  name_en: true,
+                  name_ja: true,
+                  name_zh: true,
                 },
               },
             },

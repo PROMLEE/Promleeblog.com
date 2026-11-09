@@ -1,6 +1,7 @@
 import "server-only";
 import type { MetadataRoute } from "next";
 import { PostService } from "@/config/apis";
+import { TagsService } from "@/config/apis/service/tags";
 import { getTranslations } from "./translations";
 import {
   locales,
@@ -10,12 +11,14 @@ import {
   type Locale,
 } from "./routing";
 import { languageCode, pageLanguages } from "./metadata";
+import { tagPath, taxonomyName } from "./taxonomy";
 
 export async function localizedSitemap(
   onlyLocale?: Locale,
 ): Promise<MetadataRoute.Sitemap> {
-  const [categories, ...translationMaps] = await Promise.all([
+  const [categories, tags, ...translationMaps] = await Promise.all([
     PostService().getLinks(),
+    TagsService().getTags({ sort: "count" }),
     ...translationLocales.map((locale) => getTranslations(locale)),
   ]);
   const maps = new Map(
@@ -30,6 +33,23 @@ export async function localizedSitemap(
     }
   };
   for (const path of ["/", "/blog", "/aboutme", "/sitemap-tree"]) addPage(path);
+  for (const tag of tags) {
+    const languages = Object.fromEntries([
+      ...locales.map((locale) => [
+        languageCode(locale),
+        siteUrl + localizePath(tagPath(tag.id, taxonomyName(tag, locale)), locale),
+      ]),
+      [
+        "x-default",
+        siteUrl + localizePath(tagPath(tag.id, taxonomyName(tag, "ko")), "ko"),
+      ],
+    ]);
+    for (const locale of onlyLocale ? [onlyLocale] : locales) {
+      const url =
+        siteUrl + localizePath(tagPath(tag.id, taxonomyName(tag, locale)), locale);
+      entries.set(url, { url, alternates: { languages } });
+    }
+  }
   for (const category of categories) {
     addPage(`/blog/${category.url}`);
     for (const subject of category.Subject) {

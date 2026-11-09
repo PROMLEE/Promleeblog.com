@@ -4,11 +4,12 @@ import { useLocale } from "@/components/i18n/LocaleProvider";
 import { messages } from "@/lib/i18n/messages";
 export const Footer = () => {
   const locale = useLocale();
+  const t = messages[locale];
   return (
     <footer id={"bottom"} className="bg-foreground w-full">
       <div className="mx-auto w-full max-w-(--breakpoint-xl) p-4 md:flex md:items-center md:justify-between">
         <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">
-          © 2025 Promlee . All Rights Reserved | Built with{" "}
+          © 2025 Promlee . {t.footerRights} | {t.builtWith}{" "}
           <a href="https://nextjs.org/" className="hover:underline">
             Next.js
           </a>{" "}
@@ -47,7 +48,7 @@ export const Footer = () => {
                 href="https://github.com/PROMLEE/PromleeBlog.com"
                 className="me-4 hover:underline md:me-6"
               >
-                {locale === "ko" ? "About this Blog" : messages[locale].about}
+                {locale === "ko" ? "About this Blog" : t.about}
               </a>
             </li>
             {/* <li>

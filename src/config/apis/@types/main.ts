@@ -27,14 +27,27 @@ namespace MainResponse {
     nameko: string;
     thumbnail_url: string;
     Series: {
+      id: number;
       url: string;
+      name: string;
       nameko: string;
+      name_en?: string | null;
+      name_ja?: string | null;
+      name_zh?: string | null;
       Subject: {
         url: string;
+        name: string;
         nameko: string;
+        name_en?: string | null;
+        name_ja?: string | null;
+        name_zh?: string | null;
         Category: {
           url: string;
+          name: string;
           nameko: string;
+          name_en?: string | null;
+          name_ja?: string | null;
+          name_zh?: string | null;
         };
       };
     };

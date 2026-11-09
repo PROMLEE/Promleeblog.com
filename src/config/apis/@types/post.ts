@@ -5,6 +5,9 @@ namespace PostResponse {
       id: number;
       name: string;
       nameko: string;
+      name_en?: string | null;
+      name_ja?: string | null;
+      name_zh?: string | null;
       ord: number;
       url: string;
     }[];
@@ -17,6 +20,9 @@ namespace PostResponse {
         id: number;
         name: string;
         nameko: string;
+        name_en?: string | null;
+        name_ja?: string | null;
+        name_zh?: string | null;
         url: string;
         subject_no: number;
         caption: string;
@@ -47,11 +53,17 @@ namespace PostResponse {
     data: {
       name: string;
       nameko: string;
+      name_en?: string | null;
+      name_ja?: string | null;
+      name_zh?: string | null;
       desc: string;
       Subject: {
         id: number;
         name: string;
         nameko: string;
+        name_en?: string | null;
+        name_ja?: string | null;
+        name_zh?: string | null;
         url: string;
         category_id: number;
         subject_no: number;
@@ -77,14 +89,27 @@ namespace PostResponse {
       posting: string;
       metatag: string[];
       Series: {
+        id: number;
         url: string;
+        name: string;
         nameko: string;
+        name_en?: string | null;
+        name_ja?: string | null;
+        name_zh?: string | null;
         Subject: {
           url: string;
+          name: string;
           nameko: string;
+          name_en?: string | null;
+          name_ja?: string | null;
+          name_zh?: string | null;
           Category: {
             url: string;
+            name: string;
             nameko: string;
+            name_en?: string | null;
+            name_ja?: string | null;
+            name_zh?: string | null;
           };
         };
       };
@@ -93,17 +118,29 @@ namespace PostResponse {
 
   export interface GetLinks extends Shared.SuccessResponse {
     data: {
+      name: string;
       nameko: string;
+      name_en?: string | null;
+      name_ja?: string | null;
+      name_zh?: string | null;
       url: string;
       id: number;
       ord: number;
       Subject: {
+        name: string;
         nameko: string;
+        name_en?: string | null;
+        name_ja?: string | null;
+        name_zh?: string | null;
         url: string;
         id: number;
         category_no: number;
         Series: {
+          name: string;
           nameko: string;
+          name_en?: string | null;
+          name_ja?: string | null;
+          name_zh?: string | null;
           url: string;
           id: number;
           subject_no: number;
