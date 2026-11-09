@@ -101,7 +101,9 @@ export async function articleMetadata(
   return {
     title: `${title} | PromleeBlog`,
     description,
-    keywords: post.metatag,
+    // The source keywords are Korean. Avoid publishing them on translated
+    // pages until locale-specific keyword translations are available.
+    keywords: locale === "ko" ? post.metatag : undefined,
     alternates: { canonical: url, languages },
     openGraph: {
       title,
@@ -116,7 +118,7 @@ export async function articleMetadata(
       publishedTime: post.init_date,
       modifiedTime: post.mod_date,
       images: [{ url: image, alt: title }],
-      tags: post.metatag,
+      tags: locale === "ko" ? post.metatag : undefined,
     },
     twitter: {
       card: "summary_large_image",
