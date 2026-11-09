@@ -1,6 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
-import { locales, localizePath } from "@/lib/i18n/routing";
+import { locales, localeCookie, localizePath, isLocale } from "@/lib/i18n/routing";
 import { languageNames, messages } from "@/lib/i18n/messages";
 import { useLocale } from "./LocaleProvider";
 
@@ -12,9 +12,12 @@ export function LanguageSwitcher() {
       value={locale}
       aria-label={messages[locale].languages}
       onChange={(event) => {
-        window.location.assign(
-          localizePath(pathname, event.target.value as typeof locale),
-        );
+        const selected = event.target.value;
+        if (!isLocale(selected)) return;
+        const secure = window.location.protocol === "https:" ? "; Secure" : "";
+        document.cookie = `${localeCookie}=${selected}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
+        const { search, hash } = window.location;
+        window.location.assign(localizePath(pathname, selected) + search + hash);
       }}
       className="bg-background max-w-24 rounded-md border px-1 py-1 text-xs"
     >

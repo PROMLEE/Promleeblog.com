@@ -1,6 +1,10 @@
 export const locales = ["ko", "en", "ja", "zh"] as const;
 export type Locale = (typeof locales)[number];
 export type TranslationLocale = Exclude<Locale, "ko">;
+export const localeCookie = "promlee_locale";
+export function isLocale(value: string): value is Locale {
+  return locales.some((locale) => locale === value);
+}
 export const translationLocales: TranslationLocale[] = ["en", "ja", "zh"];
 export const siteUrl = "https://www.promleeblog.com";
 export function isTranslationLocale(value: string): value is TranslationLocale {
