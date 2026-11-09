@@ -1,20 +1,23 @@
+import { pageMetadata } from "@/lib/i18n/metadata";
+import { siteUrl } from "@/lib/i18n/routing";
 import { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const baseUrl = "https://promleeblog.com";
-  const flattenedPath = "sitemap";
+  const baseUrl = siteUrl;
+  const path = "/sitemap-tree";
   const thumbnail = "icons/android-chrome-512x512.png";
   const title = "PromleeBlog | Sitemap";
   const description = "Cytoscape Graph로 만든 Sitemap입니다. - PromleeBlog";
   const tags = ["Sitemap", "Cytoscape"];
   return {
+    ...pageMetadata("ko", path, { title, description }),
     title,
     description,
     keywords: tags,
     openGraph: {
       title,
       description,
-      url: `${baseUrl}/${flattenedPath}`,
+      url: `${baseUrl}${path}`,
       siteName: "PromleeBlog",
       images: {
         url:

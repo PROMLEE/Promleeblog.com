@@ -1,7 +1,21 @@
+import { tagMetadata } from "@/lib/i18n/metadata";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { TagsService } from "@/config/apis/service/tags";
 import { Cards } from "@/components/posts/Cards";
 import AdComponent from "@/components/ads/adsense";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const tagId = id.split("-")[0];
+  const tags = await TagsService().getTags({ sort: "count" });
+  const tag = tags.find((item) => String(item.id) === tagId);
+  return tag ? tagMetadata(tag, "ko") : {};
+}
 
 const getTags = async (params: { id: string }) => {
   const postList = await TagsService().getPostLink({

@@ -15,7 +15,8 @@ export function taxonomyName(item: TaxonomyName, locale: Locale) {
   return item.name_zh || item.name_en || item.name;
 }
 
-export function taxonomyDescription(name: string, locale: Exclude<Locale, "ko">) {
+export function taxonomyDescription(name: string, locale: Locale) {
+  if (locale === "ko") return `${name} 관련 글을 모았습니다.`;
   if (locale === "ja") return `${name}に関する記事一覧です。`;
   if (locale === "zh") return `浏览${name}相关的文章。`;
   return `Browse articles about ${name}.`;

@@ -1,6 +1,6 @@
 import Home from "@/components/pages/Home";
 import ArticleContent from "@/components/pages/ArticleContent";
-import { pageMetadata, articleMetadata, languageCode } from "@/lib/i18n/metadata";
+import { pageMetadata, articleMetadata, tagMetadata } from "@/lib/i18n/metadata";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PostService } from "@/config/apis";
@@ -9,12 +9,10 @@ import { sourceHash } from "@/lib/i18n/source-hash";
 import { TagsService } from "@/config/apis/service/tags";
 import { messages } from "@/lib/i18n/messages";
 import {
-  localizePath,
-  locales,
   siteUrl,
   type TranslationLocale,
 } from "@/lib/i18n/routing";
-import { tagPath, taxonomyDescription, taxonomyName } from "@/lib/i18n/taxonomy";
+import { taxonomyDescription, taxonomyName } from "@/lib/i18n/taxonomy";
 import type { Metadata } from "next";
 
 export async function loadArticle(slug: string, locale: TranslationLocale) {
@@ -69,29 +67,7 @@ export async function internationalMetadata(
     const tagId = path[1].split("-")[0];
     const tags = await TagsService().getTags({ sort: "count" });
     const tag = tags.find((item) => String(item.id) === tagId);
-    if (tag) {
-      const title = taxonomyName(tag, locale);
-      const canonicalPath = tagPath(tag.id, title);
-      const languages = Object.fromEntries([
-        ...locales.map((language) => [
-          languageCode(language),
-          siteUrl +
-            localizePath(
-              tagPath(tag.id, taxonomyName(tag, language)),
-              language,
-            ),
-        ]),
-        [
-          "x-default",
-          siteUrl + localizePath(tagPath(tag.id, taxonomyName(tag, "ko")), "ko"),
-        ],
-      ]);
-      return pageMetadata(locale, canonicalPath, {
-        title,
-        description: taxonomyDescription(title, locale),
-        languages,
-      });
-    }
+    if (tag) return tagMetadata(tag, locale);
   }
   return pageMetadata(locale, "/" + path.join("/"));
 }

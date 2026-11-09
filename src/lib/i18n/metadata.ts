@@ -7,6 +7,7 @@ import {
   siteUrl,
   type Locale,
 } from "./routing";
+import { tagPath, taxonomyDescription, taxonomyName } from "./taxonomy";
 import { messages } from "./messages";
 import { ImageUrl } from "@/lib/PostUtils/getImageUrl";
 
@@ -72,6 +73,25 @@ export function pageMetadata(
       description,
     },
   };
+}
+export function tagMetadata(
+  tag: Parameters<typeof taxonomyName>[0] & { id: string | number },
+  locale: Locale,
+): Metadata {
+  const title = taxonomyName(tag, locale);
+  const paths = locales.map((language) => [
+    languageCode(language),
+    siteUrl + localizePath(tagPath(tag.id, taxonomyName(tag, language)), language),
+  ]);
+  const languages = Object.fromEntries([
+    ...paths,
+    ["x-default", paths[0][1]],
+  ]);
+  return pageMetadata(locale, tagPath(tag.id, title), {
+    title,
+    description: taxonomyDescription(title, locale),
+    languages,
+  });
 }
 export async function articleLanguages(id: string, slug: string) {
   const original = `/blog/post/${slug}`;
