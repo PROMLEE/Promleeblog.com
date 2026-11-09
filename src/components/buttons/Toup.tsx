@@ -1,11 +1,14 @@
 "use client";
 
+import { messages } from "@/lib/i18n/messages";
+import { useLocale } from "@/components/i18n/LocaleProvider";
 import React from "react";
 import Link from "next/link";
 
 export const Toup = () => {
+  const locale = useLocale();
   return (
-    <Link href="#">
+    <Link href="#" aria-label={messages[locale].goTop}>
       <svg
         className="sticky top-0 z-10 mb-2 ml-auto h-8 w-8 rounded-b-md bg-foreground"
         aria-hidden="true"

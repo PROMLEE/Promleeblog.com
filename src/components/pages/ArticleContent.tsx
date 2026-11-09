@@ -51,6 +51,7 @@ export default function ArticleContent({
           <MdxBody
             content={markdownsource.posting}
             originalContent={originalContent}
+            locale={locale}
           />
         </div>
         {locale === "ko" && (

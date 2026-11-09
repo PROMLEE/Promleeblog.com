@@ -1,11 +1,14 @@
 "use client";
 
+import { messages } from "@/lib/i18n/messages";
+import { useLocale } from "@/components/i18n/LocaleProvider";
 import React from "react";
 import Link from "next/link";
 
 export const Todown = () => {
+  const locale = useLocale();
   return (
-    <Link href="#bottom">
+    <Link href="#bottom" aria-label={messages[locale].goBottom}>
       <svg
         className="sticky bottom-0 z-10 ml-auto mt-5 h-8 w-8 rounded-t-md bg-foreground"
         aria-hidden="true"

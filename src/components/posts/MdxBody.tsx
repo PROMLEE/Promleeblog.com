@@ -1,5 +1,11 @@
 import { rehypeHeadingAliases } from "@/lib/i18n/heading-aliases";
 import React from "react";
+import { atag } from "@/components/mdx/defaulttags";
+import {
+  koreanArticleUrl,
+  translatedArticlePaths,
+} from "@/lib/i18n/article-links";
+import type { Locale } from "@/lib/i18n/routing";
 import { Components } from "@/components/mdx";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
@@ -11,19 +17,34 @@ import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import "katex/dist/katex.min.css";
 
-export const MdxBody = ({
+export const MdxBody = async ({
   content,
   isDev,
   originalContent,
+  locale = "ko",
 }: {
   content: string;
   isDev?: boolean;
   originalContent?: string;
+  locale?: Locale;
 }) => {
+  const components = Components(isDev);
+  if (locale !== "ko") {
+    const paths = await translatedArticlePaths(content, locale);
+    components.a = (props: Parameters<typeof atag>[0]) => {
+      const url = props.href && koreanArticleUrl(props.href);
+      if (!url) return atag(props);
+      return atag({
+        ...props,
+        href: url.pathname + url.search + url.hash,
+        preserveLanguage: !paths.has(url.pathname),
+      });
+    };
+  }
   return (
     <MDXRemote
       source={content === "" ? "no contents 😿" : content}
-      components={Components(isDev)}
+      components={components}
       options={{
         parseFrontmatter: true,
         mdxOptions: {

@@ -8,6 +8,7 @@ interface Props {
   id: string;
   children: string;
   href: string;
+  preserveLanguage?: boolean;
 }
 
 export async function Img({
@@ -209,12 +210,13 @@ export const spantag = ({ children }: Props) => {
 //     </blockquote>
 //   );
 // };
-export const atag = ({ id, children, href }: Props) => {
+export const atag = ({ id, children, href, preserveLanguage }: Props) => {
   const isInternalLink = href && (href.startsWith("/") || href.startsWith("#"));
 
   if (isInternalLink) {
+    const Anchor = preserveLanguage ? "a" : Link;
     return (
-      <Link
+      <Anchor
         href={href}
         id={id}
         className={
@@ -222,7 +224,7 @@ export const atag = ({ id, children, href }: Props) => {
         }
       >
         {children}
-      </Link>
+      </Anchor>
     );
   }
 

@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale } from "@/components/i18n/LocaleProvider";
+import { messages } from "@/lib/i18n/messages";
 import { Check } from "lucide-react";
 import { DetailedHTMLProps, HTMLAttributes, useRef, useState } from "react";
 
@@ -7,6 +9,7 @@ export default function Pre({
   children,
   ...props
 }: DetailedHTMLProps<HTMLAttributes<HTMLPreElement>, HTMLPreElement>) {
+  const t = messages[useLocale()];
   const [isCopied, setIsCopied] = useState(false);
   const preRef = useRef<HTMLPreElement>(null);
 
@@ -26,6 +29,8 @@ export default function Pre({
   return (
     <div className="relative">
       <button
+        type="button"
+        aria-label={isCopied ? t.codeCopied : t.copyCode}
         disabled={isCopied}
         onClick={handleClickCopy}
         className="absolute top-4 right-4 z-10 size-6"

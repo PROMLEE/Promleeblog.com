@@ -23,11 +23,20 @@ const Subject = () => {
         setSerieslist(data);
       });
   }, [subject]);
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+    try {
+      document.getElementById(decodeURIComponent(hash))?.scrollIntoView();
+    } catch {
+      // Ignore malformed URL fragments.
+    }
+  }, [serieslist]);
   return (
     <Suspense fallback={<Loading />}>
       <div className={"subject"}>{serieslist.nameko}</div>
       {serieslist.Series &&
-        serieslist.Series.map((series, idx) => {
+        serieslist.Series.map((series) => {
           for (let i = 0; i < series.Post.length; i++) {
             if (series.Post[i].lock === false) {
               break;
@@ -37,7 +46,7 @@ const Subject = () => {
             }
           }
           return (
-            <div key={idx}>
+            <div key={series.id} id={`series-${series.id}`}>
               <h2 className="mt-7 mb-3 text-2xl font-bold" id={series.nameko}>
                 {series.caption && series.caption + " - "}
                 {series.nameko}
