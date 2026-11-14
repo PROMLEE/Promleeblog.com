@@ -33,11 +33,16 @@ export async function localizedSitemap(
     }
   };
   for (const path of ["/", "/blog", "/aboutme", "/sitemap-tree"]) addPage(path);
+  if (!onlyLocale || onlyLocale === "ko") {
+    const url = `${siteUrl}/projects`;
+    entries.set(url, { url });
+  }
   for (const tag of tags) {
     const languages = Object.fromEntries([
       ...locales.map((locale) => [
         languageCode(locale),
-        siteUrl + localizePath(tagPath(tag.id, taxonomyName(tag, locale)), locale),
+        siteUrl +
+          localizePath(tagPath(tag.id, taxonomyName(tag, locale)), locale),
       ]),
       [
         "x-default",
@@ -46,7 +51,8 @@ export async function localizedSitemap(
     ]);
     for (const locale of onlyLocale ? [onlyLocale] : locales) {
       const url =
-        siteUrl + localizePath(tagPath(tag.id, taxonomyName(tag, locale)), locale);
+        siteUrl +
+        localizePath(tagPath(tag.id, taxonomyName(tag, locale)), locale);
       entries.set(url, { url, alternates: { languages } });
     }
   }

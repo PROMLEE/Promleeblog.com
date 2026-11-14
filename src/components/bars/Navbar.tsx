@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/accordion";
 import { motion } from "framer-motion";
 import { Menu } from "lucide-react";
-import PortRhythmLink from "@/components/PortRhythmLink";
+import ProjectsLink from "@/components/ProjectsLink";
 
 export const Navbar = () => {
   const locale = useLocale();
@@ -154,7 +154,7 @@ export const Navbar = () => {
           })}
         </div>
         <div className="flex shrink-0 content-center items-center gap-1 md:gap-2">
-          {locale === "ko" && <PortRhythmLink />}
+          {locale === "ko" && <ProjectsLink />}
           {process.env.NODE_ENV === "development" && (
             <>
               <motion.div

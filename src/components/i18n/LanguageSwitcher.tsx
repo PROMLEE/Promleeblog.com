@@ -25,7 +25,10 @@ export function LanguageSwitcher() {
         const secure = window.location.protocol === "https:" ? "; Secure" : "";
         document.cookie = `${localeCookie}=${selected}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
         const { search, hash } = window.location;
-        let destination = pathname;
+        let destination =
+          stripLocale(pathname) === "/projects" && selected !== "ko"
+            ? "/"
+            : pathname;
         const tagId = stripLocale(pathname).match(/^\/tags\/([1-9]\d*)-/)?.[1];
         if (tagId) {
           try {

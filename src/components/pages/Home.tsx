@@ -2,7 +2,7 @@ import { getTranslations } from "@/lib/i18n/translations";
 import { messages } from "@/lib/i18n/messages";
 import type { Locale } from "@/lib/i18n/routing";
 import { taxonomyName } from "@/lib/i18n/taxonomy";
-import PortRhythmCard from "@/components/PortRhythmCard";
+import { ProjectsCuration } from "@/components/ProjectsShowcase";
 import dayjs from "dayjs";
 import Image from "next/image";
 import Link from "@/components/i18n/Link";
@@ -114,11 +114,7 @@ const Home = async ({ locale = "ko" }: { locale?: Locale }) => {
         )}
       </p>
 
-      {locale === "ko" && (
-        <div className="mt-8">
-          <PortRhythmCard />
-        </div>
-      )}
+      {locale === "ko" && <ProjectsCuration />}
       <div className="mt-10 mb-5 text-4xl font-bold text-gray-900 dark:text-slate-200">
         📰 {locale === "ko" ? "Recent Posts" : t.recent}
       </div>
