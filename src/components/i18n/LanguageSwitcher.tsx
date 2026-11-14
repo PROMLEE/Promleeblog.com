@@ -25,10 +25,12 @@ export function LanguageSwitcher() {
         const secure = window.location.protocol === "https:" ? "; Secure" : "";
         document.cookie = `${localeCookie}=${selected}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
         const { search, hash } = window.location;
-        let destination =
-          stripLocale(pathname) === "/projects" && selected !== "ko"
-            ? "/"
-            : pathname;
+        const projectsPage = stripLocale(pathname) === "/projects";
+        const destinationHash =
+          projectsPage && selected !== "ko" && hash === "#portrhythm"
+            ? ""
+            : hash;
+        let destination = pathname;
         const tagId = stripLocale(pathname).match(/^\/tags\/([1-9]\d*)-/)?.[1];
         if (tagId) {
           try {
@@ -40,7 +42,7 @@ export function LanguageSwitcher() {
           }
         }
         window.location.assign(
-          localizePath(destination, selected) + search + hash,
+          localizePath(destination, selected) + search + destinationHash,
         );
       }}
       className="bg-background max-w-24 rounded-md border px-1 py-1 text-xs"

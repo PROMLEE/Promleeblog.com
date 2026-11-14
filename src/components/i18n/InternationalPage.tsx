@@ -1,6 +1,12 @@
+import { ProjectsDirectory } from "@/components/ProjectsShowcase";
+import { projectMessages } from "@/lib/i18n/projects";
 import Home from "@/components/pages/Home";
 import ArticleContent from "@/components/pages/ArticleContent";
-import { pageMetadata, articleMetadata, tagMetadata } from "@/lib/i18n/metadata";
+import {
+  pageMetadata,
+  articleMetadata,
+  tagMetadata,
+} from "@/lib/i18n/metadata";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PostService } from "@/config/apis";
@@ -8,10 +14,7 @@ import { getTranslation, getTranslations } from "@/lib/i18n/translations";
 import { sourceHash } from "@/lib/i18n/source-hash";
 import { TagsService } from "@/config/apis/service/tags";
 import { messages } from "@/lib/i18n/messages";
-import {
-  siteUrl,
-  type TranslationLocale,
-} from "@/lib/i18n/routing";
+import { siteUrl, type TranslationLocale } from "@/lib/i18n/routing";
 import { taxonomyDescription, taxonomyName } from "@/lib/i18n/taxonomy";
 import type { Metadata } from "next";
 
@@ -37,6 +40,13 @@ export async function internationalMetadata(
   path: string[],
 ): Promise<Metadata> {
   const t = messages[locale];
+  if (path.length === 1 && path[0] === "projects") {
+    const projects = projectMessages[locale];
+    return pageMetadata(locale, "/projects", {
+      title: projects.title,
+      description: projects.intro,
+    });
+  }
   if (path[0] === "blog" && path[1] === "post" && path.length === 3) {
     const { meta, translation } = await loadArticle(path[2], locale);
     const original = `/blog/post/${path[2]}`;
@@ -81,6 +91,8 @@ export default async function InternationalPage({
 }) {
   const t = messages[locale];
   if (!path.length) return <Home locale={locale} />;
+  if (path.length === 1 && path[0] === "projects")
+    return <ProjectsDirectory locale={locale} />;
   if (path[0] === "blog" && path[1] === "post" && path.length === 3) {
     const { post, translation } = await loadArticle(path[2], locale);
     const original = `/blog/post/${path[2]}`;
@@ -186,7 +198,7 @@ export default async function InternationalPage({
         ? taxonomyName(selectedCategory, locale)
         : t.posts;
   const pageDescription =
-    (currentTag || selectedSubject || (path[0] === "blog" && path[1]))
+    currentTag || selectedSubject || (path[0] === "blog" && path[1])
       ? taxonomyDescription(pageTitle, locale)
       : t.intro;
   const posts = selected.flatMap((category) =>
@@ -259,10 +271,7 @@ export default async function InternationalPage({
       {!uniquePosts.length && <p>{t.empty}</p>}
       {Array.from(postsBySeries.entries()).map(([seriesId, seriesPosts]) => (
         <section key={seriesId} className="mt-8">
-          <h2
-            id={`series-${seriesId}`}
-            className="mb-3 text-lg font-semibold"
-          >
+          <h2 id={`series-${seriesId}`} className="mb-3 text-lg font-semibold">
             {taxonomyName(seriesPosts[0].Series, locale)}
           </h2>
           <ul className="grid gap-4 sm:grid-cols-2">

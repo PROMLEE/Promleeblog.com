@@ -32,11 +32,8 @@ export async function localizedSitemap(
       entries.set(url, { url, alternates: { languages } });
     }
   };
-  for (const path of ["/", "/blog", "/aboutme", "/sitemap-tree"]) addPage(path);
-  if (!onlyLocale || onlyLocale === "ko") {
-    const url = `${siteUrl}/projects`;
-    entries.set(url, { url });
-  }
+  for (const path of ["/", "/blog", "/aboutme", "/sitemap-tree", "/projects"])
+    addPage(path);
   for (const tag of tags) {
     const languages = Object.fromEntries([
       ...locales.map((locale) => [

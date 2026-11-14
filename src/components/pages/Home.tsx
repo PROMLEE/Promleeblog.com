@@ -114,7 +114,7 @@ const Home = async ({ locale = "ko" }: { locale?: Locale }) => {
         )}
       </p>
 
-      {locale === "ko" && <ProjectsCuration />}
+      <ProjectsCuration locale={locale} />
       <div className="mt-10 mb-5 text-4xl font-bold text-gray-900 dark:text-slate-200">
         📰 {locale === "ko" ? "Recent Posts" : t.recent}
       </div>

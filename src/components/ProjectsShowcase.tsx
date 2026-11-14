@@ -6,6 +6,8 @@ import sftp from "../../public/projects/promeftp.webp";
 import portrhythmIcon from "../../public/projects/portrhythm-icon.webp";
 import promecaptIcon from "../../public/projects/promecapt-icon.webp";
 import promeftpIcon from "../../public/projects/promeftp-icon.webp";
+import { projectMessages, translatedProjects } from "@/lib/i18n/projects";
+import { localizePath, type Locale } from "@/lib/i18n/routing";
 import styles from "./ProjectsShowcase.module.css";
 
 const projects = [
@@ -26,6 +28,7 @@ const projects = [
   },
   {
     id: "promecapt",
+    licenseUrl: "https://github.com/PROMLEE/promecapt/blob/main/LICENSE",
     icon: promecaptIcon,
     name: "Promecapt",
     shortDescription: "Mac 화면 캡처·주석",
@@ -49,6 +52,7 @@ const projects = [
   },
   {
     id: "promeftp",
+    licenseUrl: "https://github.com/PROMLEE/promeftp/blob/main/LICENSE",
     icon: promeftpIcon,
     name: "PromeFTP",
     shortDescription: "SSH 접속·파일 전송",
@@ -70,7 +74,25 @@ const projects = [
       { label: "소개 글", href: "/blog/post/475-promeftp-macos-ssh-sftp" },
     ],
   },
-];
+] as const;
+
+function localizedProjects(locale: Locale) {
+  if (locale === "ko") return projects;
+  const t = projectMessages[locale];
+  return projects.flatMap((project) => {
+    if (project.id === "portrhythm") return [];
+    const links = project.links.map(({ href }) => {
+      if (href.endsWith("/releases/latest")) return { label: t.download, href };
+      if (href.startsWith("/")) {
+        return project.id === "promecapt"
+          ? { label: t.introLink, href: localizePath(href, locale) }
+          : { label: t.koreanArticle, href };
+      }
+      return { label: t.englishGuide, href };
+    });
+    return [{ ...project, ...translatedProjects[locale][project.id], links }];
+  });
+}
 
 function ProjectIcon({ icon }: { icon: (typeof projects)[number]["icon"] }) {
   return (
@@ -84,22 +106,24 @@ function ProjectIcon({ icon }: { icon: (typeof projects)[number]["icon"] }) {
   );
 }
 
-export function ProjectsCuration() {
+export function ProjectsCuration({ locale }: { locale: Locale }) {
+  const t = projectMessages[locale];
+  const path = localizePath("/projects", locale);
   return (
     <section
       className={styles.curation}
       aria-labelledby="projects-curation-title"
     >
       <header className={styles.sectionHeader}>
-        <h2 id="projects-curation-title">직접 만든 도구</h2>
-        <Link href="/projects">
-          서비스 모음 <span aria-hidden="true">→</span>
+        <h2 id="projects-curation-title">{t.heading}</h2>
+        <Link href={path}>
+          {t.directory} <span aria-hidden="true">→</span>
         </Link>
       </header>
-      <ul className={styles.homeGrid} role="list">
-        {projects.map((project) => (
+      <ul className={styles.homeGrid} data-locale={locale} role="list">
+        {localizedProjects(locale).map((project) => (
           <li key={project.id}>
-            <Link href={`/projects#${project.id}`} className={styles.homeCard}>
+            <Link href={`${path}#${project.id}`} className={styles.homeCard}>
               <ProjectIcon icon={project.icon} />
               <div>
                 <h3>{project.name}</h3>
@@ -113,24 +137,23 @@ export function ProjectsCuration() {
   );
 }
 
-export function ProjectsDirectory() {
+export function ProjectsDirectory({ locale }: { locale: Locale }) {
+  const t = projectMessages[locale];
+  const visibleProjects = localizedProjects(locale);
   return (
     <main className={styles.directory}>
       <header className={styles.directoryHeader}>
-        <h1>내가 만든 서비스</h1>
-        <p>
-          자산을 정리하고, 화면을 기록하고, 서버에 접속하는 일. 자주 하는 일을
-          조금 더 편하게 쓰려고 만든 도구들입니다.
-        </p>
+        <h1>{t.title}</h1>
+        <p>{t.intro}</p>
       </header>
-      <nav aria-label="서비스 목록" className={styles.jumpLinks}>
-        {projects.map((project) => (
+      <nav aria-label={t.directory} className={styles.jumpLinks}>
+        {visibleProjects.map((project) => (
           <a key={project.id} href={`#${project.id}`}>
             {project.name}
           </a>
         ))}
       </nav>
-      {projects.map((project, index) => (
+      {visibleProjects.map((project, index) => (
         <section
           id={project.id}
           key={project.id}
@@ -147,6 +170,15 @@ export function ProjectsDirectory() {
                 <h2 id={`${project.id}-title`}>{project.name}</h2>
               </div>
             </div>
+            <ul className={styles.badges} role="list">
+              <li>{t.adFree}</li>
+              {"licenseUrl" in project && (
+                <li>
+                  <a href={project.licenseUrl}>{t.mit}</a>
+                </li>
+              )}
+              {project.id === "promeftp" && <li>{t.noAccount}</li>}
+            </ul>
             <p className={styles.summary}>
               {project.story}
               <br />

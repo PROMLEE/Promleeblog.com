@@ -154,7 +154,7 @@ export const Navbar = () => {
           })}
         </div>
         <div className="flex shrink-0 content-center items-center gap-1 md:gap-2">
-          {locale === "ko" && <ProjectsLink />}
+          <ProjectsLink locale={locale} />
           {process.env.NODE_ENV === "development" && (
             <>
               <motion.div
