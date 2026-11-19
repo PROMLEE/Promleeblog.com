@@ -1,0 +1,94 @@
+.card {
+  display: block;
+  padding: 16px;
+  border: 1px solid rgba(var(--text), 0.16);
+  border-radius: 14px;
+  background: rgba(var(--foreground), 0.25);
+  color: rgb(var(--text));
+  font-size: 13px;
+  line-height: 1.8;
+}
+.eyebrow {
+  margin: 0 0 8px;
+  font-size: 12px;
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+  flex: none;
+}
+.title {
+  margin: 0;
+  color: rgb(var(--text-foreground));
+  font-size: 18px;
+  font-weight: 700;
+}
+.description {
+  margin: 10px 0 14px;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+.links a,
+.othersList a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+  color: oklch(47.6% 0.114 61.907);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+:global(.dark) .links a,
+:global(.dark) .othersList a {
+  color: oklch(79.5% 0.184 86.047);
+}
+.othersList a {
+  display: inline-block;
+  min-height: auto;
+  padding-block: 2px;
+}
+.card a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+.others {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.3em;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(var(--text), 0.16);
+  font-size: 13px;
+}
+.othersList {
+  display: inline-flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.othersList li {
+  margin: 0;
+  padding: 0;
+}
+.othersList li > span[aria-hidden="true"] {
+  white-space: pre;
+}
+@media (max-width: 767px) {
+  .card {
+    padding: 18px;
+  }
+}

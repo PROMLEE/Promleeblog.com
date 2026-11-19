@@ -1,7 +1,4 @@
 "use client";
-import { useLocale } from "@/components/i18n/LocaleProvider";
-import PortRhythmCard from "@/components/PortRhythmCard";
-
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import AdComponent from "../ads/adsense";
@@ -42,7 +39,6 @@ const parseToc = (content: string) => {
 };
 
 const RightSidebarComp = ({ content }: { content: string }) => {
-  const locale = useLocale();
   const observer = useRef<IntersectionObserver>(undefined);
   const [tocs, setTocs] = useState<string[]>([]);
   const [activeToc, setActiveToc] = useState("");
@@ -126,9 +122,6 @@ const RightSidebarComp = ({ content }: { content: string }) => {
           제공받습니다.
         </div>
       </div> */}
-      <div className="not-prose mt-6 hidden md:block">
-        {locale === "ko" && <PortRhythmCard compact />}
-      </div>
       <div className="hidden md:block">
         <div className="h-10" />
         <AdComponent adSlot="6339310501" adFormat="auto" />

@@ -1,4 +1,5 @@
-import PortRhythmCard from "@/components/PortRhythmCard";
+import AppPromoCard from "@/components/AppPromoCard";
+import { pickPromoApp } from "@/lib/promoApp";
 import RightSidebarComp from "@/components/bars/RightSidebar";
 import { Suspense } from "react";
 import { Toup } from "@/components/buttons/Toup";
@@ -55,8 +56,8 @@ export default function ArticleContent({
           />
         </div>
         {locale === "ko" && (
-          <div className="my-8 md:hidden">
-            <PortRhythmCard compact />
+          <div className="my-8">
+            <AppPromoCard appId={pickPromoApp(markdownsource)} />
           </div>
         )}
         <AdComponent
