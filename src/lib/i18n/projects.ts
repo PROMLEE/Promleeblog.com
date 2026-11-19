@@ -2,10 +2,10 @@ import type { Locale, TranslationLocale } from "./routing";
 
 export const projectMessages = {
   ko: {
-    menu: "만든 서비스",
-    heading: "직접 만든 도구",
-    directory: "서비스 모음",
-    title: "내가 만든 서비스",
+    menu: "만든 앱",
+    heading: "만든 앱",
+    directory: "만든 앱 모두 보기",
+    title: "만든 앱",
     intro:
       "자산 관리, 화면 캡처, 서버 접속을 조금 더 편하게 해주는 도구들입니다.",
     adFree: "앱 내 광고 없음",
