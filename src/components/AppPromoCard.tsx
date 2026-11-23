@@ -46,28 +46,45 @@ export default function AppPromoCard({ appId }: { appId: PromoAppId }) {
         <Image
           src={icon}
           alt=""
-          width={40}
-          height={40}
+          width={48}
+          height={48}
           className={styles.icon}
         />
-        <p className={styles.title}>{name}</p>
+        <div>
+          <p className={styles.title}>{name}</p>
+          <p className={styles.tagline}>{promo.tagline}</p>
+        </div>
       </div>
-      <p className={styles.description}>{promo.description}</p>
+      <ul role="list" className={styles.highlights}>
+        {promo.highlights.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
       <div className={styles.links}>
         {renderLink(primaryHref, promo.primaryLabel)}
         {renderLink(secondaryHref, promo.secondaryLabel)}
       </div>
       {first && second && (
         <div className={styles.others}>
-          <span>다른 앱도 만들었어요:</span>
+          <p className={styles.othersTitle}>다른 앱도 만들었어요</p>
           <ul role="list" className={styles.othersList}>
-            <li>
-              <Link href={`/projects#${first.id}`}>{first.name}</Link>
-            </li>
-            <li>
-              <span aria-hidden="true"> · </span>
-              <Link href={`/projects#${second.id}`}>{second.name}</Link>
-            </li>
+            {[first, second].map((app) => (
+              <li key={app.id}>
+                <Link href={`/projects#${app.id}`} className={styles.other}>
+                  <Image
+                    src={app.icon}
+                    alt=""
+                    width={32}
+                    height={32}
+                    className={styles.otherIcon}
+                  />
+                  <span>
+                    <span className={styles.otherName}>{app.name}</span>
+                    <span className={styles.otherPitch}>{app.promo.pitch}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
       )}

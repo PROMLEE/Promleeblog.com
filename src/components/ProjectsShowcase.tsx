@@ -26,8 +26,13 @@ export const projects = [
       { label: "사용 가이드", href: "https://pf.promleeblog.com/guide" },
     ],
     promo: {
-      description:
-        "제 포트폴리오를 관리하려고 만든 웹앱이에요. 계좌마다 흩어진 자산을 한곳에 모아 목표 비중과 비교해 볼 수 있어요.",
+      tagline: "흩어진 자산을 한 화면에서 관리하는 포트폴리오 웹앱",
+      pitch: "흩어진 자산을 한 화면에 모아 비중 관리, 무료",
+      highlights: [
+        "계좌마다 흩어진 자산을 한 화면에 모아 봐요",
+        "지금 비중과 목표 비중이 얼마나 다른지 바로 보여요",
+        "설치 없이 브라우저에서 바로 쓰는 무료 웹앱이에요",
+      ],
       primaryLabel: "포트리듬 열기",
       secondaryLabel: "사용 가이드",
       secondaryLinkIndex: 1,
@@ -57,8 +62,13 @@ export const projects = [
       },
     ],
     promo: {
-      description:
-        "글에 넣을 화면을 캡처하려고 만든 Mac 앱이에요. 캡처한 화면에 바로 주석을 달고, 텍스트를 뽑거나 화면 위에 고정할 수 있어요. 무료 오픈소스예요.",
+      tagline: "캡처하고 바로 주석까지 끝내는 Mac 화면 캡처 앱",
+      pitch: "캡처하고 바로 주석·텍스트 추출, 무료",
+      highlights: [
+        "캡처하자마자 그 자리에서 주석을 달아요",
+        "이미지 속 텍스트를 뽑거나 캡처를 화면 위에 고정해요",
+        "GIF 녹화까지 되는 무료 오픈소스예요",
+      ],
       primaryLabel: "Promecapt 다운로드",
       secondaryLabel: "소개 글",
       secondaryLinkIndex: 1,
@@ -88,8 +98,13 @@ export const projects = [
       { label: "소개 글", href: "/blog/post/475-promeftp-macos-ssh-sftp" },
     ],
     promo: {
-      description:
-        "서버 작업할 때 쓰려고 만든 Mac 앱이에요. SSH 터미널과 SFTP 파일 전송을 한 창에서 쓰고, 자주 쓰는 배치는 워크스페이스로 저장해요. 무료 오픈소스예요.",
+      tagline: "SSH 터미널과 파일 전송을 한 창에서 쓰는 Mac 앱",
+      pitch: "SSH 터미널과 파일 전송을 한 창에서, 무료",
+      highlights: [
+        "터미널과 SFTP 파일 전송을 창 하나에서 오가요",
+        "여러 SSH 세션을 탭이나 분할 창으로 정리해요",
+        "자주 쓰는 배치는 워크스페이스로 저장해요 (무료 오픈소스)",
+      ],
       primaryLabel: "PromeFTP 다운로드",
       secondaryLabel: "소개 글",
       secondaryLinkIndex: 2,
