@@ -51,10 +51,9 @@ export const PostService = () => {
     const response = (
       await CustomFetch(`${url}/links`, {
         method: "GET",
-        cache: "no-cache",
-        next: { revalidate: 0 },
+        next: { revalidate: 600 },
       })
-    ).body as PostResponse.GetLinks; // 0 seconds
+    ).body as PostResponse.GetLinks; // 10분
     return response.data;
   };
 

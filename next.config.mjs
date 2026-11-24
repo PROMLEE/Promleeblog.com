@@ -41,14 +41,22 @@ const nextConfig = {
           },
         ],
       },
-    ];
-  },
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: "https://www.promleeblog.com/:path*",
-      },
+      // 공개 읽기 API는 Vercel CDN에서 캐시해 함수 호출과 Fast Origin Transfer를 줄인다.
+      // 편집 API(/api/edit, /api/tags/addtags 등)와 POST·PATCH·DELETE는 대상에서 제외한다.
+      ...[
+        "/api/main/:path*",
+        "/api/post/:path*",
+        "/api/tags",
+        "/api/tags/postlink",
+      ].map((source) => ({
+        source,
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=600, stale-while-revalidate=86400",
+          },
+        ],
+      })),
     ];
   },
   logging: {
